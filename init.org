@@ -58,6 +58,9 @@
    #+RESULTS:
    : byte-compile-file
 
+   To export to other format, just press =C-c C-e=, which will display further
+   option to choose output format like HTML, PDF or LaTeX.
+
    Create a custom group to group any custom variable so it will not
    polute built in variable space
 
@@ -262,6 +265,8 @@
                 tex-mode              ; TeX, LaTeX, and SliTeX mode commands
                 uniquify              ; provide unique buffer names for duplicates
                 whitespace
+                windmove              ; built-in library that provide convenient way to
+                                      ; switch windows
                 xcscope               ; CScope mode commands
                 yasnippet
                 ))
@@ -2039,10 +2044,14 @@
        (define-key evil-normal-state-map [backspace] 'evil-ex-nohighlight)
 
        (global-set-key (kbd "C-w") 'evil-window-map)
-       (define-key evil-normal-state-map (kbd "C-h") 'evil-window-left)
-       (define-key evil-normal-state-map (kbd "C-j") 'evil-window-down)
-       (define-key evil-normal-state-map (kbd "C-k") 'evil-window-up)
-       (define-key evil-normal-state-map (kbd "C-l") 'evil-window-right)
+       (define-key evil-normal-state-map "\C-j" 'windmove-down)
+       (define-key evil-normal-state-map "\C-k" 'windmove-up)
+       (define-key evil-normal-state-map "\C-h" 'windmove-left)
+       (define-key evil-normal-state-map "\C-l" 'windmove-right)
+       (define-key evil-motion-state-map "\C-j" 'windmove-down)
+       (define-key evil-motion-state-map "\C-k" 'windmove-up)
+       (define-key evil-motion-state-map "\C-h" 'windmove-left)
+       (define-key evil-motion-state-map "\C-l" 'windmove-right)
 
        (define-key evil-motion-state-map "j" 'evil-next-visual-line)
        (define-key evil-motion-state-map "k" 'evil-previous-visual-line)
