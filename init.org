@@ -1,7 +1,8 @@
 #+BABEL: :cache yes
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
-#+PROPERTY: header-args :tangle "~/.emacs.d/init.el" :tangle yes :comments org
+#+PROPERTY: header-args :tangle ~/.emacs.d/init.el :comments org
+#+DATE:  <2014-08-16 Sat>
 
 #+TITLE: Emacs configuration file
 #+AUTHOR: QuiQee
@@ -14,9 +15,11 @@
    I knew this is what I wanted to do. This way I could gain more knowledge of
    Emacs as I added new stuff here from where ever I can gather from the web.
 
+   *This is work in progress*
+
 ** Dot Emacs
-   Most of the settings below are copied from all over the web. Some notable
-   dot-emacs that I copied most are from:
+   Most of the settings below are copied from all over the interweb. Some
+   notable dot-emacs that I copied most are from:
 
    - [[https://github.com/larstvei/dot-emacs][larstvei dot-emacs]] :: this is where I get the idea to start using
         =org-mode= as my dot-emacs file
@@ -27,6 +30,8 @@
    - [[https://github.com/waymondo/hemacs][waymondo/hemacs]] :: Another dot-emacs settings that I refer to. Make me
         think hard about using =use-package=
    - [[https://github.com/steckerhalter/steckemacs/blob/master/steckemacs.org][steckerhalter/steckemacs]] :: I love the way he use table for keybindings
+   - [[https://github.com/joedicastro/dotfiles/tree/master/emacs][joedicastro/emacs]] :: just found out about this.
+   - [[https://github.com/christophermaier/emacs.d][christophermaier/emacs.d]] :: another dot-emacs source to utilize
 
 * Basic
 ** Meta
@@ -39,15 +44,15 @@
    =org=-document after changes.
 
    #+BEGIN_SRC emacs-lisp
-     (defun tangle-init ()
+     (defun qq/tangle-init ()
        "If the current buffer is 'init.org' the code-blocks are
      tangled, and the tangled file is compiled."
        (when (equal (buffer-file-name)
-                    (expand-file-name (concat user-emacs-directory "init.org")))
+                     (expand-file-name "~/Documents/qq-emacs/init.org"))
          (org-babel-tangle)
          (byte-compile-file (concat user-emacs-directory "init.el"))))
 
-     (add-hook 'after-save-hook 'tangle-init)
+     (add-hook 'after-save-hook 'qq/tangle-init)
    #+END_SRC
 
    #+RESULTS:
@@ -270,7 +275,7 @@
    Emacs 24.4.50 have a bug in which horizontal scroll bar a turn on by default.
    Code below will hide it
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (when (fboundp 'horizontal-scroll-bar-mode)
        (horizontal-scroll-bar-mode -1))
    #+end_src
@@ -362,25 +367,25 @@
    We don't really need to garbage collect as frequently as Emacs would like to
    by default, so set the threshold up hight.
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq gc-cons-threshold 20000000)
    #+end_src
 
    Echo commands I haven't finished quicker than the default of 1 second:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq echo-keystrokes 0.1)
    #+end_src
 
    If you change buffer, or focus, disable the current buffer's mark:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (transient-mark-mode t)
    #+end_src
 
    Ignore case when using completion for file names:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq read-file-name-completion-ignore-case t)
    #+end_src
 
@@ -388,19 +393,19 @@
    rather than the actual line. This helps a tone with long log file lines that
    may be wrapped:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq line-move-visual t)
    #+end_src
 
    Hide the mouse while typing:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq make-pointer-invisible t)
    #+end_src
 
    Turn on auto-fill mode in text buffers:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (add-hook 'text-mode-hook 'turn-on-auto-fill)
    #+end_src
 
@@ -424,7 +429,7 @@
 
    Set the internal calculator not to go to scientific form quite so quickly:
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq calc-display-sci-low -5)
    #+end_src
 
@@ -436,7 +441,7 @@
 
    Start a server if not running, but a different server for GUI versus text-only
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (add-hook 'after-init-hook
                (lambda ()
                  (require 'server)
@@ -602,11 +607,17 @@
 
    #+BEGIN_SRC emacs-lisp
      (when (memq window-system '(mac ns))
+
        (setq mac-option-modifier nil
              mac-command-modifier 'meta
              x-select-enable-clipboard t)
        (menu-bar-mode t)
-       (run-with-idle-timer 5 nil 'exec-path-from-shell-initialize))
+       (run-with-idle-timer 5 nil 'exec-path-from-shell-initialize)
+       (add-hook 'after-init-hook
+                 (lambda ()
+                   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+                   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
+                   )))
    #+END_SRC
 
 ** Visual
@@ -672,7 +683,7 @@
    So, let's make Emacs use different fonts (monospaced and variable) depending
    on the mode we're in (eg: Info and ERC should not be monospaced)
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (add-hook 'text-mode-hook 'variable-pitch-mode)
      (add-hook 'erc-mode-hook 'variable-pitch-mode)
      (add-hook 'Info-mode-hook 'variable-pitch-mode)
@@ -708,7 +719,7 @@
    Same settings applied for =Info buffers= as well. Code examples will be using
    monospace font
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (defvar qq/rx-info-code (rx bol "     " (* not-newline) eol))
      (add-hook 'Info-mode-hook 'qq/Info-font-lock)
      (defun qq/Info-font-lock ()
@@ -725,7 +736,7 @@
 
    Display source code blocks or pre blocks in monospace for =markdown-mode= buffers
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (eval-after-load "markdown-mode"
        '(mapc
          (lambda (face)
@@ -988,7 +999,7 @@
 ** HideShow
    Kind of like Vim's folding, but manually done right now.
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (defvar hs-special-modes-alist
        (mapcar 'purecopy
                '((c-mode "{" "}" "/[*/]" nil nil)
@@ -1212,7 +1223,7 @@
 
    Then, tell Org mode what to do with the new function:
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
+   #+BEGIN_SRC emacs-lisp
      (add-hook 'org-mode-hook
                (lambda ()
                  (make-variable-buffer-local 'yas/trigger-key)
@@ -1224,7 +1235,7 @@
 
    Nice bulleted lists.
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
    #+end_src
 
@@ -1232,14 +1243,14 @@
    ERC is a powerful, modular, and extensible Emacs IRC client.
    Tells the auth-source library where your netrc files
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq epg-gpg-program "/usr/local/bin/gpg")
      (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
    #+end_src
 
    Basic settings.
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (setq erc-part-reason-various-alist '(("^$" "Leaving"))
            erc-quit-reason-various-alist '(("^$" "Leaving"))
            erc-quit-reason 'erc-part-reason-various
@@ -1254,7 +1265,7 @@
 
    Only track my nick(s)
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (defadvice erc-track-find-face
          (around erc-track-find-face-promote-query activate)
        (if (erc-query-buffer-p)
@@ -1264,7 +1275,7 @@
 
    Track channel activity in =mode-line=
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (require 'erc-track)
      (erc-track-mode t)
      (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
@@ -1274,41 +1285,41 @@
 
    Highlight some keywords
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (require 'erc-match)
      (setq erc-keywords '("keywords" "to" "highlight" "username"))
    #+end_src
 
    Enable input history
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (require 'erc-ring)
      (erc-ring-mode t)
    #+end_src
 
    Wrap long lines
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (require 'erc-fill)
      (erc-fill-mode t)
    #+end_src
 
    Detect netsplits
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (require 'erc-netsplit)
      (erc-netsplit-mode t)
    #+end_src
 
    Spellcheck, requires local aspell
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (erc-spelling-mode t)
    #+end_src
 
    Some other settings
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      ;; Truncate buffers so they don't hog core
      (setq erc-max-buffer-size 40000) ;; chars to keep in buffer
      (defvar erc-insert-post-hook)
@@ -1410,7 +1421,7 @@
    Popwin handles little popup windows at the bottom of the screen, which is
    very helpful for documentation buffers and so on.
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (defvar popwin:special-display-config-backup popwin:special-display-config)
      (setq display-buffer-function 'popwin:display-buffer)
 
@@ -1554,7 +1565,7 @@
 ** Smart-Tab
    Enable smart-tabs-mode with all supported language modes.
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python
                            'ruby 'nxml)
    #+end_src
@@ -1564,7 +1575,7 @@
    Some general settings that should apply to all programming mode. Highlight
    =FIXME= and =TODO= so they stand out. Also enable indent-guide mode
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
      (defun qq/add-watchwords ()
        (font-lock-add-keywords
         nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
@@ -1704,7 +1715,7 @@
    Also for =latex-preview-pane=, in order to view tex output
    =pdf-latex-command= need to change to =xelatex=
 
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
    (setq pdf-latex-command "xelatex")
    #+end_src
 
@@ -2322,7 +2333,7 @@
    #+END_SRC
 
 ** HideShow
-   #+begin_src emacs-lisp :tangle yes
+   #+begin_src emacs-lisp
       ;(after 'hideshow
       ;   (bind-key (kbd "C-c TAB") 'hs-toggle-hiding'))
    #+end_src
