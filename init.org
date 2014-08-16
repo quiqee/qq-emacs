@@ -1233,7 +1233,7 @@
    Tells the auth-source library where your netrc files
 
    #+begin_src emacs-lisp :tangle yes
-     ;(setq epg-gpg-program "/usr/local/bin/gpg2")
+     (setq epg-gpg-program "/usr/local/bin/gpg")
      (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
    #+end_src
 
