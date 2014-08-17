@@ -32,6 +32,7 @@
    - [[https://github.com/steckerhalter/steckemacs/blob/master/steckemacs.org][steckerhalter/steckemacs]] :: I love the way he use table for keybindings
    - [[https://github.com/joedicastro/dotfiles/tree/master/emacs][joedicastro/emacs]] :: just found out about this.
    - [[https://github.com/christophermaier/emacs.d][christophermaier/emacs.d]] :: another dot-emacs source to utilize
+   - [[https://github.com/dabrahams/dwamacs][dabrahams/dwamacs]] ::
 
 * Basic
 ** Meta
@@ -219,7 +220,7 @@
 
    #+END_SRC
 
-** Require
+** TODO Require
    Some features are not loaded by default to minimize initialization time,
    so they have to be required (or loaded, if you will). =require=-calls
    tends to lead to the largest bottleneck's in a
@@ -235,12 +236,6 @@
                 auto-compile          ; auto-compile .el files
                 cl
                 dired-x               ; provides extra functionality for DiredMode
-                erc
-                evil
-                evil-indent-textobject
-                evil-jumper
-                evil-nerd-commenter
-                evil-visualstar
                 guide-key
                 helm
                 hideshow
@@ -250,8 +245,6 @@
                 magit-gerrit
                 midnight              ; clean up old buffers periodically
                 monokai-theme
-                org-ac
-                org-bullets
                 ox-latex              ; the latex-exporter (from org)
                 ox-md                 ; Markdown exporter (from org)
                 popwin
@@ -273,7 +266,8 @@
        (require feature))
    #+END_SRC
 
-** Sane defaults
+** TODO Sane defaults
+
    These are what /I/ consider to be saner defaults.
    We can set variables to whatever value we'd like using =setq=.
 
@@ -305,29 +299,15 @@
            which-func-unknown ""                        ; don't display if there's no
                                                         ; function to display
 
-           save-place-file
-              (concat qq/cache-directory "places")      ; cache for save-place
-
-           savehist-file
-              (concat qq/cache-directory "savehist")    ; cache for minibuffer history
-           savehist-additional-variables
-              '(search ring regexp-search-ring)
            savehist-autosave-interval 60                ; interval between save in seconds
 
-           recentf-save-file
-              (concat qq/cache-directory "recentf")     ; cache folder for recently open files
            recentf-max-saved-items 1000                 ; maximum saved items in recentf
            recentf-max-menu-items 500
-
-           erc-log-channels-directory
-              (concat qq/cache-directory "erc/logs")    ; cache for erc logs (IRC for emacs)
 
            compilation-always-kill t                    ; kill compilation without reconfirmation
            compilation-ask-about-save nil               ; unconditionally save all buffer before
                                                         ; compiling
 
-           bookmark-default-file
-              (concat qq/cache-directory "bookmarks")   ; cache for bookmark
            bookmark-save-flag 1                         ; save after every change
 
            ediff-split-window-function
@@ -347,10 +327,6 @@
            undo-tree-visualizer-timestamps t            ; show timestamps
            undo-tree-visualizer-diff t                  ; show diff
            undo-tree-auto-save-history t)               ; Save undo history between sessions.
-
-     ;; Some mac-bindings interfere with Emacs bindings.
-     (when (boundp 'mac-pass-command-to-system)
-       (setq mac-pass-command-to-system nil))
    #+END_SRC
 
    Some variables are buffer-local, so changing them using =setq= will only
@@ -477,19 +453,6 @@
      (global-hungry-delete-mode)
    #+END_SRC
 
-   To avoid file system clutter we put all auto saved files in a single
-   directory.
-
-   #+BEGIN_SRC emacs-lisp
-     (setq backup-directory-alist
-           `((".*" . ,(concat qq/cache-directory "backups")))
-           auto-save-file-name-transforms
-           `((".*" ,(concat qq/cache-directory "backups") t))
-           auto-save-list-file-prefix
-           (concat qq/cache-directory "auto-save-list/saves-"))
-     (setq delete-auto-save-files t)
-   #+END_SRC
-
    Better buffer names for duplicates
 
    #+BEGIN_SRC emacs-lisp
@@ -600,6 +563,39 @@
      (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
    #+END_SRC
 
+*** Security
+   Tells the auth-source library to store netrc file here: [[file:~/.emacs.d/authinfo.gpg::testt][authinfo.gpg]]
+
+   #+begin_src emacs-lisp
+     (setq epg-gpg-program "/usr/local/bin/gpg")
+     (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
+   #+end_src
+
+*** Temporary files
+   To avoid file system clutter we put all auto saved files in a single
+   directory.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq
+           save-place-file
+              (concat qq/cache-directory "places")      ; cache for save-place
+           savehist-file
+              (concat qq/cache-directory "savehist")    ; cache for minibuffer history
+           savehist-additional-variables
+              '(search ring regexp-search-ring)
+           recentf-save-file
+              (concat qq/cache-directory "recentf")     ; cache folder for recently open files
+           bookmark-default-file
+              (concat qq/cache-directory "bookmarks")   ; cache for bookmark
+           backup-directory-alist
+           `((".*" . ,(concat qq/cache-directory "backups")))
+           auto-save-file-name-transforms
+           `((".*" ,(concat qq/cache-directory "backups") t))
+           auto-save-list-file-prefix
+           (concat qq/cache-directory "auto-save-list/saves-"))
+     (setq delete-auto-save-files t)
+   #+END_SRC
+
 ** Mac OS X
    Configuration for Mac OS X, we need a couple of settings to make
    things work smoothly. In the package section
@@ -615,7 +611,11 @@
 
        (setq mac-option-modifier nil
              mac-command-modifier 'meta
+
+             ;; Some mac-bindings interfere with Emacs bindings.
+             mac-pass-command-to-system nil
              x-select-enable-clipboard t)
+
        (menu-bar-mode t)
        (run-with-idle-timer 5 nil 'exec-path-from-shell-initialize)
        (add-hook 'after-init-hook
@@ -809,7 +809,7 @@
        (mapc 'disable-theme custom-enabled-themes))
    #+END_SRC
 
-* Modes
+* TODO Modes
 ** Default
    There are some modes that are enabled by default that I don't find
    particularly useful. We create a list of these modes, and disable all of
@@ -873,6 +873,15 @@
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
    to be my new default text editor.
+
+   #+BEGIN_SRC emacs-lisp
+     (dolist (feature
+              '(evil evil-indent-textobject
+                evil-jumper evil-nerd-commenter
+                evil-visualstar
+                ))
+       (require feature))
+   #+END_SRC
 
    Set the cursor color for different evil mode:
 
@@ -1070,7 +1079,7 @@
      (yas-reload-all)
    #+END_SRC
 
-** Ido
+** TODO Ido
    Interactive do (or =ido-mode=) changes the way you switch buffers and
    open files/directories. Instead of writing complete file paths and buffer
    names you can write a part of it and select one from a list of
@@ -1141,7 +1150,14 @@
      (global-set-key (kbd "M-x") 'smex)
    #+END_SRC
 
-** Org
+** TODO Org
+*** Enable Ord Mode
+   #+BEGIN_SRC emacs-lisp
+     (require 'org-ac)
+     (require 'org-bullets)
+   #+END_SRC
+
+
    When editing org-files with source-blocks, we want the source blocks to
    be themed as they would in their native mode.
 
@@ -1244,14 +1260,17 @@
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
    #+end_src
 
-** ERC
+** TODO ERC
    ERC is a powerful, modular, and extensible Emacs IRC client.
-   Tells the auth-source library where your netrc files
 
-   #+begin_src emacs-lisp
-     (setq epg-gpg-program "/usr/local/bin/gpg")
-     (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+     (dolist (feature
+              '(erc erc-track erc-match erc-ring
+                erc-fill erc-netsplit erc-log
+                erc-notify erc-spelling erc-autoaway
+                ))
+       (require feature))
+   #+END_SRC
 
    Basic settings.
 
@@ -1261,8 +1280,12 @@
            erc-quit-reason 'erc-part-reason-various
            erc-part-reason 'erc-quit-reason-various
            erc-log-matches-types-alist
-           '((keyword . "ERC Keywords")
-             (current-nick . "ERC Messages Addressed To You"))
+             '((keyword . "ERC Keywords")
+                (current-nick . "ERC Messages Addressed To You"))
+
+           erc-log-channels-directory
+             (concat qq/cache-directory "erc/logs")    ; cache for erc logs
+
            erc-log-matches-flag t)
      (add-hook 'erc-mode-hook (lambda () (auto-fill-mode 0)))
      (add-hook 'erc-insert-post-hook 'erc-save-buffer-in-logs)
@@ -1281,7 +1304,6 @@
    Track channel activity in =mode-line=
 
    #+begin_src emacs-lisp
-     (require 'erc-track)
      (erc-track-mode t)
      (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
                                      "324" "329" "332" "333" "353" "477"))
@@ -1291,28 +1313,24 @@
    Highlight some keywords
 
    #+begin_src emacs-lisp
-     (require 'erc-match)
      (setq erc-keywords '("keywords" "to" "highlight" "username"))
    #+end_src
 
    Enable input history
 
    #+begin_src emacs-lisp
-     (require 'erc-ring)
      (erc-ring-mode t)
    #+end_src
 
    Wrap long lines
 
    #+begin_src emacs-lisp
-     (require 'erc-fill)
      (erc-fill-mode t)
    #+end_src
 
    Detect netsplits
 
    #+begin_src emacs-lisp
-     (require 'erc-netsplit)
      (erc-netsplit-mode t)
    #+end_src
 
@@ -1325,17 +1343,153 @@
    Some other settings
 
    #+begin_src emacs-lisp
-     ;; Truncate buffers so they don't hog core
-     (setq erc-max-buffer-size 40000) ;; chars to keep in buffer
-     (defvar erc-insert-post-hook)
-     (add-hook 'erc-insert-post-hook 'erc-truncate-buffer)
-     (setq erc-truncate-buffer-on-save t)
+     ;; Join the a couple of interesting channels whenever connecting to Freenode.
+     (setq erc-autojoin-channels-alist '(("freenode.net"
+                                          "#emacs" "#clojure" "#lisp"
+                                          "#scala" "#fedora-java")))
 
-     ;; kill buffers when leaving
+     ;; Interpret mIRC-style color commands in IRC chats
+     (setq erc-interpret-mirc-color t)
+
+     ;; The following are commented out by default, but users of other
+     ;; non-Emacs IRC clients might find them useful.
+     ;; Kill buffers for channels after /part
      (setq erc-kill-buffer-on-part t)
+     ;; Kill buffers for private queries after quitting the server
+     (setq erc-kill-queries-on-quit t)
+     ;; Kill buffers for server messages after quitting the server
+     (setq erc-kill-server-buffer-on-quit t)
 
-     ;; keep input at bottom
-     (erc-scrolltobottom-mode t)
+     ;; open query buffers in the current window
+     (setq erc-query-display 'buffer)
+
+     ;; exclude boring stuff from tracking
+     (erc-track-mode t)
+     (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+                                     "324" "329" "332" "333" "353" "477"))
+
+     (if (not (file-exists-p erc-log-channels-directory))
+         (mkdir erc-log-channels-directory t))
+
+     (setq erc-save-buffer-on-part t)
+     (defadvice save-buffers-kill-emacs (before save-logs (arg) activate)
+       (save-some-buffers t (lambda () (when (eq major-mode 'erc-mode) t))))
+
+     ;; truncate long irc buffers
+     (erc-truncate-mode +1)
+
+     ;; share my real name
+     (setq erc-user-full-name "Bozhidar Batsov")
+
+     ;; enable spell checking
+     (erc-spelling-mode 1)
+     ;; set different dictionaries by different servers/channels
+     ;;(setq erc-spelling-dictionaries '(("#emacs" "american")))
+
+     ;; TODO - replace this with use of notify.el
+     ;; Notify my when someone mentions my nick.
+     (defun call-libnotify (matched-type nick msg)
+       (let* ((cmsg  (split-string (clean-message msg)))
+              (nick   (first (split-string nick "!")))
+              (msg    (mapconcat 'identity (rest cmsg) " ")))
+         (shell-command-to-string
+          (format "notify-send -u critical '%s says:' '%s'" nick msg))))
+
+     (add-hook 'erc-text-matched-hook 'call-libnotify)
+
+     (defvar erc-notify-nick-alist nil
+       "Alist of nicks and the last time they tried to trigger a
+     notification")
+
+     (defvar erc-notify-timeout 10
+       "Number of seconds that must elapse between notifications from
+     the same person.")
+
+     (defun erc-notify-allowed-p (nick &optional delay)
+       "Return non-nil if a notification should be made for NICK.
+     If DELAY is specified, it will be the minimum time in seconds
+     that can occur between two notifications.  The default is
+     `erc-notify-timeout'."
+       (unless delay (setq delay erc-notify-timeout))
+       (let ((cur-time (time-to-seconds (current-time)))
+             (cur-assoc (assoc nick erc-notify-nick-alist))
+             (last-time nil))
+         (if cur-assoc
+             (progn
+               (setq last-time (cdr cur-assoc))
+               (setcdr cur-assoc cur-time)
+               (> (abs (- cur-time last-time)) delay))
+           (push (cons nick cur-time) erc-notify-nick-alist)
+           t)))
+
+     ;; private message notification
+     (defun erc-notify-on-private-msg (proc parsed)
+       (let ((nick (car (erc-parse-user (erc-response.sender parsed))))
+             (target (car (erc-response.command-args parsed)))
+             (msg (erc-response.contents parsed)))
+         (when (and (erc-current-nick-p target)
+                    (not (erc-is-message-ctcp-and-not-action-p msg))
+                    (erc-notify-allowed-p nick))
+           (shell-command-to-string
+            (format "notify-send -u critical '%s says:' '%s'" nick msg))
+           nil)))
+
+     (add-hook 'erc-server-PRIVMSG-functions 'erc-notify-on-private-msg)
+
+     ;; autoaway setup
+     (setq erc-auto-discard-away t)
+     (setq erc-autoaway-idle-seconds 600)
+     (setq erc-autoaway-use-emacs-idle t)
+
+     ;; auto identify
+     (when (file-exists-p (expand-file-name "~/.ercpass"))
+       (load "~/.ercpass")
+       (require 'erc-services)
+       (erc-services-mode 1)
+       (setq erc-prompt-for-nickserv-password nil)
+       (setq erc-nickserv-passwords
+             `((freenode (("bozhidar" . ,bozhidar-pass)))))
+     )
+
+     ;; utf-8 always and forever
+     (setq erc-server-coding-system '(utf-8 . utf-8))
+
+     (defun start-irc ()
+       "Connect to IRC."
+       (interactive)
+       (when (y-or-n-p "Do you want to start IRC? ")
+         (erc :server "irc.freenode.net" :port 6667 :nick "bozhidar")))
+
+     (defun filter-server-buffers ()
+       (delq nil
+             (mapcar
+              (lambda (x) (and (erc-server-buffer-p x) x))
+              (buffer-list))))
+
+     (defun stop-irc ()
+       "Disconnects from all irc servers"
+       (interactive)
+       (dolist (buffer (filter-server-buffers))
+         (message "Server buffer: %s" (buffer-name buffer))
+         (with-current-buffer buffer
+           (erc-quit-server "Asta la vista"))))
+
+
+
+
+
+
+          ;; Truncate buffers so they don't hog core
+          (setq erc-max-buffer-size 40000) ;; chars to keep in buffer
+          (defvar erc-insert-post-hook)
+          (add-hook 'erc-insert-post-hook 'erc-truncate-buffer)
+          (setq erc-truncate-buffer-on-save t)
+
+          ;; kill buffers when leaving
+          (setq erc-kill-buffer-on-part t)
+
+          ;; keep input at bottom
+          (erc-scrolltobottom-mode t)
    #+end_src
 
 ** Tags System
@@ -1422,7 +1576,7 @@
      (helm-mode 1)
    #+END_SRC
 
-** Popwin
+** TODO Popwin
    Popwin handles little popup windows at the bottom of the screen, which is
    very helpful for documentation buffers and so on.
 
@@ -1533,7 +1687,7 @@
          calendar-longitude 103.8
          calendar-location-name "Singapore, Singapore")
    #+END_SRC
-** Smartparens
+** TODO Smartparens
 
    #+BEGIN_SRC emacs-lisp
 
@@ -1575,7 +1729,7 @@
                            'ruby 'nxml)
    #+end_src
 
-* Language Modes
+* TODO Language Modes
 ** General
    Some general settings that should apply to all programming mode. Highlight
    =FIXME= and =TODO= so they stand out. Also enable indent-guide mode
@@ -1856,8 +2010,8 @@
    #+END_SRC
 
 #  LocalWords:  Whitespace Minibuffer CScope Magit Comint
-* Bindings
-** Meta
+* TODO Bindings
+** TODO Meta
    First, we need to create custom macros.
 
    #+BEGIN_SRC emacs-lisp
@@ -1919,14 +2073,27 @@
    generate the documentation. I'd like to be able to have only one place to
    change key information and have it updated wherever necessary.
 
-*** Key Definition Table                                       :noexport:
-#+TBLNAME: the_key
-  | Combo | Category | Description        | Command                                            |
-  |-------+----------+--------------------+----------------------------------------------------|
-  | C-h x | General  | Kill running emacs | (lambda () (interactive) (shell-command "pkill emacs")) |
+   #+TBLNAME: the_key
+      | Combo | Category | Description        | Command                                            |
+      |-------+----------+--------------------+----------------------------------------------------|
+      | C-h x | General  | Kill running emacs | (lambda () (interactive) (shell-command "pkill emacs")) |
 
 ** Guide key
    Set guide key binding
+
+   #+TBLNAME:guide_keys
+      | Combo |
+      |-------|
+      | C-w   |
+      | C-x   |
+      | C-c   |
+      | \\    |
+      | C-\\  |
+      | g     |
+      | SPC   |
+      | [     |
+      | ]     |
+      | M-g   |
 
    #+BEGIN_SRC emacs-lisp
      (setq guide-key/recursive-key-sequence-flag t)
@@ -1936,29 +2103,9 @@
      <<gen-guide-keys(keys=guide_keys)>>
    #+end_src
 
-*** Guide keys Table                                           :noexport:
-   #+TBLNAME:guide_keys
-     | Combo |
-     |-------|
-     | C-w   |
-     | C-x   |
-     | C-c   |
-     | \\    |
-     | C-\\  |
-     | g     |
-     | SPC   |
-     | [     |
-     | ]     |
-     | M-g   |
-
 ** Whitespace Display
    Binding to toggle whitespace character display
 
-   #+begin_src emacs-lisp :noweb yes :result silent
-     <<gen-keys(keys=whitespace_keys)>>
-   #+end_src
-
-*** Whitespace keys Table                                      :noexport:
    #+TBLNAME: whitespace_keys
       | Combo   | Category | Description                       | Command                           |
       |---------+----------+-----------------------------------+-----------------------------------|
@@ -1967,13 +2114,11 @@
       | C-c = w | General  | Toggle whitespace-mode globally   | 'global-whitespace-mode           |
       | C-c = t | General  | Option for global whitespace-mode | 'global-whitespace-toggle-options |
 
-** Org
-
    #+begin_src emacs-lisp :noweb yes :result silent
-     <<gen-keys(keys=org_keys)>>
+     <<gen-keys(keys=whitespace_keys)>>
    #+end_src
 
-*** Org key table                                              :noexport:
+** Org
    #+TBLNAME: org_keys
       | Combo | Category | Description                                                  | Command         |
       |-------+----------+--------------------------------------------------------------+-----------------|
@@ -1981,6 +2126,10 @@
       | C-c a | General  | Display Org agenda                                           | 'org-agenda     |
       | C-c l | General  | Correctly insert links into org files                        | 'org-store-link |
       | C-c b | General  | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
+
+   #+begin_src emacs-lisp :noweb yes :result silent
+     <<gen-keys(keys=org_keys)>>
+   #+end_src
 
 ** Minibuffer
 
@@ -2205,16 +2354,21 @@
 
    #+BEGIN_SRC emacs-lisp
      (mapcar (lambda (state)
-         (evil-declare-key state org-mode-map
-           (kbd "M-l") 'org-metaright
-           (kbd "M-h") 'org-metaleft
-           (kbd "M-k") 'org-metaup
-           (kbd "M-j") 'org-metadown
-           (kbd "M-L") 'org-shiftmetaright
-           (kbd "M-H") 'org-shiftmetaleft
-           (kbd "M-K") 'org-shiftmetaup
-           (kbd "M-J") 'org-shiftmetadown))
-       '(normal insert))
+               (evil-declare-key state org-mode-map
+                 (kbd "M-l") 'org-metaright
+                 (kbd "M-h") 'org-metaleft
+                 (kbd "M-k") 'org-metaup
+                 (kbd "M-j") 'org-metadown
+                 (kbd "M-L") 'org-shiftmetaright
+                 (kbd "M-H") 'org-shiftmetaleft
+                 (kbd "M-K") 'org-shiftmetaup
+                 (kbd "M-J") 'org-shiftmetadown))
+             '(normal insert))
+     (evil-define-key 'normal org-mode-map (kbd "\\ t")   'org-todo)
+     (evil-define-key 'normal org-mode-map (kbd "-")   'org-cycle-list-bullet)
+     (evil-define-key 'insert org-mode-map (kbd "C-c .")
+       '(lambda () (interactive) (org-time-stamp-inactive t)))
+
    #+END_SRC
 
 *** Stylus-Mode
