@@ -301,9 +301,6 @@
 
            savehist-autosave-interval 60                ; interval between save in seconds
 
-           recentf-max-saved-items 1000                 ; maximum saved items in recentf
-           recentf-max-menu-items 500
-
            compilation-always-kill t                    ; kill compilation without reconfirmation
            compilation-ask-about-save nil               ; unconditionally save all buffer before
                                                         ; compiling
@@ -390,18 +387,6 @@
      (add-hook 'text-mode-hook 'turn-on-auto-fill)
    #+end_src
 
-   Many editors (e.g. Vim) have the feature of saving minibuffer
-   history to an external file after exit. savehist provide the same
-   feature for Emacs. (refer to setq & setq-default for configuration)
-   Enabling Recentf mode, the file open includes a submenu containing a list
-   of recently opened files.
-
-   #+BEGIN_SRC emacs-lisp
-     (savehist-mode +1)
-     (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
-     (recentf-mode +1)
-   #+END_SRC
-
    Disable narrowing as of now, don't find it usefull
 
    #+BEGIN_SRC emacs-lisp
@@ -444,13 +429,6 @@
 
    #+BEGIN_SRC emacs-lisp
      (fset 'yes-or-no-p 'y-or-n-p)
-   #+END_SRC
-
-   =hunglry-delete-mode= makes =backspace= and =C-d= erase /all/ consecutive
-   white space in a given direction (instead of just one). Use it everywhere.
-
-   #+BEGIN_SRC emacs-lisp
-     (global-hungry-delete-mode)
    #+END_SRC
 
    Better buffer names for duplicates
@@ -585,6 +563,9 @@
               '(search ring regexp-search-ring)
            recentf-save-file
               (concat qq/cache-directory "recentf")     ; cache folder for recently open files
+           recentf-max-saved-items 1000                 ; maximum saved items in recentf
+           recentf-max-menu-items 500
+
            bookmark-default-file
               (concat qq/cache-directory "bookmarks")   ; cache for bookmark
            backup-directory-alist
@@ -594,35 +575,6 @@
            auto-save-list-file-prefix
            (concat qq/cache-directory "auto-save-list/saves-"))
      (setq delete-auto-save-files t)
-   #+END_SRC
-
-** Mac OS X
-   Configuration for Mac OS X, we need a couple of settings to make
-   things work smoothly. In the package section
-   =exec-path-from-shell= is included (only if you're running OS X), this is
-   to include environment-variables from the shell. It makes useing Emacs
-   along with external processes a lot simpler. I also prefer using the
-   =Command=-key as the =Meta=-key.
-
-   On Mac OS X, menu bar always exist.
-
-   #+BEGIN_SRC emacs-lisp
-     (when (memq window-system '(mac ns))
-
-       (setq mac-option-modifier nil
-             mac-command-modifier 'meta
-
-             ;; Some mac-bindings interfere with Emacs bindings.
-             mac-pass-command-to-system nil
-             x-select-enable-clipboard t)
-
-       (menu-bar-mode t)
-       (run-with-idle-timer 5 nil 'exec-path-from-shell-initialize)
-       (add-hook 'after-init-hook
-                 (lambda ()
-                   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
-                   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
-                   )))
    #+END_SRC
 
 ** Visual
@@ -811,6 +763,7 @@
 
 * TODO Modes
 ** Default
+*** Disabled Modes
    There are some modes that are enabled by default that I don't find
    particularly useful. We create a list of these modes, and disable all of
    these.
@@ -824,6 +777,7 @@
      (funcall mode 0))
    #+END_SRC
 
+*** Enabled Modes
    Let's apply the same technique for enabling modes that are disabled by
    default.
 
@@ -863,11 +817,28 @@
 
    #+END_SRC
 
+   =hunglry-delete-mode= makes =backspace= and =C-d= erase /all/ consecutive
+   white space in a given direction (instead of just one). Use it everywhere.
+
+   #+BEGIN_SRC emacs-lisp
+     (global-hungry-delete-mode)
+   #+END_SRC
+
+   Many editors (e.g. Vim) have the feature of saving minibuffer
+   history to an external file after exit. savehist provide the same
+   feature for Emacs. (refer to setq & setq-default for configuration)
+   Enabling Recentf mode, the file open includes a submenu containing a list
+   of recently opened files.
+
+   #+BEGIN_SRC emacs-lisp
+     (savehist-mode +1)
+     (recentf-mode +1)
+   #+END_SRC
+
    This makes =.md=-files open in =markdown-mode=.
 
    #+BEGIN_SRC emacs-lisp
-   (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-   (linum-on)
+     (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
    #+END_SRC
 
 ** Evil
@@ -990,12 +961,6 @@
            (evil-emacs-state))
          (defadvice magit-blame-file-off (after advice-for-magit-blame-file-off activate)
            (evil-exit-emacs-state))))
-     (if (display-graphic-p)
-         (progn
-           (require-package 'git-gutter-fringe+)
-           (require 'git-gutter-fringe+))
-       (require-package 'git-gutter+))
-     (global-git-gutter+-mode)
      (require-package 'diff-hl)
      (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
      (unless (display-graphic-p)
@@ -1008,6 +973,31 @@
      (after 'magit
          (require 'magit-gerrit))
      (setq-default magit-gerrit-ssh-creds "fikri.pribadi@tpv-tech.com")
+   #+END_SRC
+
+** Git-Gutter+
+   Check if we're running in GUI mode before enabling =Git-Gutter+=
+
+   #+BEGIN_SRC emacs-lisp
+     (if (display-graphic-p)
+         (progn
+           (require-package 'git-gutter-fringe+)
+           (require 'git-gutter-fringe+))
+       (require-package 'git-gutter+))
+     (global-git-gutter+-mode)
+   #+END_SRC
+
+   Git-Gutter+ is not updated properly when =git= push happen through =magit=.
+   The following code fix this issue.
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/refresh-visible-git-gutter-buffers ()
+       "Refresh git-gutter-mode on all visible git-gutter-mode buffers."
+       (dolist (buff (buffer-list))
+         (with-current-buffer buff
+           (when (and git-gutter+-mode (get-buffer-window buff))
+             (git-gutter+-mode t)))))
+     (add-hook 'magit-revert-buffer-hook 'qq/refresh-visible-git-gutter-buffers)
    #+END_SRC
 
 ** HideShow
@@ -1728,6 +1718,35 @@
      (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python
                            'ruby 'nxml)
    #+end_src
+
+* Mac OS X
+   Configuration for Mac OS X, we need a couple of settings to make
+   things work smoothly. In the package section
+   =exec-path-from-shell= is included (only if you're running OS X), this is
+   to include environment-variables from the shell. It makes useing Emacs
+   along with external processes a lot simpler. I also prefer using the
+   =Command=-key as the =Meta=-key.
+
+   On Mac OS X, menu bar always exist.
+
+   #+BEGIN_SRC emacs-lisp
+     (when (memq window-system '(mac ns))
+
+       (setq mac-option-modifier nil
+             mac-command-modifier 'meta
+
+             ;; Some mac-bindings interfere with Emacs bindings.
+             mac-pass-command-to-system nil
+             x-select-enable-clipboard t)
+
+       (menu-bar-mode t)
+       (run-with-idle-timer 5 nil 'exec-path-from-shell-initialize)
+       (add-hook 'after-init-hook
+                 (lambda ()
+                   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+                   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
+                   )))
+   #+END_SRC
 
 * TODO Language Modes
 ** General
