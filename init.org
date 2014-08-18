@@ -15,7 +15,18 @@
    I knew this is what I wanted to do. This way I could gain more knowledge of
    Emacs as I added new stuff here from where ever I can gather from the web.
 
-   *This is work in progress*
+   *This is live document, always work in progress*
+
+** How does it work?
+   =org-mode= support code block exports through a process called =tangle=. This
+   document have a global setting that will enable =tangle= on all code block
+   except for code block marked with =:tangle no=. The resulting code is stored
+   in =~/.emacs.d/init.el=. A compiled code will also be produced. Take a look
+   at [[Tangling Function]] for more details.
+
+   You can find more information about *Literate Programming* and *org-mode*
+   here:
+   [[http://orgmode.org/worg/org-contrib/babel/intro.html#literate-programming]]
 
 ** Dot Emacs
    Most of the settings below are copied from all over the interweb. Some
@@ -33,9 +44,12 @@
    - [[https://github.com/joedicastro/dotfiles/tree/master/emacs][joedicastro/emacs]] :: just found out about this.
    - [[https://github.com/christophermaier/emacs.d][christophermaier/emacs.d]] :: another dot-emacs source to utilize
    - [[https://github.com/dabrahams/dwamacs][dabrahams/dwamacs]] ::
+   - [[https://github.com/magnars/.emacs.d][magnars/.emacs.d]] ::
+   - [[https://github.com/wasamasa/dotemacs][wasamasa/dotemacs]] ::
 
 * Basic
 ** Meta
+*** Tangling Function
    Emacs can only load =.el=-files. We can use =C-c C-v t= to run
    =org-babel-tangle=, which extracts the code blocks from the current file
    into a source-specific file (in this case a =.el=-file).
@@ -62,6 +76,7 @@
    To export to other format, just press =C-c C-e=, which will display further
    option to choose output format like HTML, PDF or LaTeX.
 
+*** Personal Custom group
    Create a custom group to group any custom variable so it will not
    polute built in variable space
 
@@ -80,14 +95,27 @@
        :group 'qq)
    #+END_SRC
 
-   The =load-path= specifies where Emacs should look for =.el=-files (or
-   Emacs lisp files). Add a custom lisp load path directory for package
-   not tracked by package manager and/or personal lisp file
+*** Custom =load-path=
+   The variable =load-path= lists all the directories where Emacs should look
+   for Elisp files. The first file found is used, therefore the order of the
+   directories is relevant.
+
+   =load-path= is documented in the [[info:emacs#Lisp%20Libraries][Emacs Manual]] or [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Lisp-Libraries.html][Emacs Online Manual]], in
+   chapter *Libraries of Lisp Code for Emacs*. Useful tips are also on
+   [[http://www.emacswiki.org/emacs/LoadPath][EmacsWiki]].
 
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'load-path (concat user-emacs-directory "elisp"))
+     (let ((default-directory (concat user-emacs-directory "elisp")))
+       (unless (file-exists-p default-directory)
+         (make-directory default-directory))
+       (add-to-list 'load-path default-directory))
    #+END_SRC
 
+Here we create the directory =~/.emacs.d/elisp= if it does not exist, add it to
+the =load-path=. Doing that any =.el= or =.elc= files in this directory can be
+required from *emacs*.
+
+*** Miscelaneaus Macros & Functions
    Convenient macro to allow processing after checking existing pre-condition
 
    #+BEGIN_SRC emacs-lisp
@@ -98,6 +126,7 @@
                        '(progn ,@body)))
    #+END_SRC
 
+*** Custom Cache
    Set custom file config to store any cutomized settings. Create one when not
    exist.
 
@@ -174,9 +203,12 @@
          flx-ido                 ; Better flex (fuzzy) matching for Ido
          flycheck                ; on-the-fly syntax checking
          ggtags
-         guide-key
 
          helm
+         helm-cmd-t
+         helm-orgcard
+         helm-pydoc
+         helm-themes
          helm-swoop
          hungry-delete
          idle-highlight-mode     ; sets an idle timer that highlights all
@@ -213,11 +245,6 @@
 
      (dolist (pkg fave-packages)
        (require-package pkg))
-
-     ;; This package is only relevant for Mac OS X.
-     (when (memq window-system '(mac ns))
-       (require-package 'exec-path-from-shell))
-
    #+END_SRC
 
 ** TODO Require
@@ -237,7 +264,6 @@
                 cl
                 dired-x               ; provides extra functionality for DiredMode
                 guide-key
-                helm
                 hideshow
                 hungry-delete
                 linum-off             ; provides interface for turning line numbering off.
@@ -807,8 +833,6 @@
 
                 global-linum-mode          ; turn on line number globally
 
-                guide-key-mode
-
                 global-undo-tree-mode))    ; Undo as a tree.
        (funcall mode 1))
 
@@ -832,6 +856,7 @@
 
    #+BEGIN_SRC emacs-lisp
      (savehist-mode +1)
+     (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
      (recentf-mode +1)
    #+END_SRC
 
@@ -1250,6 +1275,15 @@
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
    #+end_src
 
+*** Bindings
+   #+TBLNAME: org_keys
+      | Combo | Category | Description                                                  | Command         |
+      |-------+----------+--------------------------------------------------------------+-----------------|
+      | C-c c | General  | Capture and store note quickly                               | 'org-capture    |
+      | C-c a | General  | Display Org agenda                                           | 'org-agenda     |
+      | C-c l | General  | Correctly insert links into org files                        | 'org-store-link |
+      | C-c b | General  | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
+
 ** TODO ERC
    ERC is a powerful, modular, and extensible Emacs IRC client.
 
@@ -1512,7 +1546,7 @@
 
    #+END_SRC
 
-** Helm
+** TODO Helm
    =Helm= is incremental completion and selection narrowing framework for Emacs.
    It will help steer in the right direction when looking for stuff in Emacs
    (like buffers, files etc)
@@ -1523,39 +1557,238 @@
    #+BEGIN_SRC emacs-lisp
      (setq helm-command-prefix-key "C-c h")
 
+     (require 'helm)
      (require 'helm-config)
      (require 'helm-eshell)
      (require 'helm-files)
      (require 'helm-grep)
    #+END_SRC
 
+   #+BEGIN_SRC emacs-lisp
+     (setq smex-save-file (concat qq/cache-directory "smex")
+           smex-history-length 50)
+     (smex-initialize)
+
+     (defun helm-smex-items ()
+       (smex-rebuild-cache)
+       (smex-convert-for-ido smex-cache))
+
+     (defun helm-smex-execute-command (command)
+       (command-execute command 'record)
+       (smex-rank command))
+
+     (setq helm-smex-source
+       '((name . "M-x")
+         (candidates . helm-smex-items)
+         (coerce . intern)
+         (action ("smex" . (helm-smex-execute-command)))))
+
+     (defun helm-smex ()
+       (interactive)
+       (helm :sources 'helm-smex-source :buffer "*helm-smex*"))
+
+     (global-set-key (kbd "M-x") 'helm-smex)
+     (global-set-key (kbd "C-c M-x") 'execute-extended-command)
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar helm-fkey-keymap
+       (let ((map (make-sparse-keymap)))
+         (set-keymap-parent map helm-map)
+         (define-key map [remap self-insert-command] 'exit-minibuffer)
+         map))
+
+     (defun helm-fkey-call-function (data)
+       "Calls the function associated to the last key pressed by
+     looking up DATA"
+       (let ((command (nth 2 (assoc (string last-command-event) data))))
+         (when command
+           (command-execute command 'record))))
+
+     (defface helm-fkey-key-face '((t (:foreground "red" :weight bold)))
+       "Face for the highlighted key")
+     (defface helm-fkey-bracket-face '((t (:weight bold)))
+       "Face for the highlighted brackets")
+
+     (defun helm-fkey-propertize-candidate (str)
+       "Propertizes a helm-fkey candidate, both brackets and the
+     enclosed glyph get a distinct face"
+       (let* ((split-str (split-string str "\\(\\[\\|\\]\\)"))
+              (beg (car split-str))
+              (opening-bracket "[")
+              (key (cadr split-str))
+              (closing-bracket "]")
+              (rest (nth 2 split-str)))
+         (concat beg
+                 (propertize opening-bracket 'face 'helm-fkey-bracket-face)
+                 (propertize key 'face 'helm-fkey-key-face)
+                 (propertize closing-bracket 'face 'helm-fkey-bracket-face)
+                 rest)))
+
+     (defun helm-fkey-prettify (candidates)
+       "Applies `helm-fkey-propertize-candidate' to CANDIDATES"
+       (mapcar 'helm-fkey-propertize-candidate candidates))
+
+     (defmacro helm-fkey (label key bind data)
+       "Creates and binds a helm-fkey function"
+       (let ((func-name (intern (concat "helm-" key))))
+         `(progn
+            (defun ,func-name ()
+              (interactive)
+              (let* ((data ,data)
+                     (source '((name . ,label)
+                               (candidates . (lambda () (mapcar 'cadr ,data)))
+                               (candidate-transformer helm-fkey-prettify)
+                               (action ("Execute" .
+                                        (lambda (_) (helm-fkey-call-function
+                                                ,data)))))))
+                (helm :sources source :keymap helm-fkey-keymap :prompt "Key: "
+                      :buffer ,(concat "*helm-" key))))
+            (global-set-key (kbd ,bind) ',func-name))))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (helm-fkey "Help" "f1" "<f1>"
+                '(("a" "[A]propos" helm-apropos)
+                  ("b" "Describe [B]indings" describe-bindings)
+                  ("c" "Describe [C]har" describe-char)
+                  ("d" "[D]ocumentation" apropos-documentation)
+                  ("f" "Describe [F]unction" describe-function)
+                  ("F" "Find [F]unction" find-function)
+                  ("i" "[I]nfo" info)
+                  ("k" "Describe [K]ey" describe-key)
+                  ("l" "[L]ossage" view-lossage)
+                  ("m" "Describe [M]odes" describe-mode)
+                  ("p" "[P]ackages by category" finder-by-keyword)
+                  ("v" "Describe [V]ariable" describe-variable)
+                  ("V" "Find [V]ariable" find-variable)))
+
+     (helm-fkey "Packages" "f2" "<f2>"
+                '(("c" "[C]olors" helm-colors)
+                  ("f" "[F]ind Library" find-library)
+                  ("g" "Customize [G]roup" customize-group)
+                  ("i" "Package [I]nstall" package-install)
+                  ;;("r" "Package [R]emove" my-package-remove)
+                  ("p" "[P]ackage List" package-list-packages)
+                  ("t" "Load [T]heme" helm-themes)
+                  ("v" "Customize [V]ariable" customize-variable)))
+
+     (helm-fkey "Search" "f3" "<f3>"
+                '(("a" "Imenu [A]nywhere" helm-imenu-anywhere)
+                  ("g" "[G]rep" helm-do-grep)
+                  ("h" "Org [H]eadlines" helm-org-headlines)
+                  ("i" "[I]menu" helm-imenu)
+                  ("m" "[M]ulti-occur" helm-multi-occur)
+                  ("o" "[O]ccur" helm-occur)))
+
+     (helm-fkey "Find" "f4" "<f4>"
+                '(("b" "[B]uffers" helm-buffers-list)
+                  ("f" "[F]ind" helm-find)
+                  ("i" "Find F[i]les" helm-find-files)
+                  ("l" "[L]ocate" helm-locate)
+                  ("t" "Cmd-[T]" helm-cmd-t)))
+
+     (helm-fkey "Eval" "f5" "<f5>"
+                '(("c" "[C]alc" calc)
+                  ("e" "[E]val Expression" helm-eval-expression-with-eldoc)
+                  ("g" "Ma[g]it" magit-status)
+                  ("i" "[I]ELM" ielm)
+                  ("r" "[R]egexp" helm-regexp)
+                  ("s" "[S]hell" shell)
+                  ("t" "ANSI [T]erm" ansi-term)
+                  ("x" "Calculate E[x]pression" helm-calcul-expression)))
+
+     (defun my-info-emacs-lisp-intro ()
+       (interactive)
+       (info "eintr"))
+
+     (defun my-info-emacs-lisp-manual ()
+       (interactive)
+       (info "elisp"))
+
+     (helm-fkey "Doc" "f6" "<f6>"
+                '(("e" "[E]macs manual" info-emacs-manual)
+                  ("i" "Emacs Lisp [I]ntro" my-info-emacs-lisp-intro)
+                  ("l" "Emacs [L]isp manual" my-info-emacs-lisp-manual)
+                  ("m" "[M]an" helm-man-woman)
+                  ("o" "[O]rgcard" helm-orgcard)
+                  ("p" "[P]ydoc" helm-pydoc)))
+
+     (helm-fkey "Insert" "f7" "<f7>"
+                '(("l" "[L]aTeX Math" helm-insert-latex-math)
+                  ("u" "[U]CS" helm-ucs)))
+
+     (helm-fkey "Misc" "f8" "<f8>"
+                '(("g" "[G]oogle Suggest" helm-google-suggest)
+                  ("p" "Emacs [P]rocess List" helm-list-emacs-process)
+                  ("s" "[S]urfraw" helm-surfraw)
+                  ("t" "[T]op" helm-top)
+                  ("w" "[W]orld time" helm-world-time)))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (helm-mode t)
+     (setq helm-ff-ido-style-backspace 'always
+           helm-ff-auto-update-initial-value t
+           helm-ff-auto-update-flag t
+           helm-ff-newfile-prompt-p nil
+           helm-ff-skip-boring-files t)
+     (setq helm-adaptive-history-file (concat qq/cache-directory "helm-adaptive")
+           helm-adaptive-history-length 100)
+     (helm-adaptative-mode t)
+     (setq helm-mp-highlight-delay 0.3)
+
+     (setq helm-cmd-t-default-repo (concat qq/cache-directory "dotfiles"))
+
+     (define-key helm-read-file-map (kbd "<backspace>")
+       'helm-find-files-down-one-level)
+     (define-key helm-find-files-map (kbd "<backspace>")
+       'helm-find-files-down-one-level)
+
+     ;; helm ack-grep hacks
+     (setq helm-ack-grep-executable "ag")
+     (setq helm-grep-default-command
+           (concat helm-ack-grep-executable " --nogroup --nocolor --nopager --smart-case -z %p %f")
+           helm-grep-default-recurse-command
+           (concat helm-ack-grep-executable " --nogroup --nocolor --nopager --smart-case -z %p %f"))
+
+     ;; helm completing read functions
+     (add-to-list 'helm-completing-read-handlers-alist
+                  '(find-library . helm-completing-read-with-cands-in-buffer))
+
+     (global-set-key (kbd "C-x C-f") 'helm-find-files)
+     (global-set-key (kbd "C-x b") 'helm-buffers-list)
+     (global-set-key (kbd "<f10>") 'helm-resume)
+   #+END_SRC
+
+
    Preferred initial settings for Helm
 
    #+BEGIN_SRC emacs-lisp
-     (setq
-      helm-google-suggest-use-curl-p t
-      helm-bookmark-show-location t                     ; display bookmark location
-      helm-scroll-amount 4                              ; scroll 4 lines other window using M-<next>/M-<prior>
-      helm-quick-update t                               ; do not display invisible candidates
-      helm-idle-delay 0.01                              ; be idle for this many seconds, before updating in delayed sources.
-      helm-input-idle-delay 0.01                        ; be idle for this many seconds, before updating candidate buffer
-      helm-ff-search-library-in-sexp t                  ; search for library in `require' and `declare-function' sexp.
-
-      helm-split-window-default-side 'other             ; open helm buffer in another window
-      helm-split-window-in-side-p t                     ; open helm buffer inside current window, not occupy whole other window
-      helm-buffers-favorite-modes (append helm-buffers-favorite-modes
-                                          '(picture-mode artist-mode))
-      helm-candidate-number-limit 200                   ; limit the number of displayed canidates
-      helm-M-x-requires-pattern 0                       ; show all candidates when set to 0
-      helm-boring-file-regexp-list
-      '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$") ; do not show these files in helm buffer
-      helm-ff-file-name-history-use-recentf t
-      helm-move-to-line-cycle-in-source t               ; move to end or beginning of source
-                                                             ; when reaching top or bottom of source.
-      ido-use-virtual-buffers t                         ; Needed in helm-buffers-list
-      helm-buffers-fuzzy-matching t                     ; fuzzy matching buffer names when non--nil
-                                                        ; useful in helm-mini that lists buffers
-      )
+;     (setq
+;      helm-google-suggest-use-curl-p t
+;      helm-bookmark-show-location t                     ; display bookmark location
+;      helm-scroll-amount 4                              ; scroll 4 lines other window using M-<next>/M-<prior>
+;      helm-quick-update t                               ; do not display invisible candidates
+;      helm-idle-delay 0.01                              ; be idle for this many seconds, before updating in delayed sources.
+;      helm-input-idle-delay 0.01                        ; be idle for this many seconds, before updating candidate buffer
+;      helm-ff-search-library-in-sexp t                  ; search for library in `require' and `declare-function' sexp.
+;
+;      helm-split-window-default-side 'other             ; open helm buffer in another window
+;      helm-split-window-in-side-p t                     ; open helm buffer inside current window, not occupy whole other window
+;      helm-buffers-favorite-modes (append helm-buffers-favorite-modes
+;                                          '(picture-mode artist-mode))
+;      helm-candidate-number-limit 200                   ; limit the number of displayed canidates
+;      helm-M-x-requires-pattern 0                       ; show all candidates when set to 0
+;      helm-boring-file-regexp-list
+;      '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$") ; do not show these files in helm buffer
+;      helm-ff-file-name-history-use-recentf t
+;      helm-move-to-line-cycle-in-source t               ; move to end or beginning of source
+;                                                             ; when reaching top or bottom of source.
+;      ido-use-virtual-buffers t                         ; Needed in helm-buffers-list
+;      helm-buffers-fuzzy-matching t                     ; fuzzy matching buffer names when non--nil
+;                                                        ; useful in helm-mini that lists buffers
+;      )
    #+END_SRC
 
      Save current position to mark ring when jumping to a different place and
@@ -1719,19 +1952,54 @@
                            'ruby 'nxml)
    #+end_src
 
-* Mac OS X
-   Configuration for Mac OS X, we need a couple of settings to make
-   things work smoothly. In the package section
-   =exec-path-from-shell= is included (only if you're running OS X), this is
-   to include environment-variables from the shell. It makes useing Emacs
-   along with external processes a lot simpler. I also prefer using the
-   =Command=-key as the =Meta=-key.
+** Guide key
+   #+BEGIN_SRC emacs-lisp
+     (require-package 'guide-key)
+     (require 'guide-key)
+     (guide-key-mode 1)
+     (setq guide-key/recursive-key-sequence-flag t)
+     (setq guide-key/popup-window-position 'bottom)
+   #+END_SRC
 
-   On Mac OS X, menu bar always exist.
+   Set guide key binding
+   #+TBLNAME:guide_keys
+      | Combo |
+      |-------|
+      | C-w   |
+      | C-x   |
+      | C-c   |
+      | \\    |
+      | C-\\  |
+      | g     |
+      | SPC   |
+      | [     |
+      | ]     |
+      | M-g   |
+
+** Whitespace Display
+   Binding to toggle whitespace character display
+
+   #+TBLNAME: whitespace_keys
+      | Combo   | Category | Description                       | Command                           |
+      |---------+----------+-----------------------------------+-----------------------------------|
+      | C-c _ w | General  | Toggle whitespace-mode            | 'whitespace-mode                  |
+      | C-c _ t | General  | Option for whitespace mode        | 'whitespace-toggle-options        |
+      | C-c = w | General  | Toggle whitespace-mode globally   | 'global-whitespace-mode           |
+      | C-c = t | General  | Option for global whitespace-mode | 'global-whitespace-toggle-options |
+
+* Mac OS X
+   For GUI apps, OS environment variables do not inherit from =shell=. As such, for
+   certain things to work smoothly, we use =exec-path-from-shell= to include
+   environment-variables from the =shell=. It makes using Emacs along with
+   external processes a lot simpler. See [[http://stackoverflow.com/questions/16676826/making-the-path-and-other-environment-variables-available-in-emacs][Making the PATH and other environment
+   variables available in emacs]]. I also prefer using the =Command=-key as the
+   =Meta=-key.
+
+   On Mac OS X, menu bar always exist. No point removing it.
 
    #+BEGIN_SRC emacs-lisp
      (when (memq window-system '(mac ns))
-
+       (require-package 'exec-path-from-shell)
        (setq mac-option-modifier nil
              mac-command-modifier 'meta
 
@@ -2058,13 +2326,14 @@
    lower the delay so that chords are not triggered too easily.
 
    #+NAME: gen-keys
-   #+BEGIN_SRC emacs-lisp :var keys=1 :results output :tangle no :exports none :colnames yes
+   #+BEGIN_SRC emacs-lisp :var keys=1 :var form="" :results output :tangle no :exports none :colnames yes
      (setq org-confirm-babel-evaluate nil)
      (mapcar (lambda (l)
                (unless (string-match "^<[[:digit:]]+>$" (format "%s" (car l)))
                  (let* ((key (car l))
                         (def (cond ((string-match "^[[:alnum:]]\\{2\\}$" (format "%s" key))
                                     (format "key-chord-define-global \"%s\"" key))
+                                   ((string= (format "%s" form) "evil") (format "evil-define-key \"%s\"" key))
                                    (t (format "bind-key (kbd \"%s\")" key))))
                         (command (car (last l))))
                    (princ (format "(%s %s)\n" def command)))))
@@ -2074,7 +2343,7 @@
    Another function for generating key for Guide-Key
 
    #+NAME: gen-guide-keys
-   #+BEGIN_SRC emacs-lisp :var keys=1 :results output :tangle no :exports none :colnames yes
+   #+BEGIN_SRC emacs-lisp :var keys=guide_keys :results output :tangle no :exports none :colnames yes
      (princ "(setq guide-key/guide-key-sequence '(" )
      (mapcar (lambda (l)
                 (princ (format "\"%s\" " (car l))))
@@ -2082,11 +2351,16 @@
      (princ "))\n" )
    #+END_SRC
 
+   Generate all the binding here.
+
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
-     <<gen-keys(keys=the_key)>>
+;     <<gen-keys(form="evil", keys=the_key)>>
+     <<gen-guide-keys()>>
+     <<gen-keys(keys=whitespace_keys)>>
+     <<gen-keys(keys=org_keys)>>
    #+END_SRC
 
-   The code for the keys is generated from data in an Org table named =keys=
+   The code for the keys is generated from data in a named Org table, i.e. =keys=
    using a bit of Elisp code =gen-keys= and is spit out inside a code block via
    [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. The same data is also used in the [[Keyboard%20shortcuts][Keyboard shortcuts]] section to
    generate the documentation. I'd like to be able to have only one place to
@@ -2096,59 +2370,6 @@
       | Combo | Category | Description        | Command                                            |
       |-------+----------+--------------------+----------------------------------------------------|
       | C-h x | General  | Kill running emacs | (lambda () (interactive) (shell-command "pkill emacs")) |
-
-** Guide key
-   Set guide key binding
-
-   #+TBLNAME:guide_keys
-      | Combo |
-      |-------|
-      | C-w   |
-      | C-x   |
-      | C-c   |
-      | \\    |
-      | C-\\  |
-      | g     |
-      | SPC   |
-      | [     |
-      | ]     |
-      | M-g   |
-
-   #+BEGIN_SRC emacs-lisp
-     (setq guide-key/recursive-key-sequence-flag t)
-   #+END_SRC
-
-   #+begin_src emacs-lisp :noweb yes :result silent
-     <<gen-guide-keys(keys=guide_keys)>>
-   #+end_src
-
-** Whitespace Display
-   Binding to toggle whitespace character display
-
-   #+TBLNAME: whitespace_keys
-      | Combo   | Category | Description                       | Command                           |
-      |---------+----------+-----------------------------------+-----------------------------------|
-      | C-c _ w | General  | Toggle whitespace-mode            | 'whitespace-mode                  |
-      | C-c _ t | General  | Option for whitespace mode        | 'whitespace-toggle-options        |
-      | C-c = w | General  | Toggle whitespace-mode globally   | 'global-whitespace-mode           |
-      | C-c = t | General  | Option for global whitespace-mode | 'global-whitespace-toggle-options |
-
-   #+begin_src emacs-lisp :noweb yes :result silent
-     <<gen-keys(keys=whitespace_keys)>>
-   #+end_src
-
-** Org
-   #+TBLNAME: org_keys
-      | Combo | Category | Description                                                  | Command         |
-      |-------+----------+--------------------------------------------------------------+-----------------|
-      | C-c c | General  | Capture and store note quickly                               | 'org-capture    |
-      | C-c a | General  | Display Org agenda                                           | 'org-agenda     |
-      | C-c l | General  | Correctly insert links into org files                        | 'org-store-link |
-      | C-c b | General  | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
-
-   #+begin_src emacs-lisp :noweb yes :result silent
-     <<gen-keys(keys=org_keys)>>
-   #+end_src
 
 ** Minibuffer
 
@@ -2173,6 +2394,10 @@
 
      (define-key minibuffer-local-map (kbd "C-w") 'backward-kill-word)
    #+END_SRC
+
+   #+TBLNAME: minibuf_keys
+   | Combo    | Mode                 | Description | Command |
+   | [escape] | minibuffer-local-map | jgg         |         |
 
 ** Yasnippet
 
