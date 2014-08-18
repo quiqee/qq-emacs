@@ -46,6 +46,12 @@
    - [[https://github.com/dabrahams/dwamacs][dabrahams/dwamacs]] ::
    - [[https://github.com/magnars/.emacs.d][magnars/.emacs.d]] ::
    - [[https://github.com/wasamasa/dotemacs][wasamasa/dotemacs]] ::
+   - [[https://github.com/noahfrederick/dots/tree/master/emacs.d][noahfrederick/dots]] ::
+   - [[https://github.com/kovan/dopemacs][kovan/dopemacs]] :: Emacs configuration that aims to add lots of
+        enabled-by-default, non-intrusive useful features while keeping traditional
+        Emacs keybindings and workflow.
+   - [[https://github.com/sachac/.emacs.d/blob/gh-pages/Sacha.org][sachac/.emacs.d]] ::
+   - [[https://github.com/masaaki1001/.emacs.d][masaaki1001/.emacs.d]] ::
 
 * Basic
 ** Meta
@@ -62,8 +68,11 @@
      (defun qq/tangle-init ()
        "If the current buffer is 'init.org' the code-blocks are
      tangled, and the tangled file is compiled."
-       (when (equal (buffer-file-name)
-                     (expand-file-name "~/Documents/qq-emacs/init.org"))
+     (when (or
+              (equal (buffer-file-name)
+                  (expand-file-name (concat user-emacs-directory "init.org")))
+              (equal (buffer-file-name)
+                     (expand-file-name "~/Documents/qq-emacs/init.org")))
          (org-babel-tangle)
          (byte-compile-file (concat user-emacs-directory "init.el"))))
 
@@ -154,6 +163,7 @@ required from *emacs*.
      (setq package-archives
            '(("melpa" . "http://melpa.milkbox.net/packages/")
              ("org" . "http://orgmode.org/elpa/")
+             ("gnu" . "http://elpa.gnu.org/packages/")
              ("marmalade" . "http://marmalade-repo.org/packages/")
             ))
    #+END_SRC
@@ -1587,7 +1597,6 @@ required from *emacs*.
        (interactive)
        (helm :sources 'helm-smex-source :buffer "*helm-smex*"))
 
-     (global-set-key (kbd "M-x") 'helm-smex)
      (global-set-key (kbd "C-c M-x") 'execute-extended-command)
    #+END_SRC
 
@@ -1756,7 +1765,6 @@ required from *emacs*.
      (add-to-list 'helm-completing-read-handlers-alist
                   '(find-library . helm-completing-read-with-cands-in-buffer))
 
-     (global-set-key (kbd "C-x C-f") 'helm-find-files)
      (global-set-key (kbd "C-x b") 'helm-buffers-list)
      (global-set-key (kbd "<f10>") 'helm-resume)
    #+END_SRC
@@ -1765,30 +1773,30 @@ required from *emacs*.
    Preferred initial settings for Helm
 
    #+BEGIN_SRC emacs-lisp
-;     (setq
-;      helm-google-suggest-use-curl-p t
-;      helm-bookmark-show-location t                     ; display bookmark location
-;      helm-scroll-amount 4                              ; scroll 4 lines other window using M-<next>/M-<prior>
-;      helm-quick-update t                               ; do not display invisible candidates
-;      helm-idle-delay 0.01                              ; be idle for this many seconds, before updating in delayed sources.
-;      helm-input-idle-delay 0.01                        ; be idle for this many seconds, before updating candidate buffer
-;      helm-ff-search-library-in-sexp t                  ; search for library in `require' and `declare-function' sexp.
-;
-;      helm-split-window-default-side 'other             ; open helm buffer in another window
-;      helm-split-window-in-side-p t                     ; open helm buffer inside current window, not occupy whole other window
-;      helm-buffers-favorite-modes (append helm-buffers-favorite-modes
-;                                          '(picture-mode artist-mode))
-;      helm-candidate-number-limit 200                   ; limit the number of displayed canidates
-;      helm-M-x-requires-pattern 0                       ; show all candidates when set to 0
-;      helm-boring-file-regexp-list
-;      '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$") ; do not show these files in helm buffer
-;      helm-ff-file-name-history-use-recentf t
-;      helm-move-to-line-cycle-in-source t               ; move to end or beginning of source
-;                                                             ; when reaching top or bottom of source.
-;      ido-use-virtual-buffers t                         ; Needed in helm-buffers-list
-;      helm-buffers-fuzzy-matching t                     ; fuzzy matching buffer names when non--nil
-;                                                        ; useful in helm-mini that lists buffers
-;      )
+     (setq
+      helm-google-suggest-use-curl-p t
+      helm-bookmark-show-location t                     ; display bookmark location
+      helm-scroll-amount 4                              ; scroll 4 lines other window using M-<next>/M-<prior>
+      helm-quick-update t                               ; do not display invisible candidates
+      helm-idle-delay 0.01                              ; be idle for this many seconds, before updating in delayed sources.
+      helm-input-idle-delay 0.01                        ; be idle for this many seconds, before updating candidate buffer
+      helm-ff-search-library-in-sexp t                  ; search for library in `require' and `declare-function' sexp.
+
+      helm-split-window-default-side 'other             ; open helm buffer in another window
+      helm-split-window-in-side-p t                     ; open helm buffer inside current window, not occupy whole other window
+      helm-buffers-favorite-modes (append helm-buffers-favorite-modes
+                                          '(picture-mode artist-mode))
+      helm-candidate-number-limit 200                   ; limit the number of displayed canidates
+      helm-M-x-requires-pattern 0                       ; show all candidates when set to 0
+      helm-boring-file-regexp-list
+      '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$") ; do not show these files in helm buffer
+      helm-ff-file-name-history-use-recentf t
+      helm-move-to-line-cycle-in-source t               ; move to end or beginning of source
+                                                             ; when reaching top or bottom of source.
+      ido-use-virtual-buffers t                         ; Needed in helm-buffers-list
+      helm-buffers-fuzzy-matching t                     ; fuzzy matching buffer names when non--nil
+                                                        ; useful in helm-mini that lists buffers
+      )
    #+END_SRC
 
      Save current position to mark ring when jumping to a different place and
@@ -1811,7 +1819,13 @@ required from *emacs*.
 
      ;; basic
      (push '("*Help*" :stick t :noselect t) popwin:special-display-config)
-     (push '("*helm world time*" :stick t :noselect t) popwin:special-display-config)
+     (push '("*helm world time*" :stick t :noselect t :height 20) popwin:special-display-config)
+     (push '("*helm*" :height 20) popwin:special-display-config)
+     (push '("*helm mini*" :height 20) popwin:special-display-config)
+     (push '("*helm-f1" :height 10) popwin:special-display-config)
+     (push '("*helm-f2" :height 10) popwin:special-display-config)
+     (push '("*helm-f3" :height 10) popwin:special-display-config)
+     (push '("*helm M-x*" :height 20) popwin:special-display-config)
 
      ;; magit
      (push '("*magit-process*" :stick t) popwin:special-display-config)
