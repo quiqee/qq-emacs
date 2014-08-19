@@ -369,6 +369,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
    (setq-default fill-column 80                         ; Maximum line width.
                  indent-tabs-mode nil                   ; Use spaces instead of tabs.
+                 tab-width 4                            ; default-tab
                  split-width-threshold 100              ; Split verticly by default.
                  save-place t                           ; enable saving cursor last position in a file
                  history-length 1000                    ; savehist history length
@@ -1750,9 +1751,9 @@ required from *emacs*.
      (setq helm-cmd-t-default-repo (concat qq/cache-directory "dotfiles"))
 
      (define-key helm-read-file-map (kbd "<backspace>")
-       'helm-find-files-down-one-level)
+       'helm-find-files-up-one-level)
      (define-key helm-find-files-map (kbd "<backspace>")
-       'helm-find-files-down-one-level)
+       'helm-find-files-up-one-level)
 
      ;; helm ack-grep hacks
      (setq helm-ack-grep-executable "ag")
@@ -1822,9 +1823,11 @@ required from *emacs*.
      (push '("*helm world time*" :stick t :noselect t :height 20) popwin:special-display-config)
      (push '("*helm*" :height 20) popwin:special-display-config)
      (push '("*helm mini*" :height 20) popwin:special-display-config)
+     (push '("*helm buffers*" :height 20) popwin:special-display-config)
      (push '("*helm-f1" :height 10) popwin:special-display-config)
      (push '("*helm-f2" :height 10) popwin:special-display-config)
      (push '("*helm-f3" :height 10) popwin:special-display-config)
+     (push '("*helm-f4" :height 10) popwin:special-display-config)
      (push '("*helm M-x*" :height 20) popwin:special-display-config)
 
      ;; magit
@@ -2098,7 +2101,8 @@ required from *emacs*.
        (local-set-key (kbd "C-c C-c") 'compile)
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
        ;; the entire buffer, and then runs the indent-region command).
-       (setq c-default-style "stroustrup")   ; C indenting style
+       (c-set-style "stroustrup")   ; C indenting style
+       (c-set-offset 'statement-cont 0)
        (flycheck-mode))
 
      (add-hook 'c-mode-common-hook 'qq/c-mode-init)
