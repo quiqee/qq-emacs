@@ -271,9 +271,9 @@ required from *emacs*.
                 auto-complete-config  ; a configuration for auto-complete-mode
                 ;auto-complete-auctex
                 auto-compile          ; auto-compile .el files
+                bind-key
                 cl
                 dired-x               ; provides extra functionality for DiredMode
-                guide-key
                 hideshow
                 hungry-delete
                 linum-off             ; provides interface for turning line numbering off.
@@ -1166,13 +1166,15 @@ required from *emacs*.
    (add-to-list 'ido-ignore-buffers "*Messages*")
    #+END_SRC
 
+** Smex
    To make =M-x= behave more like =ido-mode= we can use the =smex=
    package. It needs to be initialized, and we can replace the binding to
    the standard =execute-extended-command= with =smex=.
 
    #+BEGIN_SRC emacs-lisp
      (smex-initialize)
-     (setq smex-save-file (concat qq/cache-directory "smex-items"))
+     (setq smex-save-file (concat qq/cache-directory "smex-items")
+           smex-history-length 80)
      (global-set-key (kbd "M-x") 'smex)
    #+END_SRC
 
@@ -1576,10 +1578,6 @@ required from *emacs*.
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
-     (setq smex-save-file (concat qq/cache-directory "smex")
-           smex-history-length 50)
-     (smex-initialize)
-
      (defun helm-smex-items ()
        (smex-rebuild-cache)
        (smex-convert-for-ido smex-cache))
@@ -1599,141 +1597,6 @@ required from *emacs*.
        (helm :sources 'helm-smex-source :buffer "*helm-smex*"))
 
      (global-set-key (kbd "C-c M-x") 'execute-extended-command)
-   #+END_SRC
-
-   #+BEGIN_SRC emacs-lisp
-     (defvar helm-fkey-keymap
-       (let ((map (make-sparse-keymap)))
-         (set-keymap-parent map helm-map)
-         (define-key map [remap self-insert-command] 'exit-minibuffer)
-         map))
-
-     (defun helm-fkey-call-function (data)
-       "Calls the function associated to the last key pressed by
-     looking up DATA"
-       (let ((command (nth 2 (assoc (string last-command-event) data))))
-         (when command
-           (command-execute command 'record))))
-
-     (defface helm-fkey-key-face '((t (:foreground "red" :weight bold)))
-       "Face for the highlighted key")
-     (defface helm-fkey-bracket-face '((t (:weight bold)))
-       "Face for the highlighted brackets")
-
-     (defun helm-fkey-propertize-candidate (str)
-       "Propertizes a helm-fkey candidate, both brackets and the
-     enclosed glyph get a distinct face"
-       (let* ((split-str (split-string str "\\(\\[\\|\\]\\)"))
-              (beg (car split-str))
-              (opening-bracket "[")
-              (key (cadr split-str))
-              (closing-bracket "]")
-              (rest (nth 2 split-str)))
-         (concat beg
-                 (propertize opening-bracket 'face 'helm-fkey-bracket-face)
-                 (propertize key 'face 'helm-fkey-key-face)
-                 (propertize closing-bracket 'face 'helm-fkey-bracket-face)
-                 rest)))
-
-     (defun helm-fkey-prettify (candidates)
-       "Applies `helm-fkey-propertize-candidate' to CANDIDATES"
-       (mapcar 'helm-fkey-propertize-candidate candidates))
-
-     (defmacro helm-fkey (label key bind data)
-       "Creates and binds a helm-fkey function"
-       (let ((func-name (intern (concat "helm-" key))))
-         `(progn
-            (defun ,func-name ()
-              (interactive)
-              (let* ((data ,data)
-                     (source '((name . ,label)
-                               (candidates . (lambda () (mapcar 'cadr ,data)))
-                               (candidate-transformer helm-fkey-prettify)
-                               (action ("Execute" .
-                                        (lambda (_) (helm-fkey-call-function
-                                                ,data)))))))
-                (helm :sources source :keymap helm-fkey-keymap :prompt "Key: "
-                      :buffer ,(concat "*helm-" key))))
-            (global-set-key (kbd ,bind) ',func-name))))
-   #+END_SRC
-
-   #+BEGIN_SRC emacs-lisp
-     (helm-fkey "Help" "f1" "<f1>"
-                '(("a" "[A]propos" helm-apropos)
-                  ("b" "Describe [B]indings" describe-bindings)
-                  ("c" "Describe [C]har" describe-char)
-                  ("d" "[D]ocumentation" apropos-documentation)
-                  ("f" "Describe [F]unction" describe-function)
-                  ("F" "Find [F]unction" find-function)
-                  ("i" "[I]nfo" info)
-                  ("k" "Describe [K]ey" describe-key)
-                  ("l" "[L]ossage" view-lossage)
-                  ("m" "Describe [M]odes" describe-mode)
-                  ("p" "[P]ackages by category" finder-by-keyword)
-                  ("v" "Describe [V]ariable" describe-variable)
-                  ("V" "Find [V]ariable" find-variable)))
-
-     (helm-fkey "Packages" "f2" "<f2>"
-                '(("c" "[C]olors" helm-colors)
-                  ("f" "[F]ind Library" find-library)
-                  ("g" "Customize [G]roup" customize-group)
-                  ("i" "Package [I]nstall" package-install)
-                  ;;("r" "Package [R]emove" my-package-remove)
-                  ("p" "[P]ackage List" package-list-packages)
-                  ("t" "Load [T]heme" helm-themes)
-                  ("v" "Customize [V]ariable" customize-variable)))
-
-     (helm-fkey "Search" "f3" "<f3>"
-                '(("a" "Imenu [A]nywhere" helm-imenu-anywhere)
-                  ("g" "[G]rep" helm-do-grep)
-                  ("h" "Org [H]eadlines" helm-org-headlines)
-                  ("i" "[I]menu" helm-imenu)
-                  ("m" "[M]ulti-occur" helm-multi-occur)
-                  ("o" "[O]ccur" helm-occur)))
-
-     (helm-fkey "Find" "f4" "<f4>"
-                '(("b" "[B]uffers" helm-buffers-list)
-                  ("f" "[F]ind" helm-find)
-                  ("i" "Find F[i]les" helm-find-files)
-                  ("l" "[L]ocate" helm-locate)
-                  ("t" "Cmd-[T]" helm-cmd-t)))
-
-     (helm-fkey "Eval" "f5" "<f5>"
-                '(("c" "[C]alc" calc)
-                  ("e" "[E]val Expression" helm-eval-expression-with-eldoc)
-                  ("g" "Ma[g]it" magit-status)
-                  ("i" "[I]ELM" ielm)
-                  ("r" "[R]egexp" helm-regexp)
-                  ("s" "[S]hell" shell)
-                  ("t" "ANSI [T]erm" ansi-term)
-                  ("x" "Calculate E[x]pression" helm-calcul-expression)))
-
-     (defun my-info-emacs-lisp-intro ()
-       (interactive)
-       (info "eintr"))
-
-     (defun my-info-emacs-lisp-manual ()
-       (interactive)
-       (info "elisp"))
-
-     (helm-fkey "Doc" "f6" "<f6>"
-                '(("e" "[E]macs manual" info-emacs-manual)
-                  ("i" "Emacs Lisp [I]ntro" my-info-emacs-lisp-intro)
-                  ("l" "Emacs [L]isp manual" my-info-emacs-lisp-manual)
-                  ("m" "[M]an" helm-man-woman)
-                  ("o" "[O]rgcard" helm-orgcard)
-                  ("p" "[P]ydoc" helm-pydoc)))
-
-     (helm-fkey "Insert" "f7" "<f7>"
-                '(("l" "[L]aTeX Math" helm-insert-latex-math)
-                  ("u" "[U]CS" helm-ucs)))
-
-     (helm-fkey "Misc" "f8" "<f8>"
-                '(("g" "[G]oogle Suggest" helm-google-suggest)
-                  ("p" "Emacs [P]rocess List" helm-list-emacs-process)
-                  ("s" "[S]urfraw" helm-surfraw)
-                  ("t" "[T]op" helm-top)
-                  ("w" "[W]orld time" helm-world-time)))
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -1824,11 +1687,10 @@ required from *emacs*.
      (push '("*helm*" :height 20) popwin:special-display-config)
      (push '("*helm mini*" :height 20) popwin:special-display-config)
      (push '("*helm buffers*" :height 20) popwin:special-display-config)
-     (push '("*helm-f1" :height 10) popwin:special-display-config)
-     (push '("*helm-f2" :height 10) popwin:special-display-config)
-     (push '("*helm-f3" :height 10) popwin:special-display-config)
-     (push '("*helm-f4" :height 10) popwin:special-display-config)
      (push '("*helm M-x*" :height 20) popwin:special-display-config)
+
+     ;;vc-git
+     (push '("*vc-git .+\*$" :regexp t :height 20) popwin:special-display-config)
 
      ;; magit
      (push '("*magit-process*" :stick t) popwin:special-display-config)
@@ -2015,6 +1877,121 @@ required from *emacs*.
       | [     |
       | ]     |
       | M-g   |
+      | <f1>  |
+      | <f2>  |
+      | <f3>  |
+      | <f4>  |
+      | <f5>  |
+      | <f6>  |
+      | <f7>  |
+      | <f8>  |
+      | <f9>  |
+
+*** Function key binding
+    Lets group together a group of functions under =<F3>= through =<F9>= for
+    easy access. We'll be using =guide-key= as the menu for the bindings.
+
+    First group ''help/documentation' under =<F3>=:
+    #+BEGIN_SRC emacs-lisp
+      (defun qq-info-emacs-lisp-manual ()
+        (interactive)
+        (info "elisp"))
+
+      (defun my-info-emacs-lisp-intro ()
+        (interactive)
+        (info "eintr"))
+
+      (define-prefix-command 'qq/function-Help/Doc-map)
+      (global-set-key (kbd "<f3>") 'qq/function-Help/Doc-map)
+      (bind-key "F" 'find-function qq/function-Help/Doc-map)
+      (bind-key "V" 'find-variable qq/function-Help/Doc-map)
+      (bind-key "a" 'helm-apropos qq/function-Help/Doc-map)
+      (bind-key "b" 'describe-bindings qq/function-Help/Doc-map)
+      (bind-key "c" 'describe-char qq/function-Help/Doc-map)
+      (bind-key "d" 'apropos-documentation qq/function-Help/Doc-map)
+      (bind-key "e" 'qq-info-emacs-lisp-intro qq/function-Help/Doc-map)
+      (bind-key "f" 'describe-function qq/function-Help/Doc-map)
+      (bind-key "h" 'qq-info-emacs-lisp-manual qq/function-Help/Doc-map)
+      (bind-key "i" 'info qq/function-Help/Doc-map)
+      (bind-key "k" 'describe-key qq/function-Help/Doc-map)
+      (bind-key "l" 'view-lossage qq/function-Help/Doc-map)
+      (bind-key "m" 'describe-mode qq/function-Help/Doc-map)
+      (bind-key "o" 'helm-orgcard qq/function-Help/Doc-map)
+      (bind-key "p" 'finder-by-keyword qq/function-Help/Doc-map)
+      (bind-key "s" 'info-emacs-manual qq/function-Help/Doc-map)
+      (bind-key "v" 'describe-variable qq/function-Help/Doc-map)
+      (bind-key "w" 'helm-man-woman qq/function-Help/Doc-map)
+      (bind-key "y" 'helm-pydoc qq/function-Help/Doc-map)
+    #+END_SRC
+
+    Next is 'Packages' under =<F4>=:
+   #+BEGIN_SRC emacs-lisp
+      (define-prefix-command 'qq/function-Packages-map)
+      (global-set-key (kbd "<f4>") 'qq/function-Packages-map)
+      (bind-key "c" 'helm-colors 'qq/function-Packages-map)
+      (bind-key "f" 'find-library qq/function-Packages-map)
+      (bind-key "g" 'customize-group qq/function-Packages-map)
+      (bind-key "i" 'package-install qq/function-Packages-map)
+      (bind-key "p" 'package-list-packages qq/function-Packages-map)
+      (bind-key "t" 'helm-themes qq/function-Packages-map)
+      (bind-key "v" 'customize-variable qq/function-Packages-map)
+   #+END_SRC
+
+    'Search' functions are bind under =<F5>=:
+    #+BEGIN_SRC emacs-lisp
+      (define-prefix-command 'qq/function-Search-map)
+      (global-set-key (kbd "<f5>") 'qq/function-Search-map)
+      (bind-key "a" 'helm-imenu-anywhere qq/function-Search-map)
+      (bind-key "g" 'helm-do-grep qq/function-Search-map)
+      (bind-key "h" 'helm-org-headlines qq/function-Search-map)
+      (bind-key "i" 'helm-imenu qq/function-Search-map)
+      (bind-key "m" 'helm-multi-occur qq/function-Search-map)
+      (bind-key "o" 'helm-occur qq/function-Search-map)
+    #+END_SRC
+
+    'Find' functions are bind under =<F6>=:
+    #+BEGIN_SRC emacs-lisp
+      (define-prefix-command 'qq/function-Find-map)
+      (global-set-key (kbd "<f6>") 'qq/function-Find-map)
+      (bind-key "b" 'helm-buffers-list qq/function-Find-map)
+      (bind-key "f" 'helm-find qq/function-Find-map)
+      (bind-key "i" 'helm-find-files qq/function-Find-map)
+      (bind-key "l" 'helm-locate qq/function-Find-map)
+      (bind-key "t" 'helm-cmd-t qq/function-Find-map)
+    #+END_SRC
+
+    'Eval' functions are bind under =<F7>=:
+    #+BEGIN_SRC emacs-lisp
+      (define-prefix-command 'qq/function-Eval-map)
+      (global-set-key (kbd "<f7>") 'qq/function-Eval-map)
+      (bind-key "c" 'calc qq/function-Eval-map)
+      (bind-key "e" 'helm-eval-expression-with-eldoc qq/function-Eval-map)
+      (bind-key "g" 'magit-status qq/function-Eval-map)
+      (bind-key "i" 'ielm qq/function-Eval-map)
+      (bind-key "r" 'helm-regexp qq/function-Eval-map)
+      (bind-key "s" 'shell qq/function-Eval-map)
+      (bind-key "t" 'ansi-term qq/function-Eval-map)
+      (bind-key "x" 'helm-calcul-expression qq/function-Eval-map)
+    #+END_SRC
+
+    'Insert' functions are bind under =<F8>=:
+    #+BEGIN_SRC emacs-lisp
+      (define-prefix-command 'qq/function-Insert-map)
+      (global-set-key (kbd "<f8>") 'qq/function-Insert-map)
+      (bind-key "l" 'helm-insert-latex-math qq/function-Insert-map)
+      (bind-key "u" 'helm-ucs qq/function-Insert-map)
+    #+END_SRC
+
+    Finally, "Misc' functions are bind under =<F9>=:
+    #+BEGIN_SRC emacs-lisp
+      (define-prefix-command 'qq/function-Misc-map)
+      (global-set-key (kbd "<f9>") 'qq/function-Misc-map)
+      (bind-key "g" 'helm-google-suggest qq/function-Misc-map)
+      (bind-key "p" 'helm-list-emacs-process qq/function-Misc-map)
+      (bind-key "s" 'helm-surfraw qq/function-Misc-map)
+      (bind-key "t" 'helm-top qq/function-Misc-map)
+      (bind-key "w" 'helm-world-time qq/function-Misc-map)
+    #+END_SRC
 
 ** Whitespace Display
    Binding to toggle whitespace character display
