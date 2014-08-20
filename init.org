@@ -1893,10 +1893,6 @@ required from *emacs*.
 
     First group ''help/documentation' under =<F3>=:
     #+BEGIN_SRC emacs-lisp
-      (defun qq-info-emacs-lisp-manual ()
-        (interactive)
-        (info "elisp"))
-
       (defun qq-info-emacs-lisp-intro ()
         (interactive)
         (info "eintr"))
@@ -1909,7 +1905,6 @@ required from *emacs*.
       (bind-key "b" 'describe-bindings qq/function-Help/Doc-map)
       (bind-key "c" 'describe-char qq/function-Help/Doc-map)
       (bind-key "d" 'apropos-documentation qq/function-Help/Doc-map)
-      (bind-key "e" 'qq-info-emacs-lisp-intro qq/function-Help/Doc-map)
       (bind-key "f" 'describe-function qq/function-Help/Doc-map)
       (bind-key "h" 'qq-info-emacs-lisp-manual qq/function-Help/Doc-map)
       (bind-key "i" 'info qq/function-Help/Doc-map)
@@ -2004,9 +1999,21 @@ required from *emacs*.
       | C-c = w | General  | Toggle whitespace-mode globally   | 'global-whitespace-mode           |
       | C-c = t | General  | Option for global whitespace-mode | 'global-whitespace-toggle-options |
 
+** Volatile Highlight
+   This package highlights changes to the buffer caused by commands such as
+   ‘undo’, ‘yank’/’yank-pop’, etc. The highlight disappears at the next command.
+   The highlighting gives useful visual feedback for what your operation
+   actually changed in the buffer.
+
+   #+BEGIN_SRC emacs-lisp
+     (require-package 'volatile-highlights)
+     (require 'volatile-highlights)
+     (volatile-highlights-mode t)
+   #+END_SRC
+
 * Mac OS X
-   For GUI apps, OS environment variables do not inherit from =shell=. As such, for
-   certain things to work smoothly, we use =exec-path-from-shell= to include
+   For GUI apps, OS environment variables do not inherit from =shell=. As such,
+   for certain things to work smoothly, we use =exec-path-from-shell= to include
    environment-variables from the =shell=. It makes using Emacs along with
    external processes a lot simpler. See [[http://stackoverflow.com/questions/16676826/making-the-path-and-other-environment-variables-available-in-emacs][Making the PATH and other environment
    variables available in emacs]]. I also prefer using the =Command=-key as the
@@ -2017,6 +2024,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (when (memq window-system '(mac ns))
        (require-package 'exec-path-from-shell)
+       (require 'ucs-normalize)
        (setq mac-option-modifier nil
              mac-command-modifier 'meta
 
@@ -2415,6 +2423,7 @@ required from *emacs*.
 
    #+TBLNAME: minibuf_keys
    | Combo    | Mode                 | Description | Command |
+   |----------+----------------------+-------------+---------|
    | [escape] | minibuffer-local-map | jgg         |         |
 
 ** Yasnippet
@@ -2435,40 +2444,40 @@ required from *emacs*.
        ;(define-key evil-insert-state-map [remap newline] 'newline)
        ;(define-key evil-insert-state-map [remap newline-and-indent] 'newline-and-indent)
 
-       (define-key evil-normal-state-map (kbd "SPC o") 'imenu)
-       (define-key evil-normal-state-map (kbd "SPC b") 'switch-to-buffer)
+       (bind-key "SPC o" 'imenu evil-normal-state-map)
+       (bind-key "SPC b" 'switch-to-buffer evil-normal-state-map)
 
-       (define-key evil-normal-state-map (kbd "C-b") 'evil-scroll-up)
-       (define-key evil-normal-state-map (kbd "C-f") 'evil-scroll-down)
+       (bind-key "C-b" 'evil-scroll-up evil-normal-state-map)
+       (bind-key "C-f" 'evil-scroll-down evil-normal-state-map)
 
-       (define-key evil-normal-state-map (kbd "[ SPC") (bind (evil-insert-newline-above) (forward-line)))
-       (define-key evil-normal-state-map (kbd "] SPC") (bind (evil-insert-newline-below) (forward-line -1)))
-       (define-key evil-normal-state-map (kbd "[ e") (kbd "ddkP"))
-       (define-key evil-normal-state-map (kbd "] e") (kbd "ddp"))
-       (define-key evil-normal-state-map (kbd "[ b") 'previous-buffer)
-       (define-key evil-normal-state-map (kbd "] b") 'next-buffer)
-       (define-key evil-normal-state-map (kbd "[ q") 'previous-error)
-       (define-key evil-normal-state-map (kbd "] q") 'next-error)
+       (bind-key "[ SPC" (bind (evil-insert-newline-above) (forward-line)) evil-normal-state-map)
+       (bind-key "] SPC" (bind (evil-insert-newline-below) (forward-line -1)) evil-normal-state-map)
+       (bind-key "[ e" (kbd "ddkP") evil-normal-state-map)
+       (bind-key "] e" (kbd "ddp") evil-normal-state-map)
+       (bind-key "[ b" 'previous-buffer evil-normal-state-map)
+       (bind-key "] b" 'next-buffer evil-normal-state-map)
+       (bind-key "[ q" 'previous-error evil-normal-state-map)
+       (bind-key "] q" 'next-error evil-normal-state-map)
 
-       (define-key evil-normal-state-map (kbd "g p") (kbd "` [ v ` ]"))
+       (bind-key "g p" (kbd "` [ v ` ]") evil-normal-state-map)
 
-       (define-key evil-normal-state-map [backspace] 'evil-ex-nohighlight)
+       (bind-key [backspace] 'evil-ex-nohighlight evil-normal-state-map)
 
        (global-set-key (kbd "C-w") 'evil-window-map)
-       (define-key evil-normal-state-map "\C-j" 'windmove-down)
-       (define-key evil-normal-state-map "\C-k" 'windmove-up)
-       (define-key evil-normal-state-map "\C-h" 'windmove-left)
-       (define-key evil-normal-state-map "\C-l" 'windmove-right)
-       (define-key evil-motion-state-map "\C-j" 'windmove-down)
-       (define-key evil-motion-state-map "\C-k" 'windmove-up)
-       (define-key evil-motion-state-map "\C-h" 'windmove-left)
-       (define-key evil-motion-state-map "\C-l" 'windmove-right)
+       (bind-key "C-j" 'windmove-down evil-normal-state-map)
+       (bind-key "C-k" 'windmove-up evil-normal-state-map)
+       (bind-key "C-h" 'windmove-left evil-normal-state-map)
+       (bind-key "C-l" 'windmove-right evil-normal-state-map)
+       (bind-key "C-j" 'windmove-down evil-motion-state-map)
+       (bind-key "C-k" 'windmove-up evil-motion-state-map)
+       (bind-key "C-h" 'windmove-left evil-motion-state-map)
+       (bind-key "C-l" 'windmove-right evil-motion-state-map)
 
-       (define-key evil-motion-state-map "j" 'evil-next-visual-line)
-       (define-key evil-motion-state-map "k" 'evil-previous-visual-line)
+       (bind-key "j" 'evil-next-visual-line evil-motion-state-map)
+       (bind-key "k" 'evil-previous-visual-line evil-motion-state-map)
 
-       (define-key evil-normal-state-map (kbd "Q") 'qq/window-killer)
-       (define-key evil-normal-state-map (kbd "Y") (kbd "y$"))
+       (bind-key "Q" 'qq/window-killer evil-normal-state-map)
+       (bind-key "Y" (kbd "y$") evil-normal-state-map)
 
        (define-key evil-visual-state-map (kbd ", e") 'eval-region)
 
