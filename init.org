@@ -1899,6 +1899,7 @@ required from *emacs*.
 
       (define-prefix-command 'qq/function-Help/Doc-map)
       (global-set-key (kbd "<f3>") 'qq/function-Help/Doc-map)
+      (bind-key "B" 'describe-personal-keybindings qq/function-Help/Doc-map)
       (bind-key "F" 'find-function qq/function-Help/Doc-map)
       (bind-key "V" 'find-variable qq/function-Help/Doc-map)
       (bind-key "a" 'helm-apropos qq/function-Help/Doc-map)
@@ -1923,7 +1924,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
       (define-prefix-command 'qq/function-Packages-map)
       (global-set-key (kbd "<f4>") 'qq/function-Packages-map)
-      (bind-key "c" 'helm-colors 'qq/function-Packages-map)
+      (bind-key "c" 'helm-colors qq/function-Packages-map)
       (bind-key "f" 'find-library qq/function-Packages-map)
       (bind-key "g" 'customize-group qq/function-Packages-map)
       (bind-key "i" 'package-install qq/function-Packages-map)
