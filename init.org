@@ -752,15 +752,17 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (global-prettify-symbols-mode 1)
-     (global-pretty-lambda-mode 1)
+     ;(global-pretty-lambda-mode 1) ; enabling this will conflict with helm
+                               ; such that helm-buffer will have no color
      (setq coq-symbols
-       '(("forall" ?∀)
-         ("->" ?→)
-         ("exists" ?∃)
-         ("=>" ?⇒)
-         ("False" ?⊥)
-         ("True" ?⊤)))
+           '(("forall" ?∀)
+             ("->" ?→)
+             ("exists" ?∃)
+             ("=>" ?⇒)
+             ("False" ?⊥)
+             ("True" ?⊤)))
 
+     (add-hook 'org-mode-hook 'turn-on-pretty-lambda-mode)
      (add-hook 'coq-mode-hook
                (lambda ()
                  (setq prettify-symbols-alist coq-symbols)))
