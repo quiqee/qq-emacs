@@ -331,6 +331,8 @@ required from *emacs*.
            sentence-end-double-space nil
            save-interprogram-paste-before-kill t
 
+           compilation-scroll-output 'first-error       ; scroll to first error
+
            split-height-threshold 0                     ; auto split vertically
            split-width-threshold nil
 
@@ -1112,6 +1114,42 @@ required from *emacs*.
 
      (yas-reload-all)
    #+END_SRC
+
+** CScope
+
+   =cscope= default key binding took over =<C-c s>= as prefix. While I used this
+   for =qq/goto-scratch-buffer= key binding.
+
+   #+TBLNAME: cscope_keys
+      | Combo  | Description                                                  | Command                                       |
+      |--------+--------------------------------------------------------------+-----------------------------------------------|
+      | <6>    | <60>                                                         | <45>                                          |
+      | C-\ s  | Locate a symbol in source code                               | 'cscope-find-this-symbol                      |
+      | C-\ d  | Find a symbol's global definition                            | 'cscope-find-global-definition                |
+      | C-\ G  | Find a symbol's global definition                            | 'cscope-find-global-definition                |
+      | C-\ g  | Same as above, but no prompting                              | 'cscope-find-global-definition-no-prompting   |
+      | C-\ =  | Locate assignments to a symbol in the source code            | 'cscope-find-assignments-to-this-symbol       |
+      | C-\ c  | Display functions calling a function                         | 'cscope-find-functions-calling-this-function  |
+      | C-\ C  | Display functions called by a function                       | 'cscope-find-called-functions                 |
+      | C-\ t  | Locate where a text string occurs                            | 'cscope-find-this-text-string                 |
+      | C-\ e  | Run egrep over the cscope database                           | 'cscope-find-egrep-pattern                    |
+      | C-\ f  | Locate a file                                                | 'cscope-find-this-file                        |
+      | C-\ i  | Locate all files #including a file                           | 'cscope-find-files-including-file             |
+      | C-\ b  | Display the *cscope* buffer                                  | 'cscope-display-buffer                        |
+      | C-\ B  | Toggle cscope-display-buffer                                 | 'cscope-display-buffer-toggle                 |
+      | C-\ n  | Like (cscope-history-forward-line), but only for current result only. This exists for blind navigation. If the user isn't looking at the *cscope* buffer, they shouldn't be jumping between results | 'cscope-history-forward-line-current-result   |
+      | C-\ N  | Like (cscope-history-forward-file), but only for current result only | 'cscope-history-forward-file-current-result   |
+      | C-\ p  |                                                              | 'cscope-history-backward-line-current-result  |
+      | C-\ P  |                                                              | 'cscope-history-backward-file-current-result  |
+      | C-\ u  | Pop back to where cscope was last invoked                    | 'cscope-pop-mark                              |
+      | C-\ a  | Set the cscope-initial-directory variable                    | 'cscope-set-initial-directory                 |
+      | C-\ A  | Unset the cscope-initial-directory variable                  | 'cscope-unset-initial-directory               |
+      | C-\ L  | Create a list of files to index                              | 'cscope-create-list-of-files-to-index         |
+      | C-\ I  | Index files in a directory                                   | 'cscope-index-files                           |
+      | C-\ E  | Search for and edit the list of files to index               | 'cscope-edit-list-of-files-to-index           |
+      | C-\ W  | Display the name of the directory containing the cscope db   | 'cscope-tell-user-about-directory             |
+      | C-\ D  | Run dired upon the cscope database directory                 | 'cscope-dired-directory                       |
+      | C-c s  | Override built in cscope binding                             | 'qq/goto-scratch-buffer                       |
 
 ** TODO Ido
    Interactive do (or =ido-mode=) changes the way you switch buffers and
@@ -2397,20 +2435,24 @@ required from *emacs*.
    lower the delay so that chords are not triggered too easily.
 
    #+NAME: gen-keys
-   #+BEGIN_SRC emacs-lisp :var tname=1 :var map="" :var moda="" :results output :tangle no :exports none :colnames yes
+   #+BEGIN_SRC emacs-lisp :var tname=1 :var mmap="" :var moda="" :results output :tangle no :exports none :colnames yes
      (mapcar (lambda (l)
                (unless (string-match "^<[[:digit:]]+>$" (format "%s" (car l)))
                  (let* ((key (car l))
+                        (usemap (string< "" (format "%s" mmap)))
+                        (map (if usemap (if (string= (format "%s" mmap) "t")
+                                            (nth 1 l)(format "%s" mmap)) nil))
                         (def (cond ((string-match "^[[:alnum:]]\\{2\\}$" (format "%s" key))
                                     (format "key-chord-define-global \"%s\"" key))
-                                   ((string= (format "%s" moda) "evil") (format "evil-define-key \"%s\"" key))
-                                   ((string= (format "%s" map) "yes")
-                                    (if (string= (format "%s" key) "[escape]")
-                                        (format "bind-key %s %s" key (car (last l)))
-                                      (format "bind-key \"%s\" %s" key (car (last l)))))
+                                   ((string= (format "%s" moda) "evil")
+                                    (format "evil-define-key \"%s\"" key))
+                                   ((string= (format "%s" key) "[escape]")
+                                    (format "bind-key %s" key))
                                    (t (format "bind-key (kbd \"%s\")" key))))
-                        (commap (if (string= (format "%s" map) "yes") (nth 1 l) (car (last l)))))
-                   (princ (format "(%s %s)\n" def commap)))))
+                        (command (car (last l))))
+                   (if usemap
+                       (princ (format "(%s %s %s)\n" def command map))
+                     (princ (format "(%s %s)\n" def command))))))
              tname)
    #+END_SRC
 
@@ -2425,14 +2467,27 @@ required from *emacs*.
      (princ "))\n" )
    #+END_SRC
 
+   Utility function for keys generation, this portion will add pre/post code
+
+   #+NAME: gen-fix
+   #+BEGIN_SRC emacs-lisp :var pre="" :var pos="" :result output :tangle no :exports none :colnames yes
+     (let* ((beg (format "%s" pre))
+            (las (format "%s" pos)))
+       (if (string< "" beg) (princ (format "(%s" beg))
+         (princ las)))
+   #+END_SRC
+
+
    Generate all the binding here.
 
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
-;     <<gen-keys(moda="evil", tname=the_key)>>
      <<gen-guide-keys()>>
      <<gen-keys(tname=whitespace_keys)>>
      <<gen-keys(tname=org_keys)>>
-     <<gen-keys(map="yes", tname=minibuf_keys)>>
+     <<gen-keys(mmap="t", tname=minibuf_keys)>>
+     <<gen-fix(pre="add-hook 'cscope-minor-mode-hook\n'(lambda ()")>>
+     <<gen-keys(mmap="cscope-minor-mode-keymap", tname=cscope_keys)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
    The code for the keys is generated from data in a named Org table, i.e. =keys=
@@ -2518,6 +2573,7 @@ required from *emacs*.
            ", e" 'eval-defun
            "E" 'eval-defun
            "f" 'ctl-x-5-prefix
+           "q" 'evil-window-delete
            "c" (bind
                 (evil-window-split)
                 (setq qq/eshell-buffer-count (+ 1 qq/eshell-buffer-count))
@@ -2550,12 +2606,6 @@ required from *emacs*.
      (after "evil-numbers-autoloads"
        (define-key evil-normal-state-map (kbd "C-a") 'evil-numbers/inc-at-pt)
        (define-key evil-normal-state-map (kbd "C-S-a") 'evil-numbers/dec-at-pt))
-   #+END_SRC
-
-*** Yassnippet
-
-   #+BEGIN_SRC emacs-lisp
-     (define-key evil-insert-state-map (kbd "TAB") 'yas/expand)
    #+END_SRC
 
 *** Git-Gutter+
@@ -2703,44 +2753,6 @@ required from *emacs*.
          (define-key evil-operator-state-map (kbd "z") 'evil-ace-jump-char-mode)
          (define-key evil-normal-state-map (kbd "s") 'evil-ace-jump-char-mode)
          (define-key evil-motion-state-map (kbd "S-SPC") 'evil-ace-jump-line-mode)))
-   #+END_SRC
-
-** CScope
-
-   =cscope= default key binding took over =<C-c s>= as prefix. While I used this
-   for =qq/goto-scratch-buffer= key binding.
-
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'cscope-minor-mode-hook
-               '(lambda ()
-                  (define-key cscope-minor-mode-keymap "\C-\\s" 'cscope-find-this-symbol)
-                  (define-key cscope-minor-mode-keymap "\C-\\d" 'cscope-find-global-definition)
-                  (define-key cscope-minor-mode-keymap "\C-\\g" 'cscope-find-global-definition)
-                  (define-key cscope-minor-mode-keymap "\C-\\G" 'cscope-find-global-definition-no-prompting)
-                  (define-key cscope-minor-mode-keymap "\C-\\=" 'cscope-find-assignments-to-this-symbol)
-                  (define-key cscope-minor-mode-keymap "\C-\\c" 'cscope-find-functions-calling-this-function)
-                  (define-key cscope-minor-mode-keymap "\C-\\C" 'cscope-find-called-functions)
-                  (define-key cscope-minor-mode-keymap "\C-\\t" 'cscope-find-this-text-string)
-                  (define-key cscope-minor-mode-keymap "\C-\\e" 'cscope-find-egrep-pattern)
-                  (define-key cscope-minor-mode-keymap "\C-\\f" 'cscope-find-this-file)
-                  (define-key cscope-minor-mode-keymap "\C-\\i" 'cscope-find-files-including-file)
-                  (define-key cscope-minor-mode-keymap "\C-\\b" 'cscope-display-buffer)
-                  (define-key cscope-minor-mode-keymap "\C-\\B" 'cscope-display-buffer-toggle)
-                  (define-key cscope-minor-mode-keymap "\C-\\n" 'cscope-history-forward-line-current-result)
-                  (define-key cscope-minor-mode-keymap "\C-\\N" 'cscope-history-forward-file-current-result)
-                  (define-key cscope-minor-mode-keymap "\C-\\p" 'cscope-history-backward-line-current-result)
-                  (define-key cscope-minor-mode-keymap "\C-\\P" 'cscope-history-backward-file-current-result)
-                  (define-key cscope-minor-mode-keymap "\C-\\u" 'cscope-pop-mark)
-                  (define-key cscope-minor-mode-keymap "\C-\\a" 'cscope-set-initial-directory)
-                  (define-key cscope-minor-mode-keymap "\C-\\A" 'cscope-unset-initial-directory)
-                  (define-key cscope-minor-mode-keymap "\C-\\L" 'cscope-create-list-of-files-to-index)
-                  (define-key cscope-minor-mode-keymap "\C-\\I" 'cscope-index-files)
-                  (define-key cscope-minor-mode-keymap "\C-\\E" 'cscope-edit-list-of-files-to-index)
-                  (define-key cscope-minor-mode-keymap "\C-\\W" 'cscope-tell-user-about-directory)
-                  (define-key cscope-minor-mode-keymap "\C-\\S" 'cscope-tell-user-about-directory)
-                  (define-key cscope-minor-mode-keymap "\C-\\T" 'cscope-tell-user-about-directory)
-                  (define-key cscope-minor-mode-keymap "\C-\\D" 'cscope-dired-directory)
-                  (define-key cscope-minor-mode-keymap "\C-cs" 'qq/goto-scratch-buffer)))
    #+END_SRC
 
 ** Magit
