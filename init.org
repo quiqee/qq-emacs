@@ -52,6 +52,8 @@
         Emacs keybindings and workflow.
    - [[https://github.com/sachac/.emacs.d/blob/gh-pages/Sacha.org][sachac/.emacs.d]] ::
    - [[https://github.com/masaaki1001/.emacs.d][masaaki1001/.emacs.d]] ::
+   - [[https://github.com/Fuco1/.emacs.d][Fuco1/.emacs.d]] ::
+   - [[http://www.reddit.com/r/emacs/comments/2edbau/what_are_some_great_emacsd_examples/][dot-emacs from reddit]] ::
 
 * Basic
 ** Meta
@@ -683,8 +685,9 @@ required from *emacs*.
      (add-hook 'Info-mode-hook 'variable-pitch-mode)
    #+end_src
 
-   For =org-mode= we'll be using monospace font for tables and code blocks,
-   while still using =variable-pitch-mode= in =org-mode= buffers
+   For =org-mode= we'll be using monospace font for formula, meta-line, tables
+   and code blocks, while still using =variable-pitch-mode= in the rest of
+   =org-mode= buffers
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/adjoin-to-list-or-symbol (element list-or-symbol)
@@ -707,7 +710,9 @@ required from *emacs*.
                                            'fixed-pitch
                                            (face-attribute face :inherit))))
            )
-         (list 'org-code 'org-block 'org-table 'org-block-background)))
+         (list 'org-meta-line 'org-code 'org-formula 'org-block
+               'org-block-begin-line 'org-block-end-line 'org-verbatim
+               'org-table 'org-block-background)))
    #+END_SRC
 
    Same settings applied for =Info buffers= as well. Code examples will be using
@@ -728,7 +733,8 @@ required from *emacs*.
            ))))
    #+end_src
 
-   Display source code blocks or pre blocks in monospace for =markdown-mode= buffers
+   Display source code blocks or pre blocks in monospace for =markdown-mode=
+   buffers
 
    #+begin_src emacs-lisp
      (eval-after-load "markdown-mode"
@@ -1290,6 +1296,13 @@ required from *emacs*.
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
    #+end_src
 
+*** Just Evaluate It
+   I'm normally fine with having my code automatically evaluated.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-confirm-babel-evaluate nil)
+   #+END_SRC
+
 *** Bindings
    #+TBLNAME: org_keys
       | Combo | Category | Description                                                  | Command         |
@@ -1755,6 +1768,34 @@ required from *emacs*.
      (push '("*Completions*" :stick t :noselect t) popwin:special-display-config)
    #+end_src
 
+** Minibuffer
+
+   Always use ESC key to quit minibuffer. First we need to define function to
+   quit minibuffer
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/minibuffer-keyboard-quit ()
+       "Abort recursive edit.
+     In Delete Selection mode, if the mark is active, just deactivate it;
+     then it takes a second \\[keyboard-quit] to abort the minibuffer."
+       (interactive)
+       (if (and delete-selection-mode transient-mark-mode mark-active)
+           (setq deactivate-mark t)
+         (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+         (abort-recursive-edit)))
+   #+END_SRC
+
+   Keybinding to quit Minibuffer:
+   #+TBLNAME: minibuf_keys
+      | Combo    | Mode                            | Description             | Command                      |
+      |----------+---------------------------------+-------------------------+------------------------------|
+      | [escape] | minibuffer-local-map            | Quit minibuffer         | 'qq/minibuffer-keyboard-quit |
+      | [escape] | minibuffer-local-ns-map         | Quit minibuffer         | 'qq/minibuffer-keyboard-quit |
+      | [escape] | minibuffer-local-completion-map | Quit minibuffer         | 'qq/minibuffer-keyboard-quit |
+      | [escape] | minibuffer-local-must-match-map | Quit minibuffer         | 'qq/minibuffer-keyboard-quit |
+      | [escape] | minibuffer-local-isearch-map    | Quit minibuffer         | 'qq/minibuffer-keyboard-quit |
+      | C-w      | minibuffer-local-map            | Yank word from the back | 'backward-kill-word          |
+
 ** Calendar
    Define a function to display week numbers in =calender-mode=. The snippet
    is from [[http://www.emacswiki.org/emacs/CalendarWeekNumbers][EmacsWiki]].
@@ -1862,7 +1903,7 @@ required from *emacs*.
      (require 'guide-key)
      (guide-key-mode 1)
      (setq guide-key/recursive-key-sequence-flag t)
-     (setq guide-key/popup-window-position 'bottom)
+     (setq guide-key/popup-window-position 'right)
    #+END_SRC
 
    Set guide key binding
@@ -1995,12 +2036,13 @@ required from *emacs*.
    Binding to toggle whitespace character display
 
    #+TBLNAME: whitespace_keys
-      | Combo   | Category | Description                       | Command                           |
-      |---------+----------+-----------------------------------+-----------------------------------|
-      | C-c _ w | General  | Toggle whitespace-mode            | 'whitespace-mode                  |
-      | C-c _ t | General  | Option for whitespace mode        | 'whitespace-toggle-options        |
-      | C-c = w | General  | Toggle whitespace-mode globally   | 'global-whitespace-mode           |
-      | C-c = t | General  | Option for global whitespace-mode | 'global-whitespace-toggle-options |
+      | Combo    | Category   | Description                              | Command                           |
+      |----------+------------+------------------------------------------+-----------------------------------|
+      | <8>      | <10>       | <40>                                     | <33>                              |
+      | C-c _ w  | General    | Toggle whitespace-mode                   | 'whitespace-mode                  |
+      | C-c _ t  | General    | Option for whitespace mode               | 'whitespace-toggle-options        |
+      | C-c = w  | General    | Toggle whitespace-mode globally          | 'global-whitespace-mode           |
+      | C-c = t  | General    | Option for global whitespace-mode        | 'global-whitespace-toggle-options |
 
 ** Volatile Highlight
    This package highlights changes to the buffer caused by commands such as
@@ -2355,18 +2397,21 @@ required from *emacs*.
    lower the delay so that chords are not triggered too easily.
 
    #+NAME: gen-keys
-   #+BEGIN_SRC emacs-lisp :var keys=1 :var form="" :results output :tangle no :exports none :colnames yes
-     (setq org-confirm-babel-evaluate nil)
+   #+BEGIN_SRC emacs-lisp :var tname=1 :var map="" :var moda="" :results output :tangle no :exports none :colnames yes
      (mapcar (lambda (l)
                (unless (string-match "^<[[:digit:]]+>$" (format "%s" (car l)))
                  (let* ((key (car l))
                         (def (cond ((string-match "^[[:alnum:]]\\{2\\}$" (format "%s" key))
                                     (format "key-chord-define-global \"%s\"" key))
-                                   ((string= (format "%s" form) "evil") (format "evil-define-key \"%s\"" key))
+                                   ((string= (format "%s" moda) "evil") (format "evil-define-key \"%s\"" key))
+                                   ((string= (format "%s" map) "yes")
+                                    (if (string= (format "%s" key) "[escape]")
+                                        (format "bind-key %s %s" key (car (last l)))
+                                      (format "bind-key \"%s\" %s" key (car (last l)))))
                                    (t (format "bind-key (kbd \"%s\")" key))))
-                        (command (car (last l))))
-                   (princ (format "(%s %s)\n" def command)))))
-             keys)
+                        (commap (if (string= (format "%s" map) "yes") (nth 1 l) (car (last l)))))
+                   (princ (format "(%s %s)\n" def commap)))))
+             tname)
    #+END_SRC
 
    Another function for generating key for Guide-Key
@@ -2383,10 +2428,11 @@ required from *emacs*.
    Generate all the binding here.
 
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
-;     <<gen-keys(form="evil", keys=the_key)>>
+;     <<gen-keys(moda="evil", tname=the_key)>>
      <<gen-guide-keys()>>
-     <<gen-keys(keys=whitespace_keys)>>
-     <<gen-keys(keys=org_keys)>>
+     <<gen-keys(tname=whitespace_keys)>>
+     <<gen-keys(tname=org_keys)>>
+     <<gen-keys(map="yes", tname=minibuf_keys)>>
    #+END_SRC
 
    The code for the keys is generated from data in a named Org table, i.e. =keys=
@@ -2399,44 +2445,6 @@ required from *emacs*.
       | Combo | Category | Description        | Command                                            |
       |-------+----------+--------------------+----------------------------------------------------|
       | C-h x | General  | Kill running emacs | (lambda () (interactive) (shell-command "pkill emacs")) |
-
-** Minibuffer
-
-   Minibuffer key binding. Always use ESC key to quit minibuffer
-
-   #+BEGIN_SRC emacs-lisp
-     (defun qq/minibuffer-keyboard-quit ()
-       "Abort recursive edit.
-     In Delete Selection mode, if the mark is active, just deactivate it;
-     then it takes a second \\[keyboard-quit] to abort the minibuffer."
-       (interactive)
-       (if (and delete-selection-mode transient-mark-mode mark-active)
-           (setq deactivate-mark t)
-         (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
-         (abort-recursive-edit)))
-
-     (define-key minibuffer-local-map [escape] 'qq/minibuffer-keyboard-quit)
-     (define-key minibuffer-local-ns-map [escape] 'qq/minibuffer-keyboard-quit)
-     (define-key minibuffer-local-completion-map [escape] 'qq/minibuffer-keyboard-quit)
-     (define-key minibuffer-local-must-match-map [escape] 'qq/minibuffer-keyboard-quit)
-     (define-key minibuffer-local-isearch-map [escape] 'qq/minibuffer-keyboard-quit)
-
-     (define-key minibuffer-local-map (kbd "C-w") 'backward-kill-word)
-   #+END_SRC
-
-   #+TBLNAME: minibuf_keys
-   | Combo    | Mode                 | Description | Command |
-   |----------+----------------------+-------------+---------|
-   | [escape] | minibuffer-local-map | jgg         |         |
-
-** Yasnippet
-
-   Remove default binding. Evil insert mode take care of Yasnippet binding.
-
-   #+BEGIN_SRC emacs-lisp
-     ;(define-key yas-minor-mode-map [(tab)] nil)
-     ;(define-key yas-minor-mode-map (kbd "TAB") nil)
-   #+END_SRC
 
 ** Evil
 *** Basic Behaviour
@@ -2643,6 +2651,8 @@ required from *emacs*.
                  (kbd "M-J") 'org-shiftmetadown))
              '(normal insert))
      (evil-define-key 'normal org-mode-map (kbd "\\ t")   'org-todo)
+     (evil-define-key 'normal org-mode-map (kbd "\\ TAB")  '(lambda () (interactive)(org-shiftmetadown)
+                                                              (evil-insert 0)))
      (evil-define-key 'normal org-mode-map (kbd "-")   'org-cycle-list-bullet)
      (evil-define-key 'insert org-mode-map (kbd "C-c .")
        '(lambda () (interactive) (org-time-stamp-inactive t)))
