@@ -887,6 +887,22 @@ required from *emacs*.
      (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
    #+END_SRC
 
+*** Keybindings
+
+   #+TBLNAME: std_keys
+      | Combo   | Description                                           | Command                  |
+      |---------+-------------------------------------------------------+--------------------------|
+      | C-s     | Do incremental search forward for regular expression  | 'isearch-forward-regexp  |
+      | C-M-s   | Do incremental search forward                         | 'isearch-forward         |
+      | C-r     | Do incremental search backward for regular expression | 'isearch-backward-regexp |
+      | C-M-r   | Do incremental search backward                        | 'isearch-backward        |
+      | C-c s   | Jump to *scratch* buffer                              | 'qq/goto-scratch-buffer  |
+      | C-x C-b | Use iBuffer to replace built-in buffer manager        | 'ibuffer                 |
+      | C-x C-k |                                                       | 'kill-this-buffer        |
+      | C-c e   |                                                       | 'qq/eval-and-replace     |
+      | C-(     | In selected window switch to previous buffer          | 'previous-buffer         |
+      | C-)     | In selected window switch to next buffer              | 'next-buffer             |
+
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
    to be my new default text editor.
@@ -1343,12 +1359,12 @@ required from *emacs*.
 
 *** Bindings
    #+TBLNAME: org_keys
-      | Combo | Category | Description                                                  | Command         |
-      |-------+----------+--------------------------------------------------------------+-----------------|
-      | C-c c | General  | Capture and store note quickly                               | 'org-capture    |
-      | C-c a | General  | Display Org agenda                                           | 'org-agenda     |
-      | C-c l | General  | Correctly insert links into org files                        | 'org-store-link |
-      | C-c b | General  | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
+      | Combo | Description                                                  | Command         |
+      |-------+--------------------------------------------------------------+-----------------|
+      | C-c c | Capture and store note quickly                               | 'org-capture    |
+      | C-c a | Display Org agenda                                           | 'org-agenda     |
+      | C-c l | Correctly insert links into org files                        | 'org-store-link |
+      | C-c b | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
 
 ** TODO ERC
    ERC is a powerful, modular, and extensible Emacs IRC client.
@@ -2074,13 +2090,12 @@ required from *emacs*.
    Binding to toggle whitespace character display
 
    #+TBLNAME: whitespace_keys
-      | Combo    | Category   | Description                              | Command                           |
-      |----------+------------+------------------------------------------+-----------------------------------|
-      | <8>      | <10>       | <40>                                     | <33>                              |
-      | C-c _ w  | General    | Toggle whitespace-mode                   | 'whitespace-mode                  |
-      | C-c _ t  | General    | Option for whitespace mode               | 'whitespace-toggle-options        |
-      | C-c = w  | General    | Toggle whitespace-mode globally          | 'global-whitespace-mode           |
-      | C-c = t  | General    | Option for global whitespace-mode        | 'global-whitespace-toggle-options |
+      | Combo   | Description                       | Command                           |
+      |---------+-----------------------------------+-----------------------------------|
+      | C-c _ w | Toggle whitespace-mode            | 'whitespace-mode                  |
+      | C-c _ t | Option for whitespace mode        | 'whitespace-toggle-options        |
+      | C-c = w | Toggle whitespace-mode globally   | 'global-whitespace-mode           |
+      | C-c = t | Option for global whitespace-mode | 'global-whitespace-toggle-options |
 
 ** Volatile Highlight
    This package highlights changes to the buffer caused by commands such as
@@ -2477,7 +2492,6 @@ required from *emacs*.
          (princ las)))
    #+END_SRC
 
-
    Generate all the binding here.
 
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
@@ -2488,6 +2502,7 @@ required from *emacs*.
      <<gen-fix(pre="add-hook 'cscope-minor-mode-hook\n'(lambda ()")>>
      <<gen-keys(mmap="cscope-minor-mode-keymap", tname=cscope_keys)>>
      <<gen-fix(pos="))\n")>>
+     <<gen-keys(tname=std_keys)>>
    #+END_SRC
 
    The code for the keys is generated from data in a named Org table, i.e. =keys=
@@ -2495,11 +2510,6 @@ required from *emacs*.
    [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. The same data is also used in the [[Keyboard%20shortcuts][Keyboard shortcuts]] section to
    generate the documentation. I'd like to be able to have only one place to
    change key information and have it updated wherever necessary.
-
-   #+TBLNAME: the_key
-      | Combo | Category | Description        | Command                                            |
-      |-------+----------+--------------------+----------------------------------------------------|
-      | C-h x | General  | Kill running emacs | (lambda () (interactive) (shell-command "pkill emacs")) |
 
 ** Evil
 *** Basic Behaviour
@@ -2842,26 +2852,3 @@ required from *emacs*.
      (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
      (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
    #+END_SRC
-
-** iSearch
-
-   #+BEGIN_SRC emacs-lisp
-     (global-set-key (kbd "C-s") 'isearch-forward-regexp)
-     (global-set-key (kbd "C-M-s") 'isearch-forward)
-     (global-set-key (kbd "C-r") 'isearch-backward-regexp)
-     (global-set-key (kbd "C-M-r") 'isearch-backward)
-   #+END_SRC
-
-** Buffer related
-
-   #+BEGIN_SRC emacs-lisp
-     (global-set-key (kbd "C-c s") 'qq/goto-scratch-buffer)
-     (global-set-key (kbd "C-x C-b") 'ibuffer)
-     (global-set-key (kbd "C-x C-k") 'kill-this-buffer)
-     (global-set-key (kbd "C-c e") 'qq/eval-and-replace)
-     (global-set-key (kbd "C-(") 'previous-buffer)
-     (global-set-key (kbd "C-)") 'next-buffer)
-     (global-set-key [prior] 'previous-buffer)
-     (global-set-key [next] 'next-buffer)
-   #+END_SRC
-git@github.com:quiqee/qq-emacs.git
