@@ -888,6 +888,10 @@ required from *emacs*.
    #+END_SRC
 
 *** Keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: default-key-binding
+    :END:
+   The table below will be used as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
       | Combo   | Description                                           | Command                  |
@@ -1121,7 +1125,8 @@ required from *emacs*.
 ** CScope
 
    =cscope= default key binding took over =<C-c s>= as prefix. While I used this
-   for =qq/goto-scratch-buffer= key binding.
+   for =qq/goto-scratch-buffer= key binding. Table below will be used to
+   generate [[Cscope Bindings]]
 
    #+TBLNAME: cscope_keys
       | Combo  | Description                                                  | Command                                       |
@@ -1345,6 +1350,11 @@ required from *emacs*.
    #+END_SRC
 
 *** Bindings
+    :PROPERTIES:
+    :CUSTOM_ID: orgmode-key-binding
+    :END:
+   The table below will be generated as key-bindings [[Org%20Mode%20Bindings][here]].
+
    #+TBLNAME: org_keys
       | Combo | Description                                                  | Command         |
       |-------+--------------------------------------------------------------+-----------------|
@@ -1826,7 +1836,12 @@ required from *emacs*.
          (abort-recursive-edit)))
    #+END_SRC
 
-   Keybinding to quit Minibuffer:
+*** Keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: minibuffer-key-binding
+    :END:
+   Generate [[Minibuffer%20Bindings][bindings]] using =minibuf_keys= table below
+
    #+TBLNAME: minibuf_keys
       | Combo    | Mode                            | Description             | Command                      |
       |----------+---------------------------------+-------------------------+------------------------------|
@@ -1947,7 +1962,12 @@ required from *emacs*.
      (setq guide-key/popup-window-position 'right)
    #+END_SRC
 
-   Set guide key binding
+*** Keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: guide-key-binding
+    :END:
+   Below is the table used to generate guide-key [[Guide%20Key%20Bindings][bindings]]
+
    #+TBLNAME:guide_keys
       | Combo |
       |-------|
@@ -2074,7 +2094,7 @@ required from *emacs*.
     #+END_SRC
 
 ** Whitespace Display
-   Binding to toggle whitespace character display
+   [[Whitespace%20Bindings][Bindings]] to toggle whitespace character display
 
    #+TBLNAME: whitespace_keys
       | Combo   | Description                       | Command                           |
@@ -2479,24 +2499,60 @@ required from *emacs*.
          (princ las)))
    #+END_SRC
 
-   Generate all the binding here.
-
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
-     <<gen-guide-keys()>>
-     <<gen-keys(tname=whitespace_keys)>>
-     <<gen-keys(tname=org_keys)>>
-     <<gen-keys(mmap="t", tname=minibuf_keys)>>
-     <<gen-fix(pre="add-hook 'cscope-minor-mode-hook\n'(lambda ()")>>
-     <<gen-keys(mmap="cscope-minor-mode-keymap", tname=cscope_keys)>>
-     <<gen-fix(pos="))\n")>>
-     <<gen-keys(tname=std_keys)>>
-   #+END_SRC
-
+** Generate all the binding here.
    The code for the keys is generated from data in a named Org table, i.e. =keys=
    using a bit of Elisp code =gen-keys= and is spit out inside a code block via
    [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. The same data is also used in the [[Keyboard%20shortcuts][Keyboard shortcuts]] section to
    generate the documentation. I'd like to be able to have only one place to
    change key information and have it updated wherever necessary.
+
+*** Guide Key Bindings
+   Guide key uses special keybinding code =gen-guide-keys= which simply iterate
+   a list and print it and wrapped inside =setq= =guide-key/guide-key-sequence=.
+   Table [[guide-key-binding][here]] is used as the source to generate the keys.
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-guide-keys()>>
+   #+END_SRC
+
+*** Whitespace Bindings
+   =whispace_keys= table is [[Whitespace%20Display][here]].
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-keys(tname=whitespace_keys)>>
+   #+END_SRC
+
+*** Org Mode Bindings
+   =org_keys= table is [[#orgmode-key-binding][here]].
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-keys(tname=org_keys)>>
+   #+END_SRC
+
+*** Minibuffer Bindings
+   Binding table used is located [[minibuffer-key-binding][here]].
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-keys(mmap="t", tname=minibuf_keys)>>
+   #+END_SRC
+
+*** Cscope Bindings
+   Binding table is taken from [[CScope][here]]. Before binding is generated, prefix code is
+   added to put this binding in =cscope-minor-mode= only. Coresponding postfix
+   is also added to complete the whole code.
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-fix(pre="add-hook 'cscope-minor-mode-hook\n'(lambda ()")>>
+     <<gen-keys(mmap="cscope-minor-mode-keymap", tname=cscope_keys)>>
+     <<gen-fix(pos="))\n")>>
+   #+END_SRC
+
+*** Basic Bindings
+   Generate binding using table from [[#default-key-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-keys(tname=std_keys)>>
+   #+END_SRC
 
 ** Evil
 *** Basic Behaviour
