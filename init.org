@@ -54,6 +54,7 @@
    - [[https://github.com/masaaki1001/.emacs.d][masaaki1001/.emacs.d]] ::
    - [[https://github.com/Fuco1/.emacs.d][Fuco1/.emacs.d]] ::
    - [[http://www.reddit.com/r/emacs/comments/2edbau/what_are_some_great_emacsd_examples/][dot-emacs from reddit]] ::
+   - [[http://www.aaronbedra.com/emacs.d/][aaronbedra .emacs.d]] ::
 
 * Basic
 ** Meta
@@ -1232,8 +1233,16 @@ required from *emacs*.
      (global-set-key (kbd "M-x") 'smex)
    #+END_SRC
 
+** Writegood
+   This is a minor mode to aid in finding common writing problems.
+
+   #+BEGIN_SRC emacs-lisp
+     (require-package 'writegood-mode)
+     (require 'writegood-mode)
+   #+END_SRC
+
 ** TODO Org
-*** Enable Ord Mode
+*** Enable Org Mode
    #+BEGIN_SRC emacs-lisp
      (require 'org-ac)
      (require 'org-bullets)
@@ -1331,6 +1340,7 @@ required from *emacs*.
                (lambda ()
                  (make-variable-buffer-local 'yas/trigger-key)
                  (setq yas/trigger-key [tab])
+                 (writegood-mode)
                  (add-to-list 'org-tab-first-hook 'yas-org-very-safe-expand)
                  (define-key yas-keymap [tab] 'yas-next-field)))
 
@@ -2428,6 +2438,21 @@ required from *emacs*.
    #+END_SRC
 
 #  LocalWords:  Whitespace Minibuffer CScope Magit Comint
+** Markdown
+   Enable Markdown mode and setup additional file extensions.
+
+   #+BEGIN_SRC emacs-lisp
+     (package-require 'markdown-mode)
+     (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+     (add-to-list 'auto-mode-alist '("\\.mdown$" . markdown-mode))
+     (add-to-list 'auto-mode-alist '("\\.markdown$" . markdown-mode))
+     (add-hook 'markdown-mode-hook
+               (lambda ()
+                 (visual-line-mode t)
+                 (writegood-mode t)
+                 (flyspell-mode t)))
+   #+END_SRC
+
 * TODO Bindings
 ** TODO Meta
    First, we need to create custom macros.
