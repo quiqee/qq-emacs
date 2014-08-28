@@ -9,7 +9,7 @@
 
 * About
    This is an Emacs configuration file written in =org-mode=. There are a few
-   reaons why I wanted to do this. I wanted to learn =org-mode=, one way to do
+   reasons why I wanted to do this. I wanted to learn =org-mode=, one way to do
    this is by practicing on file I'm often work with. I just started using emacs
    a couple of weeks ago. When I saw an Emacs configuration done in =org-mode=,
    I knew this is what I wanted to do. This way I could gain more knowledge of
@@ -29,7 +29,7 @@
    [[http://orgmode.org/worg/org-contrib/babel/intro.html#literate-programming]]
 
 ** Dot Emacs
-   Most of the settings below are copied from all over the interweb. Some
+   Most of the settings below are taken from all over the interweb. Some
    notable dot-emacs that I copied most are from:
 
    - [[https://github.com/larstvei/dot-emacs][larstvei dot-emacs]] :: this is where I get the idea to start using
@@ -55,6 +55,8 @@
    - [[https://github.com/Fuco1/.emacs.d][Fuco1/.emacs.d]] ::
    - [[http://www.reddit.com/r/emacs/comments/2edbau/what_are_some_great_emacsd_examples/][dot-emacs from reddit]] ::
    - [[http://www.aaronbedra.com/emacs.d/][aaronbedra .emacs.d]] ::
+   - [[https://gitlab.com/bodil/emacs-d/blob/master/README.md][bodil .emacs.d]] ::
+   - [[https://github.com/jimeh/.emacs.d][jimeh/.emacs.d]] ::
 
 * Basic
 ** Meta
@@ -628,11 +630,7 @@ required from *emacs*.
      (enable-theme 'monokai)
    #+END_SRC
 
-   Set the default font. =custom-set-faces= was added manually via =Custom=
-   and the init file should contain only one such instance.
-   If there is more than one, they won't work right.
-
-   Use the [[http://www.levien.com/type/myfonts/inconsolata.html][Inconsolata]] font if it's installed on the system.
+   My preferred font.
 
    #+BEGIN_SRC emacs-lisp
      ;(when (member "Inconsolata-g" (font-family-list))
@@ -662,7 +660,7 @@ required from *emacs*.
    #+END_SRC
 
 *** Highlight
-   Highlight similar word under the cursor (point)
+   Enable highlighting similar word under the cursor (point)
 
    #+BEGIN_SRC emacs-lisp
      (setq idle-highlight-idle-time 0.3)
@@ -1234,7 +1232,8 @@ required from *emacs*.
    #+END_SRC
 
 ** Writegood
-   This is a minor mode to aid in finding common writing problems.
+   This is a minor mode to aid in finding common writing problems. Based on
+   *Matthew Matt*'s shell scripts: [[http://matt.might.net/articles/shell-scripts-for-passive-voice-weasel-words-duplicates/][3 Shell scripts to improved your writing]]
 
    #+BEGIN_SRC emacs-lisp
      (require-package 'writegood-mode)
@@ -1747,7 +1746,7 @@ required from *emacs*.
      (helm-mode 1)
    #+END_SRC
 
-** TODO Popwin
+** TODO Pop-win
    Popwin handles little popup windows at the bottom of the screen, which is
    very helpful for documentation buffers and so on.
 
@@ -2226,7 +2225,9 @@ required from *emacs*.
        ;; the entire buffer, and then runs the indent-region command).
        (c-set-style "stroustrup")   ; C indenting style
        ;(c-set-offset 'statement-cont 0)
-       (flycheck-mode))
+       (flycheck-mode)
+       ; enable spell check in comment area
+       (flyspell-prog-mode))
 
      (add-hook 'c-mode-common-hook 'qq/c-mode-init)
    #+END_SRC
@@ -2266,7 +2267,7 @@ required from *emacs*.
    #+END_SRC
 
 ** LaTeX
-   Prefered settings for LaTeX
+   Preferred settings for LaTeX
 
    #+BEGIN_SRC emacs-lisp
      (setq TeX-auto-save t)
