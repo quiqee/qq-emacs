@@ -188,7 +188,8 @@ required from *emacs*.
 
    Now we can use the function above to make sure packages are installed and
    up to date. Here are some packages I find useful (some of these
-   configurations are also dependent on them).
+   configurations are also dependent on them). Note, the list of packages below
+   are for packages that do not have their own section in [[Modes]]
 
    #+BEGIN_SRC emacs-lisp
      (defcustom fave-packages
@@ -219,12 +220,6 @@ required from *emacs*.
          flycheck                ; on-the-fly syntax checking
          ggtags
 
-         helm
-         helm-cmd-t
-         helm-orgcard
-         helm-pydoc
-         helm-themes
-         helm-swoop
          hungry-delete
          idle-highlight-mode     ; sets an idle timer that highlights all
                                  ; occurences in the buffer of the word under cursor
@@ -908,7 +903,7 @@ required from *emacs*.
 
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
-   to be my new default text editor.
+   to be my default text editor.
 
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
@@ -918,6 +913,16 @@ required from *emacs*.
                 ))
        (require feature))
    #+END_SRC
+
+   I don't like the default behaviour for * and # commands. It only search
+   subword not the whole word. I.e, if a cursor is in 'mamb' for keyword
+   mamb_ctrl_scaleConversion. Then only 'mamb' will be search. This setting
+   will mimic exactly the behaviour in Vim:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq-default evil-symbol-word-search t)
+   #+END_SRC
+
 
    Set the cursor color for different evil mode:
 
@@ -1122,6 +1127,11 @@ required from *emacs*.
    #+END_SRC
 
 ** CScope
+   Configure CScope.
+
+   #+BEGIN_SRC emacs-lisp
+     (cscope-setup)
+   #+END_SRC
 
    =cscope= default key binding took over =<C-c s>= as prefix. While I used this
    for =qq/goto-scratch-buffer= key binding. Table below will be used to
@@ -1373,7 +1383,7 @@ required from *emacs*.
       | C-c b | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
 
 ** TODO ERC
-   ERC is a powerful, modular, and extensible Emacs IRC client.
+   Emacs IRC is a powerful, modular, and extensible IRC client.
 
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
@@ -1604,15 +1614,11 @@ required from *emacs*.
           (erc-scrolltobottom-mode t)
    #+end_src
 
-** Tags System
-   Cscope and gtags settings
-
+** Grep et al
    #+BEGIN_SRC emacs-lisp
-     (cscope-setup)
-
      (add-hook 'c-mode-common-hook
                (lambda ()
-                 (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+                 (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
                    (ggtags-mode 1))))
 
      (when (executable-find "pt")
@@ -1644,6 +1650,12 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq helm-command-prefix-key "C-c h")
+     (require-package 'helm)
+     (require-package 'helm-cmd-t)
+     (require-package 'helm-orgcard)
+     (require-package 'helm-pydoc)
+     (require-package 'helm-themes)
+     (require-package 'helm-swoop)
 
      (require 'helm)
      (require 'helm-config)
@@ -2443,7 +2455,7 @@ required from *emacs*.
    Enable Markdown mode and setup additional file extensions.
 
    #+BEGIN_SRC emacs-lisp
-     (package-require 'markdown-mode)
+     (require-package 'markdown-mode)
      (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
      (add-to-list 'auto-mode-alist '("\\.mdown$" . markdown-mode))
      (add-to-list 'auto-mode-alist '("\\.markdown$" . markdown-mode))
