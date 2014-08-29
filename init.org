@@ -1758,6 +1758,22 @@ required from *emacs*.
      (helm-mode 1)
    #+END_SRC
 
+*** Keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: helm-key-binding
+    :END:
+
+   The code generated from this table is [[Helm%20Bindings][here]].
+   #+TBLNAME: helm_combo
+      | Combo    | Mode               | Description                        | Command                                    |
+      |----------+--------------------+------------------------------------+--------------------------------------------|
+      | <tab>    | helm-map           | Rebind tab to do persistent action | 'helm-execute-persistent-action            |
+      | C-i      | helm-map           | Make TAB works in terminal         | 'helm-execute-persistent-action            |
+      | C-z      | helm-map           | List actions using C-z             | 'helm-select-action                        |
+      | <return> | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window          |
+      | n        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-forward  |
+      | p        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-backward |
+
 ** TODO Pop-win
    Popwin handles little popup windows at the bottom of the screen, which is
    very helpful for documentation buffers and so on.
@@ -2568,7 +2584,7 @@ required from *emacs*.
    #+END_SRC
 
 *** Minibuffer Bindings
-   Binding table used is located [[minibuffer-key-binding][here]].
+   Binding table used is located [[#minibuffer-key-binding][here]].
 
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
      <<gen-keys(mmap="t", tname=minibuf_keys)>>
@@ -2583,6 +2599,13 @@ required from *emacs*.
      <<gen-fix(pre="add-hook 'cscope-minor-mode-hook\n'(lambda ()")>>
      <<gen-keys(mmap="cscope-minor-mode-keymap", tname=cscope_keys)>>
      <<gen-fix(pos="))\n")>>
+   #+END_SRC
+
+*** Helm Bindings
+   Binding code generation for [[#helm-key-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :result silent
+     <<gen-keys(mmap="t", tname=helm_combo)>>
    #+END_SRC
 
 *** Basic Bindings
@@ -2920,16 +2943,4 @@ required from *emacs*.
      (after 'web-mode
        (after "angular-snippets-autoloads"
          (define-key web-mode-map (kbd "C-c C-d") 'ng-snip-show-docs-at-point)))
-   #+END_SRC
-
-** Helm
-
-   #+BEGIN_SRC emacs-lisp
-     (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
-     (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-     (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-
-     (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
-     (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
-     (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
    #+END_SRC
