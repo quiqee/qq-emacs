@@ -57,6 +57,8 @@
    - [[http://www.aaronbedra.com/emacs.d/][aaronbedra .emacs.d]] ::
    - [[https://gitlab.com/bodil/emacs-d/blob/master/README.md][bodil .emacs.d]] ::
    - [[https://github.com/jimeh/.emacs.d][jimeh/.emacs.d]] ::
+   - [[https://github.com/ubolonton/.emacs.d][ubolonton/.emacs.d]] :: extensive use of variable-width font (for non-code texts)
+   - [[http://milkbox.net/note/single-file-master-emacs-configuration/][milkyman's init file]] ::
 
 * Basic
 ** Meta
@@ -863,7 +865,7 @@ required from *emacs*.
      (global-hungry-delete-mode)
    #+END_SRC
 
-   Many editors (e.g. Vim) have the feature of saving minibuffer
+   Plenty editors (e.g. Vim) have the feature of saving minibuffer
    history to an external file after exit. savehist provide the same
    feature for Emacs. (refer to setq & setq-default for configuration)
    Enabling Recentf mode, the file open includes a submenu containing a list
@@ -885,7 +887,7 @@ required from *emacs*.
     :PROPERTIES:
     :CUSTOM_ID: default-key-binding
     :END:
-   The table below will be used as the source for generating [[Basic Bindings]]
+   Using The table below as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
       | Combo   | Description                                           | Command                  |
@@ -1249,6 +1251,15 @@ required from *emacs*.
      (require-package 'writegood-mode)
      (require 'writegood-mode)
    #+END_SRC
+
+** Auto-Complete
+   Key-binding table for =auto-complete=. Refer [[Auto-Complete Bindings][here]] to see the code generation.
+
+   #+TBLNAME: ac-key-combo
+      | Combo | Description                          | Command      |
+      |-------+--------------------------------------+--------------|
+      | C-n   | Select next on the popup window list | 'ac-next     |
+      | C-p   | Select prev on the popup window list | 'ac-previous |
 
 ** TODO Org
 *** Enable Org Mode
@@ -1648,6 +1659,8 @@ required from *emacs*.
    which is inconvenient because you can accidentially pressed "C-x C-c". Must
    set before helm-config,
 
+*** Init
+
    #+BEGIN_SRC emacs-lisp
      (setq helm-command-prefix-key "C-c h")
      (require-package 'helm)
@@ -1663,6 +1676,8 @@ required from *emacs*.
      (require 'helm-files)
      (require 'helm-grep)
    #+END_SRC
+
+*** Custom function
 
    #+BEGIN_SRC emacs-lisp
      (defun helm-smex-items ()
@@ -1685,6 +1700,8 @@ required from *emacs*.
 
      (global-set-key (kbd "C-c M-x") 'execute-extended-command)
    #+END_SRC
+
+*** Settings
 
    #+BEGIN_SRC emacs-lisp
      (helm-mode t)
@@ -1991,6 +2008,7 @@ required from *emacs*.
    #+end_src
 
 ** Guide key
+*** Init
    #+BEGIN_SRC emacs-lisp
      (require-package 'guide-key)
      (require 'guide-key)
@@ -2029,17 +2047,17 @@ required from *emacs*.
       | <f9>  |
 
 *** Function key binding
-    Lets group together a group of functions under =<F3>= through =<F9>= for
+    Lets group together a group of functions under =<F4>= through =<F9>= for
     easy access. We'll be using =guide-key= as the menu for the bindings.
 
-    First group ''help/documentation' under =<F3>=:
+    First group 'help/documentation' under =<F4>=:
     #+BEGIN_SRC emacs-lisp
       (defun qq-info-emacs-lisp-intro ()
         (interactive)
         (info "eintr"))
 
       (define-prefix-command 'qq/function-Help/Doc-map)
-      (global-set-key (kbd "<f3>") 'qq/function-Help/Doc-map)
+      (global-set-key (kbd "<f4>") 'qq/function-Help/Doc-map)
       (bind-key "B" 'describe-personal-keybindings qq/function-Help/Doc-map)
       (bind-key "F" 'find-function qq/function-Help/Doc-map)
       (bind-key "V" 'find-variable qq/function-Help/Doc-map)
@@ -2061,10 +2079,10 @@ required from *emacs*.
       (bind-key "y" 'helm-pydoc qq/function-Help/Doc-map)
     #+END_SRC
 
-    Next is 'Packages' under =<F4>=:
+    Next is 'Packages' under =<F5>=:
    #+BEGIN_SRC emacs-lisp
       (define-prefix-command 'qq/function-Packages-map)
-      (global-set-key (kbd "<f4>") 'qq/function-Packages-map)
+      (global-set-key (kbd "<f5>") 'qq/function-Packages-map)
       (bind-key "c" 'helm-colors qq/function-Packages-map)
       (bind-key "f" 'find-library qq/function-Packages-map)
       (bind-key "g" 'customize-group qq/function-Packages-map)
@@ -2074,25 +2092,19 @@ required from *emacs*.
       (bind-key "v" 'customize-variable qq/function-Packages-map)
    #+END_SRC
 
-    'Search' functions are bind under =<F5>=:
-    #+BEGIN_SRC emacs-lisp
-      (define-prefix-command 'qq/function-Search-map)
-      (global-set-key (kbd "<f5>") 'qq/function-Search-map)
-      (bind-key "a" 'helm-imenu-anywhere qq/function-Search-map)
-      (bind-key "g" 'helm-do-grep qq/function-Search-map)
-      (bind-key "h" 'helm-org-headlines qq/function-Search-map)
-      (bind-key "i" 'helm-imenu qq/function-Search-map)
-      (bind-key "m" 'helm-multi-occur qq/function-Search-map)
-      (bind-key "o" 'helm-occur qq/function-Search-map)
-    #+END_SRC
-
-    'Find' functions are bind under =<F6>=:
+    'Search/Find' functions are bind under =<F6>=:
     #+BEGIN_SRC emacs-lisp
       (define-prefix-command 'qq/function-Find-map)
       (global-set-key (kbd "<f6>") 'qq/function-Find-map)
+      (bind-key "a" 'helm-imenu-anywhere qq/function-Find-map)
+      (bind-key "g" 'helm-do-grep qq/function-Find-map)
+      (bind-key "h" 'helm-org-headlines qq/function-Find-map)
+      (bind-key "i" 'helm-imenu qq/function-Find-map)
+      (bind-key "m" 'helm-multi-occur qq/function-Find-map)
+      (bind-key "o" 'helm-occur qq/function-Find-map)
       (bind-key "b" 'helm-buffers-list qq/function-Find-map)
       (bind-key "f" 'helm-find qq/function-Find-map)
-      (bind-key "i" 'helm-find-files qq/function-Find-map)
+      (bind-key "j" 'helm-find-files qq/function-Find-map)
       (bind-key "l" 'helm-locate qq/function-Find-map)
       (bind-key "t" 'helm-cmd-t qq/function-Find-map)
     #+END_SRC
@@ -2591,14 +2603,24 @@ required from *emacs*.
    #+END_SRC
 
 *** Cscope Bindings
-   Binding table is taken from [[CScope][here]]. Before binding is generated, prefix code is
-   added to put this binding in =cscope-minor-mode= only. Coresponding postfix
-   is also added to complete the whole code.
+   Binding table is [[CScope][here]]. Before binding generation start, prefix code is added
+   to put this binding in =cscope-minor-mode= only. Coresponding postfix is also
+   added to complete the whole code.
 
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
      <<gen-fix(pre="add-hook 'cscope-minor-mode-hook\n'(lambda ()")>>
      <<gen-keys(mmap="cscope-minor-mode-keymap", tname=cscope_keys)>>
      <<gen-fix(pos="))\n")>>
+   #+END_SRC
+
+*** Auto-Complete Bindings
+   Using [[Auto-Complete][this]] table to generate =auto-complete= bindings. Note the prefix code
+   added to make sure the binding called after =auto-complete= loaded.
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :result silent
+     <<gen-fix(pre="after 'auto-complete")>>
+     <<gen-keys(mmap="ac-completing-map", tname=ac-key-combo)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 *** Helm Bindings
@@ -2909,19 +2931,11 @@ required from *emacs*.
        (define-key comint-mode-map [down] 'comint-next-input))
    #+END_SRC
 
-** HideShow
+** Hide-Show
    #+begin_src emacs-lisp
       ;(after 'hideshow
       ;   (bind-key (kbd "C-c TAB") 'hs-toggle-hiding'))
    #+end_src
-** Auto-Complete
-
-   #+BEGIN_SRC emacs-lisp
-     (after 'auto-complete
-       (define-key ac-completing-map (kbd "C-n") 'ac-next)
-       (define-key ac-completing-map (kbd "C-p") 'ac-previous))
-   #+END_SRC
-
 ** Company
 
    #+BEGIN_SRC emacs-lisp
