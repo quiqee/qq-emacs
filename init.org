@@ -890,18 +890,18 @@ required from *emacs*.
    Using The table below as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
-      | Combo   | Description                                           | Command                  |
-      |---------+-------------------------------------------------------+--------------------------|
-      | C-s     | Do incremental search forward for regular expression  | 'isearch-forward-regexp  |
-      | C-M-s   | Do incremental search forward                         | 'isearch-forward         |
-      | C-r     | Do incremental search backward for regular expression | 'isearch-backward-regexp |
-      | C-M-r   | Do incremental search backward                        | 'isearch-backward        |
-      | C-c s   | Jump to *scratch* buffer                              | 'qq/goto-scratch-buffer  |
-      | C-x C-b | Use iBuffer to replace built-in buffer manager        | 'ibuffer                 |
-      | C-x C-k |                                                       | 'kill-this-buffer        |
-      | C-c e   |                                                       | 'qq/eval-and-replace     |
-      | C-(     | In selected window switch to previous buffer          | 'previous-buffer         |
-      | C-)     | In selected window switch to next buffer              | 'next-buffer             |
+      | Combo   | Description                                                                | Command                  |
+      |---------+----------------------------------------------------------------------------+--------------------------|
+      | C-s     | Do incremental search forward for regular expression                       | 'isearch-forward-regexp  |
+      | C-M-s   | Do incremental search forward                                              | 'isearch-forward         |
+      | C-r     | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
+      | C-M-r   | Do incremental search backward                                             | 'isearch-backward        |
+      | C-c s   | Jump to *scratch* buffer                                                   | 'qq/goto-scratch-buffer  |
+      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
+      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
+      | C-c e   |                                                                            | 'qq/eval-and-replace     |
+      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer         |
+      | C-)     | In selected window switch to next buffer                                   | 'next-buffer             |
 
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
@@ -2837,6 +2837,7 @@ required from *emacs*.
                  (kbd "M-J") 'org-shiftmetadown))
              '(normal insert))
      (evil-define-key 'normal org-mode-map (kbd "\\ t")   'org-todo)
+     (evil-define-key 'normal org-mode-map (kbd "z c")   'hide-subtree)
      (evil-define-key 'normal org-mode-map (kbd "\\ TAB")  '(lambda () (interactive)(org-shiftmetadown)
                                                               (evil-insert 0)))
      (evil-define-key 'normal org-mode-map (kbd "-")   'org-cycle-list-bullet)
