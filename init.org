@@ -667,7 +667,7 @@ required from *emacs*.
    Highlight current line mode
 
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'find-file-hook 'hl-line-mode)
+     (global-hl-line-mode)
    #+END_SRC
 
 *** Fixed/Variable Width Faces
@@ -877,12 +877,6 @@ required from *emacs*.
      (recentf-mode +1)
    #+END_SRC
 
-   This makes =.md=-files open in =markdown-mode=.
-
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-   #+END_SRC
-
 *** Keybindings
     :PROPERTIES:
     :CUSTOM_ID: default-key-binding
@@ -907,6 +901,7 @@ required from *emacs*.
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
    to be my default text editor.
 
+*** Init
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(evil evil-indent-textobject
@@ -916,16 +911,7 @@ required from *emacs*.
        (require feature))
    #+END_SRC
 
-   I don't like the default behaviour for * and # commands. It only search
-   subword not the whole word. I.e, if a cursor is in 'mamb' for keyword
-   mamb_ctrl_scaleConversion. Then only 'mamb' will be search. This setting
-   will mimic exactly the behaviour in Vim:
-
-   #+BEGIN_SRC emacs-lisp
-     (setq-default evil-symbol-word-search t)
-   #+END_SRC
-
-
+*** Common Settings
    Set the cursor color for different evil mode:
 
    #+BEGIN_SRC emacs-lisp
@@ -946,6 +932,23 @@ required from *emacs*.
            evil-jumper-auto-save-interval 3600)
    #+END_SRC
 
+*** Command =*= and =#=
+   The =evil-mode= command =*= and =#= behave differently than the way I used to
+   know in =Vim=. It only search subword not the whole word. I.e, if a cursor is
+   in 'mamb' for keyword mamb_ctrl_scaleConversion. Then only 'mamb' will be
+   search. I wanted to have both behaviour around, so I made a toggle function:
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/toggle-evil-search ()
+       "Toggle Evil search mode between symbol search or word search"
+       (interactive)
+       (setq-default evil-symbol-word-search
+                     (if (eq evil-symbol-word-search t) nil t)))
+
+     (global-set-key (kbd "<f8>") 'qq/toggle-evil-search)
+   #+END_SRC
+
+*** When Evil not allowed
    Do not turn =evil-mode= on certain modes.
 
    #+BEGIN_SRC emacs-lisp
@@ -967,6 +970,7 @@ required from *emacs*.
      (evil-mode 1)
    #+END_SRC
 
+*** Further Settings
    #+BEGIN_SRC emacs-lisp
      (global-evil-leader-mode t)
      (global-evil-surround-mode t)
@@ -2480,7 +2484,7 @@ required from *emacs*.
 
 #  LocalWords:  Whitespace Minibuffer CScope Magit Comint
 ** Markdown
-   Enable Markdown mode and setup additional file extensions.
+   Enable =markdown-mode=  and setup additional file extensions.
 
    #+BEGIN_SRC emacs-lisp
      (require-package 'markdown-mode)
