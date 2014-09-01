@@ -1819,6 +1819,9 @@ required from *emacs*.
      ;; magit
      (push '("*magit-process*" :stick t) popwin:special-display-config)
 
+     ;; latex output
+     (push '("*\\S-+\\s-output\\*$" :regexp t :height 10) popwin:special-display-config)
+
      ;; quickrun
      (push '("*quickrun*" :stick t) popwin:special-display-config)
 
