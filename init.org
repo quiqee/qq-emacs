@@ -543,14 +543,6 @@ required from *emacs*.
      (add-hook 'kill-buffer-query-functions 'qq/do-not-kill-scratch-buffer)
    #+END_SRC
 
-   Ban whitespace at end of lines, globally.
-
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'before-save-hook
-               '(lambda ()
-                  (whitespace-cleanup)))
-   #+END_SRC
-
    The world is so rich with expressivity. Although Unicode may never
    capture all of the worlds symbols, it comes close.
 
@@ -896,6 +888,15 @@ required from *emacs*.
       | C-c e   |                                                                            | 'qq/eval-and-replace     |
       | C-(     | In selected window switch to previous buffer                               | 'previous-buffer         |
       | C-)     | In selected window switch to next buffer                                   | 'next-buffer             |
+
+** Dired+
+   I install this primary to force dired to only use one buffer
+
+   #+BEGIN_SRC emacs-lisp
+     (require-package 'dired+)
+     (toggle-diredp-find-file-reuse-dir 1)
+     (setq diredp-hide-details-initially-flag nil)
+   #+END_SRC
 
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
@@ -1254,6 +1255,41 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (require-package 'writegood-mode)
      (require 'writegood-mode)
+   #+END_SRC
+
+** Whitespace
+   Apply whitespace cleanup upon save, taken from [[https://www.gc3.uzh.ch/blog/Whitespace_cleanup_with_Emacs/][Whitespace cleanup with Emacs]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun whitespace-cleanup* ()
+       (let* ((modified-before-p (buffer-modified-p)))
+         (whitespace-cleanup)
+         (if (not modified-before-p)
+             (not-modified))))
+
+
+     (defun whitespace-cleanup-on-save ()
+       (add-hook 'write-contents-hooks #'whitespace-cleanup*))
+
+     (add-hook 'c-mode-common-hook   #'whitespace-cleanup-on-save)
+     (add-hook 'emacs-lisp-mode-hook #'whitespace-cleanup-on-save)
+     (add-hook 'python-mode-hook     #'whitespace-cleanup-on-save)
+     (add-hook 'sh-mode-hook         #'whitespace-cleanup-on-save)
+     (add-hook 'text-mode-hook       #'whitespace-cleanup-on-save)
+   #+END_SRC
+
+   Make whitespace-mode use just basic coloring
+
+   #+BEGIN_SRC emacs-lisp
+     (setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark)))
+     (setq whitespace-display-mappings
+            ;; all numbers are Unicode codepoint in decimal. try (insert-char 182 ) to see it
+           '(
+             (space-mark 32 [183] [46]) ; 32 SPACE, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+             (newline-mark 10 [182 10]) ; 10 LINE FEED
+             (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+             ))
+
    #+END_SRC
 
 ** Auto-Complete
@@ -2435,8 +2471,7 @@ required from *emacs*.
             ("default.bib" "other-default.bib")))
    #+END_SRC
 
-   =.tex=-files should be associated with =latex-mode= instead of
-   =tex-mode=.
+   Associate =.tex=-files with =latex-mode= instead of =tex-mode=.
 
    #+BEGIN_SRC emacs-lisp
      (add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
