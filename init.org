@@ -59,6 +59,7 @@
    - [[https://github.com/jimeh/.emacs.d][jimeh/.emacs.d]] ::
    - [[https://github.com/ubolonton/.emacs.d][ubolonton/.emacs.d]] :: extensive use of variable-width font (for non-code texts)
    - [[http://milkbox.net/note/single-file-master-emacs-configuration/][milkyman's init file]] ::
+   - [[https://github.com/tach4n/tommydots/tree/master/emacs][tach4n/tommydots]] :: he have added more syntax hilighting
 
 * Basic
 ** Meta
