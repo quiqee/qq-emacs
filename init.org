@@ -1259,30 +1259,17 @@ required from *emacs*.
    #+END_SRC
 
 ** Whitespace
-   Apply whitespace cleanup upon save, taken from [[https://www.gc3.uzh.ch/blog/Whitespace_cleanup_with_Emacs/][Whitespace cleanup with Emacs]]
+   Ban whitespace at end of lines, globally. Ban tabs too, everywhere
 
    #+BEGIN_SRC emacs-lisp
-     (defun whitespace-cleanup* ()
-       (let* ((modified-before-p (buffer-modified-p)))
-         (whitespace-cleanup)
-         (if (not modified-before-p)
-             (not-modified))))
-
-
-     (defun whitespace-cleanup-on-save ()
-       (add-hook 'write-contents-hooks #'whitespace-cleanup*))
-
-     (add-hook 'c-mode-common-hook   #'whitespace-cleanup-on-save)
-     (add-hook 'emacs-lisp-mode-hook #'whitespace-cleanup-on-save)
-     (add-hook 'python-mode-hook     #'whitespace-cleanup-on-save)
-     (add-hook 'sh-mode-hook         #'whitespace-cleanup-on-save)
-     (add-hook 'text-mode-hook       #'whitespace-cleanup-on-save)
+     (add-hook 'before-save-hook 'whitespace-cleanup)
    #+END_SRC
 
-   Make whitespace-mode use just basic coloring
+   =whitespace-cleanup= make use of settings in whitespace-style, refer to this
+   [[http://emacsredux.com/blog/2013/05/16/whitespace-cleanup/][blog]] for details.
 
    #+BEGIN_SRC emacs-lisp
-     (setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark)))
+     (setq whitespace-style (quote (spaces tabs newline space-mark tab-mark newline-mark trailing)))
      (setq whitespace-display-mappings
             ;; all numbers are Unicode codepoint in decimal. try (insert-char 182 ) to see it
            '(
@@ -1291,6 +1278,12 @@ required from *emacs*.
              (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
              ))
 
+   #+END_SRC
+
+   Except for =makefile-mode=
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'makefile-mode-hook 'indent-tabs-mode)
    #+END_SRC
 
 ** Auto-Complete
@@ -2236,7 +2229,28 @@ required from *emacs*.
                  (lambda ()
                    (exec-path-from-shell-copy-env "SSH_AGENT_PID")
                    (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
-                   )))
+                   ))
+   #+END_SRC
+
+   Auctex setting for =Mac OS X=
+
+   #+BEGIN_SRC emacs-lisp
+       ;; Use Skim as viewer, enable source <-> PDF sync
+       ;; make latexmk available via C-c C-c
+       ;; Note: SyncTeX is setup via ~/.latexmkrc (see below)
+;       (add-hook 'LaTeX-mode-hook (lambda ()
+;                                    (push
+;                                     '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
+;                                       :help "Run latexmk on file")
+;                                     TeX-command-list)))
+
+       ;; use Skim as default pdf viewer
+       ;; Skim's displayline is used for forward search (from .tex to .pdf)
+       ;; option -b highlights the current line; option -g opens Skim in the background
+       (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
+       (setq TeX-view-program-list
+             '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
+       )
    #+END_SRC
 
 * TODO Language Modes
@@ -2297,7 +2311,8 @@ required from *emacs*.
       (add-hook 'ielm-mode-hook 'qq/lisp-hook)
     #+END_SRC
 
-** Java and C
+** C and its derivative
+*** Common
    The =c-mode-common-hook= is a general hook that work on all C-like
    languages (C, C++, Java, etc...). I like being able to quickly compile
    using =C-c C-c= (instead of =M-x compile=), a habit from =latex-mode=.
@@ -2316,6 +2331,7 @@ required from *emacs*.
      (add-hook 'c-mode-common-hook 'qq/c-mode-init)
    #+END_SRC
 
+*** Java
    Some statements in Java appear often, and become tedious to write
    out. We can use abbrevs to speed this up.
 
@@ -2335,6 +2351,13 @@ required from *emacs*.
      (setq-local compile-command (concat "javac " (buffer-name))))
 
    (add-hook 'java-mode-hook 'java-setup)
+   #+END_SRC
+
+*** Objective-C
+   Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
    #+END_SRC
 
 ** Assembler
@@ -2370,14 +2393,13 @@ required from *emacs*.
    typography features. =AUCTeX= don't come preconfigured with an option to run
    =XeLaTeX=.
 
+   For Mac OS X, the setting for external pdf viewer is [[Mac%20OS%20X][here]]
+
    #+BEGIN_SRC emacs-lisp
      (add-hook 'LaTeX-mode-hook (lambda()
                                   (visual-line-mode)
                                   (add-to-list 'TeX-command-list '("XeLaTeX"
                                                                    "%`xelatex %(mode)%' %t" TeX-run-TeX nil t))
-                                             ;(add-to-list 'TeX-command-list (list "View"
-                                             ;                                 "/Applications/Preview.app/Contents/MacOS/Preview %o"
-                                             ;                                 'TeX-run-discard t  t :help "Run Viewer"))
                                   (setq TeX-command-default "XeLaTeX")
                                   (setq TeX-save-query nil)
                                   (setq TeX-show-compilation t)
