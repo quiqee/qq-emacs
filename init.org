@@ -218,7 +218,6 @@ required from *emacs*.
          evil evil-exchange evil-indent-textobject evil-jumper evil-leader
          evil-matchit evil-nerd-commenter evil-numbers evil-surround evil-visualstar
 
-         expand-region           ; Increase selected region by semantic units
          flx-ido                 ; Better flex (fuzzy) matching for Ido
          flycheck                ; on-the-fly syntax checking
          ggtags
@@ -898,6 +897,24 @@ required from *emacs*.
      (toggle-diredp-find-file-reuse-dir 1)
      (setq diredp-hide-details-initially-flag nil)
    #+END_SRC
+
+** Expand Region
+   Increase selected region by semantic units. Just keep pressing the key until
+   it selects what you want.
+
+   #+BEGIN_SRC emacs-lisp
+     (require-package 'expand-region)
+     (require 'expand-region)
+   #+END_SRC
+
+   [[Expand%20Region%20Bindings][This]] function will generate the binding for the table below
+
+   #+TBLNAME: er-combos
+   | Combo | Description                          | Command                 |
+   |-------+--------------------------------------+-------------------------|
+   | C-=   | Select region and expand on commands | 'er/expand-region       |
+   | C-\"  | Select region inside quotes          | 'er/mark-inside-quotes  |
+   | M-\"  | Select region outside quotes         | 'er/mark-outside-quotes |
 
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
@@ -2702,6 +2719,13 @@ required from *emacs*.
      <<gen-keys(tname=std_keys)>>
    #+END_SRC
 
+*** Expand Region Bindings
+   Generate binding using table from [[Expand%20Region][here]]
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-keys(tname=er-combos)>>
+   #+END_SRC
+
 ** Evil
 *** Basic Behaviour
 
@@ -3008,13 +3032,6 @@ required from *emacs*.
      (after 'company
        (define-key company-active-map (kbd "C-n") 'company-select-next)
        (define-key company-active-map (kbd "C-p") 'company-select-previous))
-   #+END_SRC
-
-** Expand Region
-
-   #+BEGIN_SRC emacs-lisp
-     (after "expand-region-autoloads"
-       (global-set-key (kbd "C-=") 'er/expand-region))
    #+END_SRC
 
 ** Web-Mode
