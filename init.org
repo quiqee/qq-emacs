@@ -2398,6 +2398,8 @@ required from *emacs*.
      (setq TeX-parse-self t)
      (setq-default TeX-master nil)
      (setq LaTeX-command-style '(("" "%(PDF)%(latex) -file-line-error %S%(PDFout)")))
+
+     (require-package 'magic-latex-buffer)
    #+END_SRC
 
    Compile LaTeX document to PDF by default
@@ -2414,6 +2416,8 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'LaTeX-mode-hook (lambda()
+                                  (require 'magic-latex-buffer)
+                                  (magic-latex-buffer)
                                   (visual-line-mode)
                                   (add-to-list 'TeX-command-list '("XeLaTeX"
                                                                    "%`xelatex %(mode)%' %t" TeX-run-TeX nil t))
