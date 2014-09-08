@@ -2061,6 +2061,92 @@ required from *emacs*.
                            'ruby 'nxml)
    #+end_src
 
+** Sr Speedbar
+   Let =speedbar= show in current frame. The most painful part of Emacs fo far
+   seems to be the lack of decent project tree navigation. The following features
+   are needed:
+   - Stays with/inside the current pane (emacs-nav seem to do, but does no tree)
+   - Stays the same length
+   - Shows current file
+   - Integrates with Projectile (so the root can be pinned)
+
+   Currently sr-speedbar seems to be the best option. Other options are:
+   speedbar, neotree, dirtree and emacs-nav.
+
+   #+BEGIN_SRC emacs-lisp
+     (require-package 'sr-speedbar)
+     (require 'sr-speedbar)
+   #+END_SRC
+
+*** Customize =sr-speedbar= behavior
+
+   #+BEGIN_SRC emacs-lisp
+     (setq sr-speedbar-skip-other-window-p 1)
+     (setq sr-speedbar-width 40)
+     (setq sr-speedbar-auto-refresh nil)
+     (setq sr-speedbar-max-width 40)
+     (setq sr-speedbar-right-side nil)
+     (setq sr-speedbar-width-console 40)
+     (setq sr-speedbar-width-x 40)
+
+     (setq speedbar-verbosity-level 2)
+     (setq speedbar-hide-button-brackets-flag t)
+     (setq speedbar-show-unknown-files t)
+     (setq speedbar-smart-directory-expand-flag t)
+     (setq speedbar-use-images nil)
+     (setq speedbar-hide-button-brackets-flag t
+           speedbar-show-unknown-files t
+           speedbar-smart-directory-expand-flag t
+           speedbar-directory-button-trim-method 'trim
+           speedbar-use-images nil
+           speedbar-indentation-width 2
+           speedbar-use-imenu-flag t
+           speedbar-directory-unshown-regexp "^\\(\\.\\|\\.\\.\\)$"
+           speedbar-file-unshown-regexp "flycheck-.*")
+     (setq speedbar-frame-parameters
+           '((minibuffer)
+             (width . 40)
+             (border-width . 0)
+             (menu-bar-lines . 0)
+             (tool-bar-lines . 0)
+             (unsplittable . t)
+             (left-fringe . 0)
+             (right-fringe . 0)
+             (vertical-scroll-bars . nil)))
+   #+END_SRC
+
+   Highlight the current line
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'speedbar-mode-hook (lambda () (setq truncate-lines t)))
+   #+END_SRC
+
+*** TODO Bindings
+
+   #+BEGIN_SRC emacs-lisp
+     (defun my:sr-speedbar-toggle()
+       (interactive)
+       (sr-speedbar-toggle)
+       (with-current-buffer sr-speedbar-buffer-name (setq window-size-fixed 'width)))
+
+     (global-set-key (kbd "C-x t") 'my:sr-speedbar-toggle)
+     (global-set-key (kbd "C-x T") (lambda()
+                                     (interactive)
+                                     (sr-speedbar-select-window)
+                                     (select-frame-set-input-focus (window-frame (selected-window)))))
+   #+END_SRC
+
+   More familiar keymap settings.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'speedbar-reconfigure-keymaps-hook
+               '(lambda ()
+                  (define-key speedbar-mode-map [S-up] 'speedbar-up-directory)
+                  (define-key speedbar-mode-map [right] 'speedbar-flush-expand-line)
+                  (define-key speedbar-mode-map [left] 'speedbar-contract-line)))
+   #+END_SRC
+
+
 ** Guide key
 *** Init
    #+BEGIN_SRC emacs-lisp
@@ -2270,7 +2356,7 @@ required from *emacs*.
        )
    #+END_SRC
 
-* TODO Language Modes
+* Language Modes
 ** General
    Some general settings that should apply to all programming mode. Highlight
    =FIXME= and =TODO= so they stand out. Also enable indent-guide mode
@@ -2396,8 +2482,16 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (require-package 'magic-latex-buffer)
 
-     (setq TeX-auto-save t)
+   #+END_SRC
+
+   Enable parse on load and on save.
+
+   #+BEGIN_SRC emacs-lisp
      (setq TeX-parse-self t)
+     (setq TeX-auto-save t)
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
      (setq-default TeX-master nil)
      (setq LaTeX-command-style '(("" "%(PDF)%(latex) -file-line-error %S%(PDFout)")))
      (setq TeX-save-query nil)
@@ -2420,6 +2514,15 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq TeX-PDF-mode t)
+   #+END_SRC
+
+   " expands into csquotes macros (for this to work babel must be loaded after
+   csquotes).
+
+   #+BEGIN_SRC emacs-lisp
+     (setq LaTeX-csquotes-close-quote "}"
+           LaTeX-csquotes-open-quote "\\enquote{")
+
    #+END_SRC
 
    Associate =.tex=-files with =latex-mode= instead of =tex-mode=.
@@ -2512,11 +2615,55 @@ required from *emacs*.
                       "textsc" "textup" "ac")))))
    #+END_SRC
 
-*** RefTex
+*** RefTeX
+   Turn on =RefTeX= for =AUCTeX=; [[http://www.gnu.org/s/auctex/manual/reftex/reftex_5.html][reftex 5]]
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+   #+END_SRC
+
+    Prompt for empty optional arguments in cite macros.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq reftex-cite-prompt-optional-args t)
+   #+END_SRC
+
+   Make RefTeX interact with AUCTeX, [[http://www.gnu.org/s/auctex/manual/reftex/AUCTeX_002dRefTeX-Interface.html][RefTeX interface]]
+
+   #+BEGIN_SRC emacs-lisp
      (setq reftex-plug-into-AUCTeX t)
+   #+END_SRC
+
+   So that =RefTeX= also recognizes =\addbibresource=. Note that you can't use
+   =$HOME= in path for =\addbibresource= but that "~" works.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+   #+END_SRC
+
+   Recognize =\subcaptions=, e.g. reftex-citation.
+
+   #+BEGIN_SRC emacs-lisp
+     (eval-after-load "reftex-vars"
+       '(progn (setcdr (assoc 'caption reftex-default-context-regexps)
+                       "\\\\\\(rot\\|sub\\)?caption\\*?[[{]")))
+   #+END_SRC
+
+   Get ReTeX with biblatex, see [[http://tex.stackexchange.com/questions/31966/setting-up-reftex-with-biblatex-citation-commands/31992#31992][Setting up RefTeX with biblatex citation commands]]
+
+   #+BEGIN_SRC emacs-lisp
+     (setq reftex-cite-format
+           '((?t . "\\textcite[]{%l}")
+             (?a . "\\autocite[]{%l}")
+             (?c . "\\cite[]{%l}")
+             (?s . "\\smartcite[]{%l}")
+             (?f . "\\footcite[]{%l}")
+             (?n . "\\nocite{%l}")
+             (?b . "\\blockcquote[]{%l}{}")))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+;     (setq reftex-default-bibliography '("UNCOMMENT LINE AND INSERT PATH TO YOUR BIBLIOGRAPHY HERE")); So that RefTeX in Org-mode knows bibliography
      (setq reftex-use-external-file-finders t)
      (setq reftex-external-file-finders
            '(("tex" . "kpsewhich -format=.tex %f")
@@ -2524,6 +2671,87 @@ required from *emacs*.
      (setq reftex-default-bibliography
            (quote
             ("default.bib" "other-default.bib")))
+   #+END_SRC
+
+*** Fontification
+ Remove unnecessary entries as you notice them. See [[http://lists.gnu.org/archive/html/emacs-orgmode/2009-05/msg00236.html][mail archive]] & [[http://www.gnu.org/software/auctex/manual/auctex/Fontification-of-macros.html][Fontification of macros]]
+
+   #+BEGIN_SRC emacs-lisp
+     (setq font-latex-match-reference-keywords
+           '(
+             ;; biblatex
+             ("printbibliography" "[{")
+             ("addbibresource" "[{")
+             ;; Standard commands
+             ;; ("cite" "[{")
+             ("Cite" "[{")
+             ("parencite" "[{")
+             ("Parencite" "[{")
+             ("footcite" "[{")
+             ("footcitetext" "[{")
+             ;; ;; Style-specific commands
+             ("textcite" "[{")
+             ("Textcite" "[{")
+             ("smartcite" "[{")
+             ("Smartcite" "[{")
+             ("cite*" "[{")
+             ("parencite*" "[{")
+             ("supercite" "[{")
+                                             ; Qualified citation lists
+             ("cites" "[{")
+             ("Cites" "[{")
+             ("parencites" "[{")
+             ("Parencites" "[{")
+             ("footcites" "[{")
+             ("footcitetexts" "[{")
+             ("smartcites" "[{")
+             ("Smartcites" "[{")
+             ("textcites" "[{")
+             ("Textcites" "[{")
+             ("supercites" "[{")
+             ;; Style-independent commands
+             ("autocite" "[{")
+             ("Autocite" "[{")
+             ("autocite*" "[{")
+             ("Autocite*" "[{")
+             ("autocites" "[{")
+             ("Autocites" "[{")
+             ;; Text commands
+             ("citeauthor" "[{")
+             ("Citeauthor" "[{")
+             ("citetitle" "[{")
+             ("citetitle*" "[{")
+             ("citeyear" "[{")
+             ("citedate" "[{")
+             ("citeurl" "[{")
+             ;; Special commands
+             ("fullcite" "[{")))
+
+     (setq font-latex-match-textual-keywords
+           '(
+             ;; biblatex brackets
+             ("parentext" "{")
+             ("brackettext" "{")
+             ("hybridblockquote" "[{")
+             ;; Auxiliary Commands
+             ("textelp" "{")
+             ("textelp*" "{")
+             ("textins" "{")
+             ("textins*" "{")
+             ;; supcaption
+             ("subcaption" "[{")))
+
+     (setq font-latex-match-variable-keywords
+           '(
+             ;; amsmath
+             ("numberwithin" "{")
+             ;; enumitem
+             ("setlist" "[{")
+             ("setlist*" "[{")
+             ("newlist" "{")
+             ("renewlist" "{")
+             ("setlistdepth" "{")
+             ("restartlist" "{")))
    #+END_SRC
 
 ** Python
@@ -2906,7 +3134,6 @@ required from *emacs*.
                  (kbd "M-K") 'org-shiftmetaup
                  (kbd "M-J") 'org-shiftmetadown))
              '(normal insert))
-     (evil-define-key 'normal org-mode-map (kbd "\\ t")   'org-todo)
      (evil-define-key 'normal org-mode-map (kbd "z c")   'hide-subtree)
      (evil-define-key 'normal org-mode-map (kbd "\\ TAB")  '(lambda () (interactive)(org-shiftmetadown)
                                                               (evil-insert 0)))
