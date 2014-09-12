@@ -60,6 +60,8 @@
    - [[https://github.com/ubolonton/.emacs.d][ubolonton/.emacs.d]] :: extensive use of variable-width font (for non-code texts)
    - [[http://milkbox.net/note/single-file-master-emacs-configuration/][milkyman's init file]] ::
    - [[https://github.com/tach4n/tommydots/tree/master/emacs][tach4n/tommydots]] :: he have added more syntax hilighting
+   - [[https://github.com/ghoseb/dotemacs][ghoseb/dotemacs]] :: easy and well documented dotemacs
+   - [[http://zeekat.nl/articles/making-emacs-work-for-me.html][Making emacs work for me]] ::
 
 * Basic
 ** Meta
@@ -154,110 +156,16 @@ required from *emacs*.
    #+END_SRC
 
 ** Packages
-   Managing extensions for Emacs is simplified using =package= which
-   is built in to Emacs 24 and newer. To load downloaded packages we
-   need to initialize =package=.
+   =Cask= is package manager for emacs. The reason I use cask is that it offer
+   update feature that I don't find it in any other solutions for emacs.
 
    #+BEGIN_SRC emacs-lisp
-     (require 'package)
-     (setq package-enable-at-startup nil)
-     (package-initialize)
+     (require 'cask "~/.cask/cask.el")
+     (cask-initialize)
    #+END_SRC
 
-   Packages can be fetched from different mirrors, melpa is the largest
-   archive and is well maintained.
-
-   #+BEGIN_SRC emacs-lisp
-     (setq package-archives
-           '(("melpa" . "http://melpa.milkbox.net/packages/")
-             ("org" . "http://orgmode.org/elpa/")
-             ("gnu" . "http://elpa.gnu.org/packages/")
-             ("marmalade" . "http://marmalade-repo.org/packages/")
-            ))
-   #+END_SRC
-
-   Let's write a function to install a package if it is not installed or
-   upgrades it if a new version has been released. Here our predicate comes
-   in handy.
-
-   #+BEGIN_SRC emacs-lisp
-     (defun require-package (package)
-       "Install given PACKAGE."
-       (unless (package-installed-p package)
-         (unless (assoc package package-archive-contents)
-           (package-refresh-contents))
-         (package-install package)))
-   #+END_SRC
-
-   Now we can use the function above to make sure packages are installed and
-   up to date. Here are some packages I find useful (some of these
-   configurations are also dependent on them). Note, the list of packages below
-   are for packages that do not have their own section in [[Modes]]
-
-   #+BEGIN_SRC emacs-lisp
-     (defcustom fave-packages
-       '(
-         ace-jump-mode           ; quick cursor location minor mode
-         ;auctex                  ; integrated environment for *TeX*
-         auto-compile            ; automatically compile Emacs Lisp libraries
-         auto-complete           ; auto completion
-         ;auto-complete-auctex    ; auto completion with autex integration
-         bind-key                ; a simple way to manage personal keybindings
-         color-identifiers-mode  ; gives colors to unique variables passed into functions
-         crosshairs              ; Highlight current line & current column
-         diminish                ; fight modeline clutter by removing or
-                                 ; abbreviating minor mode indicators
-
-         discover-my-major       ; Discover key bindings and their meaning for
-                                 ; the current Emacs major mode
-         elisp-slime-nav         ; Provide convinient navigation to the definitions
-                                 ; of variables, functions, libraries and faces.
-         elscreen                ; window session manager
-
-         ;; vim emulator
-         evil evil-exchange evil-indent-textobject evil-jumper evil-leader
-         evil-matchit evil-nerd-commenter evil-numbers evil-surround evil-visualstar
-
-         flx-ido                 ; Better flex (fuzzy) matching for Ido
-         flycheck                ; on-the-fly syntax checking
-         ggtags
-
-         hungry-delete
-         idle-highlight-mode     ; sets an idle timer that highlights all
-                                 ; occurences in the buffer of the word under cursor
-         ido-vertical-mode       ; Makes ido-mode display vertically.
-         ido-ubiquitous          ; use ido with almost anything that uses completion
-         indent-guide            ; a neat mode to show indentation
-         latex-preview-pane
-         magit
-         magit-gerrit
-         move-text               ; Move current line or region with M-up or M-down
-         multiple-cursors        ; Multiple cursors for Emacs.
-         org                     ; Outline-based notes management and organizer
-         org-ac                  ; Auto-Complete for Org-Mode
-         org-bullets             ; show org bullet as Unicode character
-         paredit                 ; minor mode for editing parentheses
-         popwin                  ; popup window manager
-         pretty-lambdada
-         rainbow-delimiters
-         rainbow-mode            ; colorized color code in file
-         smart-mode-line
-         smartparens             ; Minor mode for Emacs that deals with parens pairs
-         smart-tabs-mode         ; provide semantic way of using tab in source code
-         smex                    ; M-x interface with Ido-style fuzzy matching.
-
-         undo-tree               ; Treat undo history as a tree
-         wgrep
-         xcscope
-         yasnippet               ; snippet tools for emacs
-         )
-       "Set of package to install for qq."
-       :group 'qq)
-
-
-     (dolist (pkg fave-packages)
-       (require-package pkg))
-   #+END_SRC
+   Cask packages configuration for Mac OS X: [[file:~/.emacs.d/Cask][Cask]]
+   For Linux: [[file:/home/fikri/.emacs.d/Cask][Cask]]
 
 ** TODO Require
    Some features are not loaded by default to minimize initialization time,
@@ -876,24 +784,24 @@ required from *emacs*.
    Using The table below as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
-      | Combo   | Description                                                                | Command                  |
-      |---------+----------------------------------------------------------------------------+--------------------------|
-      | C-s     | Do incremental search forward for regular expression                       | 'isearch-forward-regexp  |
-      | C-M-s   | Do incremental search forward                                              | 'isearch-forward         |
-      | C-r     | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
-      | C-M-r   | Do incremental search backward                                             | 'isearch-backward        |
-      | C-c s   | Jump to *scratch* buffer                                                   | 'qq/goto-scratch-buffer  |
-      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
-      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
-      | C-c e   |                                                                            | 'qq/eval-and-replace     |
-      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer         |
-      | C-)     | In selected window switch to next buffer                                   | 'next-buffer             |
+      | Combo    | Description                                                                | Command                  |
+      |----------+----------------------------------------------------------------------------+--------------------------|
+      | C-s      | Do incremental search forward for regular expression                       | 'isearch-forward-regexp  |
+      | C-M-s    | Do incremental search forward                                              | 'isearch-forward         |
+      | C-r      | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
+      | C-M-r    | Do incremental search backward                                             | 'isearch-backward        |
+      | C-c s    | Jump to *scratch* buffer                                                   | 'qq/goto-scratch-buffer  |
+      | C-x C-b  | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
+      | C-x C-k  | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
+      | C-c e    |                                                                            | 'qq/eval-and-replace     |
+      | C-(      | In selected window switch to previous buffer                               | 'previous-buffer         |
+      | C-)      | In selected window switch to next buffer                                   | 'next-buffer             |
+      | [escape] | Work as C-g in cases where it does something, and as C-x 1 in other cases  | 'keyboard-escape-quit    |
 
 ** Dired+
    I install this primary to force dired to only use one buffer
 
    #+BEGIN_SRC emacs-lisp
-     (require-package 'dired+)
      (toggle-diredp-find-file-reuse-dir 1)
      (setq diredp-hide-details-initially-flag nil)
    #+END_SRC
@@ -903,7 +811,6 @@ required from *emacs*.
    it selects what you want.
 
    #+BEGIN_SRC emacs-lisp
-     (require-package 'expand-region)
      (require 'expand-region)
    #+END_SRC
 
@@ -1043,7 +950,6 @@ required from *emacs*.
            (evil-emacs-state))
          (defadvice magit-blame-file-off (after advice-for-magit-blame-file-off activate)
            (evil-exit-emacs-state))))
-     (require-package 'diff-hl)
      (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
      (unless (display-graphic-p)
        (diff-hl-margin-mode))
@@ -1058,14 +964,10 @@ required from *emacs*.
    #+END_SRC
 
 ** Git-Gutter+
-   Check if we're running in GUI mode before enabling =Git-Gutter+=
+   Enable =Git-Gutter+= globally
 
    #+BEGIN_SRC emacs-lisp
-     (if (display-graphic-p)
-         (progn
-           (require-package 'git-gutter-fringe+)
-           (require 'git-gutter-fringe+))
-       (require-package 'git-gutter+))
+     (require 'git-gutter-fringe+)
      (global-git-gutter+-mode)
    #+END_SRC
 
@@ -1372,7 +1274,6 @@ required from *emacs*.
    *Matthew Matt*'s shell scripts: [[http://matt.might.net/articles/shell-scripts-for-passive-voice-weasel-words-duplicates/][3 Shell scripts to improved your writing]]
 
    #+BEGIN_SRC emacs-lisp
-     (require-package 'writegood-mode)
      (require 'writegood-mode)
    #+END_SRC
 
@@ -1777,30 +1678,11 @@ required from *emacs*.
           (erc-scrolltobottom-mode t)
    #+end_src
 
-** Grep et al
+** Ag
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'c-mode-common-hook
-               (lambda ()
-                 (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-                   (ggtags-mode 1))))
-
-     (when (executable-find "pt")
-       (require-package 'pt)
-       (require-package 'wgrep-pt))
-
-
-     (when (executable-find "ag")
-       (require-package 'ag)
-       (setq ag-highlight-search t)
-       (setq ag-reuse-window t)
-       (add-hook 'ag-mode-hook (lambda () (toggle-truncate-lines t)))
-       (require-package 'wgrep-ag))
-
-
-     (when (executable-find "ack")
-       (require-package 'ack-and-a-half)
-       (require-package 'wgrep-ack))
-
+     (setq ag-highlight-search t)
+     (setq ag-reuse-window t)
+     (add-hook 'ag-mode-hook (lambda () (toggle-truncate-lines t)))
    #+END_SRC
 
 ** TODO Helm
@@ -1815,12 +1697,6 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq helm-command-prefix-key "C-c h")
-     (require-package 'helm)
-     (require-package 'helm-cmd-t)
-     (require-package 'helm-orgcard)
-     (require-package 'helm-pydoc)
-     (require-package 'helm-themes)
-     (require-package 'helm-swoop)
 
      (require 'helm)
      (require 'helm-config)
@@ -2175,7 +2051,6 @@ required from *emacs*.
    speedbar, neotree, dirtree and emacs-nav.
 
    #+BEGIN_SRC emacs-lisp
-     (require-package 'sr-speedbar)
      (require 'sr-speedbar)
    #+END_SRC
 
@@ -2250,7 +2125,6 @@ required from *emacs*.
 ** Guide key
 *** Init
    #+BEGIN_SRC emacs-lisp
-     (require-package 'guide-key)
      (require 'guide-key)
      (guide-key-mode 1)
      (setq guide-key/recursive-key-sequence-flag t)
@@ -2400,7 +2274,6 @@ required from *emacs*.
    actually changed in the buffer.
 
    #+BEGIN_SRC emacs-lisp
-     (require-package 'volatile-highlights)
      (require 'volatile-highlights)
      (volatile-highlights-mode t)
    #+END_SRC
@@ -2417,7 +2290,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (when (memq window-system '(mac ns))
-       (require-package 'exec-path-from-shell)
+       ;(require-package 'exec-path-from-shell)
        (require 'ucs-normalize)
        (setq mac-option-modifier nil
              mac-command-modifier 'meta
@@ -2472,6 +2345,7 @@ required from *emacs*.
                   (qq/add-watchwords)
                   (require 'indent-guide)
                   (indent-guide-mode t)
+                  (setq indent-guide-recursive t)
                   (color-identifiers-mode t)))
    #+end_src
 
@@ -2530,6 +2404,7 @@ required from *emacs*.
        (flycheck-mode)
        ; enable spell check in comment area
        (flyspell-prog-mode))
+       (ggtags-mode 1)
 
      (add-hook 'c-mode-common-hook 'qq/c-mode-init)
    #+END_SRC
@@ -2578,12 +2453,6 @@ required from *emacs*.
 
 ** LaTeX
 *** Preferred settings for LaTeX
-
-   #+BEGIN_SRC emacs-lisp
-     (require-package 'magic-latex-buffer)
-
-   #+END_SRC
-
    Enable parse on load and on save.
 
    #+BEGIN_SRC emacs-lisp
@@ -2874,7 +2743,6 @@ required from *emacs*.
    Enable =markdown-mode=  and setup additional file extensions.
 
    #+BEGIN_SRC emacs-lisp
-     (require-package 'markdown-mode)
      (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
      (add-to-list 'auto-mode-alist '("\\.mdown$" . markdown-mode))
      (add-to-list 'auto-mode-alist '("\\.markdown$" . markdown-mode))
@@ -3090,7 +2958,6 @@ required from *emacs*.
 *** Key-Chord
 
    #+BEGIN_SRC emacs-lisp
-       (require-package 'key-chord)
        (key-chord-mode 1)
        (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
        (key-chord-define evil-insert-state-map "kj" 'evil-normal-state)
