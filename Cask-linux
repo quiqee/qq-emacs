@@ -1,0 +1,91 @@
+(source melpa)
+(source gnu)
+(source org)
+
+
+(depends-on "ace-jump-mode")           ; quick cursor location minor mode
+(depends-on "ag")
+(depends-on "auctex")                  ; integrated environment for *TeX*
+(depends-on "auto-compile")            ; automatically compile Emacs Lisp libraries
+(depends-on "auto-complete")           ; auto completion
+;(depends-on "auto-complete-auctex")    ; auto completion with autex integration
+(depends-on "bind-key")                ; a simple way to manage personal keybindings
+(depends-on "color-identifiers-mode")  ; gives colors to unique variables passed into functions
+(depends-on "crosshairs")              ; Highlight current line & current column
+(depends-on "diminish")                ; fight modeline clutter by removing or
+                                     ; abbreviating minor mode indicators
+
+(depends-on "diff-hl")
+(depends-on "dired+")
+(depends-on "discover-my-major")       ; Discover key bindings and their meaning for
+                                     ; the current Emacs major mode
+(depends-on "elisp-slime-nav")         ; Provide convinient navigation to the definitions
+                                     ; of variables, functions, libraries and faces.
+(depends-on "elscreen")                ; window session manager
+
+(depends-on "expand-region")
+;; vim emulator
+(depends-on "evil")
+(depends-on "evil-exchange")
+(depends-on "evil-indent-textobject")
+(depends-on "evil-jumper")
+(depends-on "evil-leader")
+(depends-on "evil-matchit")
+(depends-on "evil-nerd-commenter")
+(depends-on "evil-numbers")
+(depends-on "evil-surround")
+(depends-on "evil-visualstar")
+
+
+(depends-on "flx-ido")                 ; Better flex (fuzzy) matching for Ido
+(depends-on "flycheck")                ; on-the-fly syntax checking
+(depends-on "git-gutter-fringe+")
+(depends-on "ggtags")
+(depends-on "guide-key")
+
+(depends-on "helm")
+(depends-on "helm-cmd-t")
+(depends-on "helm-orgcard")
+(depends-on "helm-pydoc")
+(depends-on "helm-themes")
+(depends-on "helm-swoop")
+
+(depends-on "hungry-delete")
+(depends-on "idle-highlight-mode")     ; sets an idle timer that highlights all
+                                     ; occurences in the buffer of the word under cursor
+(depends-on "ido-vertical-mode")       ; Makes ido-mode display vertically.
+(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
+(depends-on "indent-guide")            ; a neat mode to show indentation
+
+(depends-on "key-chord")
+
+(depends-on "latex-preview-pane")
+
+(depends-on "magic-latex-buffer")
+
+(depends-on "magit")
+(depends-on "magit-gerrit")
+(depends-on "markdown-mode")
+(depends-on "move-text")               ; Move current line or region with M-up or M-down
+(depends-on "multiple-cursors")        ; Multiple cursors for Emacs.
+(depends-on "org-plus-contrib")        ; Outline-based notes management and organizer
+(depends-on "org-ac")                  ; Auto-Complete for Org-Mode
+(depends-on "org-bullets")             ; show org bullet as Unicode character
+(depends-on "pallet")                  ; Package management tools for emacs using cask
+(depends-on "paredit")                 ; minor mode for editing parentheses
+(depends-on "popwin")                  ; popup window manager
+(depends-on "pretty-lambdada")
+(depends-on "rainbow-delimiters")
+(depends-on "rainbow-mode")            ; colorized color code in file
+(depends-on "smart-mode-line")
+(depends-on "smartparens")             ; Minor mode for Emacs that deals with parens pairs
+(depends-on "smart-tabs-mode")         ; provide semantic way of using tab in source code
+(depends-on "smex")                    ; M-x interface with Ido-style fuzzy matching.
+
+(depends-on "sr-speedbar")
+(depends-on "undo-tree")               ; Treat undo history as a tree
+(depends-on "volatile-highlights")
+(depends-on "wgrep-ag")
+(depends-on "writegood-mode")
+(depends-on "xcscope")
+(depends-on "yasnippet")               ; snippet tools for emacs
