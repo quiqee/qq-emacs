@@ -195,6 +195,7 @@ required from *emacs*.
                 bind-key
                 cl
                 dired-x               ; provides extra functionality for DiredMode
+                help-fns+           ; provide better help functions
                 hideshow
                 hungry-delete
                 linum-off             ; provides interface for turning line numbering off.
@@ -1278,6 +1279,22 @@ required from *emacs*.
                 (if (eq major-mode 'ibuffer-mode)
                     (bury-buffer)
                   ad-do-it))
+   #+END_SRC
+
+   Nicely format =ibuffer= and include  git-status
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'ibuffer-git)
+
+     (setq ibuffer-formats '((mark modified read-only git-status-mini " "
+                                   (name 18 18 :left :elide)
+                                   " "
+                                   (size 9 -1 :right)
+                                   " "
+                                   (git-status 8 8 :left :elide)
+                                   " "
+                                   (mode 16 16 :left :elide)
+                                   " " filename-and-process)))
    #+END_SRC
 
 ** Writegood

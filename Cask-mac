@@ -23,9 +23,7 @@
                                      ; of variables, functions, libraries and faces.
 (depends-on "elscreen")                ; window session manager
 
-;MAC OS X ONLY
 (depends-on "exec-path-from-shell")
-
 
 (depends-on "expand-region")
 ;; vim emulator
@@ -47,6 +45,8 @@
 (depends-on "ggtags")
 (depends-on "guide-key")
 
+(depends-on "help-fns+")              ; better help functions
+
 (depends-on "helm")
 (depends-on "helm-cmd-t")
 (depends-on "helm-orgcard")
@@ -55,6 +55,7 @@
 (depends-on "helm-swoop")
 
 (depends-on "hungry-delete")
+(depends-on "ibuffer-git")
 (depends-on "idle-highlight-mode")     ; sets an idle timer that highlights all
                                      ; occurences in the buffer of the word under cursor
 (depends-on "ido-vertical-mode")       ; Makes ido-mode display vertically.
