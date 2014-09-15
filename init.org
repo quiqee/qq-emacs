@@ -277,7 +277,6 @@ required from *emacs*.
            ;; better scrolling
            scroll-conservatively 9999
            scroll-preserve-screen-position t
-
            undo-tree-history-directory-alist            ; cache for undo tree
               `(("." . ,(concat qq/cache-directory "undo")))
            undo-tree-visualizer-timestamps t            ; show timestamps
@@ -313,12 +312,6 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (setq echo-keystrokes 0.1)
-   #+end_src
-
-   If you change buffer, or focus, disable the current buffer's mark:
-
-   #+begin_src emacs-lisp
-     (transient-mark-mode t)
    #+end_src
 
    Ignore case when using completion for file names:
@@ -358,12 +351,6 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (setq calc-display-sci-low -5)
    #+end_src
-
-   Set fringe width on each side to 12
-
-   #+BEGIN_SRC emacs-lisp
-     (fringe-mode 12)
-   #+END_SRC
 
    Start a server if not running, but a different server for GUI versus text-only
 
@@ -487,10 +474,14 @@ required from *emacs*.
      ;(tile-frames-horizontally)
    #+END_SRC
 
-   Enable rainbow delimiter mode for prog major mode
+   Customize linum format.
 
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+     (setq linum-format (lambda (line)
+                          (propertize (format
+                                       (let ((w (length (number-to-string
+                                                         (count-lines (point-min) (point-max))))))
+                                         (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
    #+END_SRC
 
 *** Security
@@ -507,6 +498,8 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq
+           abbrev-file-name
+              (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
            save-place-file
               (concat qq/cache-directory "places")      ; cache for save-place
            savehist-file
@@ -794,6 +787,18 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (setq cua-enable-cua-keys nil)
      (cua-mode)
+   #+END_SRC
+
+   If you change buffer, or focus, disable the current buffer's mark:
+
+   #+begin_src emacs-lisp
+     (transient-mark-mode t)
+   #+end_src
+
+   Set fringe width on each side to 12
+
+   #+BEGIN_SRC emacs-lisp
+     (fringe-mode 12)
    #+END_SRC
 
 *** Keybindings
@@ -2434,7 +2439,8 @@ required from *emacs*.
 * Language Modes
 ** General
    Some general settings that should apply to all programming mode. Highlight
-   =FIXME= and =TODO= so they stand out. Also enable indent-guide mode
+   =FIXME= and =TODO= so they stand out. Also enable =indent-guide-mode= and
+   =rainbow-delimiter-mode=
 
    #+begin_src emacs-lisp
      (defun qq/add-watchwords ()
@@ -2445,6 +2451,7 @@ required from *emacs*.
      (add-hook 'prog-mode-hook
                '(lambda()
                   (qq/add-watchwords)
+                  (rainbow-delimiters-mode)
                   (require 'indent-guide)
                   (indent-guide-mode t)
                   (setq indent-guide-recursive t)

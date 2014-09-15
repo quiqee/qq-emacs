@@ -23,7 +23,7 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     ln -s $(pwd)/Cask-linux $HOME/.emacs.d/Cask
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
-    # Do something under Windows NT platform
+    echo "something under Windows NT platform"
 fi
 cd ~/.emacs.d
 cask install
