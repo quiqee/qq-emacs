@@ -224,7 +224,7 @@ required from *emacs*.
    #+END_SRC
 
 ** TODO Sane defaults
-
+*** Basic
    These are what /I/ consider to be saner defaults.
    We can set variables to whatever value we'd like using =setq=.
 
@@ -1420,6 +1420,14 @@ required from *emacs*.
       |-------+--------------------------------------+--------------|
       | C-n   | Select next on the popup window list | 'ac-next     |
       | C-p   | Select prev on the popup window list | 'ac-previous |
+
+** Multiple-Cursors
+   Set cache file for =multiple-cursors=
+
+   #+BEGIN_SRC emacs-lisp
+     (setq mc/list-file
+              (concat qq/cache-directory "mc-lists.el"))
+   #+END_SRC
 
 ** TODO Org
 *** Enable Org Mode
