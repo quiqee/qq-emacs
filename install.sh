@@ -22,8 +22,12 @@ if [ "$(uname)" == "Darwin" ]; then
     ln -s $(pwd)/Cask-mac $HOME/.emacs.d/Cask
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     ln -s $(pwd)/Cask-linux $HOME/.emacs.d/Cask
-elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
-    echo "something under Windows NT platform"
 fi
+mkdir -p ~/.emacs.d
 cd ~/.emacs.d
 cask install
+em --batch --eval="(require 'org-install)" \
+ --eval="(setq org-confirm-babel-evaluate nil)" \
+ --eval="(require 'ob-tangle)" \
+ --eval='(org-babel-tangle-file "init.org")' \
+ --eval='(byte-compile-file "~/.emacs.d/init.el")'
