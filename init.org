@@ -1811,13 +1811,17 @@ required from *emacs*.
 *** Init
 
    #+BEGIN_SRC emacs-lisp
-;     (setq helm-command-prefix-key "C-c h")
-;
-;     (require 'helm)
-;     (require 'helm-config)
-;     (require 'helm-eshell)
-;     (require 'helm-files)
-;     (require 'helm-grep)
+     (require 'helm)
+
+     ;; must set before helm-config,  otherwise helm use default
+     ;; prefix "C-x c", which is inconvenient because you can
+     ;; accidentially pressed "C-x C-c"
+     (setq helm-command-prefix-key "C-c h")
+
+     (require 'helm-config)
+     (require 'helm-eshell)
+     (require 'helm-files)
+     (require 'helm-grep)
    #+END_SRC
 
 *** Custom function
@@ -1878,44 +1882,42 @@ required from *emacs*.
 ;
 ;     (global-set-key (kbd "C-x b") 'helm-buffers-list)
 ;     (global-set-key (kbd "<f10>") 'helm-resume)
-;   #+END_SRC
-;
-;
-;   Preferred initial settings for Helm
-;
-;   #+BEGIN_SRC emacs-lisp
-;     (setq
-;      helm-google-suggest-use-curl-p t
-;      helm-bookmark-show-location t                     ; display bookmark location
-;      helm-scroll-amount 4                              ; scroll 4 lines other window using M-<next>/M-<prior>
-;      helm-quick-update t                               ; do not display invisible candidates
-;      helm-idle-delay 0.01                              ; be idle for this many seconds, before updating in delayed sources.
-;      helm-input-idle-delay 0.01                        ; be idle for this many seconds, before updating candidate buffer
-;      helm-ff-search-library-in-sexp t                  ; search for library in `require' and `declare-function' sexp.
-;
-;      helm-split-window-default-side 'other             ; open helm buffer in another window
-;      helm-split-window-in-side-p t                     ; open helm buffer inside current window, not occupy whole other window
-;      helm-buffers-favorite-modes (append helm-buffers-favorite-modes
-;                                          '(picture-mode artist-mode))
-;      helm-candidate-number-limit 200                   ; limit the number of displayed canidates
-;      helm-M-x-requires-pattern 0                       ; show all candidates when set to 0
-;      helm-boring-file-regexp-list
-;      '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$") ; do not show these files in helm buffer
-;      helm-ff-file-name-history-use-recentf t
-;      helm-move-to-line-cycle-in-source t               ; move to end or beginning of source
-;                                                             ; when reaching top or bottom of source.
-;      ido-use-virtual-buffers t                         ; Needed in helm-buffers-list
-;      helm-buffers-fuzzy-matching t                     ; fuzzy matching buffer names when non--nil
-;                                                        ; useful in helm-mini that lists buffers
-;      )
-;   #+END_SRC
-;
-;     Save current position to mark ring when jumping to a different place and
-;     enable helm-mode.
-;
-;   #+BEGIN_SRC emacs-lisp
-;     (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
-;     (helm-mode 1)
+   #+END_SRC
+
+   Preferred initial settings for Helm
+
+   #+BEGIN_SRC emacs-lisp
+     (setq helm-google-suggest-use-curl-p t
+           helm-bookmark-show-location t         ; display bookmark location
+           helm-scroll-amount 4                  ; scroll 4 lines other window using M-<next>/M-<prior>
+           helm-quick-update t                   ; do not display invisible candidates
+           helm-idle-delay 0.01                  ; be idle for this many seconds, before updating in delayed sources.
+           helm-input-idle-delay 0.01            ; be idle for this many seconds, before updating candidate buffer
+           helm-ff-search-library-in-sexp t      ; search for library in `require' and `declare-function' sexp.
+
+           helm-split-window-default-side 'other ; open helm buffer in another window
+           helm-split-window-in-side-p t         ; open helm buffer inside current window, not occupy whole other window
+           helm-buffers-favorite-modes (append helm-buffers-favorite-modes
+                                               '(picture-mode artist-mode))
+           helm-candidate-number-limit 200       ; limit the number of displayed canidates
+           helm-M-x-requires-pattern 0           ; show all candidates when set to 0
+           helm-boring-file-regexp-list          ; do not show these files in helm buffer
+           '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$")
+           helm-ff-file-name-history-use-recentf t
+           helm-move-to-line-cycle-in-source t   ; move to end or beginning of source
+                                                 ; when reaching top or bottom of source.
+           ido-use-virtual-buffers t             ; Needed in helm-buffers-list
+           helm-buffers-fuzzy-matching t         ; fuzzy matching buffer names when non--nil
+                                                 ; useful in helm-mini that lists buffers
+           )
+   #+END_SRC
+
+     Save current position to mark ring when jumping to a different place and
+     enable helm-mode.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
+     (helm-mode 1)
    #+END_SRC
 
 *** Keybindings
@@ -1933,6 +1935,108 @@ required from *emacs*.
       | <return> | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window          |
       | n        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-forward  |
       | p        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-backward |
+      | C-f      | 'help-command      |                                    | 'helm-apropos                              |
+      | r        | 'help-command      |                                    | 'helm-info-emacs                           |
+      | C-l      | 'help-command      |                                    | 'helm-locate-library                       |
+
+*** Keybindings with Evil
+    :PROPERTIES:
+    :CUSTOM_ID: helm-evil-key-binding
+    :END:
+
+   Check for =evil-mode= and =helm-autoloads= before keybindings. Refer to this code
+   #+TBLNAME: helm-evil-combo
+      | Combo | Mode                  | Description | Command                 |
+      | g b   | evil-normal-state-map |             | 'helm-mini              |
+      | SPC f | evil-normal-state-map |             | 'helm-find-files        |
+      | SPC o | evil-normal-state-map |             | 'helm-imenu             |
+      | SPC t | evil-normal-state-map |             | 'helm-etags-select      |
+      | SPC y | evil-normal-state-map |             | 'helm-show-kill-ring    |
+      | SPC m | evil-normal-state-map |             | 'helm-bookmarks         |
+      | SPC r | evil-normal-state-map |             | 'helm-register          |
+      | SPC x | evil-normal-state-map |             | 'helm-M-x               |
+      | SPC a | evil-normal-state-map |             | 'helm-all-mark-rings    |
+      | SPC w | evil-normal-state-map |             | 'helm-wikipedia-suggest |
+
+** Helm-Gtags
+*** Settings
+   #+BEGIN_SRC emacs-lisp
+     (require 'helm-gtags)
+
+     (setq helm-gtags-ignore-case t
+           helm-gtags-auto-update t
+           helm-gtags-use-input-at-cursor t
+           helm-gtags-pulse-at-cursor t
+
+           helm-gtags-suggested-key-mapping t)
+   #+END_SRC
+
+*** Hooks
+   Enable helm-gtags-mode in =Dired= and in =Eshell= so you can jump to any tag
+   when navigate project tree with =Dired=.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'dired-mode-hook 'helm-gtags-mode)
+
+     (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+
+   #+END_SRC
+
+   Enable helm-gtags-mode in languages that GNU Global supports
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'c-mode-hook 'helm-gtags-mode)
+     (add-hook 'c++-mode-hook 'helm-gtags-mode)
+     (add-hook 'java-mode-hook 'helm-gtags-mode)
+     (add-hook 'asm-mode-hook 'helm-gtags-mode)
+   #+END_SRC
+
+*** Keybindings
+   #+BEGIN_SRC emacs-lisp
+     (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-select)
+     (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+     (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+     (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+     (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+   #+END_SRC
+
+** Function-Args
+   #+BEGIN_SRC emacs-lisp
+     (require 'function-args)
+     (fa-config-default)
+     (after "c-mode" (define-key c-mode-map  [(tab)] 'moo-complete))
+     (after "c++-mode" (define-key c++-mode-map  [(tab)] 'moo-complete))
+   #+END_SRC
+
+** Company
+   #+BEGIN_SRC emacs-lisp
+     (require 'company)
+     (add-hook 'after-init-hook 'global-company-mode)
+     (delete 'company-semantic company-backends)
+     (after "c-mode" (define-key c-mode-map  [(control tab)] 'company-complete))
+     (after "c++-mode" (define-key c++-mode-map  [(control tab)] 'company-complete))
+
+     ;; company-c-headers
+     (add-to-list 'company-backends 'company-c-headers)
+   #+END_SRC
+
+** Clean-Aindent
+   #+BEGIN_SRC emacs-lisp
+     (require 'clean-aindent-mode)
+     (add-hook 'prog-mode-hook 'clean-aindent-mode)
+   #+END_SRC
+
+** Dtrt-Indent
+   #+BEGIN_SRC emacs-lisp
+     (require 'dtrt-indent)
+     (dtrt-indent-mode 1)
+   #+END_SRC
+
+** WS-Butler
+   #+BEGIN_SRC emacs-lisp
+     (require 'ws-butler)
+     (add-hook 'prog-mode-hook 'ws-butler-mode)
+   #+END_SRC
 
 ** TODO Pop-win
    Popwin handles little popup windows at the bottom of the screen, which is
@@ -2520,14 +2624,35 @@ required from *emacs*.
        ;(c-set-offset 'statement-cont 0)
        (flycheck-mode)
        (ggtags-mode 1)
+
+       ;; CEDET
        (require 'semantic)
        (semantic-mode)
-       (global-semantic-idle-summary-mode 1)
+       (global-semanticdb-minor-mode 1)
+       (global-semantic-idle-scheduler-mode 1)
        (global-semantic-stickyfunc-mode 1)
+
+       ;; Enable EDE only in C/C++
+       (require 'ede)
+       (global-ede-mode)
+
+       (global-semantic-idle-summary-mode 1)
+
        ; enable spell check in comment area
        (flyspell-prog-mode))
 
      (add-hook 'c-mode-common-hook 'qq/c-mode-init)
+   #+END_SRC
+
+*** Compilation
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/c-mode-compile()
+       (interactive)
+       (setq-local compilation-read-command nil)
+       (call-interactively 'compile))
+
+     (after "c-mode" (define-key c-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
+     (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
    #+END_SRC
 
 *** Java
@@ -3007,7 +3132,16 @@ required from *emacs*.
    Binding code generation for [[#helm-key-binding][this]] table
 
    #+BEGIN_SRC emacs-lisp :noweb yes :result silent
-;     <<gen-keys(mmap="t", tname=helm_combo)>>
+     <<gen-keys(mmap="t", tname=helm_combo)>>
+   #+END_SRC
+
+*** Helm with Evil Bindings
+   Binding code generation for [[#helm-evil-key-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :result silent
+     <<gen-fix(pre="after 'evil\n (after \"helm-autoloads\"")>>
+     <<gen-keys(mmap="t", tname=helm-evil-combo)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 *** Basic Bindings
@@ -3157,23 +3291,10 @@ required from *emacs*.
        (define-key evil-normal-state-map (kbd "SPC f") 'ido-find-file)
    #+END_SRC
 
-*** Helm
-
-   #+BEGIN_SRC emacs-lisp
-     (after "helm-autoloads"
-       (define-key evil-normal-state-map (kbd "g b") 'helm-mini)
-       (define-key evil-normal-state-map (kbd "SPC f") 'helm-find-files)
-       (define-key evil-normal-state-map (kbd "SPC o") 'helm-imenu)
-       (define-key evil-normal-state-map (kbd "SPC t") 'helm-etags-select)
-       (define-key evil-normal-state-map (kbd "SPC y") 'helm-show-kill-ring)
-       (define-key evil-normal-state-map (kbd "SPC m") 'helm-bookmarks)
-       (define-key evil-normal-state-map (kbd "SPC r") 'helm-register)
-       (define-key evil-normal-state-map (kbd "SPC x") 'helm-M-x)
-   #+END_SRC
-
 *** Helm-Swoop
 
    #+BEGIN_SRC emacs-lisp
+     (after "helm-autoloads"
      (after "helm-swoop-autoloads"
        (define-key evil-normal-state-map (kbd "SPC l") 'helm-swoop)
        (define-key evil-normal-state-map (kbd "SPC L") 'helm-multi-swoop)))
