@@ -26,7 +26,7 @@ fi
 mkdir -p ~/.emacs.d
 cd ~/.emacs.d
 cask install
-em --batch --eval="(require 'org-install)" \
+emacs --batch --eval="(require 'org-install)" \
  --eval="(setq org-confirm-babel-evaluate nil)" \
  --eval="(require 'ob-tangle)" \
  --eval='(org-babel-tangle-file "init.org")' \
