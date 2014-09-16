@@ -3,6 +3,14 @@
 (source org)
 
 
+(depends-on "company")
+(depends-on "ggtags")
+(depends-on "helm-gtags")
+(depends-on "function-args")
+(depends-on "clean-aindent-mode")
+(depends-on "dtrt-indent")
+(depends-on "ws-butler")
+(depends-on "projectile")
 (depends-on "ace-jump-mode")           ; quick cursor location minor mode
 (depends-on "ag")
 (depends-on "auctex")                  ; integrated environment for *TeX*
