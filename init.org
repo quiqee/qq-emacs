@@ -713,6 +713,10 @@ required from *emacs*.
    below)
 
    #+BEGIN_SRC emacs-lisp
+     (setq AndroidRoot (concat (expand-file-name "~") "/fb5"))
+     (setq TPVision (concat AndroidRoot "/device/tpvision"))
+     (setq PQBackendLocation (concat TPVision "/tvsoc/backend/comps"))
+
      (setq cedet-root-path (file-name-as-directory
                             (concat user-emacs-directory "site-lisp/cedet-bzr/")))
 
@@ -729,9 +733,23 @@ required from *emacs*.
      (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
      (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
 
-     ;; Activate semantic
+     (add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-idle-local-symbol-highlight-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+
      (setq semanticdb-default-save-directory (concat user-emacs-directory ".cache/semanticDB"))
+
+     ;; Activate semantic
      (semantic-mode 1)
+     (require 'semantic/ia)
+     (require 'ecb)
+     (require 'semantic/bovine/gcc) ; or depending on you compiler
+     ; (require 'semantic/bovine/clang)
+
+     (semantic-add-system-include (concat TPVision "/common/plf/tpapi/inc")	'cc-mode)
+     (semantic-add-system-include (concat TPVision "/tvsoc/tvsoc_mtk/src/private_inc")	'cc-mode)
+     (semantic-add-system-include (concat PQBackendLocation "/PQControl/include")	'cc-mode)
 
      ;; load contrib library
      (require 'eassist)
@@ -776,6 +794,15 @@ required from *emacs*.
      (global-ede-mode 1)
      (ede-enable-generic-projects)
 
+     ;; if you want to enable support for gnu global
+     (when (cedet-gnu-global-version-check t)
+       (semanticdb-enable-gnu-global-databases 'c-mode)
+       (semanticdb-enable-gnu-global-databases 'c++-mode))
+
+     ;; enable ctags for some languages:
+     ;;  Unix Shell, Perl, Pascal, Tcl, Fortran, Asm
+     (when (cedet-ectag-version-check)
+       (semantic-load-enable-primary-ectags-support))
 
      ;; Setup JAVA....
      (require 'cedet-java)
@@ -1332,7 +1359,7 @@ required from *emacs*.
    the standard =execute-extended-command= with =smex=.
 
    #+BEGIN_SRC emacs-lisp
-     (require 'smex')
+     (require 'smex)
      (smex-initialize)
      (setq smex-save-file (concat qq/cache-directory "smex-items")
            smex-history-length 80)
@@ -1468,7 +1495,7 @@ required from *emacs*.
    Ban whitespace at end of lines, globally. Ban tabs too, everywhere
 
    #+BEGIN_SRC emacs-lisp
-     (require 'whitespace')
+     (require 'whitespace)
 
      (add-hook 'before-save-hook 'whitespace-cleanup)
    #+END_SRC
@@ -2041,6 +2068,7 @@ required from *emacs*.
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (require 'helm-gtags)
+     (helm-gtags-mode)
 
      (setq helm-gtags-ignore-case t
            helm-gtags-auto-update t
@@ -2710,7 +2738,6 @@ required from *emacs*.
        (require 'semantic)
        (semantic-mode)
        (global-semanticdb-minor-mode 1)
-       (global-semantic-idle-scheduler-mode 1)
        (global-semantic-stickyfunc-mode 1)
 
        ;; Enable EDE only in C/C++
