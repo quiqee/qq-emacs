@@ -313,13 +313,7 @@ required from *emacs*.
            bookmark-save-flag 1                         ; save after every change
 
            ;; re-builder, nice interactive tool for building regular expressions
-           reb-re-syntax 'string                        ; fix backslash madness
-
-           undo-tree-history-directory-alist            ; cache for undo tree
-              `(("." . ,(concat qq/cache-directory "undo")))
-           undo-tree-visualizer-timestamps t            ; show timestamps
-           undo-tree-visualizer-diff t                  ; show diff
-           undo-tree-auto-save-history t)               ; Save undo history between sessions.
+           reb-re-syntax 'string)                       ; fix backslash madness
    #+END_SRC
 
 *** Setq-Defaults
@@ -340,7 +334,7 @@ required from *emacs*.
                  )
    #+END_SRC
 
-*** Emacs GC
+*** Emacs Garbage Collector
    We don't really need to garbage collect as frequently as Emacs would like to
    by default, so set the threshold up hight.
 
@@ -424,7 +418,7 @@ required from *emacs*.
            uniquify-after-kill-buffer-p t)
    #+END_SRC
 
-*** Automaticly revert =doc-view=-buffers when the file changes on disk.
+*** Automatically revert =doc-view= buffers when the file changes on disk.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'doc-view-mode-hook 'auto-revert-mode)
