@@ -189,37 +189,27 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(
-                auto-complete-config  ; a configuration for auto-complete-mode
+                ;auto-complete-config  ; a configuration for auto-complete-mode
                 ;auto-complete-auctex
                 auto-compile          ; auto-compile .el files
                 bind-key
                 cl
                 dired-x               ; provides extra functionality for DiredMode
                 help-fns+           ; provide better help functions
-                hideshow
                 hungry-delete
                 linum-off             ; provides interface for turning line numbering off.
-                magit
-                magit-gerrit
                 midnight              ; clean up old buffers periodically
                 monokai-theme
                 ox-latex              ; the latex-exporter (from org)
                 ox-md                 ; Markdown exporter (from org)
-                popwin
                 powerline
                 pretty-lambdada       ; show 'lambda' as the greek letter.
                 recentf               ; minor mode that builds a list of recently opened files.
                 savehist              ; save minibuffer history
                 saveplace             ; save cursor location function to visited file
-                smartparens-config
-                smex                  ; M-x interface Ido-style.
-                tex-mode              ; TeX, LaTeX, and SliTeX mode commands
                 uniquify              ; provide unique buffer names for duplicates
-                whitespace
                 windmove              ; built-in library that provide convenient way to
                                       ; switch windows
-                xcscope               ; CScope mode commands
-                yasnippet
                 ))
        (require feature))
    #+END_SRC
@@ -715,6 +705,84 @@ required from *emacs*.
    #+END_SRC
 
 * TODO Modes
+** CEDET
+   Taken from [[https://gist.github.com/alexott/3930120][Alex's minimal cedet config]]
+
+   Requirements: CEDET from bzr (http://cedet.sourceforge.net/bzr-repo.shtml) Do
+   checkout of fresh CEDET, and use this config (don't forget to change path
+   below)
+
+   #+BEGIN_SRC emacs-lisp
+     (setq cedet-root-path (file-name-as-directory
+                            (concat user-emacs-directory "site-lisp/cedet-bzr/")))
+
+     (load-file (concat cedet-root-path "cedet-devel-load.el"))
+     (add-to-list 'load-path (concat cedet-root-path "contrib"))
+     (add-to-list 'Info-directory-list (concat user-emacs-directory "site-lisp/cedet-bzr/doc/info"))
+
+     ;; select which submodes we want to activate
+     (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
+     (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+     (add-to-list 'semantic-default-submodes 'global-cedet-m3-minor-mode)
+     (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
+     (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
+
+     ;; Activate semantic
+     (setq semanticdb-default-save-directory (concat user-emacs-directory ".cache/semanticDB"))
+     (semantic-mode 1)
+
+     ;; load contrib library
+     (require 'eassist)
+
+     ;; customisation of modes
+     (defun qq/cedet-hook ()
+       (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
+       (local-set-key "\C-c?" 'semantic-ia-complete-symbol)
+       ;;
+       (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+       (local-set-key "\C-c=" 'semantic-decoration-include-visit)
+
+       (local-set-key "\C-cj" 'semantic-ia-fast-jump)
+       (local-set-key "\C-cq" 'semantic-ia-show-doc)
+       (local-set-key "\C-cs" 'semantic-ia-show-summary)
+       (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+       )
+     (add-hook 'c-mode-common-hook 'qq/cedet-hook)
+     (add-hook 'lisp-mode-hook 'qq/cedet-hook)
+     (add-hook 'scheme-mode-hook 'qq/cedet-hook)
+     (add-hook 'emacs-lisp-mode-hook 'qq/cedet-hook)
+     (add-hook 'erlang-mode-hook 'qq/cedet-hook)
+
+     (defun qq/c-mode-cedet-hook ()
+       (local-set-key "\C-ct" 'eassist-switch-h-cpp)
+       (local-set-key "\C-xt" 'eassist-switch-h-cpp)
+       (local-set-key "\C-ce" 'eassist-list-methods)
+       (local-set-key "\C-c\C-r" 'semantic-symref)
+       )
+     (add-hook 'c-mode-common-hook 'qq/c-mode-cedet-hook)
+
+     (semanticdb-enable-gnu-global-databases 'c-mode t)
+     (semanticdb-enable-gnu-global-databases 'c++-mode t)
+
+     (when (cedet-ectag-version-check t)
+       (semantic-load-enable-primary-ectags-support))
+
+     ;; SRecode
+     (global-srecode-minor-mode 1)
+
+     ;; EDE
+     (global-ede-mode 1)
+     (ede-enable-generic-projects)
+
+
+     ;; Setup JAVA....
+     (require 'cedet-java)
+
+     ;;; minimial-cedet-config.el ends here
+   #+END_SRC
+
 ** Default
 *** Disabled Modes
    There are some modes that are enabled by default that I don't find
@@ -962,6 +1030,8 @@ required from *emacs*.
 ** Magit
 
    #+BEGIN_SRC emacs-lisp
+     (require 'magit)
+     (require 'magit-gerrit)
      (setq magit-diff-options '("--histogram"))
      (setq magit-stage-all-confirm nil)
      (defadvice magit-status (around qq/magit-fullscreen activate)
@@ -1018,6 +1088,7 @@ required from *emacs*.
    Kind of like Vim's folding, but manually done right now.
 
    #+begin_src emacs-lisp
+     (require 'hideshow)
      (defvar hs-special-modes-alist
        (mapcar 'purecopy
                '((c-mode "{" "}" "/[*/]" nil nil)
@@ -1046,6 +1117,7 @@ required from *emacs*.
 ** Yasnippet
 
    #+BEGIN_SRC emacs-lisp
+     (require 'yasnippet)
      (let* ((yas-install-dir (car (file-expand-wildcards (concat package-user-dir "/yasnippet-*"))))
             (dir (concat yas-install-dir "/snippets/js-mode")))
        (if (file-exists-p dir)
@@ -1087,6 +1159,7 @@ required from *emacs*.
    Configure CScope.
 
    #+BEGIN_SRC emacs-lisp
+     (require 'xcscope)
      (cscope-setup)
    #+END_SRC
 
@@ -1259,6 +1332,7 @@ required from *emacs*.
    the standard =execute-extended-command= with =smex=.
 
    #+BEGIN_SRC emacs-lisp
+     (require 'smex')
      (smex-initialize)
      (setq smex-save-file (concat qq/cache-directory "smex-items")
            smex-history-length 80)
@@ -1394,6 +1468,8 @@ required from *emacs*.
    Ban whitespace at end of lines, globally. Ban tabs too, everywhere
 
    #+BEGIN_SRC emacs-lisp
+     (require 'whitespace')
+
      (add-hook 'before-save-hook 'whitespace-cleanup)
    #+END_SRC
 
@@ -2041,11 +2117,12 @@ required from *emacs*.
      (add-hook 'prog-mode-hook 'ws-butler-mode)
    #+END_SRC
 
-** TODO Pop-win
+** Pop-win
    Popwin handles little popup windows at the bottom of the screen, which is
-   very helpful for documentation buffers and so on.
+   helpful for documentation buffers and so on.
 
    #+begin_src emacs-lisp
+     (require 'popwin)
      (defvar popwin:special-display-config-backup popwin:special-display-config)
      (setq display-buffer-function 'popwin:display-buffer)
 
@@ -2218,9 +2295,10 @@ required from *emacs*.
             (ace-jump-do (regexp-quote (string query-char1 query-char2)))))))
    #+END_SRC
 
-** TODO Smartparens
+** Smartparens
 
    #+BEGIN_SRC emacs-lisp
+     (require 'smartparens-config)
 
      (setq sp-show-pair-delay 0)
      (setq sp-show-pair-from-inside t)
@@ -2708,6 +2786,8 @@ required from *emacs*.
    Enable parse on load and on save.
 
    #+BEGIN_SRC emacs-lisp
+     (require 'tex-mode)
+
      (setq TeX-parse-self t)
      (setq TeX-auto-save t)
    #+END_SRC
