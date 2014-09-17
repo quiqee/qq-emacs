@@ -62,6 +62,7 @@
    - [[https://github.com/tach4n/tommydots/tree/master/emacs][tach4n/tommydots]] :: he have added more syntax hilighting
    - [[https://github.com/ghoseb/dotemacs][ghoseb/dotemacs]] :: easy and well documented dotemacs
    - [[http://zeekat.nl/articles/making-emacs-work-for-me.html][Making emacs work for me]] ::
+   - [[https://github.com/sugyan/dotfiles/tree/master/.emacs.d][sugyan/dotemacs]] ::
 
 * Basic
 ** Meta
@@ -223,11 +224,16 @@ required from *emacs*.
        (require feature))
    #+END_SRC
 
-** TODO Sane defaults
-*** Basic
-   These are what /I/ consider to be saner defaults.
-   We can set variables to whatever value we'd like using =setq=.
+** Default Settings
+*** Dired
+   Set =Dired-Dwim-Target= to true to activate default value of =C= or =R=
+   commands to another dired window.
 
+   #+BEGIN_SRC emacs-lisp
+     (setq dired-dwim-target t)
+   #+END_SRC
+
+*** 24.4.50 bug
    Emacs 24.4.50 have a bug in which horizontal scroll bar a turn on by default.
    Code below will hide it
 
@@ -236,47 +242,79 @@ required from *emacs*.
        (horizontal-scroll-bar-mode -1))
    #+end_src
 
+*** Startup behaviour
+   Inhibit some of those annoying startup display.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq inhibit-splash-screen t
+           inhibit-startup-echo-area-message t
+           inhibit-startup-message t                    ; No splash screen please.
+           initial-scratch-message nil)                 ; Clean scratch buffer.
+   #+END_SRC
+
+*** Auto split vertically
+
+   #+BEGIN_SRC emacs-lisp
+     (setq split-height-threshold 0
+           split-width-threshold nil)
+   #+END_SRC
+
+*** Better scrolling
+
+   #+BEGIN_SRC emacs-lisp
+     (setq scroll-conservatively 9999
+           scroll-preserve-screen-position t)
+   #+END_SRC
+
+*** Compilation behaviour
+
+   #+BEGIN_SRC emacs-lisp
+     (setq compilation-scroll-output 'first-error       ; scroll to first error
+           compilation-always-kill t                    ; kill compilation without reconfirmation
+           compilation-ask-about-save nil)              ; unconditionally save all buffer before
+                                                        ; compiling
+   #+END_SRC
+
+*** Side by side =ediff= and no extra frames
+
+   #+BEGIN_SRC emacs-lisp
+     (setq ediff-split-window-function
+              'split-window-horizontally                ; side-by-side diffs
+           ediff-window-setup-function
+              'ediff-setup-windows-plain)               ; no extra frames
+   #+END_SRC
+
+*** Undo Tree
+
+   #+BEGIN_SRC emacs-lisp
+     (setq undo-tree-history-directory-alist            ; cache for undo tree
+              `(("." . ,(concat qq/cache-directory "undo")))
+           undo-tree-visualizer-timestamps t            ; show timestamps
+           undo-tree-visualizer-diff t                  ; show diff
+           undo-tree-auto-save-history t)               ; Save undo history between sessions.
+   #+END_SRC
+
+*** Other Settings
+
    #+BEGIN_SRC emacs-lisp
      (setq default-input-method "TeX"                   ; Use TeX when toggeling input method.
            doc-view-continuous t                        ; At page edge goto next/previous.
            global-mark-ring-max 128
-           inhibit-splash-screen t
-           inhibit-startup-echo-area-message t
-           inhibit-startup-message t                    ; No splash screen please.
-           initial-scratch-message nil                  ; Clean scratch buffer.
            ring-bell-function 'ignore                   ; Quiet.
-           ring-bell-function (lambda () ())
            mark-ring-max 64
            sentence-end-double-space nil
            save-interprogram-paste-before-kill t
-
-           compilation-scroll-output 'first-error       ; scroll to first error
-
-           split-height-threshold 0                     ; auto split vertically
-           split-width-threshold nil
 
            which-func-unknown ""                        ; don't display if there's no
                                                         ; function to display
 
            savehist-autosave-interval 60                ; interval between save in seconds
 
-           compilation-always-kill t                    ; kill compilation without reconfirmation
-           compilation-ask-about-save nil               ; unconditionally save all buffer before
-                                                        ; compiling
-
            bookmark-save-flag 1                         ; save after every change
-
-           ediff-split-window-function
-              'split-window-horizontally                ; side-by-side diffs
-           ediff-window-setup-function
-              'ediff-setup-windows-plain                ; no extra frames
 
            ;; re-builder, nice interactive tool for building regular expressions
            reb-re-syntax 'string                        ; fix backslash madness
 
-           ;; better scrolling
-           scroll-conservatively 9999
-           scroll-preserve-screen-position t
            undo-tree-history-directory-alist            ; cache for undo tree
               `(("." . ,(concat qq/cache-directory "undo")))
            undo-tree-visualizer-timestamps t            ; show timestamps
@@ -284,6 +322,7 @@ required from *emacs*.
            undo-tree-auto-save-history t)               ; Save undo history between sessions.
    #+END_SRC
 
+*** Setq-Defaults
    Some variables are buffer-local, so changing them using =setq= will only
    change them in a single buffer. Using =setq-default= we change the
    buffer-local variable's default value.
@@ -301,6 +340,7 @@ required from *emacs*.
                  )
    #+END_SRC
 
+*** Emacs GC
    We don't really need to garbage collect as frequently as Emacs would like to
    by default, so set the threshold up hight.
 
@@ -308,18 +348,19 @@ required from *emacs*.
      (setq gc-cons-threshold 20000000)
    #+end_src
 
-   Echo commands I haven't finished quicker than the default of 1 second:
+*** Echo commands quicker than the default 1 second
 
    #+begin_src emacs-lisp
      (setq echo-keystrokes 0.1)
    #+end_src
 
-   Ignore case when using completion for file names:
+*** Ignore case when using completion for file names
 
    #+begin_src emacs-lisp
      (setq read-file-name-completion-ignore-case t)
    #+end_src
 
+*** Long Line movement
    It's so much easier to move around lines based on how they are displayed,
    rather than the actual line. This helps a tone with long log file lines that
    may be wrapped:
@@ -328,30 +369,25 @@ required from *emacs*.
      (setq line-move-visual t)
    #+end_src
 
-   Hide the mouse while typing:
+*** Hide the mouse while typing
 
    #+begin_src emacs-lisp
      (setq make-pointer-invisible t)
    #+end_src
 
-   Turn on auto-fill mode in text buffers:
+*** Turn on auto-fill mode in text buffers
 
    #+begin_src emacs-lisp
      (add-hook 'text-mode-hook 'turn-on-auto-fill)
    #+end_src
 
-   Disable narrowing as of now, don't find it usefull
-
-   #+BEGIN_SRC emacs-lisp
-     (put 'narrow-to-region 'disabled nil)
-   #+END_SRC
-
-   Set the internal calculator not to go to scientific form quite so quickly:
+*** Set the internal calculator not to go to scientific form
 
    #+begin_src emacs-lisp
      (setq calc-display-sci-low -5)
    #+end_src
 
+*** Emacs Server
    Start a server if not running, but a different server for GUI versus text-only
 
    #+begin_src emacs-lisp
@@ -371,6 +407,7 @@ required from *emacs*.
                        (server-start))))))
    #+end_src
 
+*** Yes or No
    Answering /yes/ and /no/ to each question from Emacs can be tedious, a
    single /y/ or /n/ will suffice.
 
@@ -378,7 +415,7 @@ required from *emacs*.
      (fset 'yes-or-no-p 'y-or-n-p)
    #+END_SRC
 
-   Better buffer names for duplicates
+*** Better buffer names for duplicates
 
    #+BEGIN_SRC emacs-lisp
      (setq uniquify-buffer-name-style 'forward
@@ -387,28 +424,13 @@ required from *emacs*.
            uniquify-after-kill-buffer-p t)
    #+END_SRC
 
-   By default the =narrow-to-region= command is disabled and issues a
-   warning, because it might confuse new users. I find it useful sometimes,
-   and don't want to be warned.
-
-   #+BEGIN_SRC emacs-lisp
-     (put 'narrow-to-region 'disabled nil)
-   #+END_SRC
-
-   Call =auto-complete= default configuration, which enables =auto-complete=
-   globally.
-
-   #+BEGIN_SRC emacs-lisp
-     (eval-after-load 'auto-complete-config `(ac-config-default))
-   #+END_SRC
-
-   Automaticly revert =doc-view=-buffers when the file changes on disk.
+*** Automaticly revert =doc-view=-buffers when the file changes on disk.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'doc-view-mode-hook 'auto-revert-mode)
    #+END_SRC
 
-   Add color in compilation buffer
+*** Add color in compilation buffer
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'compilation-filter-hook
@@ -419,7 +441,8 @@ required from *emacs*.
                      (ansi-color-apply-on-region (point-min) (point-max))))))
    #+END_SRC
 
-   Hook for find-file, this will check for large file set it to read only,
+*** Hook for find-file
+   this will check for large file set it to read only,
    display trailing whitespace and enable visual-line-mode
 
    #+BEGIN_SRC emacs-lisp
@@ -437,7 +460,7 @@ required from *emacs*.
                                    (setq show-trailing-whitespace t))))
    #+END_SRC
 
-   Leave scratch buffers alone
+*** Leave scratch buffers alone
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/do-not-kill-scratch-buffer ()
@@ -449,9 +472,7 @@ required from *emacs*.
      (add-hook 'kill-buffer-query-functions 'qq/do-not-kill-scratch-buffer)
    #+END_SRC
 
-   The world is so rich with expressivity. Although Unicode may never
-   capture all of the worlds symbols, it comes close.
-
+*** UTF-8
    Set =utf-8= as preferred coding system.
 
    #+BEGIN_SRC emacs-lisp
@@ -465,16 +486,7 @@ required from *emacs*.
        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
    #+END_SRC
 
-   Windows/frames behaviour after startup. On Startup make two frame and tile horizontally
-
-   #+BEGIN_SRC emacs-lisp
-     ;(toggle-frame-fullscreen) ; emacs 24.4 only
-     ;(require-package 'frame-cmds)
-     ;(make-frame-command)
-     ;(tile-frames-horizontally)
-   #+END_SRC
-
-   Customize linum format.
+*** Customize linum format
 
    #+BEGIN_SRC emacs-lisp
      (setq linum-format (lambda (line)
@@ -1917,7 +1929,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
-     (helm-mode 1)
+;     (helm-mode 1)
    #+END_SRC
 
 *** Keybindings
@@ -1927,17 +1939,14 @@ required from *emacs*.
 
    The code generated from this table is [[Helm%20Bindings][here]].
    #+TBLNAME: helm_combo
-      | Combo    | Mode               | Description                        | Command                                    |
-      |----------+--------------------+------------------------------------+--------------------------------------------|
-      | <tab>    | helm-map           | Rebind tab to do persistent action | 'helm-execute-persistent-action            |
-      | C-i      | helm-map           | Make TAB works in terminal         | 'helm-execute-persistent-action            |
-      | C-z      | helm-map           | List actions using C-z             | 'helm-select-action                        |
-      | <return> | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window          |
-      | n        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-forward  |
-      | p        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-backward |
-      | C-f      | 'help-command      |                                    | 'helm-apropos                              |
-      | r        | 'help-command      |                                    | 'helm-info-emacs                           |
-      | C-l      | 'help-command      |                                    | 'helm-locate-library                       |
+      | Combo       | Mode               | Description                        | Command                                    |
+      |-------------+--------------------+------------------------------------+--------------------------------------------|
+      | <tab>       | helm-map           | Rebind tab to do persistent action | 'helm-execute-persistent-action            |
+      | C-i         | helm-map           | Make TAB works in terminal         | 'helm-execute-persistent-action            |
+      | C-z         | helm-map           | List actions using C-z             | 'helm-select-action                        |
+      | <return>    | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window          |
+      | n           | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-forward  |
+      | p           | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-backward |
 
 *** Keybindings with Evil
     :PROPERTIES:
@@ -2004,7 +2013,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (require 'function-args)
      (fa-config-default)
-     (after "c-mode" (define-key c-mode-map  [(tab)] 'moo-complete))
+     (after "c-mode" (define-key c-mode-map  (kbd "<C-tab>") 'moo-complete))
      (after "c++-mode" (define-key c++-mode-map  [(tab)] 'moo-complete))
    #+END_SRC
 
@@ -2637,6 +2646,9 @@ required from *emacs*.
        (global-ede-mode)
 
        (global-semantic-idle-summary-mode 1)
+       (setq-default flycheck-c/c++-gcc-executable
+            "/mtkoss/gnuarm/neon_4.8.2_2.6.35_cortex-a9-ubuntu/x86_64/bin/armv7a-mediatek451_001_vfp-linux-gnueabi-gcc")
+
 
        ; enable spell check in comment area
        (flyspell-prog-mode))
