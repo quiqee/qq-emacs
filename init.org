@@ -815,6 +815,8 @@ required from *emacs*.
                  (local-set-key "\C-ct" 'eassist-switch-h-cpp)
                  (local-set-key "\C-xt" 'eassist-switch-h-cpp)
                  (local-set-key "\C-ce" 'eassist-list-methods)
+                 (local-set-key "." 'semantic-complete-self-insert)
+                 (local-set-key ">" 'semantic-complete-self-insert)
                  (local-set-key "\C-c\C-r" 'semantic-symref)))
 
      (semanticdb-enable-gnu-global-databases 'c-mode t)
@@ -856,16 +858,40 @@ required from *emacs*.
        (setq android-root (concat (expand-file-name "~") "/fb5"))
        (setq tpvision (concat android-root "/device/tpvision"))
        (setq pq-backend-location (concat tpvision "/tvsoc/backend/comps"))
-       (setq mtk-root "prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.8")
+       (setq mtk-tool (concat android-root "/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.8"))
+       (setq mtk-root (concat android-root "/device/mediatek_common"))
+       (setq kernel-dir (concat mtk-root "/vm_linux/chiling/kernel/linux-3.10"))
+       (setq kernel-build-dir (concat android-root "/out/mediatek_linux/output/tpvision"
+              "/philips_MT5593Uplus_EU/rel/obj/kernel/chiling/kernel/linux-3.10"))
 
-       (semantic-add-system-include (concat tpvision "/common/plf/tpapi/inc") 'cc-mode)
-       (semantic-add-system-include (concat tpvision "/tvsoc/tvsoc_mtk/src/private_inc")  'cc-mode)
-       (semantic-add-system-include (concat pq-backend-location "/PQControl/include")   'cc-mode)
+       (semantic-reset-system-include 'c-mode)
+       (semantic-reset-system-include 'c++-mode)
+       (semantic-add-system-include (concat mtk-tool "/lib/gcc/arm-linux-androideabi/4.8/include") 'c-mode)
+       (semantic-add-system-include (concat kernel-dir "/arch/arm/include") 'c-mode)
+       (semantic-add-system-include (concat kernel-dir "/include") 'c-mode)
+       (semantic-add-system-include (concat kernel-dir "/arch/arm/mach-mt53xx/include") 'c-mode)
+       (semantic-add-system-include (concat kernel-dir "/arch/arm/include/uapi") 'c-mode)
+       (semantic-add-system-include (concat kernel-dir "/include/uapi") 'c-mode)
+       (semantic-add-system-include (concat mtk-root "/vm_linux/project_x/middleware/inc") 'c-mode)
+       (semantic-add-system-include (concat mtk-root "/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb") 'c-mode)
+       (semantic-add-system-include (concat tpvision "/tvsoc/tvsoc_mtk/src/private_inc")  'c-mode)
+       (semantic-add-system-include (concat pq-backend-location "/PQControl/include")   'c-mode)
 
        (add-to-list 'semantic-lex-c-preprocessor-symbol-file
-                    (concat mtk-root "/lib/gcc/arm-linux-androideabi/4.8/include/stddef.h"))
+                    (concat mtk-tool "/lib/gcc/arm-linux-androideabi/4.8/include/stddef.h"))
+       (add-to-list 'semantic-lex-c-preprocessor-symbol-file
+                    (concat kernel-build-dir "/mt5890_android_smp_mod_defconfig/include/generated/autoconf.h"))
+       (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("__KERNEL__" . ""))
 
-       ;(add-to-list 'auto-mode-alist (cons qt4-base-dir 'c++-mode))
+       (ede-cpp-root-project "mamb"
+                       :name "Ambilight Project"
+                       :file "~/philips_eu_l_pq/README"
+                       :include-path '("/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/"
+                                       "/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/FMS/inc"
+                                       "/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/FMS/src"
+                                      )
+                       :spp-table '(("isUnix" . "")
+                                    ("BOOST_TEST_DYN_LINK" . ""))) ;(add-to-list 'auto-mode-alist (cons qt4-base-dir 'c++-mode))
 
        ;; qt keywords and stuff ...
        ;; set up indenting correctly for new qt kewords
@@ -894,7 +920,6 @@ required from *emacs*.
        )
      (add-hook 'c-mode-common-hook 'android-cedet-setup)
    #+END_SRC
-
 
 ** Default
 *** Disabled Modes
