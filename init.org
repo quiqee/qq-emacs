@@ -2301,12 +2301,6 @@ required from *emacs*.
      (add-hook 'prog-mode-hook 'clean-aindent-mode)
    #+END_SRC
 
-** Dtrt-Indent
-   #+BEGIN_SRC emacs-lisp
-     (require 'dtrt-indent)
-     (dtrt-indent-mode 1)
-   #+END_SRC
-
 ** WS-Butler
    #+BEGIN_SRC emacs-lisp
      (require 'ws-butler)
