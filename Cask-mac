@@ -13,6 +13,8 @@
 (depends-on "projectile")
 (depends-on "ace-jump-mode")           ; quick cursor location minor mode
 (depends-on "ag")
+(depends-on "helm-ag")
+(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
 (depends-on "auctex")                  ; integrated environment for *TeX*
 (depends-on "auto-compile")            ; automatically compile Emacs Lisp libraries
 (depends-on "auto-complete")           ; auto completion
@@ -41,7 +43,7 @@
 (depends-on "evil-jumper")
 (depends-on "evil-leader")
 (depends-on "evil-matchit")
-(depends-on "evil-nerd-commenter")
+;;(depends-on "evil-nerd-commenter")
 (depends-on "evil-numbers")
 (depends-on "evil-surround")
 (depends-on "evil-visualstar")

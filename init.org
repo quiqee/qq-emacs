@@ -510,9 +510,9 @@ required from *emacs*.
            bookmark-default-file
               (concat qq/cache-directory "bookmarks")   ; cache for bookmark
            backup-directory-alist
-           `((".*" . ,(concat qq/cache-directory "backups")))
+           `(("." . ,(concat qq/cache-directory "backups")))
            auto-save-file-name-transforms
-           `((".*" ,(concat qq/cache-directory "backups") t))
+           `(("." ,(concat qq/cache-directory "backups") t))
            auto-save-list-file-prefix
            (concat qq/cache-directory "auto-save-list/saves-"))
      (setq delete-auto-save-files t)
@@ -702,6 +702,57 @@ required from *emacs*.
      (defadvice load-theme
        (before disable-before-load (theme &optional no-confirm no-enable) activate)
        (mapc 'disable-theme custom-enabled-themes))
+   #+END_SRC
+
+* Mac OS X
+   For GUI apps, OS environment variables do not inherit from =shell=. As such,
+   for certain things to work smoothly, we use =exec-path-from-shell= to include
+   environment-variables from the =shell=. It makes using Emacs along with
+   external processes a lot simpler. See [[http://stackoverflow.com/questions/16676826/making-the-path-and-other-environment-variables-available-in-emacs][Making the PATH and other environment
+   variables available in emacs]]. I also prefer using the =Command=-key as the
+   =Meta=-key.
+
+   On Mac OS X, menu bar always exist. No point removing it.
+
+   #+BEGIN_SRC emacs-lisp
+     (when (memq window-system '(mac ns))
+       ;(require-package 'exec-path-from-shell)
+       (require 'ucs-normalize)
+       (setq mac-option-modifier nil
+             mac-command-modifier 'meta
+
+             ;; Some mac-bindings interfere with Emacs bindings.
+             mac-pass-command-to-system nil
+             x-select-enable-clipboard t)
+
+       (menu-bar-mode t)
+       (exec-path-from-shell-initialize)
+       (add-hook 'after-init-hook
+                 (lambda ()
+                   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+                   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
+                   ))
+   #+END_SRC
+
+   Auctex setting for =Mac OS X=
+
+   #+BEGIN_SRC emacs-lisp
+       ;; Use Skim as viewer, enable source <-> PDF sync
+       ;; make latexmk available via C-c C-c
+       ;; Note: SyncTeX is setup via ~/.latexmkrc (see below)
+;       (add-hook 'LaTeX-mode-hook (lambda ()
+;                                    (push
+;                                     '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
+;                                       :help "Run latexmk on file")
+;                                     TeX-command-list)))
+
+       ;; use Skim as default pdf viewer
+       ;; Skim's displayline is used for forward search (from .tex to .pdf)
+       ;; option -b highlights the current line; option -g opens Skim in the background
+       (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
+       (setq TeX-view-program-list
+             '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
+       )
    #+END_SRC
 
 * TODO Modes
@@ -918,7 +969,8 @@ required from *emacs*.
        ;(setq c-macro-names-with-semicolon '("Q_OBJECT" "Q_PROPERTY" "Q_DECLARE" "Q_ENUMS"))
        ;(c-make-macro-with-semi-re)
        )
-     (add-hook 'c-mode-common-hook 'android-cedet-setup)
+       (when (eq system-type 'gnu/linux)
+             (add-hook 'c-mode-common-hook 'android-cedet-setup))
    #+END_SRC
 
 ** Default
@@ -1067,7 +1119,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(evil evil-indent-textobject
-                evil-jumper evil-nerd-commenter
+                evil-jumper ;;evil-nerd-commenter
                 evil-visualstar
                 ))
        (require feature))
@@ -2722,58 +2774,7 @@ required from *emacs*.
      (volatile-highlights-mode t)
    #+END_SRC
 
-* Mac OS X
-   For GUI apps, OS environment variables do not inherit from =shell=. As such,
-   for certain things to work smoothly, we use =exec-path-from-shell= to include
-   environment-variables from the =shell=. It makes using Emacs along with
-   external processes a lot simpler. See [[http://stackoverflow.com/questions/16676826/making-the-path-and-other-environment-variables-available-in-emacs][Making the PATH and other environment
-   variables available in emacs]]. I also prefer using the =Command=-key as the
-   =Meta=-key.
-
-   On Mac OS X, menu bar always exist. No point removing it.
-
-   #+BEGIN_SRC emacs-lisp
-     (when (memq window-system '(mac ns))
-       ;(require-package 'exec-path-from-shell)
-       (require 'ucs-normalize)
-       (setq mac-option-modifier nil
-             mac-command-modifier 'meta
-
-             ;; Some mac-bindings interfere with Emacs bindings.
-             mac-pass-command-to-system nil
-             x-select-enable-clipboard t)
-
-       (menu-bar-mode t)
-       (exec-path-from-shell-initialize)
-       (add-hook 'after-init-hook
-                 (lambda ()
-                   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
-                   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
-                   ))
-   #+END_SRC
-
-   Auctex setting for =Mac OS X=
-
-   #+BEGIN_SRC emacs-lisp
-       ;; Use Skim as viewer, enable source <-> PDF sync
-       ;; make latexmk available via C-c C-c
-       ;; Note: SyncTeX is setup via ~/.latexmkrc (see below)
-;       (add-hook 'LaTeX-mode-hook (lambda ()
-;                                    (push
-;                                     '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
-;                                       :help "Run latexmk on file")
-;                                     TeX-command-list)))
-
-       ;; use Skim as default pdf viewer
-       ;; Skim's displayline is used for forward search (from .tex to .pdf)
-       ;; option -b highlights the current line; option -g opens Skim in the background
-       (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
-       (setq TeX-view-program-list
-             '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
-       )
-   #+END_SRC
-
-* Language Modes
+* Language  Modes
 ** General
    Some general settings that should apply to all programming mode. Highlight
    =FIXME= and =TODO= so they stand out. Also enable =indent-guide-mode= and
@@ -2846,7 +2847,7 @@ required from *emacs*.
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
        ;; the entire buffer, and then runs the indent-region command).
        (c-set-style "stroustrup")   ; C indenting style
-       ;(c-set-offset 'statement-cont 0)
+       (c-set-offset 'inline-open 0)
        (flycheck-mode)
        (ggtags-mode 1)
 
