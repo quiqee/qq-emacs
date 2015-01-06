@@ -1,0 +1,9 @@
+[submodule "linum-off"]
+	path = linum-off
+	url = git://github.com/mlf176f2/linum-off.git
+[submodule "monokai"]
+	path = monokai
+	url = git://github.com/oneKelvinSmith/monokai-emacs.git
+[submodule "powerline"]
+	path = powerline
+	url = git://github.com/milkypostman/powerline.git

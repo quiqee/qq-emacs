@@ -161,7 +161,7 @@ required from *emacs*.
    update feature that I don't find it in any other solutions for emacs.
 
    #+BEGIN_SRC emacs-lisp
-     (require 'cask "~/.cask/cask.el")
+     (require 'cask "~/.emacs.d/extern/cask/cask.el")
      (cask-initialize)
    #+END_SRC
 
@@ -548,7 +548,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (after 'powerline
-          (powerline-evil-theme))
+          (powerline-default-theme))
 
      ;;(setq sml/show-client t)
      ;;(setq sml/show-eol t)
@@ -765,11 +765,11 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq cedet-root-path (file-name-as-directory
-                            (concat user-emacs-directory "site-lisp/cedet-bzr/")))
+                            (concat user-emacs-directory "extern/cedet/")))
 
      (load-file (concat cedet-root-path "cedet-devel-load.el"))
      (add-to-list 'load-path (concat cedet-root-path "contrib"))
-     (add-to-list 'Info-directory-list (concat user-emacs-directory "site-lisp/cedet-bzr/doc/info"))
+     (add-to-list 'Info-directory-list (concat user-emacs-directory "extern/cedet/doc/info"))
    #+END_SRC
 
 *** Semantic
