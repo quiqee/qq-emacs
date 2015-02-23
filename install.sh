@@ -163,8 +163,8 @@ run_cask() {
 }
 run_cask
 
-output_on_error emacs --batch --eval="(require 'org-install)" \
+emacs --batch --eval="(require 'org-install)" \
  --eval="(setq org-confirm-babel-evaluate nil)" \
  --eval="(require 'ob-tangle)" \
  --eval='(org-babel-tangle-file "init.org")' \
- --eval='(byte-compile-file "~/.emacs.d/init.el")'
+ --eval='(byte-compile-file "~/.emacs.d/init.el")' 2</dev/null

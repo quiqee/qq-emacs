@@ -3,6 +3,9 @@
 (source org)
 
 
+(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
+(depends-on "rtags")
+(depends-on "git-timemachine")
 (depends-on "company")
 (depends-on "ggtags")
 (depends-on "helm-gtags")

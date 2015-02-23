@@ -7,3 +7,9 @@
 [submodule "powerline"]
 	path = powerline
 	url = git://github.com/milkypostman/powerline.git
+[submodule "fasd"]
+	path = fasd
+	url = git://github.com/clvv/fasd.git
+[submodule "urxvt-perls"]
+	path = urxvt-perls
+	url = https://github.com/muennich/urxvt-perls.git

@@ -117,4 +117,31 @@ fi
 set -o vi
 
 # Added by ~/.emacs.d/install.sh
-export PATH=$HOME/.emacs.d/extern/cask/bin:/usr/bin:$PATH
+export PATH=$HOME/local/bin:$HOME/toolchains/ppc405_gcc482/ppc_bin:$HOME/.emacs.d/extern/cask/bin:/usr/bin:$PATH
+
+eval "$(fasd --init auto)"
+
+fasd_cache="$HOME/.fasd-init-bash"
+if [ "$(command -v fasd)" -nt "$fasd_cache" -o ! -s "$fasd_cache" ]; then
+  fasd --init posix-alias bash-hook bash-ccomp bash-ccomp-install >| "$fasd_cache"
+fi
+source "$fasd_cache"
+unset fasd_cache
+
+alias a='fasd -a'        # any
+alias s='fasd -si'       # show / search / select
+alias d='fasd -d'        # directory
+alias f='fasd -f'        # file
+alias sd='fasd -sid'     # interactive directory selection
+alias sf='fasd -sif'     # interactive file selection
+alias j='fasd_cd -d'     # cd, same functionality as j in autojump
+alias jj='fasd_cd -d -i' # cd with interactive selection
+
+export EDITOR=vi
+
+if [ "$0" = "/usr/sbin/lightdm-session" -a "$DESKTOP_SESSION" = "i3" ]; then
+    export $(gnome-keyring-daemon -s)
+fi
+
+export LEGO_DONT_BUILD_TOOLCHAIN=1
+#export LEGO_TOOLCHAIN_BASE=$HOME/toolchains

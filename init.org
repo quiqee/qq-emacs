@@ -189,7 +189,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(
-                ;auto-complete-config  ; a configuration for auto-complete-mode
+                auto-complete-config  ; a configuration for auto-complete-mode
                 ;auto-complete-auctex
                 auto-compile          ; auto-compile .el files
                 bind-key
@@ -431,7 +431,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/find-file-check-large-file ()
-       (when (> (buffer-size) (* 1024 1024))
+       (when (> (buffer-size) (* 2048 2048))
          (setq buffer-read-only t)
          (buffer-disable-undo)
          (fundamental-mode)))
@@ -493,29 +493,41 @@ required from *emacs*.
    directory.
 
    #+BEGIN_SRC emacs-lisp
-     (setq
-           abbrev-file-name
-              (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
-           save-place-file
-              (concat qq/cache-directory "places")      ; cache for save-place
-           savehist-file
-              (concat qq/cache-directory "savehist")    ; cache for minibuffer history
-           savehist-additional-variables
-              '(search ring regexp-search-ring)
-           recentf-save-file
-              (concat qq/cache-directory "recentf")     ; cache folder for recently open files
-           recentf-max-saved-items 1000                 ; maximum saved items in recentf
-           recentf-max-menu-items 500
+     (defvar autosave-dir
+       (concat qq/cache-directory "backups/"))
+     (defun auto-save-file-name-p (filename)
+       (string-match "^#.*#$" (file-name-nondirectory filename)))
 
-           bookmark-default-file
-              (concat qq/cache-directory "bookmarks")   ; cache for bookmark
-           backup-directory-alist
-           `(("." . ,(concat qq/cache-directory "backups")))
-           auto-save-file-name-transforms
-           `(("." ,(concat qq/cache-directory "backups") t))
-           auto-save-list-file-prefix
-           (concat qq/cache-directory "auto-save-list/saves-"))
-     (setq delete-auto-save-files t)
+     (defun make-auto-save-file-name ()
+       (concat autosave-dir
+               (if buffer-file-name
+                   (concat "#" (file-name-nondirectory buffer-file-name) "#")
+                 (expand-file-name
+          (concat "#%" (buffer-name) "#")))))
+
+    (setq
+          abbrev-file-name
+             (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
+          save-place-file
+             (concat qq/cache-directory "places")      ; cache for save-place
+          savehist-file
+             (concat qq/cache-directory "savehist")    ; cache for minibuffer history
+          savehist-additional-variables
+             '(search ring regexp-search-ring)
+          recentf-save-file
+             (concat qq/cache-directory "recentf")     ; cache folder for recently open files
+          recentf-max-saved-items 1000                 ; maximum saved items in recentf
+          recentf-max-menu-items 500
+
+          bookmark-default-file
+             (concat qq/cache-directory "bookmarks")   ; cache for bookmark
+          backup-directory-alist
+          `(("." . ,(concat qq/cache-directory "backups")))
+          auto-save-file-name-transforms
+          `(("." ,(concat qq/cache-directory "backups/") t))
+          auto-save-list-file-prefix
+          (concat qq/cache-directory "auto-save-list/saves-"))
+    (setq delete-auto-save-files t)
    #+END_SRC
 
 ** Visual
@@ -548,7 +560,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (after 'powerline
-          (powerline-default-theme))
+          (powerline-evil-theme))
 
      ;;(setq sml/show-client t)
      ;;(setq sml/show-eol t)
@@ -756,223 +768,6 @@ required from *emacs*.
    #+END_SRC
 
 * TODO Modes
-** CEDET
-   Taken from [[https://gist.github.com/alexott/3930120][Alex's minimal cedet config]]
-
-   Requirements: CEDET from bzr (http://cedet.sourceforge.net/bzr-repo.shtml) Do
-   checkout of fresh CEDET, and use this config (don't forget to change path
-   below)
-
-   #+BEGIN_SRC emacs-lisp
-     (setq cedet-root-path (file-name-as-directory
-                            (concat user-emacs-directory "extern/cedet/")))
-
-     (load-file (concat cedet-root-path "cedet-devel-load.el"))
-     (add-to-list 'load-path (concat cedet-root-path "contrib"))
-     (add-to-list 'Info-directory-list (concat user-emacs-directory "extern/cedet/doc/info"))
-   #+END_SRC
-
-*** Semantic
-   Select which submodes we want to activate:
-
-   Enables automatic bookmarking of tags that you edited, so you can return to
-   them later with the =semantic-mrub-switch-tags= command
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
-   #+END_SRC
-
-   Enables global support for Semanticdb
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
-   #+END_SRC
-
-   Activates CEDET's context menu that is bound to right mouse button;
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-cedet-m3-minor-mode)
-   #+END_SRC
-
-   Activates highlighting of first line for current tag (function, class, etc.)
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
-   #+END_SRC
-
-   Activates mode when name of current tag will be shown in top line of buffer
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
-   #+END_SRC
-
-   Activates use of separate styles for tags decoration (depending on tag's
-   class). These styles are defined in the =semantic-decoration-styles= list
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode)
-   #+END_SRC
-
-   Activates highlighting of local names that are the same as name of tag under
-   cursor
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-local-symbol-highlight-mode)
-   #+END_SRC
-
-   Activates automatic parsing of source code in the idle time
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
-   #+END_SRC
-
-   Activates displaying of possible name completions in the idle time. Requires
-   enabling =global-semantic-idle-scheduler-mode=
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
-   #+END_SRC
-
-   Further settings:
-   #+BEGIN_SRC emacs-lisp
-     (setq semanticdb-default-save-directory (concat user-emacs-directory ".cache/semanticDB"))
-
-     ;; Activate semantic
-     (semantic-mode 1)
-     (require 'semantic/ia)
-     (require 'ecb)
-     (require 'semantic/bovine/gcc) ; or depending on you compiler
-     (require 'semantic/bovine/c)
-     ; (require 'semantic/bovine/clang)
-   #+END_SRC
-
-*** Load contrib library
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'eassist)
-   #+END_SRC
-
-*** Customisation of modes
-   #+BEGIN_SRC emacs-lisp
-     (mapc
-      (lambda (MODE)
-        (add-hook MODE
-                  (lambda ()
-                    (when (boundp 'semantic-ia-complete-symbol)
-                      (add-to-list 'completion-at-point-functions 'semantic-ia-complete-symbol))
-                    (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
-                    (local-set-key "\C-c?" 'semantic-ia-complete-symbol)
-                    (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
-                    (local-set-key "\C-c=" 'semantic-decoration-include-visit)
-                    (local-set-key "\C-cj" 'semantic-ia-fast-jump)
-                    (local-set-key "\C-cq" 'semantic-ia-show-doc)
-                    (local-set-key "\C-cs" 'semantic-ia-show-summary)
-                    (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
-                    ))) '(c-mode-common-hook lisp-mode-hook emacs-lisp-mode-hook))
-
-     (add-hook 'c-mode-common-hook
-               (lambda ()
-                 (local-set-key "\C-ct" 'eassist-switch-h-cpp)
-                 (local-set-key "\C-xt" 'eassist-switch-h-cpp)
-                 (local-set-key "\C-ce" 'eassist-list-methods)
-                 (local-set-key "." 'semantic-complete-self-insert)
-                 (local-set-key ">" 'semantic-complete-self-insert)
-                 (local-set-key "\C-c\C-r" 'semantic-symref)))
-
-     (semanticdb-enable-gnu-global-databases 'c-mode t)
-     (semanticdb-enable-gnu-global-databases 'c++-mode t)
-
-     (when (cedet-ectag-version-check t)
-       (semantic-load-enable-primary-ectags-support))
-
-     ;; SRecode
-     (global-srecode-minor-mode 1)
-
-     ;; EDE
-     (global-ede-mode 1)
-     (ede-enable-generic-projects)
-
-     ;; if you want to enable support for gnu global
-     (when (cedet-gnu-global-version-check t)
-       (semanticdb-enable-gnu-global-databases 'c-mode)
-       (semanticdb-enable-gnu-global-databases 'c++-mode))
-
-     ;; enable ctags for some languages:
-     ;;  Unix Shell, Perl, Pascal, Tcl, Fortran, Asm
-     (when (cedet-ectag-version-check)
-       (semantic-load-enable-primary-ectags-support))
-
-     ;; Setup JAVA....
-     (require 'cedet-java)
-
-     ;;; minimial-cedet-config.el ends here
-   #+END_SRC
-
-*** Android development
-   #+BEGIN_SRC emacs-lisp
-     (defun android-cedet-setup ()
-       "Set up c-mode and related modes for Android development"
-
-       ;; add knowledge of android to emacs
-       ;(setq qt4-base-dir (concat (getenv "QTDIR") "/include"))
-       (setq android-root (concat (expand-file-name "~") "/fb5"))
-       (setq tpvision (concat android-root "/device/tpvision"))
-       (setq pq-backend-location (concat tpvision "/tvsoc/backend/comps"))
-       (setq mtk-tool (concat android-root "/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.8"))
-       (setq mtk-root (concat android-root "/device/mediatek_common"))
-       (setq kernel-dir (concat mtk-root "/vm_linux/chiling/kernel/linux-3.10"))
-       (setq kernel-build-dir (concat android-root "/out/mediatek_linux/output/tpvision"
-              "/philips_MT5593Uplus_EU/rel/obj/kernel/chiling/kernel/linux-3.10"))
-
-       (semantic-reset-system-include 'c-mode)
-       (semantic-reset-system-include 'c++-mode)
-       (semantic-add-system-include (concat mtk-tool "/lib/gcc/arm-linux-androideabi/4.8/include") 'c-mode)
-       (semantic-add-system-include (concat kernel-dir "/arch/arm/include") 'c-mode)
-       (semantic-add-system-include (concat kernel-dir "/include") 'c-mode)
-       (semantic-add-system-include (concat kernel-dir "/arch/arm/mach-mt53xx/include") 'c-mode)
-       (semantic-add-system-include (concat kernel-dir "/arch/arm/include/uapi") 'c-mode)
-       (semantic-add-system-include (concat kernel-dir "/include/uapi") 'c-mode)
-       (semantic-add-system-include (concat mtk-root "/vm_linux/project_x/middleware/inc") 'c-mode)
-       (semantic-add-system-include (concat mtk-root "/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb") 'c-mode)
-       (semantic-add-system-include (concat tpvision "/tvsoc/tvsoc_mtk/src/private_inc")  'c-mode)
-       (semantic-add-system-include (concat pq-backend-location "/PQControl/include")   'c-mode)
-
-       (add-to-list 'semantic-lex-c-preprocessor-symbol-file
-                    (concat mtk-tool "/lib/gcc/arm-linux-androideabi/4.8/include/stddef.h"))
-       (add-to-list 'semantic-lex-c-preprocessor-symbol-file
-                    (concat kernel-build-dir "/mt5890_android_smp_mod_defconfig/include/generated/autoconf.h"))
-       (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("__KERNEL__" . ""))
-
-       (ede-cpp-root-project "mamb"
-                       :name "Ambilight Project"
-                       :file "~/philips_eu_l_pq/README"
-                       :include-path '("/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/"
-                                       "/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/FMS/inc"
-                                       "/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/FMS/src"
-                                      )
-                       :spp-table '(("isUnix" . "")
-                                    ("BOOST_TEST_DYN_LINK" . ""))) ;(add-to-list 'auto-mode-alist (cons qt4-base-dir 'c++-mode))
-
-       ;; qt keywords and stuff ...
-       ;; set up indenting correctly for new qt kewords
-       ;(setq c-protection-key (concat "\\<\\(public\\|public slot\\|protected"
-       ;                               "\\|protected slot\\|private\\|private slot"
-       ;                               "\\)\\>")
-       ;      c-C++-access-key (concat "\\<\\(signals\\|public\\|protected\\|private"
-       ;                               "\\|public slots\\|protected slots\\|private slots"
-       ;                               "\\)\\>[ \t]*:"))
-
-       ;;; modify the colour of slots to match public, private, etc ...
-       ;(font-lock-add-keywords 'c++-mode '(("\\<\\(slots\\|signals\\)\\>" . font-lock-type-face)))
-       ;;; make new font for rest of qt keywords
-       ;(make-face 'qt-keywords-face)
-       ;(set-face-foreground 'qt-keywords-face "BlueViolet")
-       ;;; qt keywords
-       ;(font-lock-add-keywords 'c++-mode '(("\\<Q_[A-Z]*\\>" . 'qt-keywords-face)))
-       ;(font-lock-add-keywords 'c++-mode '(("\\<SIGNAL\\|SLOT\\>" . 'qt-keywords-face)))
-       ;(font-lock-add-keywords 'c++-mode '(("\\<Q[A-Z][A-Za-z]*\\>" . 'qt-keywords-face)))
-       ;(font-lock-add-keywords 'c++-mode '(("\\<Q[A-Z_]+\\>" . 'qt-keywords-face)))
-       ;(font-lock-add-keywords 'c++-mode
-       ;                        '(("\\<q\\(Debug\\|Wait\\|Printable\\|Max\\|Min\\|Bound\\)\\>" . 'font-lock-builtin-face)))
-
-       ;(setq c-macro-names-with-semicolon '("Q_OBJECT" "Q_PROPERTY" "Q_DECLARE" "Q_ENUMS"))
-       ;(c-make-macro-with-semi-re)
-       )
-       (when (eq system-type 'gnu/linux)
-             (add-hook 'c-mode-common-hook 'android-cedet-setup))
-   #+END_SRC
-
 ** Default
 *** Disabled Modes
    There are some modes that are enabled by default that I don't find
@@ -1690,6 +1485,17 @@ required from *emacs*.
    #+END_SRC
 
 ** Auto-Complete
+   Set location for cache files:
+
+   #+BEGIN_SRC emacs-lisp
+     (when (require 'auto-complete-config nil 'noerror) ;; don't break if not installed
+       (add-to-list 'ac-dictionary-directories
+              (concat qq/cache-directory "ac-dict"))
+       (setq ac-comphist-file
+              (concat qq/cache-directory "ac-comphist.dat"))
+       (ac-config-default))
+   #+END_SRC
+
    Key-binding table for =auto-complete=. Refer [[Auto-Complete Bindings][here]] to see the code generation.
 
    #+TBLNAME: ac-key-combo
@@ -2070,6 +1876,15 @@ required from *emacs*.
           (erc-scrolltobottom-mode t)
    #+end_src
 
+** RTags
+   A Client/Server application that indexes C/C++ code and keeps a persistent
+   in-memory database for references
+
+   #+begin_src emacs-lisp
+     (require 'rtags)
+     (rtags-enable-standard-keybindings c-mode-base-map)
+   #+end_src
+
 ** Ag
    #+BEGIN_SRC emacs-lisp
      (setq ag-highlight-search t)
@@ -2288,11 +2103,22 @@ required from *emacs*.
      (require 'company)
      (add-hook 'after-init-hook 'global-company-mode)
      (delete 'company-semantic company-backends)
-     (after "c-mode" (define-key c-mode-map  [(control tab)] 'company-complete))
-     (after "c++-mode" (define-key c++-mode-map  [(control tab)] 'company-complete))
 
      ;; company-c-headers
      (add-to-list 'company-backends 'company-c-headers)
+     (setq company-c-headers-path-system "/usr/include/c++/4.8.2")
+
+     ;; company-clang
+     (add-to-list 'company-backends 'company-clang)
+     (setq company-clang-arguments
+          '("-std=c++11"
+            "-stdlib=libc++"
+            "-I/usr/include"
+            "-I/usr/include/x86_64-linux-gnu"
+            "-I/usr/include/clang/3.4/include/"))
+
+     (add-to-list 'company-backends 'company-rtags)
+
    #+END_SRC
 
 ** Clean-Aindent
@@ -2301,10 +2127,24 @@ required from *emacs*.
      (add-hook 'prog-mode-hook 'clean-aindent-mode)
    #+END_SRC
 
+** Very Large Files
+
+#+begin_src emacs-lisp
+  ;(require 'vlf-setup)
+#+end_src
+
 ** WS-Butler
    #+BEGIN_SRC emacs-lisp
-     (require 'ws-butler)
-     (add-hook 'prog-mode-hook 'ws-butler-mode)
+     ;(require 'ws-butler)
+     ;(add-hook 'prog-mode-hook 'ws-butler-mode)
+   #+END_SRC
+
+** Projectile
+   Project interaction module for Emacs.
+
+   #+BEGIN_SRC emacs-lisp
+     (projectile-global-mode)
+     (setq projectile-enable-caching t)
    #+END_SRC
 
 ** Pop-win
@@ -2547,24 +2387,20 @@ required from *emacs*.
 *** Customize =sr-speedbar= behavior
 
    #+BEGIN_SRC emacs-lisp
-     (setq sr-speedbar-skip-other-window-p 1)
-     (setq sr-speedbar-width 40)
-     (setq sr-speedbar-auto-refresh nil)
-     (setq sr-speedbar-max-width 40)
-     (setq sr-speedbar-right-side nil)
-     (setq sr-speedbar-width-console 40)
-     (setq sr-speedbar-width-x 40)
+     (setq sr-speedbar-skip-other-window-p 1
+           sr-speedbar-width 40
+           sr-speedbar-auto-refresh nil
+           sr-speedbar-max-width 40
+           sr-speedbar-right-side nil
+           sr-speedbar-width-console 40
+           sr-speedbar-width-x 40)
 
-     (setq speedbar-verbosity-level 2)
-     (setq speedbar-hide-button-brackets-flag t)
-     (setq speedbar-show-unknown-files t)
-     (setq speedbar-smart-directory-expand-flag t)
-     (setq speedbar-use-images nil)
      (setq speedbar-hide-button-brackets-flag t
+           speedbar-verbosity-level 2
            speedbar-show-unknown-files t
            speedbar-smart-directory-expand-flag t
            speedbar-directory-button-trim-method 'trim
-           speedbar-use-images nil
+           speedbar-use-images t
            speedbar-indentation-width 2
            speedbar-use-imenu-flag t
            speedbar-directory-unshown-regexp "^\\(\\.\\|\\.\\.\\)$"
@@ -2842,25 +2678,99 @@ required from *emacs*.
        ;; the entire buffer, and then runs the indent-region command).
        (c-set-style "stroustrup")   ; C indenting style
        (c-set-offset 'inline-open 0)
-       (flycheck-mode)
        (ggtags-mode 1)
 
-       ;; Enable EDE only in C/C++
-       (require 'ede)
-       (global-ede-mode)
        (cscope-minor-mode)
 
-       (global-semantic-idle-summary-mode 1)
-       (setq-default flycheck-c/c++-gcc-executable
-            "/mtkoss/gnuarm/neon_4.8.2_2.6.35_cortex-a9-ubuntu/x86_64/bin/armv7a-mediatek451_001_vfp-linux-gnueabi-gcc")
+       ;(flycheck-mode)
+       ;(setq flycheck-clang-language-standard "c++11")
+       ;(setq flycheck-clang-standard-library "libc++")
+       (setq semantic-idle-scheduler-max-buffer-size 0)
 
+       (setq rtags-completions-enabled t)
+       (define-key c-mode-map  [(control tab)] 'company-complete)
+       (define-key c++-mode-map  [(control tab)] 'company-complete)
 
        ; enable spell check in comment area
        (flyspell-prog-mode))
 
-     (add-hook 'c-mode-common-hook 'qq/c-mode-init)
+     (add-hook 'c-mode-hook 'qq/c-mode-init)
+     (add-hook 'c++-mode-hook 'qq/c-mode-init)
    #+END_SRC
 
+*** Definition lookup
+     Look for definion in a browser C++
+     Original idea: http://xahlee.org/emacs/emacs_lookup_ref.html
+
+     #+begin_src emacs-lisp
+       (defun lookup-word-definition-c++-mode ()
+         "Look up the current word's definition in a browser.
+       If a region is active (a phrase), lookup that phrase.
+       Copy the word/region into the clipboard.
+       You MUST launch Opera before using this function!!!"
+         (interactive)
+         (let (myword myurl)
+           (setq myword
+                 (if (and transient-mark-mode mark-active)
+                     (buffer-substring-no-properties (region-beginning) (region-end))
+                   (thing-at-point 'symbol)))
+
+           ;; Also, copy myword to clipboard
+           (if (and transient-mark-mode mark-active)
+               (clipboard-kill-ring-save (region-beginning) (region-end))
+             (let* ((chars "A-Za-z\\-")
+                    (left (save-excursion
+                            (skip-chars-backward chars)
+                            (point)))
+                    (right (save-excursion
+                             (skip-chars-forward chars)
+                             (point)))
+                    )
+               (clipboard-kill-ring-save left right)))
+
+           (setq myword (replace-regexp-in-string " " "%20" myword))
+           (setq myurl (concat "http://www.cppreference.com/wiki/?do=search&id=" myword ))
+                                               ; %22 is ""
+                                               ; %2B is +
+           (setq myurl (replace-regexp-in-string " " "%20" myurl))
+
+           ;;(browse-url myurl) ; to use Firefox
+
+           ;; You must run Opera before launching this program
+           ;;(shell-command (concat "opera --remote 'openURL(" myurl ", new-tab)' ")) ; Opera open the url
+           (shell-command (concat "chromium-browser " myurl)) ; Chromium open the url
+           ;;(shell-command (concat "wmctrl -a Opera")) ; Raise up the Opera window
+           ;;(w3m-browse-url myurl) ;; if you want to browse using w3m
+           ))
+
+
+       (define-key c-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
+       (define-key c++-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
+     #+end_src
+
+*** Highlight C+++ member function
+     Highlight only member function calls in =c++-mode=, for examples
+        Object o;
+        o.getName();
+        getName();
+
+     Here only o.getName() will get highlighted.
+
+     #+begin_src emacs-lisp
+       (defface font-lock-method-call-face
+         '((t . (:foreground "orangered" :bold t)))
+         "Face to display method calls in.")
+       (font-lock-add-keywords 'c++-mode
+         `((,(concat
+              "\\<[_a-zA-Z][_a-zA-Z0-9]*\\>"       ; Object identifier
+              "\\s *"                              ; Optional white space
+              "\\(?:\\.\\|->\\)"                   ; Member access
+              "\\s *"                              ; Optional white space
+              "\\<\\([_a-zA-Z][_a-zA-Z0-9]*\\)\\>" ; Member identifier
+              "\\s *"                              ; Optional white space
+              "(")                                 ; Paren for method invocation
+            1 'font-lock-method-call-face t)))
+     #+end_src
 *** Compilation
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-compile()
