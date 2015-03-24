@@ -3,7 +3,11 @@
 (source org)
 
 
-(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
+(depends-on "irony-mode" :git "https://github.com/Sarcasm/irony-mode.git" :files ("*" (:exclude ".git")))
+(depends-on "company-irony" :git "https://github.com/Sarcasm/company-irony.git" :files ("*" (:exclude ".git")))
+(depends-on "flycheck-irony" :git "https://github.com/Sarcasm/flycheck-irony.git" :files ("*" (:exclude ".git")))
+(depends-on "irony-eldoc" :git "https://github.com/ikirill/irony-eldoc.git" :files ("*" (:exclude ".git")))
+;(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
 (depends-on "rtags")
 (depends-on "git-timemachine")
 (depends-on "company")

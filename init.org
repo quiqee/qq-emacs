@@ -768,6 +768,201 @@ required from *emacs*.
    #+END_SRC
 
 * TODO Modes
+** CEDET
+   Taken from [[https://gist.github.com/alexott/3930120][Alex's minimal cedet config]]
+
+   Requirements: CEDET from bzr (http://cedet.sourceforge.net/bzr-repo.shtml) Do
+   checkout of fresh CEDET, and use this config (don't forget to change path
+   below)
+
+   #+BEGIN_SRC emacs-lisp
+     ;(setq cedet-root-path (file-name-as-directory
+     ;                       (concat user-emacs-directory "extern/cedet/")))
+
+     ;(load-file (concat cedet-root-path "cedet-devel-load.el"))
+     ;(load-file (concat cedet-root-path "contrib/cedet-contrib-load.el"))
+     ;(add-to-list 'Info-directory-list (concat user-emacs-directory "extern/cedet/doc/info"))
+   #+END_SRC
+
+*** Semantic
+   Select which submodes we want to activate:
+
+   Enables automatic bookmarking of tags that you edited, so you can return to
+   them later with the =semantic-mrub-switch-tags= command
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
+   #+END_SRC
+
+   Enables global support for Semanticdb
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semanticdb-minor-mode)
+   #+END_SRC
+
+   Activates CEDET's context menu that is bound to right mouse button;
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-cedet-m3-minor-mode)
+   #+END_SRC
+
+   Activates highlighting of first line for current tag (function, class, etc.)
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-highlight-func-mode)
+   #+END_SRC
+
+   Activates mode when name of current tag will be shown in top line of buffer
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+   #+END_SRC
+
+   Activates use of separate styles for tags decoration (depending on tag's
+   class). These styles are defined in the =semantic-decoration-styles= list
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode)
+   #+END_SRC
+
+   Activates highlighting of local names that are the same as name of tag under
+   cursor
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-idle-local-symbol-highlight-mode)
+   #+END_SRC
+
+   Activates automatic parsing of source code in the idle time
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+   #+END_SRC
+
+   Activates displaying of possible name completions in the idle time. Requires
+   enabling =global-semantic-idle-scheduler-mode=
+   #+BEGIN_SRC emacs-lisp
+     ;(add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
+   #+END_SRC
+
+   Further settings:
+   #+BEGIN_SRC emacs-lisp
+     ;(setq semanticdb-default-save-directory (concat user-emacs-directory ".cache/semanticDB"))
+
+     ;;; Activate semantic
+     ;(semantic-mode 1)
+     ;(require 'semantic/ia)
+     ;(require 'ecb)
+     ;(require 'semantic/bovine/gcc) ; or depending on you compiler
+     ;(require 'semantic/bovine/c)
+     ;; (require 'semantic/bovine/clang)
+     ;(require 'cedet-files)
+
+     ;(add-to-list 'semantic-lex-c-preprocessor-symbol-file
+     ;    "/home/fikri/toolchains/ppc405_gcc482/lib/gcc/powerpc-greenwave-linux-gnu/4.8.2/include/stddef.h")
+   #+END_SRC
+
+*** Load contrib library
+
+   #+BEGIN_SRC emacs-lisp
+     ;(require 'eassist)
+   #+END_SRC
+
+*** Customisation of modes
+   #+BEGIN_SRC emacs-lisp
+     ;(defun my/cedet-hook ()
+     ;  (local-set-key [(control return)] 'semantic-ia-complete-symbol-menu)
+     ;  (local-set-key "\C-c?" 'semantic-ia-complete-symbol)
+     ;  ;;
+     ;  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+     ;  (local-set-key "\C-c=" 'semantic-decoration-include-visit)
+
+     ;  (local-set-key "\C-cj" 'semantic-ia-fast-jump)
+     ;  (local-set-key "\C-cq" 'semantic-ia-show-doc)
+     ;  (local-set-key "\C-cs" 'semantic-ia-show-summary)
+     ;  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+     ;   ;;  (local-set-key (kbd "C-c <left>") 'semantic-tag-folding-fold-block)
+     ;   ;;  (local-set-key (kbd "C-c <right>") 'semantic-tag-folding-show-block)
+
+     ;  (add-to-list 'ac-sources 'ac-source-semantic)
+     ;  )
+     ;   ;; (add-hook 'semantic-init-hooks 'my/cedet-hook)
+     ;(add-hook 'c-mode-common-hook 'my/cedet-hook)
+     ;(add-hook 'lisp-mode-hook 'my/cedet-hook)
+     ;(add-hook 'scheme-mode-hook 'my/cedet-hook)
+     ;(add-hook 'emacs-lisp-mode-hook 'my/cedet-hook)
+     ;(add-hook 'erlang-mode-hook 'my/cedet-hook)
+
+     ;(defun my/c-mode-cedet-hook ()
+     ; ;; (local-set-key "." 'semantic-complete-self-insert)
+     ; ;; (local-set-key ">" 'semantic-complete-self-insert)
+     ;  (local-set-key "\C-ct" 'eassist-switch-h-cpp)
+     ;  (local-set-key "\C-xt" 'eassist-switch-h-cpp)
+     ;  (local-set-key "\C-ce" 'eassist-list-methods)
+     ;  (local-set-key "\C-c\C-r" 'semantic-symref)
+
+     ;  (add-to-list 'ac-sources 'ac-source-gtags)
+     ;  )
+     ;(add-hook 'c-mode-common-hook 'my/c-mode-cedet-hook)
+
+     ;;; if you want to enable support for gnu global
+     ;(when (cedet-gnu-global-version-check t)
+     ;  (semanticdb-enable-gnu-global-databases 'c-mode t)
+     ;  (semanticdb-enable-gnu-global-databases 'c++-mode t))
+
+     ;;; enable ctags for some languages:
+     ;;;  Unix Shell, Perl, Pascal, Tcl, Fortran, Asm
+     ;(when (cedet-ectag-version-check t)
+     ;  (semantic-load-enable-primary-ectags-support))
+
+     ;;; SRecode
+     ;(global-srecode-minor-mode 1)
+
+     ;;; EDE
+     ;(global-ede-mode 1)
+     ;(ede-enable-generic-projects)
+
+     ;;; Setup JAVA....
+     ;;(require 'cedet-java)
+
+     ;;;; minimial-cedet-config.el ends here
+   #+END_SRC
+
+*** Setup compile package
+   #+BEGIN_SRC emacs-lisp
+     ;(require 'compile)
+     ;(setq compilation-disable-input nil)
+     ;(setq compilation-scroll-output t)
+     ;(setq mode-compile-always-save-buffer-p t)
+
+     ;(defun my/compile ()
+     ;"Saves all unsaved buffers, and runs 'compile'."
+     ;(interactive)
+     ;(save-some-buffers t)
+     ;(let* ((fname (or (buffer-file-name (current-buffer)) default-directory))
+     ;    (current-dir (file-name-directory fname))
+     ;        (prj (ede-current-project current-dir)))
+     ;    (if prj
+     ;    (project-compile-project prj)
+     ;    (compile compile-command))))
+     ;(global-set-key [f11] 'my/compile)
+
+   #+END_SRC
+
+*** Project related settings
+   #+BEGIN_SRC emacs-lisp
+     ;; cpp-tests project definition
+     ;(ede-cpp-root-project "mamb"
+     ;                :name "Ambilight Project"
+     ;                :file "~/philips_eu_l_pq/README"
+     ;                :include-path '("/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/"
+     ;                                "/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/FMS/inc"
+     ;                                "/mediatek_common/vm_linux/third_party/cust_app/TPV_Vision/TPV/mamb/FMS/src"
+     ;                               )
+     ;                :spp-table '(("isUnix" . "")
+     ;                             ("BOOST_TEST_DYN_LINK" . ""))) ;(add-to-list 'auto-mode-alist (cons qt4-base-dir 'c++-mode))
+     ;(when (file-exists-p "/lego/master/lego.env")
+     ;   (setq lego-project
+     ;       (ede-cpp-root-project "lego-master"
+     ;                   :file "/lego/master/README"
+     ;                   :system-include-path '("/lego/master/output/onegw/thirdparty-include"
+     ;                               "/lego/master/output/onegw/boost_1_54_0")
+     ;                   :compile-command "source lego.env && cd products/onegw && set_lego_product && VERBOSE=1 make firmware_bays"
+     ;                   )))
+
+   #+END_SRC
+
 ** Default
 *** Disabled Modes
    There are some modes that are enabled by default that I don't find
@@ -1309,19 +1504,6 @@ required from *emacs*.
                        (if (looking-back "/")
                            (insert "~/")
                          (call-interactively 'self-insert-command)))))))
-   #+END_SRC
-
-** Smex
-   To make =M-x= behave more like =ido-mode= we can use the =smex=
-   package. It needs to be initialized, and we can replace the binding to
-   the standard =execute-extended-command= with =smex=.
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'smex)
-     (smex-initialize)
-     (setq smex-save-file (concat qq/cache-directory "smex-items")
-           smex-history-length 80)
-     (global-set-key (kbd "M-x") 'smex)
    #+END_SRC
 
 ** iBuffer
@@ -1885,6 +2067,45 @@ required from *emacs*.
      (rtags-enable-standard-keybindings c-mode-base-map)
    #+end_src
 
+** Irony
+   A alternate Client/Server application that indexes C/C++ code and keeps a persistent
+   in-memory database for references
+
+   #+begin_src emacs-lisp
+     (add-hook 'c++-mode-hook 'irony-mode)
+     (add-hook 'c-mode-hook 'irony-mode)
+     (add-hook 'objc-mode-hook 'irony-mode)
+
+     ;; replace the `completion-at-point' and `complete-symbol' bindings in
+     ;; irony-mode's buffers by irony-mode's function
+     (defun my-irony-mode-hook ()
+       (define-key irony-mode-map [remap completion-at-point]
+         'irony-completion-at-point-async)
+       (define-key irony-mode-map [remap complete-symbol]
+         'irony-completion-at-point-async))
+     (add-hook 'irony-mode-hook 'my-irony-mode-hook)
+     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+     (add-hook 'irony-mode-hook 'irony-eldoc)
+   #+end_src
+
+*** Company integration
+ #+begin_src emacs-lisp
+   (eval-after-load 'company
+     '(add-to-list 'company-backends 'company-irony))
+
+   ;; (optional) adds CC special commands to `company-begin-commands' in order to
+   ;; trigger completion at interesting places, such as after scope operator
+   ;;     std::|
+   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+ #+end_src
+
+*** Flycheck integration
+ #+begin_src emacs-lisp
+   (eval-after-load 'flycheck
+    '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+ #+end_src
+
+
 ** Ag
    #+BEGIN_SRC emacs-lisp
      (setq ag-highlight-search t)
@@ -1914,30 +2135,6 @@ required from *emacs*.
      (require 'helm-eshell)
      (require 'helm-files)
      (require 'helm-grep)
-   #+END_SRC
-
-*** Custom function
-
-   #+BEGIN_SRC emacs-lisp
-;     (defun helm-smex-items ()
-;       (smex-rebuild-cache)
-;       (smex-convert-for-ido smex-cache))
-;
-;     (defun helm-smex-execute-command (command)
-;       (command-execute command 'record)
-;       (smex-rank command))
-;
-;     (setq helm-smex-source
-;       '((name . "M-x")
-;         (candidates . helm-smex-items)
-;         (coerce . intern)
-;         (action ("smex" . (helm-smex-execute-command)))))
-;
-;     (defun helm-smex ()
-;       (interactive)
-;       (helm :sources 'helm-smex-source :buffer "*helm-smex*"))
-;
-;     (global-set-key (kbd "C-c M-x") 'execute-extended-command)
    #+END_SRC
 
 *** Settings
@@ -1987,6 +2184,8 @@ required from *emacs*.
            helm-input-idle-delay 0.01            ; be idle for this many seconds, before updating candidate buffer
            helm-ff-search-library-in-sexp t      ; search for library in `require' and `declare-function' sexp.
 
+           helm-display-header-line nil          ;
+
            helm-split-window-default-side 'other ; open helm buffer in another window
            helm-split-window-in-side-p t         ; open helm buffer inside current window, not occupy whole other window
            helm-buffers-favorite-modes (append helm-buffers-favorite-modes
@@ -2009,7 +2208,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
-;     (helm-mode 1)
+     (helm-mode 1)
    #+END_SRC
 
 *** Keybindings
@@ -2035,17 +2234,20 @@ required from *emacs*.
 
    Check for =evil-mode= and =helm-autoloads= before keybindings. Refer to this code
    #+TBLNAME: helm-evil-combo
-      | Combo | Mode                  | Description | Command                 |
-      | g b   | evil-normal-state-map |             | 'helm-mini              |
-      | SPC f | evil-normal-state-map |             | 'helm-find-files        |
-      | SPC o | evil-normal-state-map |             | 'helm-imenu             |
-      | SPC t | evil-normal-state-map |             | 'helm-etags-select      |
-      | SPC y | evil-normal-state-map |             | 'helm-show-kill-ring    |
-      | SPC m | evil-normal-state-map |             | 'helm-bookmarks         |
-      | SPC r | evil-normal-state-map |             | 'helm-register          |
-      | SPC x | evil-normal-state-map |             | 'helm-M-x               |
-      | SPC a | evil-normal-state-map |             | 'helm-all-mark-rings    |
-      | SPC w | evil-normal-state-map |             | 'helm-wikipedia-suggest |
+      | Combo   | Mode                  | Description | Command                 |
+      | g b     | evil-normal-state-map |             | 'helm-mini              |
+      | SPC f   | evil-normal-state-map |             | 'helm-find-files        |
+      | SPC o   | evil-normal-state-map |             | 'helm-imenu             |
+      | SPC t   | evil-normal-state-map |             | 'helm-etags-select      |
+      | SPC y   | evil-normal-state-map |             | 'helm-show-kill-ring    |
+      | SPC m   | evil-normal-state-map |             | 'helm-bookmarks         |
+      | SPC r   | evil-normal-state-map |             | 'helm-register          |
+      | SPC SPC | evil-normal-state-map |             | 'helm-M-x               |
+      | SPC SPC | evil-visual-state-map |             | 'helm-M-x               |
+      | SPC a   | evil-normal-state-map |             | 'helm-all-mark-rings    |
+      | SPC w   | evil-normal-state-map |             | 'helm-wikipedia-suggest |
+      | SPC l   | evil-normal-state-map |             | 'helm-swoop             |
+      | SPC L   | evil-normal-state-map |             | 'helm-multi-swoop       |
 
 ** Helm-Gtags
 *** Settings
@@ -2109,15 +2311,15 @@ required from *emacs*.
      (setq company-c-headers-path-system "/usr/include/c++/4.8.2")
 
      ;; company-clang
-     (add-to-list 'company-backends 'company-clang)
-     (setq company-clang-arguments
-          '("-std=c++11"
-            "-stdlib=libc++"
-            "-I/usr/include"
-            "-I/usr/include/x86_64-linux-gnu"
-            "-I/usr/include/clang/3.4/include/"))
+     ;;(add-to-list 'company-backends 'company-clang)
+     ;(setq company-clang-arguments
+     ;     '("-std=c++11"
+     ;       "-stdlib=libc++"
+     ;       "-I/usr/include"
+     ;       "-I/usr/include/x86_64-linux-gnu"
+     ;       "-I/usr/include/clang/3.4/include/"))
 
-     (add-to-list 'company-backends 'company-rtags)
+     ;(add-to-list 'company-backends 'company-rtags)
 
    #+END_SRC
 
@@ -2126,12 +2328,6 @@ required from *emacs*.
      (require 'clean-aindent-mode)
      (add-hook 'prog-mode-hook 'clean-aindent-mode)
    #+END_SRC
-
-** Very Large Files
-
-#+begin_src emacs-lisp
-  ;(require 'vlf-setup)
-#+end_src
 
 ** WS-Butler
    #+BEGIN_SRC emacs-lisp
@@ -2678,16 +2874,24 @@ required from *emacs*.
        ;; the entire buffer, and then runs the indent-region command).
        (c-set-style "stroustrup")   ; C indenting style
        (c-set-offset 'inline-open 0)
-       (ggtags-mode 1)
 
+       ;; Greenwave coding style
+       (setq c-default-style "stroustrup"
+             c-basic-offset 4)
+       (setq-default c-basic-offset 4
+                     tab-width 4
+                     indent-tabs-mode t)
+       (c-set-offset 'innamespace 0)
+
+       (ggtags-mode 1)
        (cscope-minor-mode)
 
        ;(flycheck-mode)
        ;(setq flycheck-clang-language-standard "c++11")
        ;(setq flycheck-clang-standard-library "libc++")
-       (setq semantic-idle-scheduler-max-buffer-size 0)
+       ;(setq semantic-idle-scheduler-max-buffer-size 0)
 
-       (setq rtags-completions-enabled t)
+       ;(setq rtags-completions-enabled t)
        (define-key c-mode-map  [(control tab)] 'company-complete)
        (define-key c++-mode-map  [(control tab)] 'company-complete)
 
@@ -3405,28 +3609,11 @@ required from *emacs*.
        (evil-ex-define-cmd "Gw" (bind (git-gutter+-stage-whole-buffer))))
    #+END_SRC
 
-*** Smex
-
-   #+BEGIN_SRC emacs-lisp
-       (after "smex-autoloads"
-         (define-key evil-visual-state-map (kbd "SPC SPC") 'smex)
-         (define-key evil-normal-state-map (kbd "SPC SPC") 'smex))
-   #+END_SRC
-
 *** Ido
 
    #+BEGIN_SRC emacs-lisp
        (define-key evil-normal-state-map (kbd "SPC k") 'ido-kill-buffer)
-       (define-key evil-normal-state-map (kbd "SPC f") 'ido-find-file)
-   #+END_SRC
-
-*** Helm-Swoop
-
-   #+BEGIN_SRC emacs-lisp
-     (after "helm-autoloads"
-     (after "helm-swoop-autoloads"
-       (define-key evil-normal-state-map (kbd "SPC l") 'helm-swoop)
-       (define-key evil-normal-state-map (kbd "SPC L") 'helm-multi-swoop)))
+;       (define-key evil-normal-state-map (kbd "SPC f") 'ido-find-file)
    #+END_SRC
 
 *** Ggtags

@@ -117,7 +117,7 @@ fi
 set -o vi
 
 # Added by ~/.emacs.d/install.sh
-export PATH=$HOME/local/bin:$HOME/toolchains/ppc405_gcc482/ppc_bin:$HOME/.emacs.d/extern/cask/bin:/usr/bin:$PATH
+export PATH=$HOME/local/bin:$HOME/.emacs.d/extern/cask/bin:/usr/bin:$PATH
 
 eval "$(fasd --init auto)"
 
@@ -136,6 +136,8 @@ alias sd='fasd -sid'     # interactive directory selection
 alias sf='fasd -sif'     # interactive file selection
 alias j='fasd_cd -d'     # cd, same functionality as j in autojump
 alias jj='fasd_cd -d -i' # cd with interactive selection
+alias master='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc482/ppc_bin:$PATH'
+alias nine='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc462/bin:$PATH'
 
 export EDITOR=vi
 
@@ -145,3 +147,9 @@ fi
 
 export LEGO_DONT_BUILD_TOOLCHAIN=1
 #export LEGO_TOOLCHAIN_BASE=$HOME/toolchains
+
+PANEL_FIFO=/tmp/panel-fifo
+PANEL_HEIGHT=24
+PANEL_FONT_FAMILY="-*-terminus-medium-r-normal-*-12-*-*-*-c-*-*-1"
+export PANEL_FIFO PANEL_HEIGHT PANEL_FONT_FAMILY
+
