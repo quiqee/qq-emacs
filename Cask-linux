@@ -2,11 +2,12 @@
 (source gnu)
 (source org)
 
-
-(depends-on "irony-mode" :git "https://github.com/Sarcasm/irony-mode.git" :files ("*" (:exclude ".git")))
-(depends-on "company-irony" :git "https://github.com/Sarcasm/company-irony.git" :files ("*" (:exclude ".git")))
-(depends-on "flycheck-irony" :git "https://github.com/Sarcasm/flycheck-irony.git" :files ("*" (:exclude ".git")))
-(depends-on "irony-eldoc" :git "https://github.com/ikirill/irony-eldoc.git" :files ("*" (:exclude ".git")))
+(depends-on "hlinum-mode" :git "https://github.com/tom-tan/hlinum-mode.git" :files ("*" (:exclude ".git")))
+;(depends-on "Moe-theme" :git "https://github.com/kuanyui/moe-theme.el.git" :files ("*" (:exclude ".git")))
+;(depends-on "irony-mode" :git "https://github.com/Sarcasm/irony-mode.git" :files ("*" (:exclude ".git")))
+;(depends-on "company-irony" :git "https://github.com/Sarcasm/company-irony.git" :files ("*" (:exclude ".git")))
+;(depends-on "flycheck-irony" :git "https://github.com/Sarcasm/flycheck-irony.git" :files ("*" (:exclude ".git")))
+;(depends-on "irony-eldoc" :git "https://github.com/ikirill/irony-eldoc.git" :files ("*" (:exclude ".git")))
 ;(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
 (depends-on "rtags")
 (depends-on "git-timemachine")
@@ -21,11 +22,9 @@
 (depends-on "ace-jump-mode")           ; quick cursor location minor mode
 (depends-on "ag")
 (depends-on "helm-ag")
-(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
+;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
 (depends-on "auctex")                  ; integrated environment for *TeX*
 (depends-on "auto-compile")            ; automatically compile Emacs Lisp libraries
-(depends-on "auto-complete")           ; auto completion
-;(depends-on "auto-complete-auctex")    ; auto completion with autex integration
 (depends-on "bind-key")                ; a simple way to manage personal keybindings
 (depends-on "color-identifiers-mode")  ; gives colors to unique variables passed into functions
 (depends-on "crosshairs")              ; Highlight current line & current column
@@ -89,7 +88,6 @@
 (depends-on "move-text")               ; Move current line or region with M-up or M-down
 (depends-on "multiple-cursors")        ; Multiple cursors for Emacs.
 (depends-on "org-plus-contrib")        ; Outline-based notes management and organizer
-(depends-on "org-ac")                  ; Auto-Complete for Org-Mode
 (depends-on "org-bullets")             ; show org bullet as Unicode character
 (depends-on "pallet")                  ; Package management tools for emacs using cask
 (depends-on "paredit")                 ; minor mode for editing parentheses

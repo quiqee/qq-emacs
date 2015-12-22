@@ -43,7 +43,7 @@ esac
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -56,8 +56,9 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='\[\e[00;37m\]\d, \t \[\e[0m\]\[\e[00;33m\]\w\[\e[0m\]\[\e[00;37m\] [$?]\n\u@\[\e[0m\]\[\e[01;32m\]\h\[\e[0m\]\[\e[00;37m\] \\$ \[\e[0m\]'
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -136,8 +137,8 @@ alias sd='fasd -sid'     # interactive directory selection
 alias sf='fasd -sif'     # interactive file selection
 alias j='fasd_cd -d'     # cd, same functionality as j in autojump
 alias jj='fasd_cd -d -i' # cd with interactive selection
-alias master='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc482/ppc_bin:$PATH'
-alias nine='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc462/bin:$PATH'
+alias master='export PATH=$HOME/.bin:$HOME/fikri/toolchains/ppc405_gcc482/ppc_bin:$PATH'
+alias nine='export PATH=$HOME/.bin:$HOME/fikri/toolchains/ppc405_gcc462/bin:$PATH'
 
 export EDITOR=vi
 
@@ -147,9 +148,4 @@ fi
 
 export LEGO_DONT_BUILD_TOOLCHAIN=1
 #export LEGO_TOOLCHAIN_BASE=$HOME/toolchains
-
-PANEL_FIFO=/tmp/panel-fifo
-PANEL_HEIGHT=24
-PANEL_FONT_FAMILY="-*-terminus-medium-r-normal-*-12-*-*-*-c-*-*-1"
-export PANEL_FIFO PANEL_HEIGHT PANEL_FONT_FAMILY
 

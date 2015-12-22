@@ -20,7 +20,7 @@ output_on_error() {
 check_environment() {
     echo "** checking environment"
 
-    required_exes=(bzr git make)
+    required_exes=(git make)
 
     for e in ${required_exes[@]}; do
         hash $e || {
@@ -46,12 +46,12 @@ git_config() {
 }
 #git_config
 
-if [ "$(uname)" == "Darwin" ]; then
-    echo "Install bashrc file"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo "Install bashrc file"
-    ln -sf $(pwd)/dot_ubuntu_bashrc $HOME/.bashrc
-fi
+#if [ "$(uname)" == "Darwin" ]; then
+#    echo "Install bashrc file"
+#elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+#    echo "Install bashrc file"
+#    ln -sf $(pwd)/dot_ubuntu_bashrc $HOME/.bashrc
+#fi
 
 mkdir -p ~/.emacs.d/elisp
 mkdir -p ~/.emacs.d/extern
@@ -86,8 +86,8 @@ update_bzr_lib() {
     fi
     echo " ... done"
 }
-update_bzr_lib \
-    ".emacs.d/extern/cedet" "bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk/"
+#update_bzr_lib \
+#    ".emacs.d/extern/cedet" "bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk/"
 
 clone_git_repo() {
     # Some tools are self-updating, so we don't import them as submodules, instead just clone
@@ -136,8 +136,8 @@ build_lib() {
     ) || exit 1
     echo " ... done"
 }
-build_lib ".emacs.d/extern/cedet"
-build_lib ".emacs.d/extern/cedet/contrib"
+#build_lib ".emacs.d/extern/cedet"
+#build_lib ".emacs.d/extern/cedet/contrib"
 
 run_cask() {
     echo -n "** Installing cask packages"

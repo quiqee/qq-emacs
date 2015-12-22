@@ -1,0 +1,63 @@
+URxvt*loginShell: true
+URxvt*saveLines: 10000
+URxvt*cutchars: "`\"'&()*,:;<=>?[\\]^{|}$"
+
+urxvt*foreground: white
+urxvt*background: black
+
+*color0:  #2E3436
+*color1:  #a40000
+*color2:  #4E9A06
+*color3:  #C4A000
+*color4:  #3465A4
+*color5:  #75507B
+*color6:  #ce5c00
+*color7:  #babdb9
+*color8:  #555753
+*color9:  #EF2929
+*color10: #8AE234
+*color11: #FCE94F
+*color12: #729FCF
+*color13: #AD7FA8
+*color14: #fcaf3e
+*color15: #EEEEEC
+
+urxvt*font:xft:PragmataPro for Powerline:pixelsize=10
+URxvt*italicFont:PragmataPro Italic for Powerline:pixelsize=10
+URxvt*scrollBar: false
+URxvt*visualBell: true
+URxvt.letterSpace: -1
+// this is SO AWESOME:
+URxvt*fading: 40
+
+!Set TERM environments
+URxvt*termName: rxvt
+
+URxvt*perl-lib: /home/fikri/Documents/qq-emacs/urxvt-perls/
+URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard
+
+!Keyboard select
+URxvt*keysym.M-Escape: perl:keyboard-select:activate
+URxvt*keysym.M-s: perl:keyboard-select:search
+
+!URL Select
+URxvt*keysym.M-u: perl:url-select:select_next
+
+!Copy/paste
+URxvt*keysym.M-c:   perl:clipboard:copy
+URxvt*keysym.M-v:   perl:clipboard:paste
+URxvt*keysym.M-C-v: perl:clipboard:paste_escaped
+URxvt*clipboard.autocopy: true
+
+// install xclip first
+URxvt*clipboard.copycmd:  xclip -i -selection clipboard
+URxvt*clipboard.pastecmd: xclip -o -selection clipboard
+
+! do not scroll with output
+URxvt*scrollTtyOutput: false
+
+! scroll in relation to buffer (with mouse scroll or Shift+Page Up)
+URxvt*scrollWithBuffer: true
+
+! scroll back to the bottom on keypress
+URxvt*scrollTtyKeypress: true
