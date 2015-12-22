@@ -1855,7 +1855,6 @@ required from *emacs*.
       | SPC p s |                                           | 'helm-projectile-switch-project  |
       | SPC p e |                                           | 'helm-projectile                 |
       | SPC p f |                                           | 'helm-projectile-find-file       |
-      | C-c C-c |                                           | 'projectile-compile-project      |
 
 ** RTags
    A Client/Server application that indexes C/C++ code and keeps a persistent
