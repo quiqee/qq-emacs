@@ -1704,6 +1704,8 @@ required from *emacs*.
        (unless (file-exists-p org-directory)
          (make-directory org-directory))
 
+       (require 'ox-md nil t)
+
        (setq qq/inbox-org-file (concat org-directory "/inbox.org")
 
              org-startup-indented t
@@ -2195,8 +2197,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 ** Generate all the binding here.
    The code for the keys is generated from data in a named Org table, i.e. =keys=
    using a bit of Elisp code =gen-keys= and is spit out inside a code block via
-   [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. The same data is also used in the [[Keyboard%20shortcuts][Keyboard shortcuts]] section to
-   generate the documentation. I'd like to be able to have only one place to
+   [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. I'd like to be able to have only one place to
    change key information and have it updated wherever necessary.
 
 *** Basic Bindings
