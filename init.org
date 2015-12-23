@@ -569,7 +569,9 @@ required from *emacs*.
      ;(moe-theme-set-color 'w/b)
        ;; (Available colors: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
 
-     (load-theme 'gotham t)
+     (load-theme 'gruber-darker t)
+
+     ;(load-theme 'gotham t)
 
      ;(load-theme 'ample t t)
      ;(load-theme 'ample-flat t t)
@@ -592,6 +594,7 @@ required from *emacs*.
             (set-face-attribute 'default nil :font "PragmataPro for Powerline-11"))
            (t
             ;; Emacs version 22.3 or later.
+            (set-frame-font "PragmataPro for Powerline-11" t) ; set font for all frames
             (set-face-attribute 'default nil :font "PragmataPro for Powerline-11")))
    #+END_SRC
 
@@ -617,7 +620,7 @@ required from *emacs*.
          (paredit-mode . " Φ")
          (eldoc-mode . "")
          (abbrev-mode . "")
-         (undo-tree-mode . " τ")
+         ;;(undo-tree-mode . " τ")
          (wrap-region-mode . "")
          ;;(volatile-highlights-mode . " υ")
          (elisp-slime-nav-mode . " δ")
@@ -674,7 +677,7 @@ required from *emacs*.
    Highlight current line mode
 
    #+BEGIN_SRC emacs-lisp
-     ;(global-hl-line-mode)
+     (global-hl-line-mode)
    #+END_SRC
 
 *** Fixed/Variable Width Faces
@@ -1594,6 +1597,8 @@ required from *emacs*.
      (add-hook 'c-mode-hook 'irony-mode)
      (add-hook 'objc-mode-hook 'irony-mode)
 
+     (setq irony-additional-clang-options '("-std=c++11"))
+
      ;; replace the `completion-at-point' and `complete-symbol' bindings in
      ;; irony-mode's buffers by irony-mode's function
      (defun my-irony-mode-hook ()
@@ -1604,6 +1609,11 @@ required from *emacs*.
      (add-hook 'irony-mode-hook 'my-irony-mode-hook)
      (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
    #+end_src
+
+*** Irony Eldoc
+ #+begin_src emacs-lisp
+   (add-hook 'irony-mode-hook 'irony-eldoc)
+ #+end_src
 
 *** Company integration
  #+begin_src emacs-lisp
@@ -1629,6 +1639,32 @@ required from *emacs*.
  #+begin_src emacs-lisp
    (eval-after-load 'flycheck
     '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+ #+end_src
+
+*** Bind TAB for indent-or-complete
+ #+begin_src emacs-lisp
+   (defun irony--check-expansion ()
+   (save-excursion
+     (if (looking-at "\\_>") t
+       (backward-char 1)
+       (if (looking-at "\\.") t
+         (backward-char 1)
+         (if (looking-at "->") t nil)))))
+   (defun irony--indent-or-complete ()
+   "Indent or Complete"
+   (interactive)
+   (cond ((and (not (use-region-p))
+               (irony--check-expansion))
+          (message "complete")
+          (company-complete-common))
+         (t
+          (message "indent")
+          (call-interactively 'c-indent-line-or-region))))
+   (defun irony-mode-keys ()
+   "Modify keymaps used by `irony-mode'."
+   (local-set-key (kbd "TAB") 'irony--indent-or-complete)
+   (local-set-key [tab] 'irony--indent-or-complete))
+   (add-hook 'c-mode-common-hook 'irony-mode-keys)
  #+end_src
 
 ** Magit
@@ -1951,8 +1987,12 @@ Some general settings that should apply to all programming mode. Highlight
                (rainbow-delimiters-mode)
                (require 'highlight-indent-guides)
                (highlight-indent-guides-mode)
-               (set-face-background 'highlight-indent-guides-odd-face "#11151c")
-               (set-face-background 'highlight-indent-guides-even-face "#071110")
+               ;gruber-theme
+               (set-face-background 'highlight-indent-guides-odd-face "#151515")
+               (set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
+               ;gotham-theme
+               ;(set-face-background 'highlight-indent-guides-odd-face "#11151c")
+               ;(set-face-background 'highlight-indent-guides-even-face "#071110")
                (setq indent-guide-recursive t)
                (color-identifiers-mode t)))
 #+end_src
@@ -1990,11 +2030,11 @@ using =C-c C-c= (instead of =M-x compile=), a habit from =latex-mode=.
     ;;;(setq flycheck-clang-standard-library "libc++")
     ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
 
-                                          ;(setq rtags-completions-enabled t)
-    (define-key c-mode-map  [(control tab)] 'company-complete)
-    (define-key c++-mode-map  [(control tab)] 'company-complete)
+    ;(setq rtags-completions-enabled t)
+    ;(define-key c-mode-map  [(control tab)] 'company-complete)
+    ;(define-key c++-mode-map  [(control tab)] 'company-complete)
 
-                                          ; enable spell check in comment area
+    ; enable spell check in comment area
     (flyspell-prog-mode))
 
   (add-hook 'c-mode-hook 'qq/c-mode-init)

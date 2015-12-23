@@ -2,26 +2,35 @@
 (source gnu)
 (source org)
 
-(depends-on "hlinum-mode" :git "https://github.com/tom-tan/hlinum-mode.git" :files ("*" (:exclude ".git")))
-;(depends-on "Moe-theme" :git "https://github.com/kuanyui/moe-theme.el.git" :files ("*" (:exclude ".git")))
-;(depends-on "irony-mode" :git "https://github.com/Sarcasm/irony-mode.git" :files ("*" (:exclude ".git")))
-;(depends-on "company-irony" :git "https://github.com/Sarcasm/company-irony.git" :files ("*" (:exclude ".git")))
-;(depends-on "flycheck-irony" :git "https://github.com/Sarcasm/flycheck-irony.git" :files ("*" (:exclude ".git")))
-;(depends-on "irony-eldoc" :git "https://github.com/ikirill/irony-eldoc.git" :files ("*" (:exclude ".git")))
+(depends-on "swiper")
+(depends-on "hlinum")
+(depends-on "linum-off")
+(depends-on "info+")
+(depends-on "exec-path-from-shell")
+(depends-on "spaceline")
+
+(depends-on "company")
+(depends-on "company-irony")
+(depends-on "company-irony-c-headers")
+(depends-on "irony")
+(depends-on "irony-eldoc")
+(depends-on "flycheck-irony")
+(depends-on "irony-eldoc")
+
 ;(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
 (depends-on "rtags")
 (depends-on "git-timemachine")
-(depends-on "company")
 (depends-on "ggtags")
 (depends-on "helm-gtags")
+
 (depends-on "function-args")
 (depends-on "clean-aindent-mode")
 ;(depends-on "dtrt-indent")
 (depends-on "ws-butler")
+(depends-on "helm-projectile")
 (depends-on "projectile")
 (depends-on "ace-jump-mode")           ; quick cursor location minor mode
 (depends-on "ag")
-(depends-on "helm-ag")
 ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
 (depends-on "auctex")                  ; integrated environment for *TeX*
 (depends-on "auto-compile")            ; automatically compile Emacs Lisp libraries
@@ -39,6 +48,13 @@
                                      ; of variables, functions, libraries and faces.
 (depends-on "elscreen")                ; window session manager
 
+(depends-on "hydra")
+
+(depends-on "gotham-theme")
+(depends-on "ample-theme")
+(depends-on "moe-theme")
+(depends-on "gruber-darker-theme")
+
 (depends-on "expand-region")
 ;; vim emulator
 (depends-on "evil")
@@ -51,17 +67,20 @@
 (depends-on "evil-numbers")
 (depends-on "evil-surround")
 (depends-on "evil-visualstar")
+(depends-on "evil-smartparens")
 
 
 (depends-on "flx-ido")                 ; Better flex (fuzzy) matching for Ido
 (depends-on "flycheck")                ; on-the-fly syntax checking
-(depends-on "git-gutter-fringe+")
+(depends-on "git-gutter-fringe")
 (depends-on "ggtags")
-(depends-on "guide-key")
+(depends-on "which-key")
 
 (depends-on "help-fns+")              ; better help functions
 
 (depends-on "helm")
+(depends-on "helm-ag")
+(depends-on "helm-dash")
 (depends-on "helm-cmd-t")
 (depends-on "helm-orgcard")
 (depends-on "helm-pydoc")
@@ -69,12 +88,12 @@
 (depends-on "helm-swoop")
 
 (depends-on "hungry-delete")
-(depends-on "ibuffer-git")
+;(depends-on "ibuffer-vc")
 (depends-on "idle-highlight-mode")     ; sets an idle timer that highlights all
                                      ; occurences in the buffer of the word under cursor
 (depends-on "ido-vertical-mode")       ; Makes ido-mode display vertically.
 (depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
-(depends-on "indent-guide")            ; a neat mode to show indentation
+(depends-on "highlight-indent-guides")            ; a neat mode to show indentation
 
 (depends-on "key-chord")
 
@@ -82,8 +101,10 @@
 
 (depends-on "magic-latex-buffer")
 
+(depends-on "evil-magit")
 (depends-on "magit")
 (depends-on "magit-gerrit")
+
 (depends-on "markdown-mode")
 (depends-on "move-text")               ; Move current line or region with M-up or M-down
 (depends-on "multiple-cursors")        ; Multiple cursors for Emacs.
