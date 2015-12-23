@@ -566,7 +566,7 @@ required from *emacs*.
      ;(setq moe-theme-resize-rst-title '(1.5 1.4 1.3 1.2 1.1 1.0))
 
      ;(load-theme 'moe-dark t)
-     ;(moe-theme-set-color 'w/b)
+     ;(moe-theme-set-color 'blue)
        ;; (Available colors: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
 
      (load-theme 'gruber-darker t)
@@ -677,7 +677,7 @@ required from *emacs*.
    Highlight current line mode
 
    #+BEGIN_SRC emacs-lisp
-     (global-hl-line-mode)
+     ;(global-hl-line-mode)
    #+END_SRC
 
 *** Fixed/Variable Width Faces
@@ -949,18 +949,29 @@ required from *emacs*.
    Set fringe width on each side to 12 and add few indications
 
    #+BEGIN_SRC emacs-lisp
-      (fringe-mode 12)
-      (setq-default indicate-buffer-boundaries 'left)
-      (setq-default indicate-empty-lines +1)
-      (let ((hook (lambda ()
-                    (setq indicate-empty-lines       nil
-                          indicate-buffer-boundaries nil)))
-            (mode-hooks '(shell-mode-hook term-mode-hook gnus-article-mode-hook
-                          gnus-summary-mode-hook gnus-group-mode-hook
-                          eshell-mode-hook)))
-        (mapc (lambda (mode-hook)
-                (add-hook mode-hook hook))
-              mode-hooks))
+     (fringe-mode 12)
+
+     ; Indicate where a buffer stars and stops
+     (setq-default indicate-buffer-boundaries 'right)
+     (setq-default indicate-empty-lines +1)
+     (let ((hook (lambda ()
+                   (setq indicate-empty-lines       nil
+                         indicate-buffer-boundaries nil)))
+           (mode-hooks '(shell-mode-hook term-mode-hook gnus-article-mode-hook
+                         gnus-summary-mode-hook gnus-group-mode-hook
+                         eshell-mode-hook)))
+       (mapc (lambda (mode-hook)
+               (add-hook mode-hook hook))
+             mode-hooks))
+     (defun my/set-fringe-background ()
+       "Set the fringe background to the same color as the regular background."
+       (interactive)
+       (setq my/fringe-background-color
+             (face-background 'default))
+       (custom-set-faces
+        `(fringe ((t (:background ,my/fringe-background-color))))))
+     
+     (add-hook 'after-init-hook #'my/set-fringe-background)
    #+END_SRC
 
 *** Keybindings
@@ -1270,6 +1281,7 @@ required from *emacs*.
       | t b   |                                 | 'sr-speedbar-toggle             |
       | t w   |                                 | 'toggle-truncate-lines          |
       | t s   |                                 | 'qq/toggle-evil-search          |
+      | t o   |                                 | 'origami-mode                   |
       | h     |                                 | help-map                        |
       | h x   | Describe character under cursor | 'describe-char                  |
       | h h   |                                 | 'help-for-help-internal         |
@@ -1376,6 +1388,21 @@ required from *emacs*.
      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
      (helm-mode 1)
      (diminish 'helm-mode)
+   #+END_SRC
+
+*** Enter search pattern in the header line
+   Via: [[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reddit post]]
+
+   #+BEGIN_SRC emacs-lisp
+     (setq helm-echo-input-in-header-line t)
+     (defun helm-hide-minibuffer-maybe ()
+       (when (with-helm-buffer helm-echo-input-in-header-line)
+         (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+           (overlay-put ov 'window (selected-window))
+           (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
+                                   `(:background ,bg-color :foreground ,bg-color)))
+           (setq-local cursor-type nil))))
+     (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
    #+END_SRC
 
 *** Keybindings
@@ -1718,6 +1745,35 @@ required from *emacs*.
       | g C   |             | 'magit-commit     |
       | g l   |             | 'magit-log        |
 
+** Origami
+   Text folding solution for Emacs
+
+   #+BEGIN_SRC emacs-lisp
+       (require 'origami)
+       (add-hook 'prog-mode-hook 'origami-mode)
+   #+END_SRC
+
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-origami-binding
+    :END:
+   Using The table below as the source for generating [[Evil Origami Bindings][Evil Origami Bindings]]
+
+   #+TBLNAME: evil_origami_keys
+      | Combo | Description                                                                                                                 | Command                         |
+      |-------+-----------------------------------------------------------------------------------------------------------------------------+---------------------------------|
+      | z o   | open fold node                                                                                                              | 'origami-open-node              |
+      | z O   | open fold node and all of its children                                                                                      | 'origami-open-node-recursively  |
+      | z s   | Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible. | 'origami-show-node              |
+      | z c   | Close a fold node.                                                                                                          | 'origami-close-node             |
+      | z C   | Close a fold node and all of its children                                                                                   | 'origami-close-node-recursively |
+      | z a   | Toggle open or closed a fold node.                                                                                          | 'origami-toggle-node            |
+      | z m   | Close all fold in the buffer                                                                                                | 'origami-close-all-nodes        |
+      | z r   | Open all fold in the buffer                                                                                                 | 'origami-open-all-nodes         |
+      | z d   | Close all fold but the current one                                                                                          | 'origami-show-only-node         |
+      | z n   | Move to the next fold.                                                                                                      | 'origami-next-fold              |
+      | z b   | Move to the previous fold.                                                                                                  | 'origami-previous-fold          |
+
 ** Org
 *** Enable Org Mode
    #+BEGIN_SRC emacs-lisp
@@ -1877,6 +1933,13 @@ required from *emacs*.
      (setq projectile-enable-caching t)
      (setq projectile-completion-system 'helm)
      (helm-projectile-on)
+     ;; global ignores
+     (add-to-list 'projectile-globally-ignored-files ".tern-port")
+     (add-to-list 'projectile-globally-ignored-files "GTAGS")
+     (add-to-list 'projectile-globally-ignored-files "GPATH")
+     (add-to-list 'projectile-globally-ignored-files "GRTAGS")
+     (add-to-list 'projectile-globally-ignored-files "GSYMS")
+     (add-to-list 'projectile-globally-ignored-files ".DS_Store")
    #+END_SRC
 
 *** Keybinding
@@ -2154,6 +2217,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
   (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
 #+END_SRC
 
+* Recipes
 * Bindings
 ** Meta
    First, we need to create custom macros.
@@ -2316,6 +2380,15 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp :noweb yes :results silent
      <<gen-fix(pre="after \"projectile-autoloads\"")>>
      <<gen-keys(mmap="ev-nor", tname=evil_projectile_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+*** Evil Origami Bindings
+   Generate binding using table from [[#evil-origami-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+     <<gen-fix(pre="after \"origami-autoloads\"")>>
+     <<gen-keys(mmap="ev-nor", tname=evil_origami_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 

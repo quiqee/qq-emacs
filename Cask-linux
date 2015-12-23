@@ -50,9 +50,12 @@
 
 (depends-on "hydra")
 
+(depends-on "origami")
+
 (depends-on "gotham-theme")
 (depends-on "ample-theme")
 (depends-on "moe-theme")
+(depends-on "monokai-theme")
 (depends-on "gruber-darker-theme")
 
 (depends-on "expand-region")
