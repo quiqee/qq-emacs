@@ -482,13 +482,6 @@ required from *emacs*.
                                          (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
    #+END_SRC
 
-*** Remember the cursor position of files when reopening them
-
-   #+begin_src emacs-lisp
-     (setq save-place-file "~/.emacs.d/saveplace")
-     (setq-default save-place t)
-   #+end_src
-
 *** Security
    Tells the auth-source library to store netrc file here: [[file:~/.emacs.d/authinfo.gpg::testt][authinfo.gpg]]
 
@@ -1731,6 +1724,37 @@ required from *emacs*.
      (setq-default magit-gerrit-ssh-creds qq/gerrit-creds)
    #+END_SRC
 
+*** git-blame-line
+   Nothing to do with =magit=, but still git related function.
+   This function runs git blame on the line the cursor is on. It prints the
+   short commit id, author, and commit date into the =minibuffer=. It also
+   copies the short commit id to the kill ring so you can paste it
+   somewhere else if you need to. From [[http://jayconrod.com/posts/67/emacs-run-gitblame-on-the-current-line][here]].
+
+   #+BEGIN_SRC emacs-lisp
+     (defun git-blame-line ()
+       "Runs `git blame` on the current line and
+        adds the commit id to the kill ring"
+       (interactive)
+       (let* ((line-number (save-excursion
+                             (goto-char (point-at-bol))
+                             (+ 1 (count-lines 1 (point)))))
+              (line-arg (format "%d,%d" line-number line-number))
+              (commit-buf (generate-new-buffer "*git-blame-line-commit*")))
+         (call-process "git" nil commit-buf nil 
+                       "blame" (buffer-file-name) "-L" line-arg)
+         (let* ((commit-id (with-current-buffer commit-buf
+                             (buffer-substring 1 9)))
+                (log-buf (generate-new-buffer "*git-blame-line-log*")))
+           (kill-new commit-id)
+           (call-process "git" nil log-buf nil 
+                         "log" "-1" "--pretty=%h   %an   %s" commit-id)
+           (with-current-buffer log-buf
+             (message "Line %d: %s" line-number (buffer-string)))
+           (kill-buffer log-buf))
+         (kill-buffer commit-buf)))
+   #+END_SRC
+
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: evil-magit-binding
@@ -1738,12 +1762,13 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
 
    #+TBLNAME: evil_magit_keys
-      | Combo | Description | Command           |
-      |-------+-------------+-------------------|
-      | g s   |             | 'magit-status     |
-      | g b   |             | 'magit-blame-mode |
-      | g C   |             | 'magit-commit     |
-      | g l   |             | 'magit-log        |
+      | Combo | Description | Command         |
+      |-------+-------------+-----------------|
+      | g s   |             | 'magit-status   |
+      | g b   |             | 'magit-blame    |
+      | g C   |             | 'magit-commit   |
+      | g i   |             | 'git-blame-line |
+      | g l   |             | 'magit-log      |
 
 ** Origami
    Text folding solution for Emacs

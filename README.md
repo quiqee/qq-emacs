@@ -8,7 +8,7 @@
 <li><a href="#orgheadline3">1.2. Dot Emacs</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline53">2. Basic</a>
+<li><a href="#orgheadline52">2. Basic</a>
 <ul>
 <li><a href="#orgheadline9">2.1. Meta</a>
 <ul>
@@ -21,7 +21,7 @@
 </li>
 <li><a href="#orgheadline10">2.2. Packages</a></li>
 <li><a href="#orgheadline11">2.3. Require</a></li>
-<li><a href="#orgheadline44">2.4. Default Settings</a>
+<li><a href="#orgheadline43">2.4. Default Settings</a>
 <ul>
 <li><a href="#orgheadline12">2.4.1. Dired</a></li>
 <li><a href="#orgheadline13">2.4.2. 24.4.50 bug</a></li>
@@ -50,58 +50,57 @@
 <li><a href="#orgheadline36">2.4.25. Leave scratch buffers alone</a></li>
 <li><a href="#orgheadline37">2.4.26. UTF-8</a></li>
 <li><a href="#orgheadline38">2.4.27. Customize linum format</a></li>
-<li><a href="#orgheadline39">2.4.28. Remember the cursor position of files when reopening them</a></li>
-<li><a href="#orgheadline40">2.4.29. Security</a></li>
-<li><a href="#orgheadline41">2.4.30. System Environment</a></li>
-<li><a href="#orgheadline42">2.4.31. Temporary files</a></li>
-<li><a href="#orgheadline43">2.4.32. Start emacs window maximized</a></li>
+<li><a href="#orgheadline39">2.4.28. Security</a></li>
+<li><a href="#orgheadline40">2.4.29. System Environment</a></li>
+<li><a href="#orgheadline41">2.4.30. Temporary files</a></li>
+<li><a href="#orgheadline42">2.4.31. Start emacs window maximized</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline51">2.5. Visual</a>
+<li><a href="#orgheadline50">2.5. Visual</a>
 <ul>
-<li><a href="#orgheadline45">2.5.1. Theme &amp; Default Face</a></li>
-<li><a href="#orgheadline47">2.5.2. Modeline</a></li>
-<li><a href="#orgheadline48">2.5.3. Highlight</a></li>
-<li><a href="#orgheadline49">2.5.4. Fixed/Variable Width Faces</a></li>
-<li><a href="#orgheadline50">2.5.5. Pretty Symbol</a></li>
+<li><a href="#orgheadline44">2.5.1. Theme &amp; Default Face</a></li>
+<li><a href="#orgheadline46">2.5.2. Modeline</a></li>
+<li><a href="#orgheadline47">2.5.3. Highlight</a></li>
+<li><a href="#orgheadline48">2.5.4. Fixed/Variable Width Faces</a></li>
+<li><a href="#orgheadline49">2.5.5. Pretty Symbol</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline52">2.6. Advice</a></li>
+<li><a href="#orgheadline51">2.6. Advice</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline60">3. Site-Specific</a>
+<li><a href="#orgheadline59">3. Site-Specific</a>
 <ul>
-<li><a href="#orgheadline58">3.1. Greenwave Build Server</a>
+<li><a href="#orgheadline57">3.1. Greenwave Build Server</a>
 <ul>
-<li><a href="#orgheadline54">3.1.1. C-Headers path</a></li>
-<li><a href="#orgheadline55">3.1.2. Gerrit Identitiy</a></li>
-<li><a href="#orgheadline56">3.1.3. LibClang path</a></li>
-<li><a href="#orgheadline57">3.1.4. End</a></li>
+<li><a href="#orgheadline53">3.1.1. C-Headers path</a></li>
+<li><a href="#orgheadline54">3.1.2. Gerrit Identitiy</a></li>
+<li><a href="#orgheadline55">3.1.3. LibClang path</a></li>
+<li><a href="#orgheadline56">3.1.4. End</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline59">3.2. Other Sites</a></li>
+<li><a href="#orgheadline58">3.2. Other Sites</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline115">4. Modes</a>
+<li><a href="#orgheadline120">4. Modes</a>
 <ul>
-<li><a href="#orgheadline64">4.1. Default</a>
+<li><a href="#orgheadline63">4.1. Default</a>
 <ul>
-<li><a href="#orgheadline61">4.1.1. Disabled Modes</a></li>
-<li><a href="#orgheadline62">4.1.2. Enabled Modes</a></li>
+<li><a href="#orgheadline60">4.1.1. Disabled Modes</a></li>
+<li><a href="#orgheadline61">4.1.2. Enabled Modes</a></li>
 <li><a href="#default-key-binding">4.1.3. Keybindings</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline65">4.2. Company</a></li>
-<li><a href="#orgheadline66">4.3. Diminish</a></li>
-<li><a href="#orgheadline81">4.4. Evil</a>
+<li><a href="#orgheadline64">4.2. Company</a></li>
+<li><a href="#orgheadline65">4.3. Diminish</a></li>
+<li><a href="#orgheadline80">4.4. Evil</a>
 <ul>
-<li><a href="#orgheadline67">4.4.1. Init</a></li>
-<li><a href="#orgheadline68">4.4.2. Common Settings</a></li>
-<li><a href="#orgheadline69">4.4.3. Git-Timemachine</a></li>
-<li><a href="#orgheadline70">4.4.4. Command <code>*</code> and <code>#</code></a></li>
-<li><a href="#orgheadline71">4.4.5. When Evil not allowed</a></li>
-<li><a href="#orgheadline72">4.4.6. Make HJKL keys work in special buffers</a></li>
-<li><a href="#orgheadline73">4.4.7. Further Settings</a></li>
+<li><a href="#orgheadline66">4.4.1. Init</a></li>
+<li><a href="#orgheadline67">4.4.2. Common Settings</a></li>
+<li><a href="#orgheadline68">4.4.3. Git-Timemachine</a></li>
+<li><a href="#orgheadline69">4.4.4. Command <code>*</code> and <code>#</code></a></li>
+<li><a href="#orgheadline70">4.4.5. When Evil not allowed</a></li>
+<li><a href="#orgheadline71">4.4.6. Make HJKL keys work in special buffers</a></li>
+<li><a href="#orgheadline72">4.4.7. Further Settings</a></li>
 <li><a href="#evil-global-binding">4.4.8. Global Mode Binding</a></li>
 <li><a href="#evil-normal-binding">4.4.9. Normal Mode Binding</a></li>
 <li><a href="#evil-motion-binding">4.4.10. Motion Mode Binding</a></li>
@@ -111,13 +110,14 @@
 <li><a href="#evil-leader-binding">4.4.14. Evil-Leader Binding</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline82">4.5. Git-Gutter-Fringe</a></li>
+<li><a href="#orgheadline81">4.5. Git-Gutter-Fringe</a></li>
 <li><a href="#orgheadline86">4.6. Helm</a>
 <ul>
-<li><a href="#orgheadline83">4.6.1. Init</a></li>
-<li><a href="#orgheadline84">4.6.2. Settings</a></li>
-<li><a href="#helm-key-binding">4.6.3. Keybindings</a></li>
-<li><a href="#helm-evil-key-binding">4.6.4. Keybindings with Evil</a></li>
+<li><a href="#orgheadline82">4.6.1. Init</a></li>
+<li><a href="#orgheadline83">4.6.2. Settings</a></li>
+<li><a href="#orgheadline84">4.6.3. Enter search pattern in the header line</a></li>
+<li><a href="#helm-key-binding">4.6.4. Keybindings</a></li>
+<li><a href="#helm-evil-key-binding">4.6.5. Keybindings with Evil</a></li>
 </ul>
 </li>
 <li><a href="#orgheadline92">4.7. Hydra</a>
@@ -129,95 +129,105 @@
 <li><a href="#orgheadline91">4.7.5. Projectile</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline96">4.8. Irony</a>
+<li><a href="#orgheadline98">4.8. Irony</a>
 <ul>
-<li><a href="#orgheadline93">4.8.1. Company integration</a></li>
-<li><a href="#orgheadline94">4.8.2. C-Headers</a></li>
-<li><a href="#orgheadline95">4.8.3. Flycheck integration</a></li>
+<li><a href="#orgheadline93">4.8.1. Irony Eldoc</a></li>
+<li><a href="#orgheadline94">4.8.2. Company integration</a></li>
+<li><a href="#orgheadline95">4.8.3. C-Headers</a></li>
+<li><a href="#orgheadline96">4.8.4. Flycheck integration</a></li>
+<li><a href="#orgheadline97">4.8.5. Bind TAB for indent-or-complete</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline99">4.9. Magit</a>
+<li><a href="#orgheadline102">4.9. Magit</a>
 <ul>
-<li><a href="#orgheadline97">4.9.1. Settings</a></li>
-<li><a href="#evil-magit-binding">4.9.2. Keybinding</a></li>
+<li><a href="#orgheadline99">4.9.1. Settings</a></li>
+<li><a href="#orgheadline100">4.9.2. git-blame-line</a></li>
+<li><a href="#evil-magit-binding">4.9.3. Keybinding</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline104">4.10. Org</a>
+<li><a href="#orgheadline104">4.10. Origami</a>
 <ul>
-<li><a href="#orgheadline100">4.10.1. Enable Org Mode</a></li>
-<li><a href="#orgheadline101">4.10.2. Just Evaluate It</a></li>
-<li><a href="#orgmode-key-binding">4.10.3. Bindings</a></li>
-<li><a href="#evil-org-binding">4.10.4. Evil Binding</a></li>
+<li><a href="#evil-origami-binding">4.10.1. Keybinding</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline107">4.11. Projectile</a>
+<li><a href="#orgheadline109">4.11. Org</a>
 <ul>
-<li><a href="#orgheadline105">4.11.1. Settings</a></li>
-<li><a href="#evil-projectile-binding">4.11.2. Keybinding</a></li>
+<li><a href="#orgheadline105">4.11.1. Enable Org Mode</a></li>
+<li><a href="#orgheadline106">4.11.2. Just Evaluate It</a></li>
+<li><a href="#orgmode-key-binding">4.11.3. Bindings</a></li>
+<li><a href="#evil-org-binding">4.11.4. Evil Binding</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline108">4.12. RTags</a></li>
-<li><a href="#orgheadline111">4.13. Smartparens</a>
+<li><a href="#orgheadline112">4.12. Projectile</a>
 <ul>
-<li><a href="#orgheadline109">4.13.1. Settings</a></li>
-<li><a href="#smartparens-binding">4.13.2. Keybinding</a></li>
+<li><a href="#orgheadline110">4.12.1. Settings</a></li>
+<li><a href="#evil-projectile-binding">4.12.2. Keybinding</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline112">4.14. Swiper</a></li>
-<li><a href="#orgheadline114">4.15. Which key</a>
+<li><a href="#orgheadline113">4.13. RTags</a></li>
+<li><a href="#orgheadline116">4.14. Smartparens</a>
 <ul>
-<li><a href="#orgheadline113">4.15.1. Init</a></li>
+<li><a href="#orgheadline114">4.14.1. Settings</a></li>
+<li><a href="#smartparens-binding">4.14.2. Keybinding</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a href="#orgheadline124">5. Language  Modes</a>
+<li><a href="#orgheadline117">4.15. Swiper</a></li>
+<li><a href="#orgheadline119">4.16. Which key</a>
 <ul>
-<li><a href="#orgheadline116">5.1. General</a></li>
-<li><a href="#orgheadline123">5.2. C and its derivative</a>
-<ul>
-<li><a href="#orgheadline117">5.2.1. Common</a></li>
-<li><a href="#orgheadline118">5.2.2. Definition lookup</a></li>
-<li><a href="#orgheadline119">5.2.3. Highlight C+++ member function</a></li>
-<li><a href="#orgheadline120">5.2.4. Compilation</a></li>
-<li><a href="#orgheadline121">5.2.5. Java</a></li>
-<li><a href="#orgheadline122">5.2.6. Objective-C</a></li>
+<li><a href="#orgheadline118">4.16.1. Init</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline135">6. Bindings</a>
+<li><a href="#orgheadline129">5. Language  Modes</a>
 <ul>
-<li><a href="#orgheadline125">6.1. Meta</a></li>
-<li><a href="#orgheadline127">6.2. Generate all the binding here.</a>
+<li><a href="#orgheadline121">5.1. General</a></li>
+<li><a href="#orgheadline128">5.2. C and its derivative</a>
 <ul>
-<li><a href="#orgheadline63">6.2.1. Basic Bindings</a></li>
-<li><a href="#orgheadline74">6.2.2. Evil Global Bindings</a></li>
-<li><a href="#orgheadline75">6.2.3. Evil Normal Bindings</a></li>
-<li><a href="#orgheadline76">6.2.4. Evil Motion Bindings</a></li>
-<li><a href="#orgheadline77">6.2.5. Evil Visual Bindings</a></li>
-<li><a href="#orgheadline78">6.2.6. Evil Ex Bindings</a></li>
-<li><a href="#orgheadline79">6.2.7. Evil BS Bindings</a></li>
-<li><a href="#orgheadline80">6.2.8. Evil Leader Bindings</a></li>
-<li><a href="#orgheadline98">6.2.9. Evil Magit Bindings</a></li>
-<li><a href="#orgheadline106">6.2.10. Evil Projectile Bindings</a></li>
-<li><a href="#orgheadline103">6.2.11. Evil Org Bindings</a></li>
-<li><a href="#orgheadline85">6.2.12. Helm Bindings</a></li>
-<li><a href="#orgheadline126">6.2.13. Helm with Evil Bindings</a></li>
-<li><a href="#orgheadline102">6.2.14. Org Mode Bindings</a></li>
-<li><a href="#orgheadline110">6.2.15. Smartparens Bindings</a></li>
+<li><a href="#orgheadline122">5.2.1. Common</a></li>
+<li><a href="#orgheadline123">5.2.2. Definition lookup</a></li>
+<li><a href="#orgheadline124">5.2.3. Highlight C+++ member function</a></li>
+<li><a href="#orgheadline125">5.2.4. Compilation</a></li>
+<li><a href="#orgheadline126">5.2.5. Java</a></li>
+<li><a href="#orgheadline127">5.2.6. Objective-C</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline133">6.3. Evil</a>
-<ul>
-<li><a href="#orgheadline128">6.3.1. Basic Behaviour</a></li>
-<li><a href="#orgheadline129">6.3.2. Git-Gutter+</a></li>
-<li><a href="#orgheadline130">6.3.3. Ido</a></li>
-<li><a href="#orgheadline131">6.3.4. CC-Mode</a></li>
-<li><a href="#orgheadline132">6.3.5. Ace-Jump-Mode</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline134">6.4. Company</a></li>
+<li><a href="#orgheadline130">6. Recipes</a></li>
+<li><a href="#orgheadline141">7. Bindings</a>
+<ul>
+<li><a href="#orgheadline131">7.1. Meta</a></li>
+<li><a href="#orgheadline133">7.2. Generate all the binding here.</a>
+<ul>
+<li><a href="#orgheadline62">7.2.1. Basic Bindings</a></li>
+<li><a href="#orgheadline73">7.2.2. Evil Global Bindings</a></li>
+<li><a href="#orgheadline74">7.2.3. Evil Normal Bindings</a></li>
+<li><a href="#orgheadline75">7.2.4. Evil Motion Bindings</a></li>
+<li><a href="#orgheadline76">7.2.5. Evil Visual Bindings</a></li>
+<li><a href="#orgheadline77">7.2.6. Evil Ex Bindings</a></li>
+<li><a href="#orgheadline78">7.2.7. Evil BS Bindings</a></li>
+<li><a href="#orgheadline79">7.2.8. Evil Leader Bindings</a></li>
+<li><a href="#orgheadline101">7.2.9. Evil Magit Bindings</a></li>
+<li><a href="#orgheadline111">7.2.10. Evil Projectile Bindings</a></li>
+<li><a href="#orgheadline103">7.2.11. Evil Origami Bindings</a></li>
+<li><a href="#orgheadline108">7.2.12. Evil Org Bindings</a></li>
+<li><a href="#orgheadline85">7.2.13. Helm Bindings</a></li>
+<li><a href="#orgheadline132">7.2.14. Helm with Evil Bindings</a></li>
+<li><a href="#orgheadline107">7.2.15. Org Mode Bindings</a></li>
+<li><a href="#orgheadline115">7.2.16. Smartparens Bindings</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline139">7.3. Evil</a>
+<ul>
+<li><a href="#orgheadline134">7.3.1. Basic Behaviour</a></li>
+<li><a href="#orgheadline135">7.3.2. Git-Gutter+</a></li>
+<li><a href="#orgheadline136">7.3.3. Ido</a></li>
+<li><a href="#orgheadline137">7.3.4. CC-Mode</a></li>
+<li><a href="#orgheadline138">7.3.5. Ace-Jump-Mode</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline140">7.4. Company</a></li>
 </ul>
 </li>
 </ul>
@@ -298,7 +308,7 @@ notable dot-emacs that I copied most are from:
 
 -   **[sugyan/dotemacs](https://github.com/sugyan/dotfiles/tree/master/.emacs.d):** 
 
-# Basic<a id="orgheadline53"></a>
+# Basic<a id="orgheadline52"></a>
 
 ## Meta<a id="orgheadline9"></a>
 
@@ -432,7 +442,7 @@ but is not a high priority.
                ))
       (require feature))
 
-## Default Settings<a id="orgheadline44"></a>
+## Default Settings<a id="orgheadline43"></a>
 
 ### Dired<a id="orgheadline12"></a>
 
@@ -664,25 +674,20 @@ Set `utf-8` as preferred coding system.
                                                         (count-lines (point-min) (point-max))))))
                                         (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
 
-### Remember the cursor position of files when reopening them<a id="orgheadline39"></a>
-
-    (setq save-place-file "~/.emacs.d/saveplace")
-    (setq-default save-place t)
-
-### Security<a id="orgheadline40"></a>
+### Security<a id="orgheadline39"></a>
 
 Tells the auth-source library to store netrc file here: [authinfo.gpg](file:///home/fikri/.emacs.d/authinfo.gpg)
 
     (setq epg-gpg-program "/usr/local/bin/gpg")
     (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
 
-### System Environment<a id="orgheadline41"></a>
+### System Environment<a id="orgheadline40"></a>
 
 Tells emacs to use path from shell
 
     (exec-path-from-shell-initialize)
 
-### Temporary files<a id="orgheadline42"></a>
+### Temporary files<a id="orgheadline41"></a>
 
 To avoid file system clutter we put all auto saved files in a single
 directory.
@@ -723,14 +728,14 @@ directory.
           (concat qq/cache-directory "auto-save-list/saves-"))
     (setq delete-auto-save-files t)
 
-### Start emacs window maximized<a id="orgheadline43"></a>
+### Start emacs window maximized<a id="orgheadline42"></a>
 
     (custom-set-variables
      '(initial-frame-alist (quote ((fullscreen . maximized))))) ;; start maximized
 
-## Visual<a id="orgheadline51"></a>
+## Visual<a id="orgheadline50"></a>
 
-### Theme & Default Face<a id="orgheadline45"></a>
+### Theme & Default Face<a id="orgheadline44"></a>
 
 Change the color-theme to `moe-theme` (downloaded using `package`).
 
@@ -743,10 +748,12 @@ Change the color-theme to `moe-theme` (downloaded using `package`).
     ;(setq moe-theme-resize-rst-title '(1.5 1.4 1.3 1.2 1.1 1.0))
     
     ;(load-theme 'moe-dark t)
-    ;(moe-theme-set-color 'w/b)
+    ;(moe-theme-set-color 'blue)
       ;; (Available colors: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
     
-    (load-theme 'gotham t)
+    (load-theme 'gruber-darker t)
+    
+    ;(load-theme 'gotham t)
     
     ;(load-theme 'ample t t)
     ;(load-theme 'ample-flat t t)
@@ -767,9 +774,10 @@ My preferred font.
            (set-face-attribute 'default nil :font "PragmataPro for Powerline-11"))
           (t
            ;; Emacs version 22.3 or later.
+           (set-frame-font "PragmataPro for Powerline-11" t) ; set font for all frames
            (set-face-attribute 'default nil :font "PragmataPro for Powerline-11")))
 
-### Modeline<a id="orgheadline47"></a>
+### Modeline<a id="orgheadline46"></a>
 
 [Powerline](https://github.com/milkypostman/powerline) is an extension to customize the mode line. This is modified
 version `powerline-nano-theme`.
@@ -788,7 +796,7 @@ version `powerline-nano-theme`.
             (paredit-mode . " Φ")
             (eldoc-mode . "")
             (abbrev-mode . "")
-            (undo-tree-mode . " τ")
+            ;;(undo-tree-mode . " τ")
             (wrap-region-mode . "")
             ;;(volatile-highlights-mode . " υ")
             (elisp-slime-nav-mode . " δ")
@@ -833,7 +841,7 @@ version `powerline-nano-theme`.
         ;;; α β ψ δ ε φ γ η ι ξ κ λ μ ν ο π ρ σ τ θ ω ς χ υ ζ
         ;;; Α Β Ψ Δ Ε Φ Γ Η Ι Ξ Κ Λ Μ Ν Ο Π Ρ Σ Τ Θ Ω Σ Χ Υ Ζ
 
-### Highlight<a id="orgheadline48"></a>
+### Highlight<a id="orgheadline47"></a>
 
 Enable highlighting similar word under the cursor (point)
 
@@ -844,7 +852,7 @@ Highlight current line mode
 
     ;(global-hl-line-mode)
 
-### Fixed/Variable Width Faces<a id="orgheadline49"></a>
+### Fixed/Variable Width Faces<a id="orgheadline48"></a>
 
 I love monospaced fonts (I used `PragmataPro` extensively), but they can be
 harder to read when it comes to documentation or simple conversation.
@@ -914,7 +922,7 @@ buffers
             (face-attribute face :inherit))))
         (list 'markdown-pre-face 'markdown-inline-code-face)))
 
-### Pretty Symbol<a id="orgheadline50"></a>
+### Pretty Symbol<a id="orgheadline49"></a>
 
 Displaying sequences of characters as fancy characters or symbols
 for example, showing -> as →
@@ -941,7 +949,7 @@ May need to revisit the code below since new Emacs 24.4 support built-in
                 (push '("function" . 955) prettify-symbols-alist)
                 (push '("return" . 8592) prettify-symbols-alist)))
 
-## Advice<a id="orgheadline52"></a>
+## Advice<a id="orgheadline51"></a>
 
 An advice can be given to a function to make it behave differently. This
 advice makes `eval-last-sexp` (bound to `C-x C-e`) replace the sexp with
@@ -966,37 +974,37 @@ enabled themes.
       (before disable-before-load (theme &optional no-confirm no-enable) activate)
       (mapc 'disable-theme custom-enabled-themes))
 
-# Site-Specific<a id="orgheadline60"></a>
+# Site-Specific<a id="orgheadline59"></a>
 
-## Greenwave Build Server<a id="orgheadline58"></a>
+## Greenwave Build Server<a id="orgheadline57"></a>
 
     (defvar qq/system-name system-name)
     (cond
      ((string-equal qq/system-name "firmware-OptiPlex-7010") ; Greenwave Build Server
       (progn
 
-### C-Headers path<a id="orgheadline54"></a>
+### C-Headers path<a id="orgheadline53"></a>
 
 Used by `company-c-headers`
 
     (defvar qq/c-headers-path "/usr/include/c++/4.8.4")
 
-### Gerrit Identitiy<a id="orgheadline55"></a>
+### Gerrit Identitiy<a id="orgheadline54"></a>
 
 Used by `company-c-headers`
 
     (defvar qq/gerrit-creds "fikri.pribadi@greenwavereality.com")
 
-### LibClang path<a id="orgheadline56"></a>
+### LibClang path<a id="orgheadline55"></a>
 
     (exec-path-from-shell-copy-env "LD_LIBRARY_PATH")
     (setq exec-path (append exec-path '("/home/fikri/local/lib")))
 
-### End<a id="orgheadline57"></a>
+### End<a id="orgheadline56"></a>
 
     ))
 
-## Other Sites<a id="orgheadline59"></a>
+## Other Sites<a id="orgheadline58"></a>
 
     ((string-equal system-type "darwin") ; Mac OS X
      (progn
@@ -1005,11 +1013,11 @@ Used by `company-c-headers`
      (progn
        (message "Linux"))))
 
-# Modes<a id="orgheadline115"></a>
+# Modes<a id="orgheadline120"></a>
 
-## Default<a id="orgheadline64"></a>
+## Default<a id="orgheadline63"></a>
 
-### Disabled Modes<a id="orgheadline61"></a>
+### Disabled Modes<a id="orgheadline60"></a>
 
 There are some modes that are enabled by default that I don't find
 particularly useful. We create a list of these modes, and disable all of
@@ -1022,7 +1030,7 @@ these.
                blink-cursor-mode))          ; The blinking cursor gets old.
       (funcall mode 0))
 
-### Enabled Modes<a id="orgheadline62"></a>
+### Enabled Modes<a id="orgheadline61"></a>
 
 Let's apply the same technique for enabling modes that are disabled by
 default.
@@ -1086,7 +1094,9 @@ If you change buffer, or focus, disable the current buffer's mark:
 Set fringe width on each side to 12 and add few indications
 
     (fringe-mode 12)
-    (setq-default indicate-buffer-boundaries 'left)
+    
+    ; Indicate where a buffer stars and stops
+    (setq-default indicate-buffer-boundaries 'right)
     (setq-default indicate-empty-lines +1)
     (let ((hook (lambda ()
                   (setq indicate-empty-lines       nil
@@ -1097,10 +1107,19 @@ Set fringe width on each side to 12 and add few indications
       (mapc (lambda (mode-hook)
               (add-hook mode-hook hook))
             mode-hooks))
+    (defun my/set-fringe-background ()
+      "Set the fringe background to the same color as the regular background."
+      (interactive)
+      (setq my/fringe-background-color
+            (face-background 'default))
+      (custom-set-faces
+       `(fringe ((t (:background ,my/fringe-background-color))))))
+    
+    (add-hook 'after-init-hook #'my/set-fringe-background)
 
 ### Keybindings<a id="default-key-binding"></a>
 
-Using The table below as the source for generating [6.2.1](#orgheadline63)
+Using The table below as the source for generating [7.2.1](#orgheadline62)
 
 <table id="orgtable1" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1199,13 +1218,13 @@ Using The table below as the source for generating [6.2.1](#orgheadline63)
 </tbody>
 </table>
 
-## Company<a id="orgheadline65"></a>
+## Company<a id="orgheadline64"></a>
 
     (require 'company)
     (add-hook 'after-init-hook 'global-company-mode)
     (delete 'company-semantic company-backends)
 
-## Diminish<a id="orgheadline66"></a>
+## Diminish<a id="orgheadline65"></a>
 
 Diminish will remove the minor mode indicators from the mode line (or powerline). 
 
@@ -1234,12 +1253,12 @@ Diminish will remove the minor mode indicators from the mode line (or powerline)
     (after 'hs-minor-mode (diminish 'hs-minor-mode))
     (after 'color-identifiers-mode (diminish 'color-identifiers-mode))
 
-## Evil<a id="orgheadline81"></a>
+## Evil<a id="orgheadline80"></a>
 
 As a long time Vim user, `evil-mode` is essential tools in order for Emacs
 to be my default text editor.
 
-### Init<a id="orgheadline67"></a>
+### Init<a id="orgheadline66"></a>
 
     (dolist (feature
              '(evil evil-indent-textobject
@@ -1249,7 +1268,7 @@ to be my default text editor.
                ))
       (require feature))
 
-### Common Settings<a id="orgheadline68"></a>
+### Common Settings<a id="orgheadline67"></a>
 
 Set the cursor color for different evil mode:
 
@@ -1269,7 +1288,7 @@ Set the cursor color for different evil mode:
           evil-jumper-file (concat qq/cache-directory "evil-jumps")
           evil-jumper-auto-save-interval 3600)
 
-### Git-Timemachine<a id="orgheadline69"></a>
+### Git-Timemachine<a id="orgheadline68"></a>
 
 Gives all bindings of `git-timemachine` higher priority than any `Evil` binding (but only in normal state).
 Refer [here](https://bitbucket.org/lyro/evil/issues/511/let-certain-minor-modes-key-bindings)
@@ -1277,7 +1296,7 @@ Refer [here](https://bitbucket.org/lyro/evil/issues/511/let-certain-minor-modes-
     (evil-make-overriding-map git-timemachine-mode-map 'normal)
     (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)
 
-### Command `*` and `#`<a id="orgheadline70"></a>
+### Command `*` and `#`<a id="orgheadline69"></a>
 
 The `evil-mode` command `*` and `#` behave differently than the way I used to
 know in `Vim`. It only search subword not the whole word. I.e, if a cursor is
@@ -1290,7 +1309,7 @@ search. I wanted to have both behaviour around, so I made a toggle function:
       (setq-default evil-symbol-word-search
                     (if (eq evil-symbol-word-search t) nil t)))
 
-### When Evil not allowed<a id="orgheadline71"></a>
+### When Evil not allowed<a id="orgheadline70"></a>
 
 Do not turn `evil-mode` on certain modes.
 
@@ -1309,11 +1328,11 @@ Do not turn `evil-mode` on certain modes.
     (add-hook 'after-change-major-mode-hook 'qq/disable-evil-mode)
     (evil-mode 1)
 
-### Make HJKL keys work in special buffers<a id="orgheadline72"></a>
+### Make HJKL keys work in special buffers<a id="orgheadline71"></a>
 
     (evil-add-hjkl-bindings occur-mode 'emacs)
 
-### Further Settings<a id="orgheadline73"></a>
+### Further Settings<a id="orgheadline72"></a>
 
     (global-evil-visualstar-mode)
     (global-evil-leader-mode t)
@@ -1346,7 +1365,7 @@ Do not turn `evil-mode` on certain modes.
 
 ### Global Mode Binding<a id="evil-global-binding"></a>
 
-Using The table below as the source for generating [Evil Global Bindings](#orgheadline74)
+Using The table below as the source for generating [Evil Global Bindings](#orgheadline73)
 
 <table id="orgtable2" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1377,7 +1396,7 @@ Using The table below as the source for generating [Evil Global Bindings](#orghe
 
 ### Normal Mode Binding<a id="evil-normal-binding"></a>
 
-Using The table below as the source for generating [Evil Normal Bindings](#orgheadline75)
+Using The table below as the source for generating [Evil Normal Bindings](#orgheadline74)
 
 <table id="orgtable3" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1569,7 +1588,7 @@ Using The table below as the source for generating [Evil Normal Bindings](#orghe
 
 ### Motion Mode Binding<a id="evil-motion-binding"></a>
 
-Using The table below as the source for generating [Evil Motion Bindings](#orgheadline76)
+Using The table below as the source for generating [Evil Motion Bindings](#orgheadline75)
 
 <table id="orgtable4" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1635,7 +1654,7 @@ Using The table below as the source for generating [Evil Motion Bindings](#orghe
 
 ### Visual Mode Binding<a id="evil-visual-binding"></a>
 
-Using The table below as the source for generating [Evil Visual Bindings](#orgheadline77)
+Using The table below as the source for generating [Evil Visual Bindings](#orgheadline76)
 
 <table id="orgtable5" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1666,7 +1685,7 @@ Using The table below as the source for generating [Evil Visual Bindings](#orghe
 
 ### Ex Mode Binding<a id="evil-ex-binding"></a>
 
-Using The table below as the source for generating [Evil Ex Bindings](#orgheadline78)
+Using The table below as the source for generating [Evil Ex Bindings](#orgheadline77)
 
 <table id="orgtable6" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1711,7 +1730,7 @@ Using The table below as the source for generating [Evil Ex Bindings](#orgheadli
 
 ### Buffer Selection Binding<a id="evil-bs-binding"></a>
 
-Using The table below as the source for generating [Evil BS Bindings](#orgheadline79)
+Using The table below as the source for generating [Evil BS Bindings](#orgheadline78)
 
 <table id="orgtable7" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1794,7 +1813,7 @@ Using The table below as the source for generating [Evil BS Bindings](#orgheadli
 
 ### Evil-Leader Binding<a id="evil-leader-binding"></a>
 
-Using The table below as the source for generating [Evil Leader Bindings](#orgheadline80)
+Using The table below as the source for generating [Evil Leader Bindings](#orgheadline79)
 
 <table id="orgtable8" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -1984,6 +2003,13 @@ Using The table below as the source for generating [Evil Leader Bindings](#orghe
 
 
 <tr>
+<td class="org-left">t o</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">'origami-mode</td>
+</tr>
+
+
+<tr>
 <td class="org-left">h</td>
 <td class="org-left">&#xa0;</td>
 <td class="org-left">help-map</td>
@@ -2005,7 +2031,7 @@ Using The table below as the source for generating [Evil Leader Bindings](#orghe
 </tbody>
 </table>
 
-## Git-Gutter-Fringe<a id="orgheadline82"></a>
+## Git-Gutter-Fringe<a id="orgheadline81"></a>
 
 Enable `Git-Gutter+` globally
 
@@ -2032,7 +2058,7 @@ within a running helm session," try:
 M-C-c, C-], C-u M-x helm-resume, or (setq helm-alive-p nil)
 <https://github.com/emacs-helm/helm/issues/208>
 
-### Init<a id="orgheadline83"></a>
+### Init<a id="orgheadline82"></a>
 
     (require 'helm)
     
@@ -2047,7 +2073,7 @@ M-C-c, C-], C-u M-x helm-resume, or (setq helm-alive-p nil)
     (require 'helm-grep)
     (require 'helm-dash)
 
-### Settings<a id="orgheadline84"></a>
+### Settings<a id="orgheadline83"></a>
 
 Preferred initial settings for Helm
 
@@ -2101,6 +2127,20 @@ enable helm-mode.
     (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
     (helm-mode 1)
     (diminish 'helm-mode)
+
+### Enter search pattern in the header line<a id="orgheadline84"></a>
+
+Via: [Reddit post](https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/)
+
+    (setq helm-echo-input-in-header-line t)
+    (defun helm-hide-minibuffer-maybe ()
+      (when (with-helm-buffer helm-echo-input-in-header-line)
+        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+          (overlay-put ov 'window (selected-window))
+          (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
+                                  `(:background ,bg-color :foreground ,bg-color)))
+          (setq-local cursor-type nil))))
+    (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
 
 ### Keybindings<a id="helm-key-binding"></a>
 
@@ -2496,7 +2536,7 @@ navigate to the first, next, previous or last error.
       ("`"   hydra-projectile-other-window/body "other window")
       ("q"   nil "cancel" :color blue))
 
-## Irony<a id="orgheadline96"></a>
+## Irony<a id="orgheadline98"></a>
 
 A alternate Client/Server application that indexes C/C++ code and keeps a persistent
 in-memory database for references
@@ -2504,6 +2544,8 @@ in-memory database for references
     (add-hook 'c++-mode-hook 'irony-mode)
     (add-hook 'c-mode-hook 'irony-mode)
     (add-hook 'objc-mode-hook 'irony-mode)
+    
+    (setq irony-additional-clang-options '("-std=c++11"))
     
     ;; replace the `completion-at-point' and `complete-symbol' bindings in
     ;; irony-mode's buffers by irony-mode's function
@@ -2515,7 +2557,11 @@ in-memory database for references
     (add-hook 'irony-mode-hook 'my-irony-mode-hook)
     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
-### Company integration<a id="orgheadline93"></a>
+### Irony Eldoc<a id="orgheadline93"></a>
+
+    (add-hook 'irony-mode-hook 'irony-eldoc)
+
+### Company integration<a id="orgheadline94"></a>
 
     (eval-after-load 'company
       '(add-to-list 'company-backends 'company-irony))
@@ -2525,7 +2571,7 @@ in-memory database for references
     ;;     std::|
     (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
 
-### C-Headers<a id="orgheadline94"></a>
+### C-Headers<a id="orgheadline95"></a>
 
     (require 'company-irony-c-headers)
     ;; Load with `irony-mode` as a grouped backend
@@ -2533,14 +2579,39 @@ in-memory database for references
       '(add-to-list
         'company-backends '(company-irony-c-headers company-irony)))
 
-### Flycheck integration<a id="orgheadline95"></a>
+### Flycheck integration<a id="orgheadline96"></a>
 
     (eval-after-load 'flycheck
      '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
-## Magit<a id="orgheadline99"></a>
+### Bind TAB for indent-or-complete<a id="orgheadline97"></a>
 
-### Settings<a id="orgheadline97"></a>
+    (defun irony--check-expansion ()
+    (save-excursion
+      (if (looking-at "\\_>") t
+        (backward-char 1)
+        (if (looking-at "\\.") t
+          (backward-char 1)
+          (if (looking-at "->") t nil)))))
+    (defun irony--indent-or-complete ()
+    "Indent or Complete"
+    (interactive)
+    (cond ((and (not (use-region-p))
+                (irony--check-expansion))
+           (message "complete")
+           (company-complete-common))
+          (t
+           (message "indent")
+           (call-interactively 'c-indent-line-or-region))))
+    (defun irony-mode-keys ()
+    "Modify keymaps used by `irony-mode'."
+    (local-set-key (kbd "TAB") 'irony--indent-or-complete)
+    (local-set-key [tab] 'irony--indent-or-complete))
+    (add-hook 'c-mode-common-hook 'irony-mode-keys)
+
+## Magit<a id="orgheadline102"></a>
+
+### Settings<a id="orgheadline99"></a>
 
     (require 'magit)
     (require 'magit-gerrit)
@@ -2573,9 +2644,39 @@ Setup for `magit-gerrit`
         (require 'magit-gerrit))
     (setq-default magit-gerrit-ssh-creds qq/gerrit-creds)
 
+### git-blame-line<a id="orgheadline100"></a>
+
+Nothing to do with `magit`, but still git related function.
+This function runs git blame on the line the cursor is on. It prints the
+short commit id, author, and commit date into the `minibuffer`. It also
+copies the short commit id to the kill ring so you can paste it
+somewhere else if you need to. From [here](http://jayconrod.com/posts/67/emacs-run-gitblame-on-the-current-line).
+
+    (defun git-blame-line ()
+      "Runs `git blame` on the current line and
+       adds the commit id to the kill ring"
+      (interactive)
+      (let* ((line-number (save-excursion
+                            (goto-char (point-at-bol))
+                            (+ 1 (count-lines 1 (point)))))
+             (line-arg (format "%d,%d" line-number line-number))
+             (commit-buf (generate-new-buffer "*git-blame-line-commit*")))
+        (call-process "git" nil commit-buf nil 
+                      "blame" (buffer-file-name) "-L" line-arg)
+        (let* ((commit-id (with-current-buffer commit-buf
+                            (buffer-substring 1 9)))
+               (log-buf (generate-new-buffer "*git-blame-line-log*")))
+          (kill-new commit-id)
+          (call-process "git" nil log-buf nil 
+                        "log" "-1" "--pretty=%h   %an   %s" commit-id)
+          (with-current-buffer log-buf
+            (message "Line %d: %s" line-number (buffer-string)))
+          (kill-buffer log-buf))
+        (kill-buffer commit-buf)))
+
 ### Keybinding<a id="evil-magit-binding"></a>
 
-Using The table below as the source for generating [Evil Magit Bindings](#orgheadline98)
+Using The table below as the source for generating [Evil Magit Bindings](#orgheadline101)
 
 <table id="orgtable11" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -2606,7 +2707,7 @@ Using The table below as the source for generating [Evil Magit Bindings](#orghea
 <tr>
 <td class="org-left">g b</td>
 <td class="org-left">&#xa0;</td>
-<td class="org-left">'magit-blame-mode</td>
+<td class="org-left">'magit-blame</td>
 </tr>
 
 
@@ -2618,6 +2719,13 @@ Using The table below as the source for generating [Evil Magit Bindings](#orghea
 
 
 <tr>
+<td class="org-left">g i</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">'git-blame-line</td>
+</tr>
+
+
+<tr>
 <td class="org-left">g l</td>
 <td class="org-left">&#xa0;</td>
 <td class="org-left">'magit-log</td>
@@ -2625,9 +2733,117 @@ Using The table below as the source for generating [Evil Magit Bindings](#orghea
 </tbody>
 </table>
 
-## Org<a id="orgheadline104"></a>
+## Origami<a id="orgheadline104"></a>
 
-### Enable Org Mode<a id="orgheadline100"></a>
+Text folding solution for Emacs
+
+    (require 'origami)
+    (add-hook 'prog-mode-hook 'origami-mode)
+
+### Keybinding<a id="evil-origami-binding"></a>
+
+Using The table below as the source for generating [Evil Origami Bindings](#orgheadline103)
+
+<table id="orgtable12" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Combo</th>
+<th scope="col" class="org-left">Description</th>
+<th scope="col" class="org-left">Command</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td class="org-left">z o</td>
+<td class="org-left">open fold node</td>
+<td class="org-left">'origami-open-node</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z O</td>
+<td class="org-left">open fold node and all of its children</td>
+<td class="org-left">'origami-open-node-recursively</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z s</td>
+<td class="org-left">Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible.</td>
+<td class="org-left">'origami-show-node</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z c</td>
+<td class="org-left">Close a fold node.</td>
+<td class="org-left">'origami-close-node</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z C</td>
+<td class="org-left">Close a fold node and all of its children</td>
+<td class="org-left">'origami-close-node-recursively</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z a</td>
+<td class="org-left">Toggle open or closed a fold node.</td>
+<td class="org-left">'origami-toggle-node</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z m</td>
+<td class="org-left">Close all fold in the buffer</td>
+<td class="org-left">'origami-close-all-nodes</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z r</td>
+<td class="org-left">Open all fold in the buffer</td>
+<td class="org-left">'origami-open-all-nodes</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z d</td>
+<td class="org-left">Close all fold but the current one</td>
+<td class="org-left">'origami-show-only-node</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z n</td>
+<td class="org-left">Move to the next fold.</td>
+<td class="org-left">'origami-next-fold</td>
+</tr>
+
+
+<tr>
+<td class="org-left">z b</td>
+<td class="org-left">Move to the previous fold.</td>
+<td class="org-left">'origami-previous-fold</td>
+</tr>
+</tbody>
+</table>
+
+## Org<a id="orgheadline109"></a>
+
+### Enable Org Mode<a id="orgheadline105"></a>
 
     (require 'org-bullets)
 
@@ -2728,7 +2944,7 @@ Nice bulleted lists.
 
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
-### Just Evaluate It<a id="orgheadline101"></a>
+### Just Evaluate It<a id="orgheadline106"></a>
 
 I'm normally fine with having my code automatically evaluated.
 
@@ -2736,9 +2952,9 @@ I'm normally fine with having my code automatically evaluated.
 
 ### Bindings<a id="orgmode-key-binding"></a>
 
-The table below will be generated as key-bindings [here](#orgheadline102).
+The table below will be generated as key-bindings [here](#orgheadline107).
 
-<table id="orgtable12" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgtable13" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -2788,9 +3004,9 @@ The table below will be generated as key-bindings [here](#orgheadline102).
 
 ### Evil Binding<a id="evil-org-binding"></a>
 
-Using The table below as the source for generating [Evil Org Bindings](#orgheadline103)
+Using The table below as the source for generating [Evil Org Bindings](#orgheadline108)
 
-<table id="orgtable13" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgtable14" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -2851,23 +3067,30 @@ Using The table below as the source for generating [Evil Org Bindings](#orgheadl
 </tbody>
 </table>
 
-## Projectile<a id="orgheadline107"></a>
+## Projectile<a id="orgheadline112"></a>
 
 Project interaction module for Emacs.
 
-### Settings<a id="orgheadline105"></a>
+### Settings<a id="orgheadline110"></a>
 
     (projectile-global-mode)
     (setq projectile-tags-command "gtags")
     (setq projectile-enable-caching t)
     (setq projectile-completion-system 'helm)
     (helm-projectile-on)
+    ;; global ignores
+    (add-to-list 'projectile-globally-ignored-files ".tern-port")
+    (add-to-list 'projectile-globally-ignored-files "GTAGS")
+    (add-to-list 'projectile-globally-ignored-files "GPATH")
+    (add-to-list 'projectile-globally-ignored-files "GRTAGS")
+    (add-to-list 'projectile-globally-ignored-files "GSYMS")
+    (add-to-list 'projectile-globally-ignored-files ".DS_Store")
 
 ### Keybinding<a id="evil-projectile-binding"></a>
 
-Using The table below as the source for generating [Evil Projectile Bindings](#orgheadline106)
+Using The table below as the source for generating [Evil Projectile Bindings](#orgheadline111)
 
-<table id="orgtable14" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgtable15" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -2922,7 +3145,7 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
 </tbody>
 </table>
 
-## RTags<a id="orgheadline108"></a>
+## RTags<a id="orgheadline113"></a>
 
 A Client/Server application that indexes C/C++ code and keeps a persistent
 in-memory database for references
@@ -2930,11 +3153,11 @@ in-memory database for references
     (require 'rtags)
     (rtags-enable-standard-keybindings c-mode-base-map)
 
-## Smartparens<a id="orgheadline111"></a>
+## Smartparens<a id="orgheadline116"></a>
 
 Minor mode that deals with parens pairs
 
-### Settings<a id="orgheadline109"></a>
+### Settings<a id="orgheadline114"></a>
 
     (require 'smartparens-config)
     (smartparens-global-mode t)
@@ -2972,9 +3195,9 @@ Minor mode that deals with parens pairs
 
 ### Keybinding<a id="smartparens-binding"></a>
 
-Using The table below as the source for generating [Smartparens Bindings](#orgheadline110)
+Using The table below as the source for generating [Smartparens Bindings](#orgheadline115)
 
-<table id="orgtable15" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgtable16" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -3001,26 +3224,26 @@ Using The table below as the source for generating [Smartparens Bindings](#orghe
 </tbody>
 </table>
 
-## Swiper<a id="orgheadline112"></a>
+## Swiper<a id="orgheadline117"></a>
 
 Visual regex search
 
     (require 'ivy)
     (require 'swiper)
 
-## Which key<a id="orgheadline114"></a>
+## Which key<a id="orgheadline119"></a>
 
 Show keybindings. <https://github.com/justbur/emacs-which-key>
 
-### Init<a id="orgheadline113"></a>
+### Init<a id="orgheadline118"></a>
 
     (require 'which-key)
     (which-key-mode)
     (which-key-setup-side-window-right-bottom)
 
-# Language  Modes<a id="orgheadline124"></a>
+# Language  Modes<a id="orgheadline129"></a>
 
-## General<a id="orgheadline116"></a>
+## General<a id="orgheadline121"></a>
 
 Some general settings that should apply to all programming mode. Highlight
 `FIXME` and `TODO` so they stand out. Also enable `indent-guide-mode` and
@@ -3037,14 +3260,18 @@ Some general settings that should apply to all programming mode. Highlight
                  (rainbow-delimiters-mode)
                  (require 'highlight-indent-guides)
                  (highlight-indent-guides-mode)
-                 (set-face-background 'highlight-indent-guides-odd-face "#11151c")
-                 (set-face-background 'highlight-indent-guides-even-face "#071110")
+                 ;gruber-theme
+                 (set-face-background 'highlight-indent-guides-odd-face "#151515")
+                 (set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
+                 ;gotham-theme
+                 ;(set-face-background 'highlight-indent-guides-odd-face "#11151c")
+                 ;(set-face-background 'highlight-indent-guides-even-face "#071110")
                  (setq indent-guide-recursive t)
                  (color-identifiers-mode t)))
 
-## C and its derivative<a id="orgheadline123"></a>
+## C and its derivative<a id="orgheadline128"></a>
 
-### Common<a id="orgheadline117"></a>
+### Common<a id="orgheadline122"></a>
 
 The `c-mode-common-hook` is a general hook that work on all C-like
 languages (C, C++, Java, etc&#x2026;). I like being able to quickly compile
@@ -3076,17 +3303,17 @@ using `C-c C-c` (instead of `M-x compile`), a habit from `latex-mode`.
       ;;;(setq flycheck-clang-standard-library "libc++")
       ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
     
-                                            ;(setq rtags-completions-enabled t)
-      (define-key c-mode-map  [(control tab)] 'company-complete)
-      (define-key c++-mode-map  [(control tab)] 'company-complete)
+      ;(setq rtags-completions-enabled t)
+      ;(define-key c-mode-map  [(control tab)] 'company-complete)
+      ;(define-key c++-mode-map  [(control tab)] 'company-complete)
     
-                                            ; enable spell check in comment area
+      ; enable spell check in comment area
       (flyspell-prog-mode))
     
     (add-hook 'c-mode-hook 'qq/c-mode-init)
     (add-hook 'c++-mode-hook 'qq/c-mode-init)
 
-### Definition lookup<a id="orgheadline118"></a>
+### Definition lookup<a id="orgheadline123"></a>
 
 Look for definion in a browser C++
 Original idea: <http://xahlee.org/emacs/emacs_lookup_ref.html>
@@ -3135,7 +3362,7 @@ Original idea: <http://xahlee.org/emacs/emacs_lookup_ref.html>
     (define-key c-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
     (define-key c++-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
 
-### Highlight C+++ member function<a id="orgheadline119"></a>
+### Highlight C+++ member function<a id="orgheadline124"></a>
 
 Highlight only member function calls in `c++-mode`, for examples
 Object o;
@@ -3158,7 +3385,7 @@ Here only o.getName() will get highlighted.
                                  "(")                                 ; Paren for method invocation
                                1 'font-lock-method-call-face t)))
 
-### Compilation<a id="orgheadline120"></a>
+### Compilation<a id="orgheadline125"></a>
 
     (defun qq/c-mode-compile()
       (interactive)
@@ -3168,7 +3395,7 @@ Here only o.getName() will get highlighted.
     (after "c-mode" (define-key c-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
     (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
 
-### Java<a id="orgheadline121"></a>
+### Java<a id="orgheadline126"></a>
 
 Some statements in Java appear often, and become tedious to write
 out. We can use abbrevs to speed this up.
@@ -3187,15 +3414,17 @@ activated.
     
     (add-hook 'java-mode-hook 'java-setup)
 
-### Objective-C<a id="orgheadline122"></a>
+### Objective-C<a id="orgheadline127"></a>
 
 Associate `.mm`-files with `objc-mode` instead of `nroff-mode`.
 
     (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
 
-# Bindings<a id="orgheadline135"></a>
+# Recipes<a id="orgheadline130"></a>
 
-## Meta<a id="orgheadline125"></a>
+# Bindings<a id="orgheadline141"></a>
+
+## Meta<a id="orgheadline131"></a>
 
 First, we need to create custom macros.
 
@@ -3224,14 +3453,14 @@ Another function for generating key for Guide-Key
 
 Utility function for keys generation, this portion will add pre/post code
 
-## Generate all the binding here.<a id="orgheadline127"></a>
+## Generate all the binding here.<a id="orgheadline133"></a>
 
 The code for the keys is generated from data in a named Org table, i.e. `keys`
 using a bit of Elisp code `gen-keys` and is spit out inside a code block via
 [Noweb syntax](http://orgmode.org/manual/noweb.html). I'd like to be able to have only one place to
 change key information and have it updated wherever necessary.
 
-### Basic Bindings<a id="orgheadline63"></a>
+### Basic Bindings<a id="orgheadline62"></a>
 
 Generate binding using table from [here](#default-key-binding)
 
@@ -3247,14 +3476,14 @@ Generate binding using table from [here](#default-key-binding)
     (bind-key "C-)" 'next-buffer)
     (bind-key [escape] 'keyboard-escape-quit)
 
-### Evil Global Bindings<a id="orgheadline74"></a>
+### Evil Global Bindings<a id="orgheadline73"></a>
 
 Generate binding using table from [here](#evil-global-binding)
 
     (after 'evil
     (bind-key "C-w" 'evil-window-map)
 
-### Evil Normal Bindings<a id="orgheadline75"></a>
+### Evil Normal Bindings<a id="orgheadline74"></a>
 
 Generate binding using table from [here](#evil-normal-binding)
 
@@ -3283,7 +3512,7 @@ Generate binding using table from [here](#evil-normal-binding)
     (bind-key "g [" 'ggtags-find-reference evil-normal-state-map)
     (bind-key "g p" 'hydra-projectile/body evil-normal-state-map)
 
-### Evil Motion Bindings<a id="orgheadline76"></a>
+### Evil Motion Bindings<a id="orgheadline75"></a>
 
 Generate binding using table from [here](#evil-motion-binding)
 
@@ -3294,13 +3523,13 @@ Generate binding using table from [here](#evil-motion-binding)
     (bind-key "j" 'evil-next-visual-line evil-motion-state-map)
     (bind-key "k" 'evil-previous-visual-line evil-motion-state-map)
 
-### Evil Visual Bindings<a id="orgheadline77"></a>
+### Evil Visual Bindings<a id="orgheadline76"></a>
 
 Generate binding using table from [here](#evil-visual-binding)
 
     (bind-key ", e" 'eval-region evil-visual-state-map)
 
-### Evil Ex Bindings<a id="orgheadline78"></a>
+### Evil Ex Bindings<a id="orgheadline77"></a>
 
 Generate binding using table from [here](#evil-ex-binding)
 
@@ -3308,7 +3537,7 @@ Generate binding using table from [here](#evil-ex-binding)
     (evil-ex-define-cmd "QA" 'evil-quit-all)
     (evil-ex-define-cmd "Qa" 'evil-quit-all)
 
-### Evil BS Bindings<a id="orgheadline79"></a>
+### Evil BS Bindings<a id="orgheadline78"></a>
 
 Generate binding using table from [here](#evil-bs-binding)
 
@@ -3323,7 +3552,7 @@ Generate binding using table from [here](#evil-bs-binding)
     
     )
 
-### Evil Leader Bindings<a id="orgheadline80"></a>
+### Evil Leader Bindings<a id="orgheadline79"></a>
 
 Generate binding using table from [here](#evil-leader-binding)
 
@@ -3352,25 +3581,27 @@ Generate binding using table from [here](#evil-leader-binding)
     (evil-leader/set-key "t b" 'sr-speedbar-toggle)
     (evil-leader/set-key "t w" 'toggle-truncate-lines)
     (evil-leader/set-key "t s" 'qq/toggle-evil-search)
+    (evil-leader/set-key "t o" 'origami-mode)
     (evil-leader/set-key "h" help-map)
     (evil-leader/set-key "h x" 'describe-char)
     (evil-leader/set-key "h h" 'help-for-help-internal)
 
-### Evil Magit Bindings<a id="orgheadline98"></a>
+### Evil Magit Bindings<a id="orgheadline101"></a>
 
 Generate binding using table from [here](#evil-magit-binding)
 
     (after "magit-autoloads"
     (evil-leader/set-key "g s" 'magit-status)
-    (evil-leader/set-key "g b" 'magit-blame-mode)
+    (evil-leader/set-key "g b" 'magit-blame)
     (evil-leader/set-key "g C" 'magit-commit)
+    (evil-leader/set-key "g i" 'git-blame-line)
     (evil-leader/set-key "g l" 'magit-log)
     
     )
     
     )
 
-### Evil Projectile Bindings<a id="orgheadline106"></a>
+### Evil Projectile Bindings<a id="orgheadline111"></a>
 
 Generate binding using table from [here](#evil-projectile-binding)
 
@@ -3383,7 +3614,26 @@ Generate binding using table from [here](#evil-projectile-binding)
     
     )
 
-### Evil Org Bindings<a id="orgheadline103"></a>
+### Evil Origami Bindings<a id="orgheadline103"></a>
+
+Generate binding using table from [here](#evil-origami-binding)
+
+    (after "origami-autoloads"
+    (bind-key "z o" 'origami-open-node evil-normal-state-map)
+    (bind-key "z O" 'origami-open-node-recursively evil-normal-state-map)
+    (bind-key "z s" 'origami-show-node evil-normal-state-map)
+    (bind-key "z c" 'origami-close-node evil-normal-state-map)
+    (bind-key "z C" 'origami-close-node-recursively evil-normal-state-map)
+    (bind-key "z a" 'origami-toggle-node evil-normal-state-map)
+    (bind-key "z m" 'origami-close-all-nodes evil-normal-state-map)
+    (bind-key "z r" 'origami-open-all-nodes evil-normal-state-map)
+    (bind-key "z d" 'origami-show-only-node evil-normal-state-map)
+    (bind-key "z n" 'origami-next-fold evil-normal-state-map)
+    (bind-key "z b" 'origami-previous-fold evil-normal-state-map)
+    
+    )
+
+### Evil Org Bindings<a id="orgheadline108"></a>
 
 Generate binding using table from [here](#evil-org-binding)
 
@@ -3408,7 +3658,7 @@ Binding code generation for [this](#helm-key-binding) table
     (bind-key "n" 'helm-grep-mode-jump-other-window-forward helm-grep-mode-map)
     (bind-key "p" 'helm-grep-mode-jump-other-window-backward helm-grep-mode-map)
 
-### Helm with Evil Bindings<a id="orgheadline126"></a>
+### Helm with Evil Bindings<a id="orgheadline132"></a>
 
 Binding code generation for [this](#helm-evil-key-binding) table
 
@@ -3430,7 +3680,7 @@ Binding code generation for [this](#helm-evil-key-binding) table
     
     ))
 
-### Org Mode Bindings<a id="orgheadline102"></a>
+### Org Mode Bindings<a id="orgheadline107"></a>
 
 `org_keys` table is [here](#orgmode-key-binding).
 
@@ -3439,19 +3689,19 @@ Binding code generation for [this](#helm-evil-key-binding) table
     (bind-key "C-c l" 'org-store-link)
     (bind-key "C-c b" 'org-iswitchb)
 
-### Smartparens Bindings<a id="orgheadline110"></a>
+### Smartparens Bindings<a id="orgheadline115"></a>
 
 Binding code generation for [this](#smartparens-binding) table
 
     (bind-key "C-'" 'sp-forward-sexp smartparens-mode-map)
 
-## Evil<a id="orgheadline133"></a>
+## Evil<a id="orgheadline139"></a>
 
-### Basic Behaviour<a id="orgheadline128"></a>
+### Basic Behaviour<a id="orgheadline134"></a>
 
     (after 'evil
 
-### Git-Gutter+<a id="orgheadline129"></a>
+### Git-Gutter+<a id="orgheadline135"></a>
 
     (after "git-gutter-autoloads"
       (evil-leader/set-key
@@ -3461,23 +3711,23 @@ Binding code generation for [this](#smartparens-binding) table
       (define-key evil-normal-state-map (kbd "] h") 'git-gutter:next-hunk)
       )
 
-### Ido<a id="orgheadline130"></a>
+### Ido<a id="orgheadline136"></a>
 
            (define-key evil-normal-state-map (kbd "SPC b k") 'ido-kill-buffer)
     ;       (define-key evil-normal-state-map (kbd "SPC f") 'ido-find-file)
 
-### CC-Mode<a id="orgheadline131"></a>
+### CC-Mode<a id="orgheadline137"></a>
 
     (evil-define-key 'insert c-mode-base-map (kbd "RET") 'newline-and-indent)
 
-### Ace-Jump-Mode<a id="orgheadline132"></a>
+### Ace-Jump-Mode<a id="orgheadline138"></a>
 
     (after "ace-jump-mode-autoloads"
       (define-key evil-operator-state-map (kbd "z") 'evil-ace-jump-char-mode)
       (define-key evil-normal-state-map (kbd "s") 'evil-ace-jump-char-mode)
       (define-key evil-motion-state-map (kbd "S-SPC") 'evil-ace-jump-line-mode)))
 
-## Company<a id="orgheadline134"></a>
+## Company<a id="orgheadline140"></a>
 
     (after 'company
       (define-key company-active-map (kbd "C-j") 'company-select-next)
