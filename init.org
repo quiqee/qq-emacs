@@ -861,10 +861,10 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
    (dolist (mode
-            '(tool-bar-mode                ; No toolbars, more room for text.
-              scroll-bar-mode              ; No scroll bars either.
-              menu-bar-mode                ; same for menu bar
-              blink-cursor-mode))          ; The blinking cursor gets old.
+            '(tool-bar-mode       ; No toolbars, more room for text.
+              scroll-bar-mode     ; No scroll bars either.
+              menu-bar-mode       ; same for menu bar
+              blink-cursor-mode)) ; The blinking cursor gets old.
      (funcall mode 0))
    #+END_SRC
 
@@ -887,7 +887,7 @@ required from *emacs*.
                 global-auto-revert-mode
 
                 ;; Enabled by default in 24.4:
-                electric-indent-mode
+                ;electric-indent-mode
                 transient-mark-mode
                 delete-selection-mode
 
@@ -1279,16 +1279,6 @@ required from *emacs*.
       | h x   | Describe character under cursor | 'describe-char                  |
       | h h   |                                 | 'help-for-help-internal         |
    
-** Git-Gutter-Fringe
-   Enable =Git-Gutter+= globally
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'git-gutter-fringe)
-     (global-git-gutter-mode +1)
-
-     (add-hook 'git-gutter:update-hooks 'magit-revert-buffer-hook)
-   #+END_SRC
-
 ** Helm
    =Helm= is incremental completion and selection narrowing framework for Emacs.
    It will help steer in the right direction when looking for stuff in Emacs
@@ -1687,7 +1677,7 @@ required from *emacs*.
    (add-hook 'c-mode-common-hook 'irony-mode-keys)
  #+end_src
 
-** Magit
+** Git/Magit
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (require 'magit)
@@ -1725,7 +1715,6 @@ required from *emacs*.
    #+END_SRC
 
 *** git-blame-line
-   Nothing to do with =magit=, but still git related function.
    This function runs git blame on the line the cursor is on. It prints the
    short commit id, author, and commit date into the =minibuffer=. It also
    copies the short commit id to the kill ring so you can paste it
@@ -1753,6 +1742,16 @@ required from *emacs*.
              (message "Line %d: %s" line-number (buffer-string)))
            (kill-buffer log-buf))
          (kill-buffer commit-buf)))
+   #+END_SRC
+
+*** git-gutter-fringe
+   Enable =Git-Gutter+= globally
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'git-gutter-fringe)
+     (global-git-gutter-mode +1)
+
+     (add-hook 'git-gutter:update-hooks 'magit-revert-buffer-hook)
    #+END_SRC
 
 *** Keybinding
@@ -2075,6 +2074,7 @@ Some general settings that should apply to all programming mode. Highlight
                (rainbow-delimiters-mode)
                (require 'highlight-indent-guides)
                (highlight-indent-guides-mode)
+               (smart-tabs-insinuate 'c++ 'c 'javascript)
                ;gruber-theme
                (set-face-background 'highlight-indent-guides-odd-face "#151515")
                (set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
