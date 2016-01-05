@@ -13,3 +13,6 @@
 [submodule "urxvt-perls"]
 	path = urxvt-perls
 	url = https://github.com/muennich/urxvt-perls.git
+[submodule "yasobjc"]
+	path = yasobjc
+	url = https://github.com/roupam/yasobjc
