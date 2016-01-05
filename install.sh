@@ -58,15 +58,12 @@ mkdir -p ~/.emacs.d/extern
 
 if [ "$(uname)" == "Darwin" ]; then
     ln -s $(pwd)/Cask-mac $HOME/.emacs.d/Cask
+    profile="$HOME/.profile"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     ln -s $(pwd)/Cask-linux $HOME/.emacs.d/Cask
+    profile="$HOME/.bashrc"
 fi
 ln -s $(pwd)/init.org $HOME/.emacs.d/init.org
-ln -s $(pwd)/linum-off/linum-off.el $HOME/.emacs.d/elisp/linum-off.el
-ln -s $(pwd)/monokai/monokai-theme.el $HOME/.emacs.d/elisp/monokai-theme.el
-ln -s $(pwd)/powerline/powerline.el $HOME/.emacs.d/elisp/powerline.el
-ln -s $(pwd)/powerline/powerline-separators.el $HOME/.emacs.d/elisp/powerline-separators.el
-ln -s $(pwd)/powerline/powerline-themes.el $HOME/.emacs.d/elisp/powerline-themes.el
 
 update_bzr_lib() {
     path=$1
@@ -108,15 +105,14 @@ clone_git_repo() {
         echo " ... done"
     fi
 }
-#clone_git_repo ".zsh.d/oh-my-zsh" "https://github.com/robbyrussell/oh-my-zsh.git"
 clone_git_repo ".emacs.d/extern/cask" "https://github.com/cask/cask.git"
 
-if [[ $(grep "cask/bin" ~/.bashrc) == "" ]]
+if [[ $(grep "cask/bin" $profile) == "" ]]
 then
-    echo "Adding \$HOME/.emacs.d/extern/cask/bin to \$PATH in ~/.bashrc"
-    echo '' >> ~/.bashrc
-    echo "# Added by ~/.emacs.d/install.sh" >> ~/.bashrc
-    echo "export PATH=\$HOME/.emacs.d/extern/cask/bin:\$PATH" >> ~/.bashrc
+    echo "Adding \$HOME/.emacs.d/extern/cask/bin to \$PATH in $profile"
+    echo '' >> $profile
+    echo "# Added by ~/.emacs.d/install.sh" >> $profile
+    echo "export PATH=\$HOME/.emacs.d/extern/cask/bin:\$PATH" >> $profile
 fi
 
 export PATH=$HOME/.emacs.d/extern/cask/bin:$PATH
@@ -163,8 +159,13 @@ run_cask() {
 }
 run_cask
 
+echo -n "** Generating Emacs' init.el"
+(
 emacs --batch --eval="(require 'org-install)" \
- --eval="(setq org-confirm-babel-evaluate nil)" \
- --eval="(require 'ob-tangle)" \
- --eval='(org-babel-tangle-file "init.org")' \
- --eval='(byte-compile-file "~/.emacs.d/init.el")' 2</dev/null
+    --eval="(setq org-confirm-babel-evaluate nil)" \
+    --eval="(require 'ob-tangle)" \
+    --eval='(org-babel-tangle-file "init.org")' \
+    --eval='(byte-compile-file "~/.emacs.d/init.el")' >> /dev/null 2>&1
+) || exit 1
+echo " ... done"
+

@@ -842,11 +842,27 @@ required from *emacs*.
      ))
    #+END_SRC
 
-** Other Sites
+** Mac Pro @home
    #+BEGIN_SRC emacs-lisp
       ((string-equal system-type "darwin") ; Mac OS X
        (progn
-         (message "Mac OS X")))
+         (message "Mac OS X")
+   #+END_SRC
+
+*** Gerrit Identitiy
+    Used by =company-c-headers=. left empty as gerrit is not used @home
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar qq/gerrit-creds "")
+   #+END_SRC
+
+*** End
+   #+BEGIN_SRC emacs-lisp
+     ))
+   #+END_SRC
+
+** Other Sites
+   #+BEGIN_SRC emacs-lisp
       ((string-equal system-type "gnu/linux") ; linux
        (progn
          (message "Linux"))))
