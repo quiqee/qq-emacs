@@ -1127,8 +1127,8 @@ required from *emacs*.
 
 *** Further Settings
    #+BEGIN_SRC emacs-lisp
+     (global-evil-leader-mode)
      (global-evil-visualstar-mode)
-     (global-evil-leader-mode t)
      (evil-leader/set-leader "SPC")
      (global-evil-surround-mode t)
      (setq evil-want-fine-undo t)
@@ -2045,6 +2045,7 @@ required from *emacs*.
                          :background "#ff6347"))))
      )
    #+END_SRC
+
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: smartparens-binding
@@ -2070,7 +2071,23 @@ required from *emacs*.
      (require 'which-key)
      (which-key-mode)
      (which-key-setup-side-window-right-bottom)
+     ;(which-key-setup-minibuffer)
+
+     (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
+
+     (setq which-key-special-keys nil)
    #+END_SRC
+
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-whichkey-binding
+    :END:
+   Using The table below as the source for generating [[Evil%20Whichkey%20Bindings][Evil Whichkey Bindings]]
+
+   #+TBLNAME: evil_whichkey_keys
+      | Combo | Description | Command                   |
+      |-------+-------------+---------------------------|
+      | SPC ? |             | 'which-key-show-top-level |
 
 * Language  Modes
 ** General
@@ -2348,14 +2365,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=std_keys)>>
    #+END_SRC
-
+   
 *** Evil Global Bindings
    Generate binding using table from [[#evil-global-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after 'evil")>>
      <<gen-keys(tname=evil_global_keys)>>
    #+END_SRC
@@ -2363,35 +2380,35 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Evil Normal Bindings
    Generate binding using table from [[#evil-normal-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-nor", tname=evil_std_keys)>>
    #+END_SRC
 
 *** Evil Motion Bindings
    Generate binding using table from [[#evil-motion-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-mot", tname=evil_motion_keys)>>
    #+END_SRC
 
 *** Evil Visual Bindings
    Generate binding using table from [[#evil-visual-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-vis", tname=evil_visual_keys)>>
    #+END_SRC
 
 *** Evil Ex Bindings
    Generate binding using table from [[#evil-ex-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="xvil", tname=evil_ex_keys)>>
    #+END_SRC
 
 *** Evil BS Bindings
    Generate binding using table from [[#evil-bs-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="defadvice bs-mode (before bs-mode-override-keybindings activate)\n (evil-make-overriding-map bs-mode-map 'normal t)")>>
      <<gen-keys(moda="evil", tname=evil_bs_keys)>>
      <<gen-fix(pos=")\n")>>
@@ -2400,7 +2417,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Evil Leader Bindings
    Generate binding using table from [[#evil-leader-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after \"evil-leader-autoloads\"")>>
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
    #+END_SRC
@@ -2408,7 +2425,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after \"magit-autoloads\"")>>
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
      <<gen-fix(pos=")\n")>>
@@ -2418,7 +2435,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Evil Projectile Bindings
    Generate binding using table from [[#evil-projectile-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after \"projectile-autoloads\"")>>
      <<gen-keys(mmap="ev-nor", tname=evil_projectile_keys)>>
      <<gen-fix(pos=")\n")>>
@@ -2427,16 +2444,23 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Evil Origami Bindings
    Generate binding using table from [[#evil-origami-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after \"origami-autoloads\"")>>
      <<gen-keys(mmap="ev-nor", tname=evil_origami_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
+*** Evil Whichkey Bindings
+   Generate binding using table from [[#evil-whichkey-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(mmap="ev-nor", tname=evil_whichkey_keys)>>
+   #+END_SRC
+
 *** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
@@ -2444,14 +2468,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Helm Bindings
    Binding code generation for [[#helm-key-binding][this]] table
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :result silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(mmap="t", tname=helm_combo)>>
    #+END_SRC
 
 *** Helm with Evil Bindings
    Binding code generation for [[#helm-evil-key-binding][this]] table
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :result silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-fix(pre="after 'evil\n (after \"helm-autoloads\"")>>
      <<gen-keys(mmap="t", tname=helm-evil-combo)>>
      <<gen-fix(pos="))\n")>>
@@ -2459,17 +2483,20 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
 *** Org Mode Bindings
    =org_keys= table is [[#orgmode-key-binding][here]].
-
-   #+BEGIN_SRC emacs-lisp :noweb yes :results silent
+   
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=org_keys)>>
    #+END_SRC
 
 *** Smartparens Bindings
    Binding code generation for [[#smartparens-binding][this]] table
 
-   #+BEGIN_SRC emacs-lisp :noweb yes :result silent
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(mmap="mvar", mvar="smartparens-mode-map", tname=smartparens_keys)>>
    #+END_SRC
+
+   #+RESULTS:
+   : sp-forward-sexp
 
 ** Evil
 *** Basic Behaviour

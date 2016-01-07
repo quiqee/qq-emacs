@@ -87,7 +87,7 @@
 <li><a href="#orgheadline61">3.3. Other Sites</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline123">4. Modes</a>
+<li><a href="#orgheadline124">4. Modes</a>
 <ul>
 <li><a href="#orgheadline66">4.1. Default</a>
 <ul>
@@ -178,33 +178,34 @@
 </ul>
 </li>
 <li><a href="#orgheadline120">4.14. Swiper</a></li>
-<li><a href="#orgheadline122">4.15. Which key</a>
+<li><a href="#orgheadline123">4.15. Which key</a>
 <ul>
 <li><a href="#orgheadline121">4.15.1. Init</a></li>
+<li><a href="#evil-whichkey-binding">4.15.2. Keybinding</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline132">5. Language  Modes</a>
+<li><a href="#orgheadline133">5. Language  Modes</a>
 <ul>
-<li><a href="#orgheadline124">5.1. General</a></li>
-<li><a href="#orgheadline131">5.2. C and its derivative</a>
+<li><a href="#orgheadline125">5.1. General</a></li>
+<li><a href="#orgheadline132">5.2. C and its derivative</a>
 <ul>
-<li><a href="#orgheadline125">5.2.1. Common</a></li>
-<li><a href="#orgheadline126">5.2.2. Definition lookup</a></li>
-<li><a href="#orgheadline127">5.2.3. Highlight C+++ member function</a></li>
-<li><a href="#orgheadline128">5.2.4. Compilation</a></li>
-<li><a href="#orgheadline129">5.2.5. Java</a></li>
-<li><a href="#orgheadline130">5.2.6. Objective-C</a></li>
+<li><a href="#orgheadline126">5.2.1. Common</a></li>
+<li><a href="#orgheadline127">5.2.2. Definition lookup</a></li>
+<li><a href="#orgheadline128">5.2.3. Highlight C+++ member function</a></li>
+<li><a href="#orgheadline129">5.2.4. Compilation</a></li>
+<li><a href="#orgheadline130">5.2.5. Java</a></li>
+<li><a href="#orgheadline131">5.2.6. Objective-C</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline133">6. Recipes</a></li>
-<li><a href="#orgheadline144">7. Bindings</a>
+<li><a href="#orgheadline134">6. Recipes</a></li>
+<li><a href="#orgheadline145">7. Bindings</a>
 <ul>
-<li><a href="#orgheadline134">7.1. Meta</a></li>
-<li><a href="#orgheadline136">7.2. Generate all the binding here.</a>
+<li><a href="#orgheadline135">7.1. Meta</a></li>
+<li><a href="#orgheadline137">7.2. Generate all the binding here.</a>
 <ul>
 <li><a href="#orgheadline65">7.2.1. Basic Bindings</a></li>
 <li><a href="#orgheadline76">7.2.2. Evil Global Bindings</a></li>
@@ -217,23 +218,24 @@
 <li><a href="#orgheadline104">7.2.9. Evil Magit Bindings</a></li>
 <li><a href="#orgheadline114">7.2.10. Evil Projectile Bindings</a></li>
 <li><a href="#orgheadline106">7.2.11. Evil Origami Bindings</a></li>
-<li><a href="#orgheadline111">7.2.12. Evil Org Bindings</a></li>
-<li><a href="#orgheadline87">7.2.13. Helm Bindings</a></li>
-<li><a href="#orgheadline135">7.2.14. Helm with Evil Bindings</a></li>
-<li><a href="#orgheadline110">7.2.15. Org Mode Bindings</a></li>
-<li><a href="#orgheadline118">7.2.16. Smartparens Bindings</a></li>
+<li><a href="#orgheadline122">7.2.12. Evil Whichkey Bindings</a></li>
+<li><a href="#orgheadline111">7.2.13. Evil Org Bindings</a></li>
+<li><a href="#orgheadline87">7.2.14. Helm Bindings</a></li>
+<li><a href="#orgheadline136">7.2.15. Helm with Evil Bindings</a></li>
+<li><a href="#orgheadline110">7.2.16. Org Mode Bindings</a></li>
+<li><a href="#orgheadline118">7.2.17. Smartparens Bindings</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline142">7.3. Evil</a>
+<li><a href="#orgheadline143">7.3. Evil</a>
 <ul>
-<li><a href="#orgheadline137">7.3.1. Basic Behaviour</a></li>
-<li><a href="#orgheadline138">7.3.2. Git-Gutter+</a></li>
-<li><a href="#orgheadline139">7.3.3. Ido</a></li>
-<li><a href="#orgheadline140">7.3.4. CC-Mode</a></li>
-<li><a href="#orgheadline141">7.3.5. Ace-Jump-Mode</a></li>
+<li><a href="#orgheadline138">7.3.1. Basic Behaviour</a></li>
+<li><a href="#orgheadline139">7.3.2. Git-Gutter+</a></li>
+<li><a href="#orgheadline140">7.3.3. Ido</a></li>
+<li><a href="#orgheadline141">7.3.4. CC-Mode</a></li>
+<li><a href="#orgheadline142">7.3.5. Ace-Jump-Mode</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline143">7.4. Company</a></li>
+<li><a href="#orgheadline144">7.4. Company</a></li>
 </ul>
 </li>
 </ul>
@@ -682,7 +684,7 @@ Set `utf-8` as preferred coding system.
 
 ### Security<a id="orgheadline39"></a>
 
-Tells the auth-source library to store netrc file here: [authinfo.gpg](file:///Users/fikri/.emacs.d/authinfo.gpg)
+Tells the auth-source library to store netrc file here: [authinfo.gpg](file:///home/fikri/.emacs.d/authinfo.gpg)
 
     (setq epg-gpg-program "/usr/local/bin/gpg")
     (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
@@ -1032,7 +1034,7 @@ Used by `company-c-headers`. left empty as gerrit is not used @home
      (progn
        (message "Linux"))))
 
-# Modes<a id="orgheadline123"></a>
+# Modes<a id="orgheadline124"></a>
 
 ## Default<a id="orgheadline66"></a>
 
@@ -1353,8 +1355,8 @@ Do not turn `evil-mode` on certain modes.
 
 ### Further Settings<a id="orgheadline75"></a>
 
+    (global-evil-leader-mode)
     (global-evil-visualstar-mode)
-    (global-evil-leader-mode t)
     (evil-leader/set-leader "SPC")
     (global-evil-surround-mode t)
     (setq evil-want-fine-undo t)
@@ -3249,7 +3251,7 @@ Visual regex search
     (require 'ivy)
     (require 'swiper)
 
-## Which key<a id="orgheadline122"></a>
+## Which key<a id="orgheadline123"></a>
 
 Show keybindings. <https://github.com/justbur/emacs-which-key>
 
@@ -3258,10 +3260,46 @@ Show keybindings. <https://github.com/justbur/emacs-which-key>
     (require 'which-key)
     (which-key-mode)
     (which-key-setup-side-window-right-bottom)
+    ;(which-key-setup-minibuffer)
+    
+    (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
+    
+    (setq which-key-special-keys nil)
 
-# Language  Modes<a id="orgheadline132"></a>
+### Keybinding<a id="evil-whichkey-binding"></a>
 
-## General<a id="orgheadline124"></a>
+Using The table below as the source for generating [Evil Whichkey Bindings](#orgheadline122)
+
+<table id="orgtable17" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Combo</th>
+<th scope="col" class="org-left">Description</th>
+<th scope="col" class="org-left">Command</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td class="org-left">SPC ?</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">'which-key-show-top-level</td>
+</tr>
+</tbody>
+</table>
+
+# Language  Modes<a id="orgheadline133"></a>
+
+## General<a id="orgheadline125"></a>
 
 Some general settings that should apply to all programming mode. Highlight
 `FIXME` and `TODO` so they stand out. Also enable `indent-guide-mode` and
@@ -3288,9 +3326,9 @@ Some general settings that should apply to all programming mode. Highlight
                  (setq indent-guide-recursive t)
                  (color-identifiers-mode t)))
 
-## C and its derivative<a id="orgheadline131"></a>
+## C and its derivative<a id="orgheadline132"></a>
 
-### Common<a id="orgheadline125"></a>
+### Common<a id="orgheadline126"></a>
 
 The `c-mode-common-hook` is a general hook that work on all C-like
 languages (C, C++, Java, etc&#x2026;). I like being able to quickly compile
@@ -3332,7 +3370,7 @@ using `C-c C-c` (instead of `M-x compile`), a habit from `latex-mode`.
     (add-hook 'c-mode-hook 'qq/c-mode-init)
     (add-hook 'c++-mode-hook 'qq/c-mode-init)
 
-### Definition lookup<a id="orgheadline126"></a>
+### Definition lookup<a id="orgheadline127"></a>
 
 Look for definion in a browser C++
 Original idea: <http://xahlee.org/emacs/emacs_lookup_ref.html>
@@ -3381,7 +3419,7 @@ Original idea: <http://xahlee.org/emacs/emacs_lookup_ref.html>
     (define-key c-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
     (define-key c++-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
 
-### Highlight C+++ member function<a id="orgheadline127"></a>
+### Highlight C+++ member function<a id="orgheadline128"></a>
 
 Highlight only member function calls in `c++-mode`, for examples
 Object o;
@@ -3404,7 +3442,7 @@ Here only o.getName() will get highlighted.
                                  "(")                                 ; Paren for method invocation
                                1 'font-lock-method-call-face t)))
 
-### Compilation<a id="orgheadline128"></a>
+### Compilation<a id="orgheadline129"></a>
 
     (defun qq/c-mode-compile()
       (interactive)
@@ -3414,7 +3452,7 @@ Here only o.getName() will get highlighted.
     (after "c-mode" (define-key c-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
     (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
 
-### Java<a id="orgheadline129"></a>
+### Java<a id="orgheadline130"></a>
 
 Some statements in Java appear often, and become tedious to write
 out. We can use abbrevs to speed this up.
@@ -3433,17 +3471,17 @@ activated.
     
     (add-hook 'java-mode-hook 'java-setup)
 
-### Objective-C<a id="orgheadline130"></a>
+### Objective-C<a id="orgheadline131"></a>
 
 Associate `.mm`-files with `objc-mode` instead of `nroff-mode`.
 
     (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
 
-# Recipes<a id="orgheadline133"></a>
+# Recipes<a id="orgheadline134"></a>
 
-# Bindings<a id="orgheadline144"></a>
+# Bindings<a id="orgheadline145"></a>
 
-## Meta<a id="orgheadline134"></a>
+## Meta<a id="orgheadline135"></a>
 
 First, we need to create custom macros.
 
@@ -3472,7 +3510,7 @@ Another function for generating key for Guide-Key
 
 Utility function for keys generation, this portion will add pre/post code
 
-## Generate all the binding here.<a id="orgheadline136"></a>
+## Generate all the binding here.<a id="orgheadline137"></a>
 
 The code for the keys is generated from data in a named Org table, i.e. `keys`
 using a bit of Elisp code `gen-keys` and is spit out inside a code block via
@@ -3483,244 +3521,77 @@ change key information and have it updated wherever necessary.
 
 Generate binding using table from [here](#default-key-binding)
 
-    (bind-key "C-s" 'isearch-forward-regexp)
-    (bind-key "C-M-s" 'isearch-forward)
-    (bind-key "C-r" 'isearch-backward-regexp)
-    (bind-key "C-M-r" 'isearch-backward)
-    (bind-key "C-c s" 'qq/goto-scratch-buffer)
-    (bind-key "C-x C-b" 'ibuffer)
-    (bind-key "C-x C-k" 'kill-this-buffer)
-    (bind-key "C-c e" 'qq/eval-and-replace)
-    (bind-key "C-(" 'previous-buffer)
-    (bind-key "C-)" 'next-buffer)
-    (bind-key [escape] 'keyboard-escape-quit)
-
 ### Evil Global Bindings<a id="orgheadline76"></a>
 
 Generate binding using table from [here](#evil-global-binding)
-
-    (after 'evil
-    (bind-key "C-w" 'evil-window-map)
 
 ### Evil Normal Bindings<a id="orgheadline77"></a>
 
 Generate binding using table from [here](#evil-normal-binding)
 
-    (bind-key "[backspace]" 'evil-ex-nohighlight evil-normal-state-map)
-    (bind-key "DEL" 'evil-ex-nohighlight evil-normal-state-map)
-    (bind-key "SPC b b" 'switch-to-buffer evil-normal-state-map)
-    (bind-key "C-b" 'evil-scroll-up evil-normal-state-map)
-    (bind-key "C-f" 'evil-scroll-down evil-normal-state-map)
-    (bind-key "[ SPC" (bind (evil-insert-newline-above) (forward-line)) evil-normal-state-map)
-    (bind-key "] SPC" (bind (evil-insert-newline-below) (forward-line -1)) evil-normal-state-map)
-    (bind-key "[ e" (kbd "ddkP") evil-normal-state-map)
-    (bind-key "] e" (kbd "ddp") evil-normal-state-map)
-    (bind-key "[ b" 'previous-buffer evil-normal-state-map)
-    (bind-key "] b" 'next-buffer evil-normal-state-map)
-    (bind-key "[ q" 'previous-error evil-normal-state-map)
-    (bind-key "] q" 'next-error evil-normal-state-map)
-    (bind-key "C-j" 'windmove-down evil-normal-state-map)
-    (bind-key "C-k" 'windmove-up evil-normal-state-map)
-    (bind-key "C-h" 'windmove-left evil-normal-state-map)
-    (bind-key "C-l" 'windmove-right evil-normal-state-map)
-    (bind-key "C-a" 'evil-numbers/inc-at-pt evil-normal-state-map)
-    (bind-key "-" 'evil-numbers/dec-at-pt evil-normal-state-map)
-    (bind-key "Q" 'qq/window-killer evil-normal-state-map)
-    (bind-key "Y" (kbd "y$") evil-normal-state-map)
-    (bind-key "g ]" 'ggtags-find-definition evil-normal-state-map)
-    (bind-key "g [" 'ggtags-find-reference evil-normal-state-map)
-    (bind-key "g p" 'hydra-projectile/body evil-normal-state-map)
-
 ### Evil Motion Bindings<a id="orgheadline78"></a>
 
 Generate binding using table from [here](#evil-motion-binding)
-
-    (bind-key "C-j" 'windmove-down evil-motion-state-map)
-    (bind-key "C-k" 'windmove-up evil-motion-state-map)
-    (bind-key "C-h" 'windmove-left evil-motion-state-map)
-    (bind-key "C-l" 'windmove-right evil-motion-state-map)
-    (bind-key "j" 'evil-next-visual-line evil-motion-state-map)
-    (bind-key "k" 'evil-previous-visual-line evil-motion-state-map)
 
 ### Evil Visual Bindings<a id="orgheadline79"></a>
 
 Generate binding using table from [here](#evil-visual-binding)
 
-    (bind-key ", e" 'eval-region evil-visual-state-map)
-
 ### Evil Ex Bindings<a id="orgheadline80"></a>
 
 Generate binding using table from [here](#evil-ex-binding)
-
-    (evil-ex-define-cmd "Q" 'evil-quit)
-    (evil-ex-define-cmd "QA" 'evil-quit-all)
-    (evil-ex-define-cmd "Qa" 'evil-quit-all)
 
 ### Evil BS Bindings<a id="orgheadline81"></a>
 
 Generate binding using table from [here](#evil-bs-binding)
 
-    (defadvice bs-mode (before bs-mode-override-keybindings activate)
-     (evil-make-overriding-map bs-mode-map 'normal t)
-    (evil-define-key 'normal bs-mode-map (kbd "h") 'evil-backward-char)
-    (evil-define-key 'normal bs-mode-map (kbd "q") 'bs-abort)
-    (evil-define-key 'normal bs-mode-map (kbd "j") 'bs-down)
-    (evil-define-key 'normal bs-mode-map (kbd "k") 'bs-up)
-    (evil-define-key 'normal bs-mode-map (kbd "l") 'evil-forwared-char)
-    (evil-define-key 'normal bs-mode-map (kbd "RET") 'bs-select)
-    
-    )
-
 ### Evil Leader Bindings<a id="orgheadline82"></a>
 
 Generate binding using table from [here](#evil-leader-binding)
-
-    (after "evil-leader-autoloads"
-    (evil-leader/set-key "s" 'save-buffer)
-    (evil-leader/set-key "a" 'ack-and-a-half)
-    (evil-leader/set-key "j" 'dired-jump)
-    (evil-leader/set-key "i" 'swiper)
-    (evil-leader/set-key "x" 'execute-extended-command)
-    (evil-leader/set-key "e" 'eval-last-sexp)
-    (evil-leader/set-key "E" 'eval-defun)
-    (evil-leader/set-key "5" 'ctl-x-5-prefix)
-    (evil-leader/set-key "q" 'evil-window-delete)
-    (evil-leader/set-key "C" 'customize-group)
-    (evil-leader/set-key "b S" 'bs-show)
-    (evil-leader/set-key "b d" 'kill-this-buffer)
-    (evil-leader/set-key "b e" 'evil-buffer)
-    (evil-leader/set-key "b i" 'ibuffer)
-    (evil-leader/set-key "b q" 'kill-buffer-and-window)
-    (evil-leader/set-key "\\" 'evil-execute-in-emacs-state)
-    (evil-leader/set-key "P" 'package-list-packages)
-    (evil-leader/set-key "V" (bind (term "vim")))
-    (evil-leader/set-key "g t" 'git-timemachine)
-    (evil-leader/set-key "t SPC" 'whitespace-mode)
-    (evil-leader/set-key "t TAB" 'c-toggle-syntactic-indentation)
-    (evil-leader/set-key "t b" 'sr-speedbar-toggle)
-    (evil-leader/set-key "t w" 'toggle-truncate-lines)
-    (evil-leader/set-key "t s" 'qq/toggle-evil-search)
-    (evil-leader/set-key "t o" 'origami-mode)
-    (evil-leader/set-key "h" help-map)
-    (evil-leader/set-key "h x" 'describe-char)
-    (evil-leader/set-key "h h" 'help-for-help-internal)
 
 ### Evil Magit Bindings<a id="orgheadline104"></a>
 
 Generate binding using table from [here](#evil-magit-binding)
 
-    (after "magit-autoloads"
-    (evil-leader/set-key "g s" 'magit-status)
-    (evil-leader/set-key "g b" 'magit-blame)
-    (evil-leader/set-key "g C" 'magit-commit)
-    (evil-leader/set-key "g i" 'git-blame-line)
-    (evil-leader/set-key "g l" 'magit-log)
-    
-    )
-    
-    )
-
 ### Evil Projectile Bindings<a id="orgheadline114"></a>
 
 Generate binding using table from [here](#evil-projectile-binding)
-
-    (after "projectile-autoloads"
-    (bind-key "SPC /" 'helm-projectile-ag evil-normal-state-map)
-    (bind-key "SPC p a" 'helm-projectile-find-other-file evil-normal-state-map)
-    (bind-key "SPC p s" 'helm-projectile-switch-project evil-normal-state-map)
-    (bind-key "SPC p e" 'helm-projectile evil-normal-state-map)
-    (bind-key "SPC p f" 'helm-projectile-find-file evil-normal-state-map)
-    
-    )
 
 ### Evil Origami Bindings<a id="orgheadline106"></a>
 
 Generate binding using table from [here](#evil-origami-binding)
 
-    (after "origami-autoloads"
-    (bind-key "z o" 'origami-open-node evil-normal-state-map)
-    (bind-key "z O" 'origami-open-node-recursively evil-normal-state-map)
-    (bind-key "z s" 'origami-show-node evil-normal-state-map)
-    (bind-key "z c" 'origami-close-node evil-normal-state-map)
-    (bind-key "z C" 'origami-close-node-recursively evil-normal-state-map)
-    (bind-key "z a" 'origami-toggle-node evil-normal-state-map)
-    (bind-key "z m" 'origami-close-all-nodes evil-normal-state-map)
-    (bind-key "z r" 'origami-open-all-nodes evil-normal-state-map)
-    (bind-key "z d" 'origami-show-only-node evil-normal-state-map)
-    (bind-key "z n" 'origami-next-fold evil-normal-state-map)
-    (bind-key "z b" 'origami-previous-fold evil-normal-state-map)
-    
-    )
+### Evil Whichkey Bindings<a id="orgheadline122"></a>
+
+Generate binding using table from [here](#evil-whichkey-binding)
 
 ### Evil Org Bindings<a id="orgheadline111"></a>
 
 Generate binding using table from [here](#evil-org-binding)
 
-    (evil-define-key 'normal org-mode-map (kbd "z c") 'hide-subtree)
-    (evil-define-key 'normal org-mode-map (kbd "\\ TAB") '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)))
-    (evil-define-key 'normal org-mode-map (kbd "-") 'org-cycle-list-bullet)
-    (evil-define-key 'insert org-mode-map (kbd "C-c .") '(lambda () (interactive) (org-time-stamp-inactive t)))
-    
-    )
-
 ### Helm Bindings<a id="orgheadline87"></a>
 
 Binding code generation for [this](#helm-key-binding) table
 
-    (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
-    (bind-key "C-i" 'helm-execute-persistent-action helm-map)
-    (bind-key "C-z" 'helm-select-action helm-map)
-    (bind-key "C-j" 'helm-next-line helm-map)
-    (bind-key "C-k" 'helm-previous-line helm-map)
-    (bind-key "C-l" 'helm-previous-source helm-map)
-    (bind-key "<return>" 'helm-grep-mode-jump-other-window helm-grep-mode-map)
-    (bind-key "n" 'helm-grep-mode-jump-other-window-forward helm-grep-mode-map)
-    (bind-key "p" 'helm-grep-mode-jump-other-window-backward helm-grep-mode-map)
-
-### Helm with Evil Bindings<a id="orgheadline135"></a>
+### Helm with Evil Bindings<a id="orgheadline136"></a>
 
 Binding code generation for [this](#helm-evil-key-binding) table
-
-    (after 'evil
-     (after "helm-autoloads"
-    (bind-key "SPC b s" 'helm-mini evil-normal-state-map)
-    (bind-key "SPC f" 'helm-find-files evil-normal-state-map)
-    (bind-key "SPC o" 'helm-imenu evil-normal-state-map)
-    (bind-key "SPC t" 'helm-etags-select evil-normal-state-map)
-    (bind-key "SPC y" 'helm-show-kill-ring evil-normal-state-map)
-    (bind-key "SPC m" 'helm-bookmarks evil-normal-state-map)
-    (bind-key "SPC r" 'helm-register evil-normal-state-map)
-    (bind-key "SPC SPC" 'helm-M-x evil-normal-state-map)
-    (bind-key "SPC SPC" 'helm-M-x evil-visual-state-map)
-    (bind-key "SPC a" 'helm-all-mark-rings evil-normal-state-map)
-    (bind-key "SPC w" 'helm-wikipedia-suggest evil-normal-state-map)
-    (bind-key "SPC l" 'helm-swoop evil-normal-state-map)
-    (bind-key "SPC L" 'helm-multi-swoop evil-normal-state-map)
-    
-    ))
 
 ### Org Mode Bindings<a id="orgheadline110"></a>
 
 `org_keys` table is [here](#orgmode-key-binding).
 
-    (bind-key "C-c c" 'org-capture)
-    (bind-key "C-c a" 'org-agenda)
-    (bind-key "C-c l" 'org-store-link)
-    (bind-key "C-c b" 'org-iswitchb)
-
 ### Smartparens Bindings<a id="orgheadline118"></a>
 
 Binding code generation for [this](#smartparens-binding) table
 
-    (bind-key "C-'" 'sp-forward-sexp smartparens-mode-map)
+## Evil<a id="orgheadline143"></a>
 
-## Evil<a id="orgheadline142"></a>
-
-### Basic Behaviour<a id="orgheadline137"></a>
+### Basic Behaviour<a id="orgheadline138"></a>
 
     (after 'evil
 
-### Git-Gutter+<a id="orgheadline138"></a>
+### Git-Gutter+<a id="orgheadline139"></a>
 
     (after "git-gutter-autoloads"
       (evil-leader/set-key
@@ -3730,23 +3601,23 @@ Binding code generation for [this](#smartparens-binding) table
       (define-key evil-normal-state-map (kbd "] h") 'git-gutter:next-hunk)
       )
 
-### Ido<a id="orgheadline139"></a>
+### Ido<a id="orgheadline140"></a>
 
            (define-key evil-normal-state-map (kbd "SPC b k") 'ido-kill-buffer)
     ;       (define-key evil-normal-state-map (kbd "SPC f") 'ido-find-file)
 
-### CC-Mode<a id="orgheadline140"></a>
+### CC-Mode<a id="orgheadline141"></a>
 
     (evil-define-key 'insert c-mode-base-map (kbd "RET") 'newline-and-indent)
 
-### Ace-Jump-Mode<a id="orgheadline141"></a>
+### Ace-Jump-Mode<a id="orgheadline142"></a>
 
     (after "ace-jump-mode-autoloads"
       (define-key evil-operator-state-map (kbd "z") 'evil-ace-jump-char-mode)
       (define-key evil-normal-state-map (kbd "s") 'evil-ace-jump-char-mode)
       (define-key evil-motion-state-map (kbd "S-SPC") 'evil-ace-jump-line-mode)))
 
-## Company<a id="orgheadline143"></a>
+## Company<a id="orgheadline144"></a>
 
     (after 'company
       (define-key company-active-map (kbd "C-j") 'company-select-next)
