@@ -2,7 +2,7 @@
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
 #+PROPERTY: header-args :tangle ~/.emacs.d/init.el :comments org
-#+DATE:  <2015-11-26 Thu>
+#+DATE:  <2016-01-21 Thu>
  
 #+TITLE: Emacs configuration file
 #+AUTHOR: QuiQee
@@ -1014,6 +1014,18 @@ required from *emacs*.
      (delete 'company-semantic company-backends)
    #+END_SRC
 
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: company-binding
+    :END:
+   Using The table below as the source for generating [[Company Bindings][Company Bindings]]
+
+   #+TBLNAME: company_keys
+      | Combo | Description                       | Command                  |
+      |-------+-----------------------------------+--------------------------|
+      | C-j   | move cursor to the next entry     | 'company-select-next     |
+      | C-k   | move cursor to the previous entry | 'company-select-previous |
+
 ** Diminish
    Diminish will remove the minor mode indicators from the mode line (or powerline). 
 
@@ -1183,6 +1195,7 @@ required from *emacs*.
       | [backspace] | Disable the active search highlightings    | 'evil-ex-nohighlight                                 |
       | DEL         | Disable the active search highlightings    | 'evil-ex-nohighlight                                 |
       | SPC b b     |                                            | 'switch-to-buffer                                    |
+      | SPC b k     | Kill current buffer                        | 'ido-kill-buffer                                     |
       | C-b         | Scroll one page up                         | 'evil-scroll-up                                      |
       | C-f         | Scroll one page down                       | 'evil-scroll-down                                    |
       | [ SPC       | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
@@ -1270,7 +1283,8 @@ required from *emacs*.
       | Combo | Description                     | Command                         |
       |-------+---------------------------------+---------------------------------|
       | s     |                                 | 'save-buffer                    |
-      | a     |                                 | 'ack-and-a-half                 |
+      | c     |                                 | 'evil-ace-jump-char-mode        |
+      | w     |                                 | 'evil-ace-jump-word-mode        |
       | j     |                                 | 'dired-jump                     |
       | i     |                                 | 'swiper                         |
       | x     |                                 | 'execute-extended-command       |
@@ -1411,11 +1425,6 @@ required from *emacs*.
     :PROPERTIES:
     :CUSTOM_ID: helm-key-binding
     :END:
-      (define-key helm-map (kbd "C-j") 'helm-next-line)
-      (define-key helm-map (kbd "C-k") 'helm-previous-line)
-      (define-key helm-map (kbd "C-h") 'helm-next-source)
-      (define-key helm-map (kbd "C-l") 'helm-previous-source)
-
 
    The code generated from this table is [[Helm%20Bindings][here]].
    #+TBLNAME: helm_combo
@@ -1449,7 +1458,7 @@ required from *emacs*.
       | SPC SPC | evil-normal-state-map |             | 'helm-M-x               |
       | SPC SPC | evil-visual-state-map |             | 'helm-M-x               |
       | SPC a   | evil-normal-state-map |             | 'helm-all-mark-rings    |
-      | SPC w   | evil-normal-state-map |             | 'helm-wikipedia-suggest |
+      | SPC h w | evil-normal-state-map |             | 'helm-wikipedia-suggest |
       | SPC l   | evil-normal-state-map |             | 'helm-swoop             |
       | SPC L   | evil-normal-state-map |             | 'helm-multi-swoop       |
 
@@ -1779,14 +1788,24 @@ required from *emacs*.
     :END:
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
 
+         "g a" 'git-gutter:stage-hunk
+         "g r" 'git-gutter:revert-hunk)
    #+TBLNAME: evil_magit_keys
-      | Combo | Description | Command         |
-      |-------+-------------+-----------------|
-      | g s   |             | 'magit-status   |
-      | g b   |             | 'magit-blame    |
-      | g C   |             | 'magit-commit   |
-      | g i   |             | 'git-blame-line |
-      | g l   |             | 'magit-log      |
+      | Combo | Description | Command                 |
+      |-------+-------------+-------------------------|
+      | g s   |             | 'magit-status           |
+      | g b   |             | 'magit-blame            |
+      | g C   |             | 'magit-commit           |
+      | g i   |             | 'git-blame-line         |
+      | g l   |             | 'magit-log              |
+      | g a   |             | 'git-gutter:stage-hunk  |
+      | g r   |             | 'git-gutter:revert-hunk |
+
+   #+TBLNAME: gitgutter_keys
+      | Combo | Description | Command                   |
+      |-------+-------------+---------------------------|
+      | [ h   |             | 'git-gutter:previous-hunk |
+      | ] h   |             | 'git-gutter:next-hunk     |
 
 ** Origami
    Text folding solution for Emacs
@@ -1965,6 +1984,12 @@ required from *emacs*.
       | \\ TAB | org-mode-map | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
       | -      | org-mode-map | normal    |             | 'org-cycle-list-bullet                                        |
       | C-c .  | org-mode-map | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t))        |
+
+   #+TBLNAME: evil_org2_keys
+      | Combo | Description | Command        |
+      |-------+-------------+----------------|
+      | >     |             | 'org-metaright |
+      | <     |             | 'org-metaleft  |
    
 ** Projectile
    Project interaction module for Emacs.
@@ -2165,56 +2190,6 @@ using =C-c C-c= (instead of =M-x compile=), a habit from =latex-mode=.
   (add-hook 'c++-mode-hook 'qq/c-mode-init)
 #+END_SRC
 
-*** Definition lookup
-Look for definion in a browser C++
-Original idea: http://xahlee.org/emacs/emacs_lookup_ref.html
-
-#+begin_src emacs-lisp
-  (defun lookup-word-definition-c++-mode ()
-    "Look up the current word's definition in a browser.
-  If a region is active (a phrase), lookup that phrase.
-  Copy the word/region into the clipboard.
-  You MUST launch Opera before using this function!!!"
-    (interactive)
-    (let (myword myurl)
-      (setq myword
-            (if (and transient-mark-mode mark-active)
-                (buffer-substring-no-properties (region-beginning) (region-end))
-              (thing-at-point 'symbol)))
-
-      ;; Also, copy myword to clipboard
-      (if (and transient-mark-mode mark-active)
-          (clipboard-kill-ring-save (region-beginning) (region-end))
-        (let* ((chars "A-Za-z\\-")
-               (left (save-excursion
-                       (skip-chars-backward chars)
-                       (point)))
-               (right (save-excursion
-                        (skip-chars-forward chars)
-                        (point)))
-               )
-          (clipboard-kill-ring-save left right)))
-
-      (setq myword (replace-regexp-in-string " " "%20" myword))
-      (setq myurl (concat "http://www.cppreference.com/wiki/?do=search&id=" myword ))
-                                          ; %22 is ""
-                                          ; %2B is +
-      (setq myurl (replace-regexp-in-string " " "%20" myurl))
-
-      ;;(browse-url myurl) ; to use Firefox
-
-      ;; You must run Opera before launching this program
-      ;;(shell-command (concat "opera --remote 'openURL(" myurl ", new-tab)' ")) ; Opera open the url
-      (shell-command (concat "chromium-browser " myurl)) ; Chromium open the url
-      ;;(shell-command (concat "wmctrl -a Opera")) ; Raise up the Opera window
-      ;;(w3m-browse-url myurl) ;; if you want to browse using w3m
-      ))
-
-
-  (define-key c-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
-  (define-key c++-mode-map (kbd "<f12>") 'lookup-word-definition-c++-mode)
-#+end_src
-
 *** Highlight C+++ member function
 Highlight only member function calls in =c++-mode=, for examples
 Object o;
@@ -2278,6 +2253,16 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
   (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
 #+END_SRC
 
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-cc-mode-binding
+    :END:
+   Using The table below as the source for generating [[Evil CC Mode Bindings][Evil CC Mode Bindings]]
+
+   #+TBLNAME: cc_mode_keys
+      | Combo | Mode            | Evil Mode | Description | Command             |
+      | RET   | c-mode-base-map | insert    |             | 'newline-and-indent |
+   
 * Recipes
 ** Switch to Editing a File with SUDO
    Taken from [[http://irreal.org/blog/?p=4883][here]]
@@ -2302,6 +2287,12 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
       | C-x C-v | Switch to Editing a File with SUDO | 'qq/find-file-as-sudo |
 
 * Bindings
+   Generate all the binding here. The code for the keys is generated from
+   data in a named Org table, i.e. =keys= using a bit of Elisp code =gen-keys=
+   and is spit out inside a code block via [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. I'd like to be able
+   to have only one place to change key information and have it updated
+   wherever necessary.
+
 ** Meta
    First, we need to create custom macros.
 
@@ -2381,20 +2372,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
          (princ las)))
    #+END_SRC
 
-** Generate all the binding here.
-   The code for the keys is generated from data in a named Org table, i.e. =keys=
-   using a bit of Elisp code =gen-keys= and is spit out inside a code block via
-   [[http://orgmode.org/manual/noweb.html][Noweb syntax]]. I'd like to be able to have only one place to
-   change key information and have it updated wherever necessary.
-
-*** Basic Bindings
+** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=std_keys)>>
    #+END_SRC
    
-*** Evil Global Bindings
+** Evil Global Bindings
    Generate binding using table from [[#evil-global-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -2402,35 +2387,35 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-keys(tname=evil_global_keys)>>
    #+END_SRC
 
-*** Evil Normal Bindings
+** Evil Normal Bindings
    Generate binding using table from [[#evil-normal-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-nor", tname=evil_std_keys)>>
    #+END_SRC
 
-*** Evil Motion Bindings
+** Evil Motion Bindings
    Generate binding using table from [[#evil-motion-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-mot", tname=evil_motion_keys)>>
    #+END_SRC
 
-*** Evil Visual Bindings
+** Evil Visual Bindings
    Generate binding using table from [[#evil-visual-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-vis", tname=evil_visual_keys)>>
    #+END_SRC
 
-*** Evil Ex Bindings
+** Evil Ex Bindings
    Generate binding using table from [[#evil-ex-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="xvil", tname=evil_ex_keys)>>
    #+END_SRC
 
-*** Evil BS Bindings
+** Evil BS Bindings
    Generate binding using table from [[#evil-bs-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -2439,7 +2424,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-*** Evil Leader Bindings
+** Evil Leader Bindings
    Generate binding using table from [[#evil-leader-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -2447,17 +2432,18 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
    #+END_SRC
 
-*** Evil Magit Bindings
+** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after \"magit-autoloads\"")>>
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
      <<gen-fix(pos=")\n")>>
+     <<gen-keys(mmap="ev-nor", tname=gitgutter_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-*** Evil Projectile Bindings
+** Evil Projectile Bindings
    Generate binding using table from [[#evil-projectile-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -2466,7 +2452,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-*** Evil Origami Bindings
+** Evil Origami Bindings
    Generate binding using table from [[#evil-origami-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -2475,29 +2461,37 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-*** Evil Whichkey Bindings
+** Evil Whichkey Bindings
    Generate binding using table from [[#evil-whichkey-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-nor", tname=evil_whichkey_keys)>>
    #+END_SRC
 
-*** Evil Org Bindings
+** Evil CC Mode Bindings
+   Generate binding using table from [[#evil-cc-mode-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="evil", tname=cc_mode_keys)>>
+   #+END_SRC
+
+** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
+     <<gen-keys(mmap="ev-nor", tname=evil_org2_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-*** Helm Bindings
+** Helm Bindings
    Binding code generation for [[#helm-key-binding][this]] table
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(mmap="t", tname=helm_combo)>>
    #+END_SRC
 
-*** Helm with Evil Bindings
+** Helm with Evil Bindings
    Binding code generation for [[#helm-evil-key-binding][this]] table
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
@@ -2506,21 +2500,28 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos="))\n")>>
    #+END_SRC
 
-*** Org Mode Bindings
+** Org Mode Bindings
    =org_keys= table is [[#orgmode-key-binding][here]].
    
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=org_keys)>>
    #+END_SRC
 
-*** Recipes Bindings
+** Recipes Bindings
    =recipes_keys= table is [[#recipes-binding][here]].
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=recipes_keys)>>
    #+END_SRC
 
-*** Smartparens Bindings
+** Company Bindings
+   Binding code generation for [[#company-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-keys(mmap="mvar", mvar="company-active-map", tname=company_keys)>>
+   #+END_SRC
+
+** Smartparens Bindings
    Binding code generation for [[#smartparens-binding][this]] table
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
@@ -2529,52 +2530,4 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+RESULTS:
    : sp-forward-sexp
-
-** Evil
-*** Basic Behaviour
-
-   #+BEGIN_SRC emacs-lisp
-     (after 'evil
-   #+END_SRC
-
-*** Git-Gutter+
-
-   #+BEGIN_SRC emacs-lisp
-     (after "git-gutter-autoloads"
-       (evil-leader/set-key
-         "g a" 'git-gutter:stage-hunk
-         "g r" 'git-gutter:revert-hunk)
-       (define-key evil-normal-state-map (kbd "[ h") 'git-gutter:previous-hunk)
-       (define-key evil-normal-state-map (kbd "] h") 'git-gutter:next-hunk)
-       )
-   #+END_SRC
-
-*** Ido
-
-   #+BEGIN_SRC emacs-lisp
-       (define-key evil-normal-state-map (kbd "SPC b k") 'ido-kill-buffer)
-;       (define-key evil-normal-state-map (kbd "SPC f") 'ido-find-file)
-   #+END_SRC
-
-*** CC-Mode
-   #+BEGIN_SRC emacs-lisp
-     (evil-define-key 'insert c-mode-base-map (kbd "RET") 'newline-and-indent)
-   #+END_SRC
-
-*** Ace-Jump-Mode
-
-   #+BEGIN_SRC emacs-lisp
-       (after "ace-jump-mode-autoloads"
-         (define-key evil-operator-state-map (kbd "z") 'evil-ace-jump-char-mode)
-         (define-key evil-normal-state-map (kbd "s") 'evil-ace-jump-char-mode)
-         (define-key evil-motion-state-map (kbd "S-SPC") 'evil-ace-jump-line-mode)))
-   #+END_SRC
-
-** Company
-
-   #+BEGIN_SRC emacs-lisp
-     (after 'company
-       (define-key company-active-map (kbd "C-j") 'company-select-next)
-       (define-key company-active-map (kbd "C-k") 'company-select-previous))
-   #+END_SRC
 
