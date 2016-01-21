@@ -202,6 +202,7 @@ required from *emacs*.
                 linum-off             ; provides interface for turning line numbering off.
                 moe-theme
                 monokai-theme
+                region-state
                 saveplace
                 spaceline-config
                 ))
@@ -911,6 +912,8 @@ required from *emacs*.
                 column-number-mode
                 display-time-mode
                 size-indication-mode
+                region-state-mode         ; A global minor-mode that shows the number of
+                                                   ; chars/lines or rows/columns in the region (aka. selection)
 
                 global-linum-mode          ; turn on line number globally
 
@@ -1812,7 +1815,7 @@ required from *emacs*.
       | z r   | Open all fold in the buffer                                                                                                 | 'origami-open-all-nodes         |
       | z d   | Close all fold but the current one                                                                                          | 'origami-show-only-node         |
       | z n   | Move to the next fold.                                                                                                      | 'origami-next-fold              |
-      | z b   | Move to the previous fold.                                                                                                  | 'origami-previous-fold          |
+      | z p   | Move to the previous fold.                                                                                                  | 'origami-previous-fold          |
 
 ** Org
 *** Enable Org Mode
@@ -2276,6 +2279,28 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 #+END_SRC
 
 * Recipes
+** Switch to Editing a File with SUDO
+   Taken from [[http://irreal.org/blog/?p=4883][here]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/find-file-as-sudo ()
+       (interactive)
+       (let ((file-name (buffer-file-name)))
+         (when file-name
+           (find-alternate-file (concat "/sudo::" file-name)))))
+   #+END_SRC
+
+** KeyBindings
+    :PROPERTIES:
+    :CUSTOM_ID: recipes-binding
+    :END:
+   Using The table below as the source for generating [[Recipes Bindings][Recipes Bindings]]
+
+   #+TBLNAME: recipes_keys
+      | Combo   | Description                        | Command               |
+      |---------+------------------------------------+-----------------------|
+      | C-x C-v | Switch to Editing a File with SUDO | 'qq/find-file-as-sudo |
+
 * Bindings
 ** Meta
    First, we need to create custom macros.
@@ -2486,6 +2511,13 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=org_keys)>>
+   #+END_SRC
+
+*** Recipes Bindings
+   =recipes_keys= table is [[#recipes-binding][here]].
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(tname=recipes_keys)>>
    #+END_SRC
 
 *** Smartparens Bindings

@@ -51,6 +51,7 @@
 (depends-on "hydra")
 
 (depends-on "origami")
+(depends-on "region-state")
 
 (depends-on "gotham-theme")
 (depends-on "ample-theme")
