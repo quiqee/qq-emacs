@@ -50,8 +50,11 @@
 
 (depends-on "hydra")
 
+(depends-on "neotree")
+
 (depends-on "origami")
 (depends-on "region-state")
+(depends-on "keyfreq")
 
 (depends-on "gotham-theme")
 (depends-on "ample-theme")

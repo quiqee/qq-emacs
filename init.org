@@ -2,7 +2,7 @@
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
 #+PROPERTY: header-args :tangle ~/.emacs.d/init.el :comments org
-#+DATE:  <2016-01-21 Thu>
+#+DATE:  <2016-01-22 Fri>
  
 #+TITLE: Emacs configuration file
 #+AUTHOR: QuiQee
@@ -593,8 +593,8 @@ required from *emacs*.
    #+END_SRC
 
 *** Modeline
-   [[https://github.com/milkypostman/powerline][Powerline]] is an extension to customize the mode line. This is modified
-   version =powerline-nano-theme=.
+   [[https://github.com/TheBB/spaceline][Spaceline]] is an extension to customize the mode line. This is modified
+   version extracted from [[https://github.com/syl20bnr/spacemacs][Spacemacs]].
 
    #+BEGIN_SRC emacs-lisp
      (spaceline-spacemacs-theme)
@@ -1288,6 +1288,7 @@ required from *emacs*.
       | j     |                                 | 'dired-jump                     |
       | i     |                                 | 'swiper                         |
       | x     |                                 | 'execute-extended-command       |
+      | n     |                                 | 'neotree-toggle                 |
       | e     |                                 | 'eval-last-sexp                 |
       | E     |                                 | 'eval-defun                     |
       | 5     |                                 | 'ctl-x-5-prefix                 |
@@ -1807,6 +1808,42 @@ required from *emacs*.
       | [ h   |             | 'git-gutter:previous-hunk |
       | ] h   |             | 'git-gutter:next-hunk     |
 
+** Keyfreq
+   Track Emacs commands frequency, github [[https://github.com/dacap/keyfreq][here]].
+   Use keyfreq-show to see how many times you used a command.
+
+   #+begin_src emacs-lisp
+     (require 'keyfreq)
+     (keyfreq-mode 1)
+     (keyfreq-autosave-mode 1)
+   #+end_src
+
+** Neotree
+   A emacs tree plugin like =NERD tree= for =Vim=. Refer more [[http://www.emacswiki.org/emacs/NeoTree][here]].
+
+   #+begin_src emacs-lisp
+     (require 'neotree)
+   #+end_src
+
+   Every time when the neotree window is opened, let it find current file
+   and jump to node.
+   #+begin_src emacs-lisp
+     (setq neo-smart-open t)
+   #+end_src
+
+*** Keybindings with Evil
+    :PROPERTIES:
+    :CUSTOM_ID: evil-neotree-bindings
+    :END:
+
+   The table below will be generated as key-bindings [[Evil Neotree Bindings][here]].
+   #+TBLNAME: neotree-evil-keys
+      | Combo | Mode                        | Description | Command        |
+      | TAB   | evil-normal-state-local-map |             | 'neotree-enter |
+      | SPC   | evil-normal-state-local-map |             | 'neotree-enter |
+      | q     | evil-normal-state-local-map |             | 'neotree-hide  |
+      | RET   | evil-normal-state-local-map |             | 'neotree-enter |
+
 ** Origami
    Text folding solution for Emacs
 
@@ -2008,6 +2045,13 @@ required from *emacs*.
      (add-to-list 'projectile-globally-ignored-files "GRTAGS")
      (add-to-list 'projectile-globally-ignored-files "GSYMS")
      (add-to-list 'projectile-globally-ignored-files ".DS_Store")
+   #+END_SRC
+
+*** Working with Neotree
+   When running =projectile-switch-project=, =neotree= will change
+   root automatically.
+   #+BEGIN_SRC emacs-lisp
+     (setq projectile-switch-project-action 'neotree-projectile-action)
    #+END_SRC
 
 *** Keybinding
@@ -2481,7 +2525,24 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
      <<gen-keys(mmap="ev-nor", tname=evil_org2_keys)>>
-     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+** Evil Neotree Bindings
+   Binding code generation for [[#evil-neotree-bindings][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-fix(pre="add-hook 'neotree-mode-hook\n(lambda()")>>
+     <<gen-keys(mmap="t", tname=neotree-evil-keys)>>
+     <<gen-fix(pos="))\n")>>
+   #+END_SRC
+
+** Helm with Evil Bindings
+   Binding code generation for [[#helm-evil-key-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-fix(pre="after \"helm-autoloads\"")>>
+     <<gen-keys(mmap="t", tname=helm-evil-combo)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Helm Bindings
@@ -2489,15 +2550,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(mmap="t", tname=helm_combo)>>
-   #+END_SRC
-
-** Helm with Evil Bindings
-   Binding code generation for [[#helm-evil-key-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-fix(pre="after 'evil\n (after \"helm-autoloads\"")>>
-     <<gen-keys(mmap="t", tname=helm-evil-combo)>>
-     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Org Mode Bindings
