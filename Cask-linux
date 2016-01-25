@@ -52,6 +52,8 @@
 
 (depends-on "neotree")
 
+(depends-on "speed-type")
+
 (depends-on "origami")
 (depends-on "region-state")
 (depends-on "keyfreq")

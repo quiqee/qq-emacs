@@ -2,7 +2,7 @@
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
 #+PROPERTY: header-args :tangle ~/.emacs.d/init.el :comments org
-#+DATE:  <2016-01-22 Fri>
+#+DATE:  <2016-01-25 Mon>
  
 #+TITLE: Emacs configuration file
 #+AUTHOR: QuiQee
@@ -2021,13 +2021,9 @@ required from *emacs*.
       | \\ TAB | org-mode-map | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
       | -      | org-mode-map | normal    |             | 'org-cycle-list-bullet                                        |
       | C-c .  | org-mode-map | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t))        |
+      | >      | org-mode-map | normal    |             | 'org-metaright                                                |
+      | <      | org-mode-map | normal    |             | 'org-metaleft                                                 |
 
-   #+TBLNAME: evil_org2_keys
-      | Combo | Description | Command        |
-      |-------+-------------+----------------|
-      | >     |             | 'org-metaright |
-      | <     |             | 'org-metaleft  |
-   
 ** Projectile
    Project interaction module for Emacs.
 
@@ -2524,7 +2520,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
-     <<gen-keys(mmap="ev-nor", tname=evil_org2_keys)>>
    #+END_SRC
 
 ** Evil Neotree Bindings
