@@ -2064,6 +2064,7 @@ required from *emacs*.
       | SPC p s |                                           | 'helm-projectile-switch-project  |
       | SPC p e |                                           | 'helm-projectile                 |
       | SPC p f |                                           | 'helm-projectile-find-file       |
+      | SPC p g | Open file at point within active project  | 'helm-projectile-find-file-dwim  |
 
 ** RTags
    A Client/Server application that indexes C/C++ code and keeps a persistent
