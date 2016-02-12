@@ -1012,6 +1012,8 @@ required from *emacs*.
      (require 'company)
      (add-hook 'after-init-hook 'global-company-mode)
      (delete 'company-semantic company-backends)
+     ;; weight by frequency
+     (setq company-transformers '(company-sort-by-occurrence))
    #+END_SRC
 
 *** Keybinding
@@ -2064,7 +2066,7 @@ required from *emacs*.
       | SPC p s |                                           | 'helm-projectile-switch-project  |
       | SPC p e |                                           | 'helm-projectile                 |
       | SPC p f |                                           | 'helm-projectile-find-file       |
-      | SPC p g | Open file at point within active project  | 'helm-projectile-find-file-dwim  |
+      | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim  |
 
 ** RTags
    A Client/Server application that indexes C/C++ code and keeps a persistent
@@ -2157,6 +2159,28 @@ required from *emacs*.
       | Combo | Description | Command                   |
       |-------+-------------+---------------------------|
       | SPC ? |             | 'which-key-show-top-level |
+
+** Yasnippet
+   Visual regex search
+   #+BEGIN_SRC emacs-lisp
+     (require 'yasnippet)
+     (yas-global-mode 1)
+   #+END_SRC
+
+*** Company integration
+ #+begin_src emacs-lisp
+   ;; Add yasnippet support for all company backends
+   ;; https://github.com/syl20bnr/spacemacs/pull/179
+   (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+
+   (defun company-mode/backend-with-yas (backend)
+     (if (or (not company-mode/enable-yas) (and (listp backend)    (member 'company-yasnippet backend)))
+     backend
+   (append (if (consp backend) backend (list backend))
+           '(:with company-yasnippet))))
+
+   (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+ #+end_src
 
 * Language  Modes
 ** General
