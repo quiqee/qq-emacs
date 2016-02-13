@@ -617,7 +617,13 @@ required from *emacs*.
            recentf-max-saved-items 1000                 ; maximum saved items in recentf
            recentf-max-menu-items 500
            ido-save-directory-list-file
-              (concat temporary-file-directory "ido.last")
+              (concat qq/cache-directory "ido.last")
+
+           eshell-directory-name
+              (concat  qq/cache-directory "eshell" )
+
+           projectile-known-projects-file
+              (concat  qq/cache-directory "projectile-bookmarks.eld" )
 
            bookmark-default-file
               (concat qq/cache-directory "bookmarks")   ; cache for bookmark
@@ -2499,11 +2505,11 @@ Some general settings that should apply to all programming mode. Highlight
                (highlight-indent-guides-mode)
                (smart-tabs-insinuate 'c++ 'c 'javascript)
                ;gruber-theme
-               (set-face-background 'highlight-indent-guides-odd-face "#151515")
-               (set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
+               ;(set-face-background 'highlight-indent-guides-odd-face "#151515")
+               ;(set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
                ;gotham-theme
-               ;(set-face-background 'highlight-indent-guides-odd-face "#11151c")
-               ;(set-face-background 'highlight-indent-guides-even-face "#071110")
+               (set-face-background 'highlight-indent-guides-odd-face "#11151c")
+               (set-face-background 'highlight-indent-guides-even-face "#071110")
                (setq indent-guide-recursive t)
                (color-identifiers-mode t)))
 #+end_src
