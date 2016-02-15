@@ -117,7 +117,6 @@
 (depends-on "helm-pydoc")
 (depends-on "helm-themes")
 (depends-on "helm-swoop")
-(depends-on "helm-c-yasnippet")
 
 (depends-on "hungry-delete")
 (depends-on "ibuffer-vc")

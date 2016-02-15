@@ -30,11 +30,23 @@
 
 * Basic
 ** Meta
+*** Packages
+   =Cask= is my choice of package manager for emacs. Plenty other package
+   manager exist for emacs now. But =cask= fits my need quite well.
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'cask "~/.emacs.d/extern/cask/cask.el")
+     (cask-initialize)
+   #+END_SRC
+
+   Cask packages configuration for Mac OS X: [[file:Cask-mac][Cask]]
+   For Linux: [[file:Cask-linux][Cask]]
+
 *** Error check
    Turn on =debug-on-error= while loading this init file
 
    #+BEGIN_SRC emacs-lisp
-     (setq debug-on-error t)
+      (setq debug-on-error t)
    #+END_SRC
 
 *** Tangling Function
@@ -47,16 +59,17 @@
    =org=-document after changes.
 
    #+BEGIN_SRC emacs-lisp
-     (defun qq/tangle-init ()
+      (defun qq/tangle-init ()
        "If the current buffer is 'init.org' the code-blocks are
-     tangled, and the tangled file is compiled."
-     (when (or
+                 tangled, and the tangled file is compiled."
+       (when (or
               (equal (buffer-file-name)
-                  (expand-file-name (concat user-emacs-directory "init.org")))
+                     (expand-file-name (concat user-emacs-directory "init.org")))
               (equal (buffer-file-name)
                      (expand-file-name "~/Documents/qq-emacs/init.org")))
-         (org-babel-tangle)
-         (byte-compile-file (concat user-emacs-directory "init.el"))))
+            (org-babel-tangle)
+            (setq org-confirm-babel-evaluate nil)
+            (byte-compile-file (concat user-emacs-directory "init.el"))))
 
      (add-hook 'after-save-hook 'qq/tangle-init)
    #+END_SRC
@@ -132,18 +145,6 @@ required from *emacs*.
      (when (file-exists-p custom-file)
        (load custom-file))
    #+END_SRC
-
-*** Packages
-   =Cask= is my choice of package manager for emacs. Plenty other package
-   manager exist for emacs now. But =cask= fits my need quite well.
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'cask "~/.emacs.d/extern/cask/cask.el")
-     (cask-initialize)
-   #+END_SRC
-
-   Cask packages configuration for Mac OS X: [[file:Cask-mac][Cask]]
-   For Linux: [[file:Cask-linux][Cask]]
 
 *** Keybinding Generation
    The code for the keys is generated from data in a named Org table, i.e.
@@ -1303,37 +1304,24 @@ required from *emacs*.
         (kbd "C-c C-a") 'ibuffer-auto-mode
         (kbd "C-x 4 RET") 'ibuffer-visit-buffer-other-window
         (kbd "C-x 5 RET") 'ibuffer-visit-buffer-other-frame
-
-   #+TBLNAME: evil_ibuffer_keys
-      | Combo       | Description | Command                               |
-      | m           |             | 'ibuffer-mark-forward                 |
       | v           |             | 'ibuffer-toggle-marks                 |
-      | u           |             | 'ibuffer-unmark-forward               |
-      | =           |             | 'ibuffer-diff-with-file               |
-      | j           |             | 'evil-next-line                       |
-      | k           |             | 'evil-previous-line                   |
       | l           |             | 'ibuffer-visit-buffer                 |
       | J           |             | 'ibuffer-jump-to-buffer               |
-      | M-g         |             | 'ibuffer-jump-to-buffer               |
-      | M-s a C-s   |             | 'ibuffer-do-isearch                   |
-      | M-s a M-C-s |             | 'ibuffer-do-isearch-regexp            |
       | M-s a C-o   |             | 'ibuffer-do-occur                     |
-      | DEL         |             | 'ibuffer-unmark-backward              |
-      | M-DEL       |             | 'ibuffer-unmark-all                   |
       | * *         |             | 'ibuffer-unmark-all                   |
-      | * M         |             | 'ibuffer-mark-by-mode                 |
-      | * m         |             | 'ibuffer-mark-modified-buffers        |
-      | * u         |             | 'ibuffer-mark-unsaved-buffers         |
       | * s         |             | 'ibuffer-mark-special-buffers         |
       | * r         |             | 'ibuffer-mark-read-only-buffers       |
       | * /         |             | 'ibuffer-mark-dired-buffers           |
       | * e         |             | 'ibuffer-mark-dissociated-buffers     |
       | * h         |             | 'ibuffer-mark-help-buffers            |
       | * z         |             | 'ibuffer-mark-compressed-file-buffers |
-      | SPC SPC     |             | 'helm-M-x                             |
       | d           |             | 'ibuffer-mark-for-delete              |
       | C-d         |             | 'ibuffer-mark-for-delete-backwards    |
       | x           |             | 'ibuffer-do-kill-on-deletion-marks    |
+
+   #+TBLNAME: evil_ibuffer_keys
+      | Combo       | Description | Command                               |
+      | SPC SPC     |             | 'helm-M-x                             |
 
 *** Undo Tree
 **** Info
@@ -1349,8 +1337,8 @@ required from *emacs*.
  Horizontal motion keys switch branch
  | [remap forward-char]  | undo-tree-visualize-switch-branch-right |
  | [remap backward-char] | undo-tree-visualize-switch-branch-left  |
- | C-f                   | undo-tree-visualize-switch-branch-right |
- | C-b                   | undo-tree-visualize-switch-branch-left  |
+ | l                     | undo-tree-visualize-switch-branch-right |
+ | h                     | undo-tree-visualize-switch-branch-left  |
 
  Paragraph motion keys undo/redo to significant points in tree
  | [remap backward-paragraph] | undo-tree-visualize-undo-to-x |
@@ -1622,7 +1610,6 @@ required from *emacs*.
      (after 'undo-tree (diminish 'undo-tree-mode))
      (after 'auto-complete (diminish 'auto-complete-mode))
      (after 'projectile (diminish 'projectile-mode))
-     (after 'yasnippet (diminish 'yas-minor-mode))
      (after 'guide-key (diminish 'guide-key-mode))
      (after 'eldoc (diminish 'eldoc-mode))
      (after 'smartparens (diminish 'smartparens-mode))
@@ -1631,13 +1618,14 @@ required from *emacs*.
      (after 'elisp-slime-nav (diminish 'elisp-slime-nav-mode))
      (after 'git-gutter-fringe (diminish 'git-gutter-mode))
      (after 'indent-guide (diminish 'indent-guide-mode))
-     ;(after 'magit (diminish 'magit-auto-revert-mode))
      (after 'hs-minor-mode (diminish 'hs-minor-mode))
      (after 'color-identifiers-mode (diminish 'color-identifiers-mode))
      (after 'rainbow-mode (diminish 'rainbow-mode))
      (after 'persp-mode (diminish 'persp-mode))
-     (after 'org-mode (diminish 'org-indent-mode))
+     (after 'highlight-indentation (diminish 'highlight-indentation-mode))
+     (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
      (eval-after-load "face-remap" '(diminish 'buffer-face-mode))
+     (diminish 'auto-revert-mode)
    #+end_src
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
@@ -2049,15 +2037,6 @@ required from *emacs*.
       | SPC l   | evil-normal-state-map |             | 'helm-swoop             |
       | SPC L   | evil-normal-state-map |             | 'helm-multi-swoop       |
 
-** Icicles
-   Library that enhances minibuffer completion.
-
-   [[https://www.emacswiki.org/emacs/Icicles]]
-
-   #+Begin_src emacs-lisp
-     ;(icy-mode 1)
-   #+end_src
-
 ** Irony
    A alternate Client/Server application that indexes C/C++ code and keeps a persistent
    in-memory database for references
@@ -2224,15 +2203,15 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
 
    #+TBLNAME: evil_magit_keys
-      | Combo | Description | Command                 |
-      |-------+-------------+-------------------------|
-      | g s   |             | 'magit-status           |
-      | g b   |             | 'magit-blame            |
-      | g C   |             | 'magit-commit           |
-      | g i   |             | 'git-blame-line         |
-      | g l   |             | 'magit-log              |
-      | g a   |             | 'git-gutter:stage-hunk  |
-      | g r   |             | 'git-gutter:revert-hunk |
+      | Evil Leader Combo | Description | Command                 |
+      |-------------------+-------------+-------------------------|
+      | g s               |             | 'magit-status           |
+      | g b               |             | 'magit-blame            |
+      | g C               |             | 'magit-commit           |
+      | g i               |             | 'git-blame-line         |
+      | g l               |             | 'magit-log              |
+      | g a               |             | 'git-gutter:stage-hunk  |
+      | g r               |             | 'git-gutter:revert-hunk |
 
    #+TBLNAME: gitgutter_keys
       | Combo | Description | Command                   |
@@ -2396,6 +2375,7 @@ required from *emacs*.
 
                                             (executable-find "hunspell"))
                                     (flyspell-mode))
+                                  (diminish 'org-indent-mode)
                                   (rainbow-mode)
                                   )))
    #+END_SRC
@@ -2695,16 +2675,17 @@ required from *emacs*.
      (setq which-key-special-keys nil)
    #+END_SRC
 
-*** Keybinding
+*** Evil Leader Keybinding
     :PROPERTIES:
     :CUSTOM_ID: evil-whichkey-binding
     :END:
    Using The table below as the source for generating [[Evil%20Whichkey%20Bindings][Evil Whichkey Bindings]]
 
    #+TBLNAME: evil_whichkey_keys
-      | Combo | Description | Command                   |
-      |-------+-------------+---------------------------|
-      | SPC ? |             | 'which-key-show-top-level |
+      | Evil Leader Combo | Description | Command                   |
+      |-------------------+-------------+---------------------------|
+      | M                 |             | 'which-key-show-keymap    |
+      | ?                 |             | 'which-key-show-top-level |
 
 ** Window numbering mode
    Number window shortcuts for emacs
@@ -2721,7 +2702,6 @@ required from *emacs*.
    [[https://github.com/capitaomorte/yasnippet]]
 
    #+BEGIN_SRC emacs-lisp
-     (require 'yasnippet)
      (yas-global-mode 1)
    #+END_SRC
 
@@ -2757,15 +2737,11 @@ Some general settings that should apply to all programming mode. Highlight
                  ;(nlinum-mode)
                  (qq/add-watchwords)
                  (rainbow-delimiters-mode)
-  ;               (require 'highlight-indent-guides)
-  ;               (highlight-indent-guides-mode)
-                 (highlight-indentation-mode)
+                 (highlight-indent-guides-mode)
                  (smart-tabs-insinuate 'c++ 'c 'javascript)
                  ;darktooth-theme
-                 (set-face-background 'highlight-indentation-face "#323232")
-                 (set-face-background 'highlight-indentation-current-column-face "#202020")
-                 ;(set-face-background 'highlight-indent-guides-odd-face "#323232")
-                 ;(set-face-background 'highlight-indent-guides-even-face "#202020")
+                 (set-face-background 'highlight-indent-guides-odd-face "#323232")
+                 (set-face-background 'highlight-indent-guides-even-face "#202020")
                  ;gruber-theme
                  ;(set-face-background 'highlight-indent-guides-odd-face "#151515")
                  ;(set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
@@ -3111,11 +3087,11 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
    #+END_SRC
 
-** Evil iBuffer Bindings
-   Generate binding using table from [[#evil-ibuffer-binding][here]]
+** Evil Whichkey Bindings
+   Generate binding using table from [[#evil-whichkey-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(moda="normalmap", mvar="ibuffer-mode-map", tname=evil_ibuffer_keys)>>
+     <<gen-keys(moda="lead", tname=evil_whichkey_keys)>>
    #+END_SRC
 
 ** Evil Magit Bindings
@@ -3127,6 +3103,13 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
      <<gen-keys(mmap="ev-nor", tname=gitgutter_keys)>>
      <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+** Evil iBuffer Bindings
+   Generate binding using table from [[#evil-ibuffer-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="normalmap", mvar="ibuffer-mode-map", tname=evil_ibuffer_keys)>>
    #+END_SRC
 
 ** Evil Projectile Bindings
@@ -3145,13 +3128,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pre="after \"origami-autoloads\"")>>
      <<gen-keys(mmap="ev-nor", tname=evil_origami_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
-
-** Evil Whichkey Bindings
-   Generate binding using table from [[#evil-whichkey-binding][here]]
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(mmap="ev-nor", tname=evil_whichkey_keys)>>
    #+END_SRC
 
 ** Evil CC Mode Bindings
