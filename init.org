@@ -191,6 +191,10 @@ required from *emacs*.
                                         (t (format "%s" mmap))) nil))
                         (def (cond ((string= (format "%s" moda) "key")
                                     (format "key-chord-define-global \"%s\"" key))
+                                   ((string= (format "%s" moda) "normalmap")
+                                    (format "evil-define-key 'normal %s (kbd \"%s\")" mvar key))
+                                   ((string= (format "%s" moda) "evilmap")
+                                    (format "evil-define-key '%s %s (kbd \"%s\")" (nth 1 l) mvar key))
                                    ((string= (format "%s" moda) "evil")
                                     (format "evil-define-key '%s %s (kbd \"%s\")" (nth 2 l) (nth 1 l) key))
                                    ((string= (format "%s" moda) "lead")
@@ -293,16 +297,6 @@ required from *emacs*.
            compilation-always-kill t                    ; kill compilation without reconfirmation
            compilation-ask-about-save nil)              ; unconditionally save all buffer before
                                                         ; compiling
-   #+END_SRC
-
-*** Undo Tree
-
-   #+BEGIN_SRC emacs-lisp
-     (setq undo-tree-history-directory-alist            ; cache for undo tree
-              `(("." . ,(concat qq/cache-directory "undo")))
-           undo-tree-visualizer-timestamps t            ; show timestamps
-           undo-tree-visualizer-diff t                  ; show diff
-           undo-tree-auto-save-history t)               ; Save undo history between sessions.
    #+END_SRC
 
 *** Other Settings
@@ -524,11 +518,11 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (hlinum-activate)
-     (setq linum-format (lambda (line)
-                          (propertize (format
-                                       (let ((w (length (number-to-string
-                                                         (count-lines (point-min) (point-max))))))
-                                         (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
+     ;(setq linum-format (lambda (line)
+     ;                     (propertize (format
+     ;                                  (let ((w (length (number-to-string
+     ;                                                    (count-lines (point-min) (point-max))))))
+     ;                                    (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
    #+END_SRC
 
 *** Security
@@ -683,7 +677,8 @@ required from *emacs*.
      ;(load-theme 'gruber-darker t)
      ;(load-theme 'monokai t)
 
-     (load-theme 'gotham t)
+     ;(load-theme 'gotham t)
+     (load-theme 'darktooth t)
 
      ;(load-theme 'ample t t)
      ;(load-theme 'ample-flat t t)
@@ -972,8 +967,7 @@ required from *emacs*.
                                                    ; chars/lines or rows/columns in the region (aka. selection)
 
                 global-linum-mode          ; turn on line number globally
-
-                global-undo-tree-mode))    ; Undo as a tree.
+                ))
        (funcall mode 1))
 
 ;;     (eval-after-load 'auto-compile
@@ -1093,7 +1087,7 @@ required from *emacs*.
    #+END_SRC
 
 *** Ibuffer customization
-   Use human readable size column (from [[http://www.emacswiki.org/emacs/IbufferMode#toc12][coldnew]])
+**** Use human readable size column (from [[http://www.emacswiki.org/emacs/IbufferMode#toc12][coldnew]])
 
    #+BEGIN_SRC emacs-lisp
      (define-ibuffer-column size-h
@@ -1102,64 +1096,325 @@ required from *emacs*.
         ((> (buffer-size) 1000)    (format "%7.1fk" (/ (buffer-size) 1000.0)))
         ((> (buffer-size) 1000000) (format "%7.1fM" (/ (buffer-size) 1000000.0)))
         (t  (format "%8d" (buffer-size)))))
+     (setq ibuffer-formats '((mark modified read-only
+                              " " (name 25 25 :left :elide)
+                              " " (size-h 9 -1 :right)
+                              " " (mode 16 16 :left :elide)
+                              " " (vc-status 16 16 :left)
+                              " " filename-and-process)
+                        (mark " " (name 16 -1) " " filename)))
+   #+END_SRC
 
+**** Settings
+
+   #+BEGIN_SRC emacs-lisp
      (setq
       ibuffer-default-sorting-mode 'filename/process
       ibuffer-eliding-string "…"
+      ibuffer-expert t
       ibuffer-compile-formats t
-      ibuffer-formats '((mark modified read-only
-                              " " (name 25 25 :left :elide)
-                              " " (size-h 9 -1 :right)
-                              " " (mode 7 7 :left :elide)
-                              ;;" " (git-status 8 8 :left)
-                              " " filename-and-process)
-                        (mark " " (name 16 -1) " " filename))
-      ibuffer-show-empty-filter-groups nil
-      ibuffer-saved-filter-groups
-      (quote (("default"
-               ("c++" (mode . c++-mode))
-               ("shell script" (mode . sh-mode))
-               ("swift" (mode . swift-mode))
-               ("emacs lisp" (mode . emacs-lisp-mode))
-               ("python" (mode . python-mode))
-               ("LaTeX" (or
-                         (mode . latex-mode)
-                         (mode . LaTeX-mode)
-                         (mode . tex-mode)))
-               ("ruby" (mode . ruby-mode))
-               ("java-script" (or
-                               (mode . js-mode)
-                               (mode . js2-mode)))
-               ("java" (mode . java-mode))
-               ("html" (or
-                        (mode . html-mode)
-                        (mode . web-mode)
-                        (mode . haml-mode)))
-               ("xml" (mode . nxml-mode))
-               ("css" (mode . css-mode))
-               ("org agenda"  (mode . org-agenda-mode))
-               ("org" (or
-                       (mode . org-mode)
-                       (name . "^\\*Calendar\\*$")
-                       (name . "^diary$")))
-               ("text misc" (or
-                             (mode . text-mode)
-                             (mode . rst-mode)
-                             (mode . markdown-mode)))
-               ("w3m" (mode . w3m-mode))
-               ("git" (or
-                       (mode . magit-log-edit-mode)
-                       (mode . magit-log)))
-               ("dired" (mode . dired-mode))
-               ("help" (or
-                        (mode . Info-mode)
-                        (mode . help-mode)
-                        (mode . Man-mode)))
-               ("*buffer*" (name . "\\*.*\\*"))))))
-     (add-hook 'ibuffer-mode-hook
-               #'(lambda ()
-                   (hl-line-mode t)
-                   (ibuffer-switch-to-saved-filter-groups "default")))
+      ibuffer-show-empty-filter-groups nil)
+   #+END_SRC
+**** Evil initial state
+
+   #+BEGIN_SRC emacs-lisp
+     (after 'evil (evil-set-initial-state 'ibuffer-mode 'normal))
+   #+END_SRC
+
+**** 'Default' Filter groups
+
+   #+BEGIN_SRC emacs-lisp
+     (setq ibuffer-saved-filter-groups
+               (quote (("default"
+                        ("c++" (mode . c++-mode))
+                        ("shell script" (mode . sh-mode))
+                        ("swift" (mode . swift-mode))
+                        ("emacs lisp" (mode . emacs-lisp-mode))
+                        ("python" (mode . python-mode))
+                        ("LaTeX" (or
+                                  (mode . latex-mode)
+                                  (mode . LaTeX-mode)
+                                  (mode . tex-mode)))
+                        ("ruby" (mode . ruby-mode))
+                        ("java-script" (or
+                                        (mode . js-mode)
+                                        (mode . js2-mode)))
+                        ("java" (mode . java-mode))
+                        ("html" (or
+                                 (mode . html-mode)
+                                 (mode . web-mode)
+                                 (mode . haml-mode)))
+                        ("xml" (mode . nxml-mode))
+                        ("css" (mode . css-mode))
+                        ("org agenda"  (mode . org-agenda-mode))
+                        ("org" (or
+                                (mode . org-mode)
+                                (name . "^\\*Calendar\\*$")
+                                (name . "^diary$")))
+                        ("text misc" (or
+                                      (mode . text-mode)
+                                      (mode . rst-mode)
+                                      (mode . markdown-mode)))
+                        ("w3m" (mode . w3m-mode))
+                        ("git" (or
+                                (mode . magit-log-edit-mode)
+                                (mode . magit-log)))
+                        ("dired" (mode . dired-mode))
+                        ("help" (or
+                                 (mode . Info-mode)
+                                 (mode . help-mode)
+                                 (mode . Man-mode)))
+                        ("*buffer*" (name . "\\*.*\\*"))))))
+   #+END_SRC
+
+**** Choose between two filter group options
+
+   #+BEGIN_SRC emacs-lisp
+         (defvar qq/ibuffer-use-vc-groups t
+           "Use filter groups detected from vc root when non-nil.
+     This will be done with `ibuffer-vc-set-filter-groups-by-vc-root'
+     If this is nil, then filter groups will be restored from `ibuffer-saved-filter-groups'.")
+
+         (defun qq/ibuffer-setup ()
+           "Configure ibuffer the way I want it.
+     This sets `ibuffer-auto-mode' and restores the chosen filter group settings,
+     according to the values of `qq/ibuffer-use-vc-groups' and
+     `ibuffer-saved-filter-groups'."
+           (ibuffer-auto-mode 1)
+           (hl-line-mode t)
+           (if qq/ibuffer-use-vc-groups
+               (ibuffer-vc-set-filter-groups-by-vc-root)
+             (ibuffer-switch-to-saved-filter-groups "default")))
+
+         (add-hook 'ibuffer-mode-hook 'qq/ibuffer-setup)
+   #+END_SRC
+
+**** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-ibuffer-binding
+    :END:
+   Using The table below as the source for generating [[Evil iBuffer Bindings][Evil iBuffer Bindings]]
+        (kbd "0") 'digit-argument
+        (kbd "1") 'digit-argument
+        (kbd "2") 'digit-argument
+        (kbd "3") 'digit-argument
+        (kbd "4") 'digit-argument
+        (kbd "5") 'digit-argument
+        (kbd "6") 'digit-argument
+        (kbd "7") 'digit-argument
+        (kbd "8") 'digit-argument
+        (kbd "9") 'digit-argument
+
+        ;; immediate operations
+        (kbd "n") 'ibuffer-forward-filter-group
+        (kbd "SPC") 'forward-line
+        (kbd "p") 'ibuffer-backward-filter-group
+        (kbd "M-}") 'ibuffer-forward-next-marked
+        (kbd "M-{") 'ibuffer-backwards-next-marked
+        (kbd "g") 'ibuffer-update
+        "`" 'ibuffer-switch-format
+        "-" 'ibuffer-add-to-tmp-hide
+        "+" 'ibuffer-add-to-tmp-show
+        "b" 'ibuffer-bury-buffer
+        (kbd ",") 'ibuffer-toggle-sorting-mode
+        (kbd "s i") 'ibuffer-invert-sorting
+        (kbd "s a") 'ibuffer-do-sort-by-alphabetic
+        (kbd "s v") 'ibuffer-do-sort-by-recency
+        (kbd "s s") 'ibuffer-do-sort-by-size
+        (kbd "s f") 'ibuffer-do-sort-by-filename/process
+        (kbd "s m") 'ibuffer-do-sort-by-major-mode
+
+        (kbd "/ m") 'ibuffer-filter-by-used-mode
+        (kbd "/ M") 'ibuffer-filter-by-derived-mode
+        (kbd "/ n") 'ibuffer-filter-by-name
+        (kbd "/ c") 'ibuffer-filter-by-content
+        (kbd "/ e") 'ibuffer-filter-by-predicate
+        (kbd "/ f") 'ibuffer-filter-by-filename
+        (kbd "/ >") 'ibuffer-filter-by-size-gt
+        (kbd "/ <") 'ibuffer-filter-by-size-lt
+        (kbd "/ r") 'ibuffer-switch-to-saved-filters
+        (kbd "/ a") 'ibuffer-add-saved-filters
+        (kbd "/ x") 'ibuffer-delete-saved-filters
+        (kbd "/ d") 'ibuffer-decompose-filter
+        (kbd "/ s") 'ibuffer-save-filters
+        (kbd "/ p") 'ibuffer-pop-filter
+        (kbd "/ !") 'ibuffer-negate-filter
+        (kbd "/ t") 'ibuffer-exchange-filters
+        (kbd "/ TAB") 'ibuffer-exchange-filters
+        (kbd "/ o") 'ibuffer-or-filter
+        (kbd "/ g") 'ibuffer-filters-to-filter-group
+        (kbd "/ P") 'ibuffer-pop-filter-group
+        (kbd "/ D") 'ibuffer-decompose-filter-group
+        (kbd "/ /") 'ibuffer-filter-disable
+
+        (kbd "M-n") 'ibuffer-forward-filter-group
+        "\t" 'ibuffer-forward-filter-group
+        (kbd "M-p") 'ibuffer-backward-filter-group
+        (kbd "M-j") 'ibuffer-jump-to-filter-group
+        (kbd "C-k") 'ibuffer-kill-line
+        (kbd "C-y") 'ibuffer-yank
+        (kbd "/ S") 'ibuffer-save-filter-groups
+        (kbd "/ R") 'ibuffer-switch-to-saved-filter-groups
+        (kbd "/ X") 'ibuffer-delete-saved-filter-groups
+        (kbd "/ \\") 'ibuffer-clear-filter-groups
+
+        (kbd "q") 'bury-buffer
+        (kbd "h") 'describe-mode
+        (kbd "?") 'describe-mode
+
+        (kbd "% n") 'ibuffer-mark-by-name-regexp
+        (kbd "% m") 'ibuffer-mark-by-mode-regexp
+        (kbd "% f") 'ibuffer-mark-by-file-name-regexp
+
+        (kbd "C-t") 'ibuffer-visit-tags-table
+
+        (kbd "|") 'ibuffer-do-shell-command-pipe
+        (kbd "!") 'ibuffer-do-shell-command-file
+        (kbd "~") 'ibuffer-do-toggle-modified
+        ;; marked operation
+        (kbd "A") 'ibuffer-do-view
+        (kbd "D") 'ibuffer-do-delete
+        (kbd "E") 'ibuffer-do-eval
+        (kbd "F") 'ibuffer-do-shell-command-file
+        (kbd "I") 'ibuffer-do-query-replace-regexp
+        (kbd "H") 'ibuffer-do-view-other-frame
+        (kbd "P") 'ibuffer-do-shell-command-pipe-replace
+        (kbd "M") 'ibuffer-do-toggle-modified
+        (kbd "O") 'ibuffer-do-occur
+        ;; (kbd "P") 'ibuffer-do-print
+        (kbd "Q") 'ibuffer-do-query-replace
+        (kbd "R") 'ibuffer-do-rename-uniquely
+        (kbd "S") 'ibuffer-do-save
+        (kbd "T") 'ibuffer-do-toggle-read-only
+        (kbd "U") 'ibuffer-do-replace-regexp
+        (kbd "V") 'ibuffer-do-revert
+        (kbd "W") 'ibuffer-do-view-and-eval
+        (kbd "X") 'ibuffer-do-shell-command-pipe
+
+        ;; (kbd "k") 'ibuffer-do-kill-lines
+        (kbd "w") 'ibuffer-copy-filename-as-kill
+
+        (kbd "e") 'ibuffer-visit-buffer
+        (kbd "f") 'ibuffer-visit-buffer
+        (kbd "C-x C-f") 'ibuffer-find-file
+        (kbd "C-o") 'ibuffer-visit-buffer-other-window-noselect
+        (kbd "M-o") 'ibuffer-visit-buffer-1-window
+        (kbd "C-x v") 'ibuffer-do-view-horizontally
+        (kbd "C-c C-a") 'ibuffer-auto-mode
+        (kbd "C-x 4 RET") 'ibuffer-visit-buffer-other-window
+        (kbd "C-x 5 RET") 'ibuffer-visit-buffer-other-frame
+
+   #+TBLNAME: evil_ibuffer_keys
+      | Combo       | Description | Command                               |
+      | m           |             | 'ibuffer-mark-forward                 |
+      | v           |             | 'ibuffer-toggle-marks                 |
+      | u           |             | 'ibuffer-unmark-forward               |
+      | =           |             | 'ibuffer-diff-with-file               |
+      | j           |             | 'evil-next-line                       |
+      | k           |             | 'evil-previous-line                   |
+      | l           |             | 'ibuffer-visit-buffer                 |
+      | J           |             | 'ibuffer-jump-to-buffer               |
+      | M-g         |             | 'ibuffer-jump-to-buffer               |
+      | M-s a C-s   |             | 'ibuffer-do-isearch                   |
+      | M-s a M-C-s |             | 'ibuffer-do-isearch-regexp            |
+      | M-s a C-o   |             | 'ibuffer-do-occur                     |
+      | DEL         |             | 'ibuffer-unmark-backward              |
+      | M-DEL       |             | 'ibuffer-unmark-all                   |
+      | * *         |             | 'ibuffer-unmark-all                   |
+      | * M         |             | 'ibuffer-mark-by-mode                 |
+      | * m         |             | 'ibuffer-mark-modified-buffers        |
+      | * u         |             | 'ibuffer-mark-unsaved-buffers         |
+      | * s         |             | 'ibuffer-mark-special-buffers         |
+      | * r         |             | 'ibuffer-mark-read-only-buffers       |
+      | * /         |             | 'ibuffer-mark-dired-buffers           |
+      | * e         |             | 'ibuffer-mark-dissociated-buffers     |
+      | * h         |             | 'ibuffer-mark-help-buffers            |
+      | * z         |             | 'ibuffer-mark-compressed-file-buffers |
+      | SPC SPC     |             | 'helm-M-x                             |
+      | d           |             | 'ibuffer-mark-for-delete              |
+      | C-d         |             | 'ibuffer-mark-for-delete-backwards    |
+      | x           |             | 'ibuffer-do-kill-on-deletion-marks    |
+
+*** Undo Tree
+**** Info
+=undo-tree= package also remaps =undo= and =undo-only= to =undo-tree-undo=
+
+ * =undo-tree-visualize= bindings
+
+ | [remap previous-line] | undo-tree-visualize-undo |
+ | [remap next-line]     | undo-tree-visualize-redo |
+ | C-p                   | undo-tree-visualize-undo |
+ | C-n                   | undo-tree-visualize-redo |
+
+ Horizontal motion keys switch branch
+ | [remap forward-char]  | undo-tree-visualize-switch-branch-right |
+ | [remap backward-char] | undo-tree-visualize-switch-branch-left  |
+ | C-f                   | undo-tree-visualize-switch-branch-right |
+ | C-b                   | undo-tree-visualize-switch-branch-left  |
+
+ Paragraph motion keys undo/redo to significant points in tree
+ | [remap backward-paragraph] | undo-tree-visualize-undo-to-x |
+ | [remap forward-paragraph]  | undo-tree-visualize-redo-to-x |
+ | M-{                        | undo-tree-visualize-undo-to-x |
+ | M-}                        | undo-tree-visualize-redo-to-x |
+ | C-up                       | undo-tree-visualize-undo-to-x |
+ | C-down                     | undo-tree-visualize-redo-to-x |
+
+ Mouse sets buffer state to node at click
+ | [mouse-1] | undo-tree-visualizer-mouse-set |
+
+ Toggle timestamps
+ | t | undo-tree-visualizer-toggle-timestamps |
+
+ Toggle diff
+ | d | undo-tree-visualizer-toggle-diff |
+
+ Toggle selection mode
+ | s | undo-tree-visualizer-selection-mode |
+
+ Horizontal scrolling may be needed if the tree is very wide
+ | , / < | undo-tree-visualizer-scroll-left  |
+ | . / > | undo-tree-visualizer-scroll-right |
+
+ Vertical scrolling may be needed if the tree is very tall
+ | Page Down | undo-tree-visualizer-scroll-up   |
+ | Page Up   | undo-tree-visualizer-scroll-down |
+
+ Quit/abort visualizer
+ | q   | undo-tree-visualizer-quit  |
+ | C-q | undo-tree-visualizer-abort |
+
+**** Settings
+   #+BEGIN_SRC emacs-lisp
+     (setq
+           undo-tree-visualizer-timestamps t            ; show timestamps
+           undo-tree-visualizer-diff t                  ; show diff
+           undo-tree-auto-save-history t)               ; Save undo history between sessions.
+   #+END_SRC
+
+**** Compress the history files as .gz files
+
+   #+BEGIN_SRC emacs-lisp
+     ;; (advice-add 'undo-tree-make-history-save-file-name :filter-return
+     ;;             (lambda (return-val) (concat return-val ".gz")))
+   #+END_SRC
+
+**** Persistent undo-tree history across emacs sessions
+
+   #+BEGIN_SRC emacs-lisp
+     (setq qq/undo-tree-history-dir (let ((dir (concat qq/cache-directory
+                                                         "undo-tree-history/")))
+                                        (make-directory dir :parents)
+                                        dir))
+     (setq undo-tree-history-directory-alist `(("." . ,qq/undo-tree-history-dir)))
+
+     (add-hook 'write-file-functions #'undo-tree-save-history-hook)
+     (add-hook 'find-file-hook #'undo-tree-load-history-hook)
+   #+END_SRC
+**** Enable undo-tree
+
+   #+BEGIN_SRC emacs-lisp
+     (global-undo-tree-mode 1)
    #+END_SRC
 
 ** Keybindings
@@ -1395,7 +1650,7 @@ required from *emacs*.
      (dolist (feature
               '(evil evil-indent-textobject
                 evil-jumper ;;evil-nerd-commenter
-                evil-smartparens
+;                evil-smartparens
                 evil-visualstar
                 ))
        (require feature))
@@ -2369,7 +2624,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (require 'smartparens-config)
      (smartparens-global-mode t)
-     (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
+     ;(add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
 
      (show-smartparens-global-mode t)
 
@@ -2492,71 +2747,102 @@ Some general settings that should apply to all programming mode. Highlight
 =rainbow-delimiter-mode=
 
 #+begin_src emacs-lisp
-  (defun qq/add-watchwords ()
-    (font-lock-add-keywords
-     nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
-            1 '((:foreground "orange") (:weight bold)) t))))
+    (defun qq/add-watchwords ()
+      (font-lock-add-keywords
+       nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
+              1 '((:foreground "orange") (:weight bold)) t))))
 
-  (add-hook 'prog-mode-hook
-            '(lambda()
-               (qq/add-watchwords)
-               (rainbow-delimiters-mode)
-               (require 'highlight-indent-guides)
-               (highlight-indent-guides-mode)
-               (smart-tabs-insinuate 'c++ 'c 'javascript)
-               ;gruber-theme
-               ;(set-face-background 'highlight-indent-guides-odd-face "#151515")
-               ;(set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
-               ;gotham-theme
-               (set-face-background 'highlight-indent-guides-odd-face "#11151c")
-               (set-face-background 'highlight-indent-guides-even-face "#071110")
-               (setq indent-guide-recursive t)
-               (color-identifiers-mode t)))
+    (add-hook 'prog-mode-hook
+              '(lambda()
+                 ;(nlinum-mode)
+                 (qq/add-watchwords)
+                 (rainbow-delimiters-mode)
+  ;               (require 'highlight-indent-guides)
+  ;               (highlight-indent-guides-mode)
+                 (highlight-indentation-mode)
+                 (smart-tabs-insinuate 'c++ 'c 'javascript)
+                 ;darktooth-theme
+                 (set-face-background 'highlight-indentation-face "#323232")
+                 (set-face-background 'highlight-indentation-current-column-face "#202020")
+                 ;(set-face-background 'highlight-indent-guides-odd-face "#323232")
+                 ;(set-face-background 'highlight-indent-guides-even-face "#202020")
+                 ;gruber-theme
+                 ;(set-face-background 'highlight-indent-guides-odd-face "#151515")
+                 ;(set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
+                 ;gotham-theme
+                 ;(set-face-background 'highlight-indent-guides-odd-face "#11151c")
+                 ;(set-face-background 'highlight-indent-guides-even-face "#071110")
+                 (setq indent-guide-recursive t)
+                 (color-identifiers-mode t)))
 #+end_src
 
 ** C and its derivative
 *** Common
-The =c-mode-common-hook= is a general hook that work on all C-like
-languages (C, C++, Java, etc...). I like being able to quickly compile
-using =C-c C-c= (instead of =M-x compile=), a habit from =latex-mode=.
+   The =c-mode-common-hook= is a general hook that work on all C-like languages
+   (C, C++, Java, etc...). I like being able to quickly compile using =C-c C-c=
+   (instead of =M-x compile=).
 
-#+BEGIN_SRC emacs-lisp
-  (defun qq/c-mode-init ()
-    (local-set-key (kbd "C-c C-c") 'compile)
-    ;; To re-format c code. use C-x h M-C-\ (this puts the region around
-    ;; the entire buffer, and then runs the indent-region command).
-    (c-set-style "stroustrup")   ; C indenting style
-    (c-set-offset 'inline-open 0)
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/c-mode-init ()
+       (local-set-key (kbd "C-c C-c") 'compile)
+       ;; To re-format c code. use C-x h M-C-\ (this puts the region around
+       ;; the entire buffer, and then runs the indent-region command).
+       (c-set-style "stroustrup")   ; C indenting style
+       (c-set-offset 'inline-open 0)
+   #+END_SRC
+**** Underscore "_" is not a word character
+   An underscore "_" is a word character in Vim. This means that word-motions
+   like w skip over underlines in a sequence of letters as if it was a letter
+   itself. In contrast, in Evil the underscore is often a non-word character
+   like operators, e.g. +.
 
-    ;; Greenwave coding style
-    (setq c-default-style "stroustrup"
-          c-basic-offset 4)
-    (setq-default c-basic-offset 4
-                  tab-width 4
-                  indent-tabs-mode t)
-    (c-set-offset 'innamespace 0)
+   Modifying its entry in the syntax-table will make the underscore to be
+   recognized as word character:
 
-    (eldoc-mode)
-    (ggtags-mode 1)
+   #+BEGIN_SRC emacs-lisp
+     (modify-syntax-entry ?_ "w")
+   #+END_SRC
 
-    ;; slow
-    ;;(flycheck-mode)
-    ;;(setq flycheck-gcc-language-standard "c++11")
-    ;;(flycheck-select-checker 'c/c++-gcc)
-    ;;;(setq flycheck-clang-language-standard "c++11")
-    ;;;(setq flycheck-clang-standard-library "libc++")
-    ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
+**** Coding style
 
-    ;(setq rtags-completions-enabled t)
-    ;(define-key c-mode-map  [(control tab)] 'company-complete)
-    ;(define-key c++-mode-map  [(control tab)] 'company-complete)
+   #+BEGIN_SRC emacs-lisp
+       (setq c-default-style "stroustrup"
+             c-basic-offset 4)
+       (setq-default c-basic-offset 4
+                     tab-width 4
+                     indent-tabs-mode t)
+       (c-set-offset 'innamespace 0)
+   #+END_SRC
 
-    ; enable spell check in comment area
-    (flyspell-prog-mode))
+**** Minor modes
 
-  (add-hook 'c-mode-hook 'qq/c-mode-init)
-  (add-hook 'c++-mode-hook 'qq/c-mode-init)
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+       (eldoc-mode)
+       (ggtags-mode 1)
+
+       ;; slow
+       ;;(flycheck-mode)
+       ;;(setq flycheck-gcc-language-standard "c++11")
+       ;;(flycheck-select-checker 'c/c++-gcc)
+       ;;;(setq flycheck-clang-language-standard "c++11")
+       ;;;(setq flycheck-clang-standard-library "libc++")
+       ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
+
+       ;(setq rtags-completions-enabled t)
+       ;(define-key c-mode-map  [(control tab)] 'company-complete)
+       ;(define-key c++-mode-map  [(control tab)] 'company-complete)
+
+       ; enable spell check in comment area
+       (flyspell-prog-mode)
+   #+END_SRC
+
+**** End
+
+   #+BEGIN_SRC emacs-lisp
+     )
+     (add-hook 'c-mode-hook 'qq/c-mode-init)
+     (add-hook 'c++-mode-hook 'qq/c-mode-init)
+   #+END_SRC
 
 *** Compilation
 **** Custom command
@@ -2737,6 +3023,20 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
            (find-alternate-file (concat "/sudo::" file-name)))))
    #+END_SRC
 
+** unfill-paragraph function
+   Unfilling  a paragraph joins all the lines in a paragraph into a single line.
+
+   [[https://www.emacswiki.org/emacs/UnfillParagraph]]
+
+   #+BEGIN_SRC emacs-lisp
+     ;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
+     (defun qq/unfill-paragraph ()
+       "Takes a multi-line paragraph and makes it into a single line of text."
+       (interactive)
+       (let ((fill-column (point-max)))
+         (fill-paragraph nil)))
+   #+END_SRC
+
 ** KeyBindings
     :PROPERTIES:
     :CUSTOM_ID: recipes-binding
@@ -2809,6 +3109,13 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after \"evil-leader-autoloads\"")>>
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
+   #+END_SRC
+
+** Evil iBuffer Bindings
+   Generate binding using table from [[#evil-ibuffer-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="normalmap", mvar="ibuffer-mode-map", tname=evil_ibuffer_keys)>>
    #+END_SRC
 
 ** Evil Magit Bindings

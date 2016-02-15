@@ -10,6 +10,7 @@
 ;; UI Enhancement
 (depends-on "hlinum")
 (depends-on "linum-off")
+(depends-on "nlinum")
 (depends-on "info+")
 (depends-on "spaceline")
 (depends-on "window-numbering")
@@ -40,6 +41,8 @@
 (depends-on "helm-gtags")
 
 (depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
+
+(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
 
 (depends-on "function-args")
 (depends-on "clean-aindent-mode")
@@ -81,6 +84,7 @@
 (depends-on "gruber-darker-theme")
 (depends-on "grandshell-theme")
 (depends-on "zenburn-theme")
+(depends-on "darktooth-theme")
 
 (depends-on "expand-region")
 ;; vim emulator
@@ -94,7 +98,7 @@
 (depends-on "evil-numbers")
 (depends-on "evil-surround")
 (depends-on "evil-visualstar")
-(depends-on "evil-smartparens")
+;(depends-on "evil-smartparens")
 
 
 (depends-on "flx-ido")                 ; Better flex (fuzzy) matching for Ido
@@ -113,9 +117,10 @@
 (depends-on "helm-pydoc")
 (depends-on "helm-themes")
 (depends-on "helm-swoop")
+(depends-on "helm-c-yasnippet")
 
 (depends-on "hungry-delete")
-;(depends-on "ibuffer-vc")
+(depends-on "ibuffer-vc")
 (depends-on "idle-highlight-mode")     ; sets an idle timer that highlights all
                                      ; occurences in the buffer of the word under cursor
 (depends-on "ido-vertical-mode")       ; Makes ido-mode display vertically.
