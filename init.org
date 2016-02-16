@@ -2839,16 +2839,6 @@ Some general settings that should apply to all programming mode. Highlight
      (setq compilation-scroll-output t)
    #+END_SRC
 
-**** Send notification when compilation is done
-
-   #+BEGIN_SRC emacs-lisp
-     (defun compile-notify (buffer message)
-       (if (string-match "^finished" message)
-           (sk-popup "Emacs compilation" message "normal")
-         (sk-popup "Emacs compilation fails" message "critical")))
-     (setq compilation-finish-function 'compile-notify)
-   #+END_SRC
-
 **** Bury compilation buffer
 If compilation is successful namely neither errors nor warnings, the compilation
 buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close/11059012#11059012][stackoverflow]]
