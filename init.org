@@ -635,13 +635,6 @@ required from *emacs*.
      (toggle-frame-fullscreen)
    #+end_src
 
-*** Don’t query about running processes on exit
-   #+begin_src emacs-lisp
-     (let ((proc (get-buffer-process (current-buffer))))
-       (when (processp proc)
-         (set-process-query-on-exit-flag proc nil)))
-   #+end_src
-
 *** Trailing whitespace
    Most UNIX tools work best when there’s a trailing newline on all files.
    Enable that option:
@@ -1324,55 +1317,8 @@ required from *emacs*.
       | SPC SPC     |             | 'helm-M-x                             |
 
 *** Undo Tree
-**** Info
-=undo-tree= package also remaps =undo= and =undo-only= to =undo-tree-undo=
-
- * =undo-tree-visualize= bindings
-
- | [remap previous-line] | undo-tree-visualize-undo |
- | [remap next-line]     | undo-tree-visualize-redo |
- | C-p                   | undo-tree-visualize-undo |
- | C-n                   | undo-tree-visualize-redo |
-
- Horizontal motion keys switch branch
- | [remap forward-char]  | undo-tree-visualize-switch-branch-right |
- | [remap backward-char] | undo-tree-visualize-switch-branch-left  |
- | l                     | undo-tree-visualize-switch-branch-right |
- | h                     | undo-tree-visualize-switch-branch-left  |
-
- Paragraph motion keys undo/redo to significant points in tree
- | [remap backward-paragraph] | undo-tree-visualize-undo-to-x |
- | [remap forward-paragraph]  | undo-tree-visualize-redo-to-x |
- | M-{                        | undo-tree-visualize-undo-to-x |
- | M-}                        | undo-tree-visualize-redo-to-x |
- | C-up                       | undo-tree-visualize-undo-to-x |
- | C-down                     | undo-tree-visualize-redo-to-x |
-
- Mouse sets buffer state to node at click
- | [mouse-1] | undo-tree-visualizer-mouse-set |
-
- Toggle timestamps
- | t | undo-tree-visualizer-toggle-timestamps |
-
- Toggle diff
- | d | undo-tree-visualizer-toggle-diff |
-
- Toggle selection mode
- | s | undo-tree-visualizer-selection-mode |
-
- Horizontal scrolling may be needed if the tree is very wide
- | , / < | undo-tree-visualizer-scroll-left  |
- | . / > | undo-tree-visualizer-scroll-right |
-
- Vertical scrolling may be needed if the tree is very tall
- | Page Down | undo-tree-visualizer-scroll-up   |
- | Page Up   | undo-tree-visualizer-scroll-down |
-
- Quit/abort visualizer
- | q   | undo-tree-visualizer-quit  |
- | C-q | undo-tree-visualizer-abort |
-
 **** Settings
+
    #+BEGIN_SRC emacs-lisp
      (setq
            undo-tree-visualizer-timestamps t            ; show timestamps
@@ -1380,11 +1326,55 @@ required from *emacs*.
            undo-tree-auto-save-history t)               ; Save undo history between sessions.
    #+END_SRC
 
-**** Compress the history files as .gz files
+**** Evil visual line wrapping breaks undo-tree keybindings
 
    #+BEGIN_SRC emacs-lisp
-     ;; (advice-add 'undo-tree-make-history-save-file-name :filter-return
-     ;;             (lambda (return-val) (concat return-val ".gz")))
+     (add-hook 'undo-tree-visualizer-mode-hook
+               (lambda ()
+                 (set (make-local-variable 'input-method-function) nil)
+                 (set (make-variable-buffer-local 'global-hl-line-mode) nil)
+                 (visual-line-mode -1)))
+
+     (after 'evil
+         (evil-set-initial-state 'undo-tree-visualizer-mode 'emacs))
+   #+END_SRC
+
+**** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: undo-tree-binding
+    :END:
+   Using The table below as the source for generating [[Undo-tree Bindings][Undo-tree Bindings]]
+
+   #+TBLNAME: undo_tree_keys
+      | Combo    | Description | Command                                  |
+      |----------+-------------+------------------------------------------|
+      | C-g      |             | 'undo-tree-visualizer-quit               |
+      | <escape> |             | 'undo-tree-visualizer-quit               |
+      | RET      |             | 'undo-tree-visualizer-quit               |
+      | j        |             | 'undo-tree-visualize-redo                |
+      | k        |             | 'undo-tree-visualize-undo                |
+      | h        |             | 'undo-tree-visualize-switch-branch-left  |
+      | l        |             | 'undo-tree-visualize-switch-branch-right |
+
+**** Compress the history files as .xz files
+
+   #+BEGIN_SRC emacs-lisp
+     (when (executable-find "xz")
+       (defun qq-advice/undo-tree-make-history-save-file-name (_ret)
+         (let ((auto-save-file-name-transforms
+                '((".*" (concat qq/cache-directory "backups/") t))))
+           (concat (make-auto-save-file-name) ".undo.xz")))
+
+       (defun qq-advice/undo-tree-load-history (old-fun &rest args)
+         (let ((jka-compr-verbose))
+           (apply old-fun args)))
+
+       (advice-add 'undo-tree-make-history-save-file-name
+                   :filter-return
+                   #'qq-advice/undo-tree-make-history-save-file-name)
+       (advice-add 'undo-tree-load-history
+                   :around
+                   #'qq-advice/undo-tree-load-history))
    #+END_SRC
 
 **** Persistent undo-tree history across emacs sessions
@@ -1394,7 +1384,7 @@ required from *emacs*.
                                                          "undo-tree-history/")))
                                         (make-directory dir :parents)
                                         dir))
-     (setq undo-tree-history-directory-alist `(("." . ,qq/undo-tree-history-dir)))
+     (setq undo-tree-history-directory-alist `((".*" . ,qq/undo-tree-history-dir)))
 
      (add-hook 'write-file-functions #'undo-tree-save-history-hook)
      (add-hook 'find-file-hook #'undo-tree-load-history-hook)
@@ -1572,12 +1562,89 @@ required from *emacs*.
 
    [[http://company-mode.github.io]]
 
+*** Enable globally
+
    #+BEGIN_SRC emacs-lisp
-     (require 'company)
      (add-hook 'after-init-hook 'global-company-mode)
-     (delete 'company-semantic company-backends)
-     ;; weight by frequency
+   #+END_SRC
+
+*** Weight by frequency
+
+   #+BEGIN_SRC emacs-lisp
      (setq company-transformers '(company-sort-by-occurrence))
+   #+END_SRC
+
+*** Align annotations
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-tooltip-align-annotations t)
+   #+END_SRC
+
+*** Wrap around popup menu on reaching end
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-selection-wrap-around t)
+   #+END_SRC
+
+*** Allow non-matching input when company-mode is active
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-require-match nil)
+   #+END_SRC
+
+*** Instruct company-emoji to not insert unicode
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-emoji-insert-unicode nil)
+   #+END_SRC
+
+*** Default backends for company
+
+   Specialized backends are kept in front because they are active only in special
+   context for example company-emoji when word begins with a colon, so they do not
+   override generic backends like company-ispell but the reverse is not true.
+
+   The special completion triggers are
+
+   | Word start with | Backend       |
+   | :               | company-emoji |
+   | \               | company-math  |
+   | / or ~/         | company-files |
+
+   Make the backends buffer local
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-backends '((company-capf
+                                 company-emoji
+                                 company-math-symbols-unicode
+                                 company-dabbrev-code
+                                 company-files
+                                 company-keywords)
+
+                                company-dabbrev))
+          ;(setq qq-default-company-backends '(company-emoji
+          ;                                       company-math-symbols-unicode
+          ;                                       company-files
+          ;                                       company-capf
+          ;                                       (company-dabbrev
+          ;                                        company-ispell)))
+
+          ;(setq-default company-backends qq-default-company-backends)
+          ;(make-variable-buffer-local 'company-backends)
+   #+END_SRC
+
+*** flx matching in company
+
+   #+BEGIN_SRC emacs-lisp
+     (with-eval-after-load 'company
+       (company-flx-mode +1))
+   #+END_SRC
+
+*** Enable quick help for company-mode
+
+   #+BEGIN_SRC emacs-lisp
+     (when (display-graphic-p)
+         (company-quickhelp-mode +1))
    #+END_SRC
 
 *** Keybinding
@@ -1711,7 +1778,35 @@ required from *emacs*.
 *** Make HJKL keys work in special buffers
 
    #+BEGIN_SRC emacs-lisp
-      (evil-add-hjkl-bindings occur-mode 'emacs)
+      ;(evil-add-hjkl-bindings occur-mode 'emacs)
+   #+END_SRC
+*** evil-quickscope
+
+   #+BEGIN_SRC emacs-lisp
+     (after 'evil-quickscope
+         (setq evil-quickscope-word-separator " -./")
+         (set-face-attribute 'evil-quickscope-first-face nil
+                             :inherit nil)
+
+         (if (display-graphic-p)
+             (set-face-attribute 'evil-quickscope-second-face nil
+                                 :underline '(:style wave)
+                                 :inherit nil)
+           (set-face-attribute 'evil-quickscope-second-face nil
+                               :inherit nil))
+
+         (defun nadvice/evil-quickscope-update-overlays-bidirectional ()
+           "Update overlays in both directions from point."
+           (evil-quickscope-remove-overlays)
+           (when (memq evil-state '(normal motion))
+             (evil-quickscope-apply-overlays-forward)
+             (evil-quickscope-apply-overlays-backward)))
+
+         (advice-add 'evil-quickscope-update-overlays-bidirectional
+                     :override
+                     #'nadvice/evil-quickscope-update-overlays-bidirectional))
+
+     (global-evil-quickscope-always-mode +1)
    #+END_SRC
 
 *** Further Settings
@@ -1720,7 +1815,7 @@ required from *emacs*.
      (global-evil-visualstar-mode)
      (evil-leader/set-leader "SPC")
      (global-evil-surround-mode t)
-     (setq evil-want-fine-undo t)
+     (setq evil-want-fine-undo 'fine)
      (evil-exchange-install)
 
      (global-evil-matchit-mode t)
@@ -1745,8 +1840,8 @@ required from *emacs*.
      (defadvice evil-ex-search-previous (after advice-for-evil-ex-search-previous activate)
        (recenter))
    #+END_SRC
-
-*** Global Mode Binding
+*** Bindings
+**** Global Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-global-binding
     :END:
@@ -1757,7 +1852,7 @@ required from *emacs*.
       |-------+------------------------------+------------------|
       | C-w   | Prefix for windows operation | 'evil-window-map |
 
-*** Normal Mode Binding
+**** Normal Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-normal-binding
     :END:
@@ -1768,8 +1863,6 @@ required from *emacs*.
       |-------------+--------------------------------------------+------------------------------------------------------|
       | [backspace] | Disable the active search highlightings    | 'evil-ex-nohighlight                                 |
       | DEL         | Disable the active search highlightings    | 'evil-ex-nohighlight                                 |
-      | SPC b b     |                                            | 'switch-to-buffer                                    |
-      | SPC b k     | Kill current buffer                        | 'ido-kill-buffer                                     |
       | C-b         | Scroll one page up                         | 'evil-scroll-up                                      |
       | C-f         | Scroll one page down                       | 'evil-scroll-down                                    |
       | [ SPC       | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
@@ -1792,7 +1885,7 @@ required from *emacs*.
       | g [         |                                            | 'ggtags-find-reference                               |
       | g p         |                                            | 'hydra-projectile/body                               |
 
-*** Motion Mode Binding
+**** Motion Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-motion-binding
     :END:
@@ -1808,7 +1901,7 @@ required from *emacs*.
       | j     |                                            | 'evil-next-visual-line     |
       | k     |                                            | 'evil-previous-visual-line |
 
-*** Visual Mode Binding
+**** Visual Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-visual-binding
     :END:
@@ -1819,7 +1912,7 @@ required from *emacs*.
       |-------+----------------------------------+--------------|
       | , e   | Execute selected lisp expression | 'eval-region |
 
-*** Ex Mode Binding
+**** Ex Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-ex-binding
     :END:
@@ -1832,7 +1925,7 @@ required from *emacs*.
       | QA    | Butter finger | 'evil-quit-all |
       | Qa    | Butter finger | 'evil-quit-all |
 
-*** Buffer Selection Binding
+**** Buffer Selection Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-bs-binding
     :END:
@@ -1847,7 +1940,7 @@ required from *emacs*.
       | l     | bs-mode-map | normal    |             | 'evil-forwared-char |
       | RET   | bs-mode-map | normal    |             | 'bs-select          |
 
-*** Evil-Leader Binding
+**** Evil-Leader Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-leader-binding
     :END:
@@ -1856,6 +1949,8 @@ required from *emacs*.
    #+TBLNAME: evil_leader_keys
       | Combo | Description                     | Command                         |
       |-------+---------------------------------+---------------------------------|
+      | b b   |                                 | 'switch-to-buffer               |
+      | b k   | Kill current buffer             | 'ido-kill-buffer                |
       | s     |                                 | 'save-buffer                    |
       | c     |                                 | 'evil-ace-jump-char-mode        |
       | w     |                                 | 'evil-ace-jump-word-mode        |
@@ -1863,6 +1958,7 @@ required from *emacs*.
       | i     |                                 | 'swiper                         |
       | x     |                                 | 'execute-extended-command       |
       | n     |                                 | 'neotree-toggle                 |
+      | u     |                                 | 'undo-tree-visualize            |
       | e     |                                 | 'eval-last-sexp                 |
       | E     |                                 | 'eval-defun                     |
       | 5     |                                 | 'ctl-x-5-prefix                 |
@@ -1980,6 +2076,12 @@ required from *emacs*.
      (helm-mode 1)
      (diminish 'helm-mode)
    #+END_SRC
+*** helm-descbinds configuration
+
+   #+BEGIN_SRC emacs-lisp
+     (setq helm-descbinds-window-style 'split-window)
+     (helm-descbinds-mode +1)
+   #+END_SRC
 
 *** Enter search pattern in the header line
    Via: [[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reddit post]]
@@ -2015,27 +2117,26 @@ required from *emacs*.
       | n        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-forward  |
       | p        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-backward |
 
-*** Keybindings with Evil
+*** Keybindings with Evil Leader
     :PROPERTIES:
     :CUSTOM_ID: helm-evil-key-binding
     :END:
 
    Check for =evil-mode= and =helm-autoloads= before keybindings. Refer to this code
    #+TBLNAME: helm-evil-combo
-      | Combo   | Mode                  | Description | Command                 |
-      | SPC b s | evil-normal-state-map |             | 'helm-mini              |
-      | SPC f   | evil-normal-state-map |             | 'helm-find-files        |
-      | SPC o   | evil-normal-state-map |             | 'helm-imenu             |
-      | SPC t   | evil-normal-state-map |             | 'helm-etags-select      |
-      | SPC y   | evil-normal-state-map |             | 'helm-show-kill-ring    |
-      | SPC m   | evil-normal-state-map |             | 'helm-bookmarks         |
-      | SPC r   | evil-normal-state-map |             | 'helm-register          |
-      | SPC SPC | evil-normal-state-map |             | 'helm-M-x               |
-      | SPC SPC | evil-visual-state-map |             | 'helm-M-x               |
-      | SPC a   | evil-normal-state-map |             | 'helm-all-mark-rings    |
-      | SPC h w | evil-normal-state-map |             | 'helm-wikipedia-suggest |
-      | SPC l   | evil-normal-state-map |             | 'helm-swoop             |
-      | SPC L   | evil-normal-state-map |             | 'helm-multi-swoop       |
+      | Combo with Evil Leader | Description | Command                 |
+      | b s                    |             | 'helm-mini              |
+      | f                      |             | 'helm-find-files        |
+      | o                      |             | 'helm-imenu             |
+      | r t                    |             | 'helm-etags-select      |
+      | y                      |             | 'helm-show-kill-ring    |
+      | m                      |             | 'helm-bookmarks         |
+      | r r                    |             | 'helm-register          |
+      | SPC                    |             | 'helm-M-x               |
+      | a                      |             | 'helm-all-mark-rings    |
+      | h w                    |             | 'helm-wikipedia-suggest |
+      | l                      |             | 'helm-swoop             |
+      | L                      |             | 'helm-multi-swoop       |
 
 ** Irony
    A alternate Client/Server application that indexes C/C++ code and keeps a persistent
@@ -3084,6 +3185,15 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-keys(moda="lead", tname=evil_whichkey_keys)>>
    #+END_SRC
 
+** Helm with Evil Bindings
+   Binding code generation for [[#helm-evil-key-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-fix(pre="after \"helm-autoloads\"")>>
+     <<gen-keys(moda="lead", tname=helm-evil-combo)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
 ** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
@@ -3140,16 +3250,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-fix(pre="add-hook 'neotree-mode-hook\n(lambda()")>>
      <<gen-keys(mmap="t", tname=neotree-evil-keys)>>
-     <<gen-fix(pos="))\n")>>
-   #+END_SRC
-
-** Helm with Evil Bindings
-   Binding code generation for [[#helm-evil-key-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-fix(pre="after \"helm-autoloads\"")>>
-     <<gen-keys(mmap="t", tname=helm-evil-combo)>>
-     <<gen-fix(pos="))\n")>>
+     <<gen-fix(pos=")))\n")>>
    #+END_SRC
 
 ** Helm Bindings
@@ -3178,6 +3279,15 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(mmap="mvar", mvar="company-active-map", tname=company_keys)>>
+   #+END_SRC
+
+** Undo-tree Bindings
+   Generate binding using table from [[#undo-tree-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="eval-after-load 'undo-tree\n'(with-no-warnings")>>
+     <<gen-keys(mmap="mvar", mvar="undo-tree-visualizer-mode-map", tname=undo_tree_keys)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Smartparens Bindings

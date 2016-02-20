@@ -7,7 +7,7 @@
 (depends-on "swiper")
 (depends-on "ranger")
 
-;; UI Enhancement
+; UI Enhancement
 (depends-on "hlinum")
 (depends-on "linum-off")
 (depends-on "nlinum")
@@ -27,6 +27,10 @@
 (depends-on "company-irony")
 (depends-on "company-irony-c-headers")
 (depends-on "company-sourcekit")
+(depends-on "company-emoji")
+(depends-on "company-math")
+(depends-on "company-quickhelp")
+(depends-on "company-flx")
 (depends-on "irony")
 (depends-on "irony-eldoc")
 (depends-on "flycheck-irony")
@@ -38,17 +42,15 @@
 (depends-on "rtags")
 (depends-on "git-timemachine")
 (depends-on "ggtags")
-(depends-on "helm-gtags")
 
-(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
-
-(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
+;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
+;
+;(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
 
 (depends-on "function-args")
 (depends-on "clean-aindent-mode")
 ;(depends-on "dtrt-indent")
 (depends-on "ws-butler")
-(depends-on "helm-projectile")
 (depends-on "projectile")
 (depends-on "ace-jump-mode")           ; quick cursor location minor mode
 (depends-on "ag")
@@ -98,6 +100,7 @@
 (depends-on "evil-numbers")
 (depends-on "evil-surround")
 (depends-on "evil-visualstar")
+(depends-on "evil-quickscope")
 ;(depends-on "evil-smartparens")
 
 
@@ -117,6 +120,9 @@
 (depends-on "helm-pydoc")
 (depends-on "helm-themes")
 (depends-on "helm-swoop")
+(depends-on "helm-gtags")
+(depends-on "helm-projectile")
+(depends-on "helm-descbinds")
 
 (depends-on "hungry-delete")
 (depends-on "ibuffer-vc")
