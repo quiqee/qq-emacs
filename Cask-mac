@@ -147,6 +147,7 @@
 (depends-on "multiple-cursors")        ; Multiple cursors for Emacs.
 (depends-on "org-plus-contrib")        ; Outline-based notes management and organizer
 (depends-on "org-bullets")             ; show org bullet as Unicode character
+(depends-on "org-cliplink")
 (depends-on "paredit")                 ; minor mode for editing parentheses
 (depends-on "popwin")                  ; popup window manager
 (depends-on "pretty-lambdada")
