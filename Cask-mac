@@ -18,6 +18,9 @@
 ;; Modes
 (depends-on "swift-mode")
 
+(depends-on "emoji-cheat-sheet-plus")
+(depends-on "emojify")
+
 (depends-on "bug-hunter")
 
 (depends-on "fasd")

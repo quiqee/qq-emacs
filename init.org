@@ -42,13 +42,6 @@
    Cask packages configuration for Mac OS X: [[file:Cask-mac][Cask]]
    For Linux: [[file:Cask-linux][Cask]]
 
-*** Error check
-   Turn on =debug-on-error= while loading this init file
-
-   #+BEGIN_SRC emacs-lisp
-      (setq debug-on-error t)
-   #+END_SRC
-
 *** Tangling Function
    Emacs can only load =.el=-files. We can use =C-c C-v t= to run
    =org-babel-tangle=, which extracts the code blocks from the current file
@@ -887,6 +880,24 @@ required from *emacs*.
                  (push '("return" . 8592) prettify-symbols-alist)))
    #+END_SRC
 
+*** Emoji font support
+
+   #+BEGIN_SRC emacs-lisp
+     (defun --set-emoji-font (frame)
+       "Adjust the font settings of FRAME so Emacs can display emoji properly."
+       (if (eq system-type 'darwin)
+           ;; For NS/Cocoa
+           (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") frame 'prepend)
+         ;; For Linux
+         (set-fontset-font t 'symbol (font-spec :family "Symbola") frame 'prepend)))
+
+     ;; For when Emacs is started in GUI mode:
+     (--set-emoji-font nil)
+     ;; Hook for when a frame is created with emacsclient
+     ;; see https://www.gnu.org/software/emacs/manual/html_node/elisp/Creating-Frames.html
+     (add-hook 'after-make-frame-functions '--set-emoji-font)
+   #+END_SRC
+
 ** Advice
    An advice can be given to a function to make it behave differently. This
    advice makes =eval-last-sexp= (bound to =C-x C-e=) replace the sexp with
@@ -1562,40 +1573,72 @@ required from *emacs*.
 
    [[http://company-mode.github.io]]
 
-*** Enable globally
+*** Settings
+**** Enable globally
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'after-init-hook 'global-company-mode)
    #+END_SRC
 
-*** Weight by frequency
+**** Weight by frequency
 
    #+BEGIN_SRC emacs-lisp
      (setq company-transformers '(company-sort-by-occurrence))
    #+END_SRC
 
-*** Align annotations
+**** Align annotations
 
    #+BEGIN_SRC emacs-lisp
      (setq company-tooltip-align-annotations t)
    #+END_SRC
 
-*** Wrap around popup menu on reaching end
+**** Wrap around popup menu on reaching end
 
    #+BEGIN_SRC emacs-lisp
      (setq company-selection-wrap-around t)
    #+END_SRC
 
-*** Allow non-matching input when company-mode is active
+**** Allow non-matching input when company-mode is active
 
    #+BEGIN_SRC emacs-lisp
      (setq company-require-match nil)
    #+END_SRC
 
-*** Instruct company-emoji to not insert unicode
+**** Instruct company-emoji to not insert unicode
 
    #+BEGIN_SRC emacs-lisp
      (setq company-emoji-insert-unicode nil)
+   #+END_SRC
+
+**** Delays
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-idle-delay 0.1
+           company-echo-delay 0)
+   #+END_SRC
+
+**** Trigger autocomplete if user interaction took place
+
+   #+BEGIN_SRC emacs-lisp
+  (setq company-auto-complete 'company-explicit-action-p)
+   #+END_SRC
+
+**** Minimum prefix length for idle completion
+
+   #+BEGIN_SRC emacs-lisp
+  (setq company-minimum-prefix-length 2)
+   #+END_SRC
+
+**** Flip tooltip when it's above the current line
+
+   #+BEGIN_SRC emacs-lisp
+  (setq company-tooltip-flip-when-above t)
+   #+END_SRC
+
+**** Align annotations to the right tooltip border
+
+   #+BEGIN_SRC emacs-lisp
+  (setq company-tooltip-align-annotations t)
    #+END_SRC
 
 *** Default backends for company
@@ -1622,15 +1665,6 @@ required from *emacs*.
                                  company-keywords)
 
                                 company-dabbrev))
-          ;(setq qq-default-company-backends '(company-emoji
-          ;                                       company-math-symbols-unicode
-          ;                                       company-files
-          ;                                       company-capf
-          ;                                       (company-dabbrev
-          ;                                        company-ispell)))
-
-          ;(setq-default company-backends qq-default-company-backends)
-          ;(make-variable-buffer-local 'company-backends)
    #+END_SRC
 
 *** flx matching in company
@@ -1651,13 +1685,31 @@ required from *emacs*.
     :PROPERTIES:
     :CUSTOM_ID: company-binding
     :END:
-   Using The table below as the source for generating [[Company Bindings][Company Bindings]]
+
+   Custom function used to trigger tab within active company-mode window
+
+   #+BEGIN_SRC emacs-lisp
+     (defun company-complete-common-or-complete-full ()
+       (interactive)
+       (when (company-manual-begin)
+         (if (eq last-command #'company-complete-common-or-cycle)
+             (let ((company-selection-wrap-around t))
+               (call-interactively #'company-complete-selection))
+           (let ((buffer-mod-tick (buffer-chars-modified-tick)))
+             (call-interactively #'company-complete-common)
+             (when (= buffer-mod-tick (buffer-chars-modified-tick))
+               (call-interactively #'company-complete-selection)
+               (call-interactively #'company-complete))))))
+   #+END_SRC
+
+  Using The table below as the source for generating [[Company Bindings][Company Bindings]]
 
    #+TBLNAME: company_keys
-      | Combo | Description                       | Command                  |
-      |-------+-----------------------------------+--------------------------|
-      | C-j   | move cursor to the next entry     | 'company-select-next     |
-      | C-k   | move cursor to the previous entry | 'company-select-previous |
+      | Combo | Description                       | Command                                   |
+      |-------+-----------------------------------+-------------------------------------------|
+      | C-j   | move cursor to the next entry     | 'company-select-next                      |
+      | C-k   | move cursor to the previous entry | 'company-select-previous                  |
+      | TAB   |                                   | 'company-complete-common-or-complete-full |
 
 ** Diminish
    Diminish will remove the minor mode indicators from the mode line (or powerline).
@@ -2538,6 +2590,8 @@ required from *emacs*.
       | Combo  | Mode         | Evil Mode | Description | Command                                                       |
       | z c    | org-mode-map | normal    |             | 'hide-subtree                                                 |
       | \\ TAB | org-mode-map | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
+      | RET    | org-mode-map | normal    |             | 'org-open-at-point                                            |
+      | s-v    | org-mode-map | insert    |             | 'org-cliplink                                                 |
       | -      | org-mode-map | normal    |             | 'org-cycle-list-bullet                                        |
       | C-c .  | org-mode-map | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t))        |
       | >      | org-mode-map | normal    |             | 'org-metaright                                                |
@@ -2774,6 +2828,29 @@ required from *emacs*.
      (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
 
      (setq which-key-special-keys nil)
+   #+END_SRC
+
+*** Replacements for how KEY is replaced when which-key displays
+   KEY → FUNCTION
+   Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
+
+   #+BEGIN_SRC emacs-lisp
+     (setq which-key-key-replacement-alist
+           '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+             ("left"                . "◀")
+             ("right"               . "▶")
+             ("up"                  . "▲")
+             ("down"                . "▼")
+             ("delete"              . "DLT") ; delete key
+             ("\\`DEL\\'"             . "BS") ; backspace key
+             ("next"                . "PgDn")
+             ("prior"               . "PgUp")))
+   #+END_SRC
+
+*** Use cool unicode characters if available
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩"))
    #+END_SRC
 
 *** Evil Leader Keybinding
@@ -3368,10 +3445,3 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+RESULTS:
    : sp-forward-sexp
-
-* End
-   Init loading done, turn off =debug-on-error=
-
-   #+BEGIN_SRC emacs-lisp
-     (setq debug-on-error nil)
-   #+END_SRC
