@@ -898,6 +898,44 @@ required from *emacs*.
      (add-hook 'after-make-frame-functions '--set-emoji-font)
    #+END_SRC
 
+*** Fix italics
+   Make the italics show as actual italics. For some unknown reason, the below
+   is needed to render the italics in org-mode. The issue could be related to
+   the fonts in use. But having this doesn't hurt regardless.
+
+   #+BEGIN_SRC emacs-lisp
+     (set-face-attribute 'italic nil :inherit nil :slant 'italic)
+   #+END_SRC
+
+*** Fringe
+   Set fringe width on each side to 12 and add few indications
+
+   #+BEGIN_SRC emacs-lisp
+     (fringe-mode 12)
+
+     ; Indicate where a buffer stars and stops
+     (setq-default indicate-buffer-boundaries 'right)
+     (setq-default indicate-empty-lines +1)
+     (let ((hook (lambda ()
+                   (setq indicate-empty-lines       nil
+                         indicate-buffer-boundaries nil)))
+           (mode-hooks '(shell-mode-hook term-mode-hook gnus-article-mode-hook
+                         gnus-summary-mode-hook gnus-group-mode-hook
+                         eshell-mode-hook)))
+       (mapc (lambda (mode-hook)
+               (add-hook mode-hook hook))
+             mode-hooks))
+     (defun qq/set-fringe-background ()
+       "Set the fringe background to the same color as the regular background."
+       (interactive)
+       (setq my/fringe-background-color
+             (face-background 'default))
+       (custom-set-faces
+        `(fringe ((t (:background ,qq/fringe-background-color))))))
+
+     (add-hook 'after-init-hook #'qq/set-fringe-background)
+   #+END_SRC
+
 ** Advice
    An advice can be given to a function to make it behave differently. This
    advice makes =eval-last-sexp= (bound to =C-x C-e=) replace the sexp with
@@ -1039,35 +1077,6 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (transient-mark-mode t)
    #+end_src
-
-*** Fringe
-   Set fringe width on each side to 12 and add few indications
-
-   #+BEGIN_SRC emacs-lisp
-     (fringe-mode 12)
-
-     ; Indicate where a buffer stars and stops
-     (setq-default indicate-buffer-boundaries 'right)
-     (setq-default indicate-empty-lines +1)
-     (let ((hook (lambda ()
-                   (setq indicate-empty-lines       nil
-                         indicate-buffer-boundaries nil)))
-           (mode-hooks '(shell-mode-hook term-mode-hook gnus-article-mode-hook
-                         gnus-summary-mode-hook gnus-group-mode-hook
-                         eshell-mode-hook)))
-       (mapc (lambda (mode-hook)
-               (add-hook mode-hook hook))
-             mode-hooks))
-     (defun my/set-fringe-background ()
-       "Set the fringe background to the same color as the regular background."
-       (interactive)
-       (setq my/fringe-background-color
-             (face-background 'default))
-       (custom-set-faces
-        `(fringe ((t (:background ,my/fringe-background-color))))))
-
-     (add-hook 'after-init-hook #'my/set-fringe-background)
-   #+END_SRC
 
 *** ediff
 
@@ -3184,7 +3193,19 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 *** Settings
 
    #+BEGIN_SRC emacs-lisp
-     (setq nxml-slash-auto-complete-flag t)
+     (add-hook 'nxml-mode-hook
+               (lambda ()
+                 (setq auto-fill-mode -1)
+                 (setq nxml-slash-auto-complete-flag t)      ; auto-complete the closing tag at the input of the slash
+                 (setq nxml-child-indent 2)                  ; tag indentation
+                 (setq nxml-attribute-indent 4)              ; attributes of the indentation width
+                 (setq indent-tabs-mode t)
+                 (setq nxml-bind-meta-tab-to-complete-flag t)
+                 (setq nxml-slash-auto-complete-flag t)      ; </ of complementing the closing tag at the input
+                 (setq nxml-sexp-element-flag t)             ; to kill the entire element, including the subordinate in CMk
+                 (setq nxml-char-ref-display-glyph-flag nil) ; glyph is hidden
+                 (setq tab-width 4)
+                 ))
    #+END_SRC
 
 *** Pretty printing xml region
@@ -3223,6 +3244,26 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      ;; optional key bindings, easier than hs defaults
      (define-key nxml-mode-map (kbd "z t") 'hs-toggle-hiding)
    #+END_SRC
+*** Color scheme
+
+   #+BEGIN_SRC emacs-lisp
+     (set-face-foreground 'nxml-attribute-local-name-face "#3387cc")
+     (set-face-foreground 'nxml-attribute-colon-face "#e28964")
+     (set-face-foreground 'nxml-attribute-prefix-face "#cf6a4c")
+     (set-face-foreground 'nxml-attribute-value-face "#65b042")
+     (set-face-foreground 'nxml-attribute-value-delimiter-face "#99cf50")
+     (set-face-foreground 'nxml-namespace-attribute-prefix-face "#9b859d")
+     (set-face-foreground 'nxml-comment-content-face "#666")
+     (set-face-foreground 'nxml-comment-delimiter-face "#333")
+     (set-face-foreground 'nxml-element-local-name-face "#e9c062")
+     (set-face-foreground 'nxml-markup-declaration-delimiter-face "#aeaeae")
+     (set-face-foreground 'nxml-namespace-attribute-xmlns-face "#8b98ab")
+     (set-face-foreground 'nxml-prolog-keyword-face "#c5af75")
+     (set-face-foreground 'nxml-prolog-literal-content-face "#dad085")
+     (set-face-foreground 'nxml-tag-delimiter-face "#cda869")
+     (set-face-foreground 'nxml-tag-slash-face "#cda869")
+     (set-face-foreground 'nxml-text-face "#ddd")
+   #+END_SRC
 
 * Recipes
 ** Switch to Editing a File with SUDO
@@ -3248,6 +3289,16 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
        (interactive)
        (let ((fill-column (point-max)))
          (fill-paragraph nil)))
+   #+END_SRC
+
+** Coloring regions with ANSI color codes
+   [[http://unix.stackexchange.com/a/19505/57923]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun ansi-color-apply-on-region-int (beg end)
+       "Colorize using the ANSI color codes."
+       (interactive "r")
+       (ansi-color-apply-on-region beg end))
    #+END_SRC
 
 ** KeyBindings
