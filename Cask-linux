@@ -18,7 +18,8 @@
 ;; Modes
 (depends-on "swift-mode")
 
-(depends-on "async")
+(depends-on "emoji-cheat-sheet-plus")
+(depends-on "emojify")
 
 (depends-on "bug-hunter")
 
@@ -28,26 +29,31 @@
 (depends-on "company")
 (depends-on "company-irony")
 (depends-on "company-irony-c-headers")
+(depends-on "company-sourcekit")
+(depends-on "company-emoji")
+(depends-on "company-math")
+(depends-on "company-quickhelp")
+(depends-on "company-flx")
 (depends-on "irony")
 (depends-on "irony-eldoc")
 (depends-on "flycheck-irony")
 (depends-on "irony-eldoc")
 
+(depends-on "icicles")
+
 ;(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
 (depends-on "rtags")
 (depends-on "git-timemachine")
 (depends-on "ggtags")
-(depends-on "helm-gtags")
 
-(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
-
-(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
+;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
+;
+;(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
 
 (depends-on "function-args")
 (depends-on "clean-aindent-mode")
 ;(depends-on "dtrt-indent")
 (depends-on "ws-butler")
-(depends-on "helm-projectile")
 (depends-on "projectile")
 (depends-on "ace-jump-mode")           ; quick cursor location minor mode
 (depends-on "ag")
@@ -97,6 +103,7 @@
 (depends-on "evil-numbers")
 (depends-on "evil-surround")
 (depends-on "evil-visualstar")
+(depends-on "evil-quickscope")
 ;(depends-on "evil-smartparens")
 
 
@@ -116,6 +123,9 @@
 (depends-on "helm-pydoc")
 (depends-on "helm-themes")
 (depends-on "helm-swoop")
+(depends-on "helm-gtags")
+(depends-on "helm-projectile")
+(depends-on "helm-descbinds")
 
 (depends-on "hungry-delete")
 (depends-on "ibuffer-vc")
@@ -140,6 +150,7 @@
 (depends-on "multiple-cursors")        ; Multiple cursors for Emacs.
 (depends-on "org-plus-contrib")        ; Outline-based notes management and organizer
 (depends-on "org-bullets")             ; show org bullet as Unicode character
+(depends-on "org-cliplink")
 (depends-on "paredit")                 ; minor mode for editing parentheses
 (depends-on "popwin")                  ; popup window manager
 (depends-on "pretty-lambdada")

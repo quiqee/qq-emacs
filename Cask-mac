@@ -7,7 +7,7 @@
 (depends-on "swiper")
 (depends-on "ranger")
 
-; UI Enhancement
+;; UI Enhancement
 (depends-on "hlinum")
 (depends-on "linum-off")
 (depends-on "nlinum")
