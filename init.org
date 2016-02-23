@@ -688,8 +688,8 @@ required from *emacs*.
             (set-face-attribute 'default nil :font "PragmataPro for Powerline-11"))
            (t
             ;; Emacs version 22.3 or later.
-            (set-frame-font "PragmataPro for Powerline-11" t) ; set font for all frames
-            (set-face-attribute 'default nil :font "PragmataPro for Powerline-11")))
+            (set-frame-font "PragmataPro for Powerline-9" t) ; set font for all frames
+            (set-face-attribute 'default nil :font "PragmataPro for Powerline-9")))
    #+END_SRC
 
 *** Modeline
@@ -1559,6 +1559,25 @@ required from *emacs*.
             "security find-generic-password -wa "
             account-name)))))
    #+end_src
+*** End
+   #+BEGIN_SRC emacs-lisp
+     ))
+   #+END_SRC
+** Work Laptop
+
+   #+BEGIN_SRC emacs-lisp
+      ((string-equal qq/system-name "ThinkPad-E440") ; Lenovo Thinkpad
+       (progn
+         (message "Lenovo Thinkpad")
+   #+END_SRC
+
+*** Gerrit Identitiy
+    Used by =company-c-headers=
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar qq/gerrit-creds "fikri.pribadi@greenwavereality.com")
+   #+END_SRC
+
 *** End
    #+BEGIN_SRC emacs-lisp
      ))
