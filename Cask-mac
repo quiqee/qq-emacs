@@ -90,6 +90,8 @@
 (depends-on "grandshell-theme")
 (depends-on "zenburn-theme")
 (depends-on "darktooth-theme")
+(depends-on "material-theme")
+(depends-on "cyberpunk-theme")
 
 (depends-on "expand-region")
 ;; vim emulator

@@ -666,6 +666,8 @@ required from *emacs*.
 
      ;(load-theme 'gotham t)
      (load-theme 'darktooth t)
+     ;(load-theme 'cyberpunk t)
+     ;(load-theme 'material t)
 
      ;(load-theme 'ample t t)
      ;(load-theme 'ample-flat t t)
@@ -704,6 +706,7 @@ required from *emacs*.
      (setq-default spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
      (setq-default spaceline-window-numbers-unicode 1)
      (setq-default spaceline-workspace-numbers-unicode 1)
+     (setq-default powerline-height 18)
    #+END_SRC
 
 **** Clean Modeline
@@ -1479,7 +1482,14 @@ required from *emacs*.
          (message "Mac OS X")
    #+END_SRC
 
+*** Fix Powerline color issue
+
+   #+BEGIN_SRC emacs-lisp
+     (setq ns-use-srgb-colorspace nil)
+   #+END_SRC
+
 *** Company-Sourcekit
+
    #+BEGIN_SRC emacs-lisp
      (after 'company
        (add-to-list 'company-backends 'company-sourcekit))
@@ -3311,7 +3321,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+END_SRC
 
 ** Coloring regions with ANSI color codes
-   [[http://unix.stackexchange.com/a/19505/57923]]
+[[http://unix.stackexchange.com/a/19505/57923]]
 
    #+BEGIN_SRC emacs-lisp
      (defun ansi-color-apply-on-region-int (beg end)
