@@ -41,14 +41,16 @@
 
 (depends-on "icicles")
 
-;(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
+(depends-on "vlfi" :git "https://github.com/m00natic/vlfi" :ref "master")
 (depends-on "rtags")
 (depends-on "git-timemachine")
 (depends-on "ggtags")
 
-;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
-;
-;(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
+(depends-on "xcode-mode" :git  "https://github.com/nicklanasa/xcode-mode" :ref "master")
+
+(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :ref "master")
+
+(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs" :ref "master")
 
 (depends-on "function-args")
 (depends-on "clean-aindent-mode")
