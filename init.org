@@ -52,7 +52,7 @@
    =org=-document after changes.
 
    #+BEGIN_SRC emacs-lisp
-      (defun qq/tangle-init ()
+     (defun qq/tangle-init ()
        "If the current buffer is 'init.org' the code-blocks are
                  tangled, and the tangled file is compiled."
        (when (or
@@ -62,7 +62,8 @@
                      (expand-file-name "~/Documents/qq-emacs/init.org")))
             (org-babel-tangle)
             (setq org-confirm-babel-evaluate nil)
-            (byte-compile-file (concat user-emacs-directory "init.el"))))
+            (byte-compile-file (concat user-emacs-directory "init.el"))
+            (alert "Init file is compiled")))
 
      (add-hook 'after-save-hook 'qq/tangle-init)
    #+END_SRC
@@ -192,7 +193,7 @@ required from *emacs*.
                                    ((string= (format "%s" moda) "evil")
                                     (format "evil-define-key '%s %s (kbd \"%s\")" (nth 2 l) (nth 1 l) key))
                                    ((string= (format "%s" moda) "lead")
-                                    (format "evil-leader/set-key \"%s\"" key))
+                                    (format "\"%s\"" key))
                                    ((string= (format "%s" moda) "xvil")
                                     (format "evil-ex-define-cmd \"%s\"" key))
                                    ((string= (format "%s" key) "[escape]")
@@ -201,7 +202,10 @@ required from *emacs*.
                         (command (car (last l))))
                    (if usemap
                        (princ (format "(%s %s %s)\n" def command map))
-                     (princ (format "(%s %s)\n" def command))))))
+                       (if (string= (format "%s" moda) "lead")
+                           (princ (format "%s %s\n" def command map))
+                         (princ (format "(%s %s)\n" def command)))
+                     ))))
              tname)
    #+END_SRC
 
@@ -242,7 +246,6 @@ required from *emacs*.
                 git-timemachine   ; walkthrough git revisions of a file
                 hlinum                ; highlight current line in line number column
                 info+
-                linum-off             ; provides interface for turning line numbering off.
                 region-state
                 saveplace
                 spaceline-config
@@ -251,13 +254,46 @@ required from *emacs*.
    #+END_SRC
 
 ** Settings
-*** Dired
-   Set =Dired-Dwim-Target= to true to activate default value of =C= or =R=
-   commands to another dired window.
+*** Backups
+**** Set up some directories to keep backups and tell emacs to use it
 
    #+BEGIN_SRC emacs-lisp
-     ;(setq debug-on-error t)
-     (setq dired-dwim-target t)
+     (defvar autosave-dir
+       (concat qq/cache-directory "backups/"))
+     (defun auto-save-file-name-p (filename)
+       (string-match "^#.*#$" (file-name-nondirectory filename)))
+   #+END_SRC
+
+**** Set up file naming convention to use for backup files
+   For more info refer [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Auto-Save-Files.html][here]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun make-auto-save-file-name ()
+       (concat autosave-dir
+               (if buffer-file-name
+                   (concat "#" (file-name-nondirectory buffer-file-name) "#")
+                 (expand-file-name
+          (concat "#%" (buffer-name) "#")))))
+   #+END_SRC
+
+**** Always copy files when backing up to avoid breaking symlinks:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq backup-by-copying t)
+   #+END_SRC
+
+**** Delete old versions automatically, and keep a limited number around:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq delete-old-versions t
+           kept-new-versions 2
+           kept-old-versions 2)
+   #+END_SRC
+
+**** Finally, use version numbers in the filenames:
+
+   #+BEGIN_SRC emacs-lisp
+     (setq version-control t)
    #+END_SRC
 
 *** Startup behaviour
@@ -284,16 +320,7 @@ required from *emacs*.
            scroll-preserve-screen-position t)
    #+END_SRC
 
-*** Compilation behaviour
-
-   #+BEGIN_SRC emacs-lisp
-     (setq compilation-scroll-output 'first-error       ; scroll to first error
-           compilation-always-kill t                    ; kill compilation without reconfirmation
-           compilation-ask-about-save nil)              ; unconditionally save all buffer before
-                                                        ; compiling
-   #+END_SRC
-
-*** Other Settings
+*** Setq
 
    #+BEGIN_SRC emacs-lisp
      (setq default-input-method "TeX"                   ; Use TeX when toggeling input method.
@@ -303,15 +330,170 @@ required from *emacs*.
            mark-ring-max 64
            sentence-end-double-space nil
            save-interprogram-paste-before-kill t
+           history-delete-duplicates t
+   #+END_SRC
 
-           which-func-unknown ""                        ; don't display if there's no
-                                                        ; function to display
+**** Activate default value of =C= or =R= commands to another dired window.
 
-           savehist-autosave-interval 60                ; interval between save in seconds
+   #+BEGIN_SRC emacs-lisp
+           dired-dwim-target t
+   #+END_SRC
 
-           bookmark-save-flag 1                         ; save after every change
+**** Emacs Garbage Collector
+   We don't really need to garbage collect as frequently as Emacs would like to
+   by default, so set the threshold up hight.
 
-           ;; re-builder, nice interactive tool for building regular expressions
+   #+begin_src emacs-lisp
+           gc-cons-threshold 20000000
+   #+end_src
+
+**** Echo commands quicker than the default 1 second
+
+   #+begin_src emacs-lisp
+           echo-keystrokes 0.1
+   #+end_src
+
+**** Ignore case when using completion for file names
+
+   #+begin_src emacs-lisp
+           read-file-name-completion-ignore-case t
+           read-buffer-completion-ignore-case t
+   #+end_src
+
+**** Hide the mouse while typing
+
+   #+begin_src emacs-lisp
+           make-pointer-invisible t
+   #+end_src
+
+**** Long Line movement
+   It's so much easier to move around lines based on how they are displayed,
+   rather than the actual line. This helps a tone with long log file lines that
+   may be wrapped:
+
+   #+begin_src emacs-lisp
+           line-move-visual t
+   #+end_src
+
+**** Set the internal calculator not to go to scientific form
+
+   #+begin_src emacs-lisp
+           calc-display-sci-low -5
+   #+end_src
+
+**** Better buffer names for duplicates
+
+   #+BEGIN_SRC emacs-lisp
+           uniquify-buffer-name-style 'reverse
+           uniquify-separator "|"
+           uniquify-ignore-buffers-re "^\\*" ; leave special buffers alone
+           uniquify-after-kill-buffer-p t
+   #+END_SRC
+
+**** Security
+   Tells the auth-source library to store netrc file here: [[file:~/.emacs.d/authinfo.gpg::testt][authinfo.gpg]]
+
+   #+begin_src emacs-lisp
+           epg-gpg-program "/usr/local/bin/gpg"
+           auth-sources '((:source "~/.emacs.d/authinfo.gpg"))
+   #+end_src
+
+**** Save-place
+   If emacs is slow to exit after enabling saveplace, you may be running afoul
+   of save-place-forget-unreadable-files. On exit, it checks that every loaded
+   file is readable before saving its buffer position - potentially very slow if
+   you use NFS.
+
+   #+BEGIN_SRC emacs-lisp
+           save-place-forget-unreadable-files nil
+   #+END_SRC
+
+**** Other Temporary files
+   To avoid file system clutter we put all auto saved files in a single
+   directory
+
+   #+BEGIN_SRC emacs-lisp
+           abbrev-file-name
+              (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
+           save-place-file
+              (concat qq/cache-directory "places")      ; cache for save-place
+           savehist-file
+              (concat qq/cache-directory "savehist")    ; cache for minibuffer history
+           savehist-additional-variables
+              '(search ring regexp-search-ring)
+           recentf-save-file
+              (concat qq/cache-directory "recentf")     ; cache folder for recently open files
+           recentf-max-saved-items 1000                 ; maximum saved items in recentf
+           recentf-max-menu-items 500
+           ido-save-directory-list-file
+              (concat qq/cache-directory "ido.last")
+
+           eshell-directory-name
+              (concat  qq/cache-directory "eshell" )
+
+           smex-save-file
+              (concat  qq/cache-directory "smex-items")
+
+           nsm-settings-file
+              (concat  qq/cache-directory "network-security.data")
+
+           image-dired-dir
+              (concat  qq/cache-directory "image-dired")
+
+           projectile-known-projects-file
+              (concat  qq/cache-directory "projectile-bookmarks.eld")
+
+           company-statistics-file
+              (concat  qq/cache-directory "company-statistics-cache.el")
+
+           bookmark-default-file
+              (concat qq/cache-directory "bookmarks")   ; cache for bookmark
+           backup-directory-alist
+           `(("." . ,(concat qq/cache-directory "backups")))
+           auto-save-file-name-transforms
+           `(("." ,(concat qq/cache-directory "backups/") t))
+           auto-save-list-file-prefix
+           (concat qq/cache-directory "auto-save-list/saves-")
+
+           delete-auto-save-files t
+   #+END_SRC
+
+   #+RESULTS:
+   : t
+
+**** Don't want to answer yes everytime
+
+   #+BEGIN_SRC emacs-lisp
+           save-abbrevs 'silently
+   #+END_SRC
+
+**** Don't display if there's no function to display
+
+   #+BEGIN_SRC emacs-lisp
+           which-func-unknown ""
+   #+END_SRC
+
+**** Interval between save in seconds
+
+   #+BEGIN_SRC emacs-lisp
+           savehist-autosave-interval 60
+   #+END_SRC
+
+**** Autosave bookmark on each change
+
+   #+BEGIN_SRC emacs-lisp
+           bookmark-save-flag 1
+   #+END_SRC
+
+**** Most UNIX tools work best when there’s a trailing newline on all files.
+
+   #+begin_src emacs-lisp
+           require-final-newline t
+   #+end_src
+
+**** Re-builder, nice interactive tool for building regular expressions
+
+   #+BEGIN_SRC emacs-lisp
            reb-re-syntax 'string)                       ; fix backslash madness
    #+END_SRC
 
@@ -320,65 +502,61 @@ required from *emacs*.
    change them in a single buffer. Using =setq-default= we change the
    buffer-local variable's default value.
 
+**** Maximum line width.
+
    #+BEGIN_SRC emacs-lisp
-     (setq-default fill-column 80                         ; Maximum line width.
-                   indent-tabs-mode nil                   ; Use spaces instead of tabs.
-                   tab-width 4                            ; default-tab
-                   split-width-threshold 100              ; Split verticly by default.
-                   save-place t                           ; enable saving cursor last position in a file
-                   history-length 1000                    ; savehist history length
-                   imenu-auto-rescan t                    ; automatically rescan the buffer contents so
-                                                          ; that new jump targets appear in the menu as
-                                                          ; they are added
-                   save-place t
-                   )
+     (setq-default fill-column 80
    #+END_SRC
 
-*** Emacs Garbage Collector
-   We don't really need to garbage collect as frequently as Emacs would like to
-   by default, so set the threshold up hight.
+**** Use spaces instead of tabs.
 
-   #+begin_src emacs-lisp
-     (setq gc-cons-threshold 20000000)
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+                   indent-tabs-mode nil
+   #+END_SRC
 
-*** Echo commands quicker than the default 1 second
+**** Default-tab
 
-   #+begin_src emacs-lisp
-     (setq echo-keystrokes 0.1)
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+                   tab-width 4
+   #+END_SRC
 
-*** Ignore case when using completion for file names
+**** Split verticaly by default.
 
-   #+begin_src emacs-lisp
-     (setq read-file-name-completion-ignore-case t)
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+                   split-width-threshold 100
+   #+END_SRC
 
-*** Long Line movement
-   It's so much easier to move around lines based on how they are displayed,
-   rather than the actual line. This helps a tone with long log file lines that
-   may be wrapped:
+**** Enable saving cursor last position in a file
 
-   #+begin_src emacs-lisp
-     (setq line-move-visual t)
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+                   save-place t
+   #+END_SRC
 
-*** Hide the mouse while typing
+**** Savehist history length
 
-   #+begin_src emacs-lisp
-     (setq make-pointer-invisible t)
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+                   history-length 1000
+   #+END_SRC
+
+**** Proced
+   Display all processes, not just my own processes
+
+   #+BEGIN_SRC emacs-lisp
+                   proced-filter 'all
+   #+END_SRC
+
+**** Auto rescan buffer contents
+   Automatically rescan the buffer contents so that new jump targets appear in
+   the menu as they are added
+
+   #+BEGIN_SRC emacs-lisp
+                   imenu-auto-rescan t)
+   #+END_SRC
 
 *** Turn on auto-fill mode in text buffers
 
    #+begin_src emacs-lisp
      (add-hook 'text-mode-hook 'turn-on-auto-fill)
-   #+end_src
-
-*** Set the internal calculator not to go to scientific form
-
-   #+begin_src emacs-lisp
-     (setq calc-display-sci-low -5)
    #+end_src
 
 *** Emacs Server
@@ -400,13 +578,6 @@ required from *emacs*.
                        (setq server-name "server-nw")
                        (server-start))))))
    #+end_src
-
-*** Proced
-   Display all processes, not just my own processes
-
-   #+BEGIN_SRC emacs-lisp
-     (setq-default proced-filter 'all)
-   #+END_SRC
 
 *** Bells
    Don’t make a sound when ringing a bell - flash a visual bell instead:
@@ -437,30 +608,10 @@ required from *emacs*.
      (fset 'yes-or-no-p 'y-or-n-p)
    #+END_SRC
 
-*** Better buffer names for duplicates
-
-   #+BEGIN_SRC emacs-lisp
-     (setq uniquify-buffer-name-style 'reverse
-           uniquify-separator "|"
-           uniquify-ignore-buffers-re "^\\*" ; leave special buffers alone
-           uniquify-after-kill-buffer-p t)
-   #+END_SRC
-
 *** Automatically revert =doc-view= buffers when the file changes on disk.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'doc-view-mode-hook 'auto-revert-mode)
-   #+END_SRC
-
-*** Add color in compilation buffer
-
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'compilation-filter-hook
-               (lambda ()
-                 (when (eq major-mode 'compilation-mode)
-                   (require 'ansi-color)
-                   (let ((inhibit-read-only t))
-                     (ansi-color-apply-on-region (point-min) (point-max))))))
    #+END_SRC
 
 *** Hook for find-file
@@ -508,25 +659,6 @@ required from *emacs*.
        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
    #+END_SRC
 
-*** Customize linum format
-
-   #+BEGIN_SRC emacs-lisp
-     (hlinum-activate)
-     ;(setq linum-format (lambda (line)
-     ;                     (propertize (format
-     ;                                  (let ((w (length (number-to-string
-     ;                                                    (count-lines (point-min) (point-max))))))
-     ;                                    (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
-   #+END_SRC
-
-*** Security
-   Tells the auth-source library to store netrc file here: [[file:~/.emacs.d/authinfo.gpg::testt][authinfo.gpg]]
-
-   #+begin_src emacs-lisp
-     (setq epg-gpg-program "/usr/local/bin/gpg")
-     (setq auth-sources '((:source "~/.emacs.d/authinfo.gpg")))
-   #+end_src
-
 *** System Environment
    Tells emacs to use path from shell
 
@@ -534,108 +666,12 @@ required from *emacs*.
       (exec-path-from-shell-initialize)
    #+end_src
 
-*** Save-place
-   If emacs is slow to exit after enabling saveplace, you may be running afoul
-   of save-place-forget-unreadable-files. On exit, it checks that every loaded
-   file is readable before saving its buffer position - potentially very slow if
-   you use NFS.
-
-   #+BEGIN_SRC emacs-lisp
-     (setq save-place-forget-unreadable-files nil)
-   #+END_SRC
-
-*** Backups
-**** Set up some directories to keep backups and tell emacs to use it
-
-   #+BEGIN_SRC emacs-lisp
-     (defvar autosave-dir
-       (concat qq/cache-directory "backups/"))
-     (defun auto-save-file-name-p (filename)
-       (string-match "^#.*#$" (file-name-nondirectory filename)))
-   #+END_SRC
-
-**** Set up file naming convention to use for backup files
-   For more info refer [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Auto-Save-Files.html][here]]
-
-   #+BEGIN_SRC emacs-lisp
-     (defun make-auto-save-file-name ()
-       (concat autosave-dir
-               (if buffer-file-name
-                   (concat "#" (file-name-nondirectory buffer-file-name) "#")
-                 (expand-file-name
-          (concat "#%" (buffer-name) "#")))))
-   #+END_SRC
-
-**** Always copy files when backing up to avoid breaking symlinks:
-
-   #+BEGIN_SRC emacs-lisp
-     (setq backup-by-copying t)
-   #+END_SRC
-
-**** Delete old versions automatically, and keep a limited number around:
-
-   #+BEGIN_SRC emacs-lisp
-     (setq delete-old-versions t
-           kept-new-versions 2
-           kept-old-versions 2)
-   #+END_SRC
-
-**** Finally, use version numbers in the filenames:
-
-   #+BEGIN_SRC emacs-lisp
-     (setq version-control t)
-   #+END_SRC
-
-*** Other Temporary files
-   To avoid file system clutter we put all auto saved files in a single
-   directory
-
-   #+BEGIN_SRC emacs-lisp
-     (setq
-           abbrev-file-name
-              (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
-           save-place-file
-              (concat qq/cache-directory "places")      ; cache for save-place
-           savehist-file
-              (concat qq/cache-directory "savehist")    ; cache for minibuffer history
-           savehist-additional-variables
-              '(search ring regexp-search-ring)
-           recentf-save-file
-              (concat qq/cache-directory "recentf")     ; cache folder for recently open files
-           recentf-max-saved-items 1000                 ; maximum saved items in recentf
-           recentf-max-menu-items 500
-           ido-save-directory-list-file
-              (concat qq/cache-directory "ido.last")
-
-           eshell-directory-name
-              (concat  qq/cache-directory "eshell" )
-
-           projectile-known-projects-file
-              (concat  qq/cache-directory "projectile-bookmarks.eld" )
-
-           bookmark-default-file
-              (concat qq/cache-directory "bookmarks")   ; cache for bookmark
-           backup-directory-alist
-           `(("." . ,(concat qq/cache-directory "backups")))
-           auto-save-file-name-transforms
-           `(("." ,(concat qq/cache-directory "backups/") t))
-           auto-save-list-file-prefix
-           (concat qq/cache-directory "auto-save-list/saves-"))
-     (setq delete-auto-save-files t)
-   #+END_SRC
 *** Start emacs @fullscreen
    #+begin_src emacs-lisp
      (toggle-frame-fullscreen)
    #+end_src
 
 *** Trailing whitespace
-   Most UNIX tools work best when there’s a trailing newline on all files.
-   Enable that option:
-
-   #+begin_src emacs-lisp
-     (setq require-final-newline t)
-   #+end_src
-
    I don’t want to leave trailing whitespace in files I touch, so set up a hook
    that automatically deletes trailing whitespace after every line when saving a
    file:
@@ -958,37 +994,38 @@ required from *emacs*.
    default.
 
    #+BEGIN_SRC emacs-lisp
-     (dolist (mode
-              '(abbrev-mode                ; E.g. sopl -> System.out.println.
-                column-number-mode         ; Show column number in mode line.
-                delete-selection-mode      ; Replace selected text.
-                recentf-mode               ; Recently opened files.
-                show-paren-mode            ; Highlight matching parentheses.
+          (dolist (mode
+                   '(abbrev-mode                ; E.g. sopl -> System.out.println.
+                     column-number-mode         ; Show column number in mode line.
+                     delete-selection-mode      ; Replace selected text.
+                     recentf-mode               ; Recently opened files.
+                     show-paren-mode            ; Highlight matching parentheses.
 
-                xterm-mouse-mode
-                which-function-mode        ; show function where cursor reside
-                                           ; in mode line
+                     xterm-mouse-mode
+                     which-function-mode        ; show function where cursor reside
+                                                ; in mode line
 
-                global-auto-revert-mode
+                     global-auto-revert-mode
 
-                ;; Enabled by default in 24.4:
-                ;electric-indent-mode
-                transient-mark-mode
-                delete-selection-mode
+                     ;; Enabled by default in 24.4:
+                     ;electric-indent-mode
+                     transient-mark-mode
+                     delete-selection-mode
 
-                line-number-mode
-                column-number-mode
-                display-time-mode
-                size-indication-mode
-                region-state-mode         ; A global minor-mode that shows the number of
-                                                   ; chars/lines or rows/columns in the region (aka. selection)
+                     line-number-mode
+                     column-number-mode
+                     save-place-mode
+                     display-time-mode
+                     size-indication-mode
+                     region-state-mode         ; A global minor-mode that shows the number of
+                                                        ; chars/lines or rows/columns in the region (aka. selection)
 
-                global-linum-mode          ; turn on line number globally
-                ))
-       (funcall mode 1))
+                     global-linum-mode          ; turn on line number globally
+                     ))
+            (funcall mode 1))
 
-;;     (eval-after-load 'auto-compile
-;;       '((auto-compile-on-save-mode)))   ; compile .el files on save.
+     ;;     (eval-after-load 'auto-compile
+     ;;       '((auto-compile-on-save-mode)))   ; compile .el files on save.
 
    #+END_SRC
 
@@ -1101,6 +1138,64 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+   #+END_SRC
+
+*** linum
+**** Customize linum format
+
+   #+BEGIN_SRC emacs-lisp
+     (hlinum-activate)
+     ;(setq linum-format (lambda (line)
+     ;                     (propertize (format
+     ;                                  (let ((w (length (number-to-string
+     ;                                                    (count-lines (point-min) (point-max))))))
+     ;                                    (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
+   #+END_SRC
+
+**** Turn off linum-mode on some major mode
+   [[http://stackoverflow.com/questions/3875213/turning-on-linum-mode-when-in-python-c-mode]]
+
+   #+BEGIN_SRC emacs-lisp
+     (setq linum-mode-inhibit-modes-list '(eshell-mode
+                                           shell-mode
+                                           dictionary-mode
+                                           erc-mode
+                                           browse-kill-ring-mode
+                                           etags-select-mode
+                                           dired-mode
+                                           help-mode
+                                           text-mode
+                                           fundamental-mode
+                                           jabber-roster-mode
+                                           jabber-chat-mode
+                                           inferior-js-mode
+                                           inferior-python-mode
+                                           inferior-scheme-mode
+                                           twittering-mode
+                                           compilation-mode
+                                           weibo-timeline-mode
+                                           woman-mode
+                                           Info-mode
+                                           calc-mode
+                                           calc-trail-mode
+                                           comint-mode
+                                           gnus-group-mode
+                                           inf-ruby-mode
+                                           gud-mode
+                                           org-mode
+                                           vc-git-log-edit-mode
+                                           log-edit-mode
+                                           term-mode
+                                           w3m-mode
+                                           speedbar-mode
+                                           gnus-summary-mode
+                                           gnus-article-mode
+                                           calendar-mode))
+     (defadvice linum-on (around linum-on-inhibit-for-modes)
+                "Stop the load of linum-mode for some major modes."
+                (unless (member major-mode linum-mode-inhibit-modes-list)
+                  ad-do-it))
+     (ad-activate 'linum-on)
    #+END_SRC
 
 *** Ibuffer customization
@@ -1338,6 +1433,21 @@ required from *emacs*.
    #+TBLNAME: evil_ibuffer_keys
       | Combo       | Description | Command                               |
       | SPC SPC     |             | 'helm-M-x                             |
+*** GUD
+**** Use gdb-many-windows by default
+
+   #+BEGIN_SRC emacs-lisp
+     (setq gdb-many-windows t)
+   #+END_SRC
+
+**** Turn on tooltip-mode
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/gud-hooks ()
+       (gud-tooltip-mode 1))
+
+     (add-hook 'gud-mode-hook 'qq/gud-hooks)
+   #+END_SRC
 
 *** Undo Tree
 **** Settings
@@ -1440,6 +1550,12 @@ required from *emacs*.
       | [escape] | Work as C-g in cases where it does something, and as C-x 1 in other cases  | 'keyboard-escape-quit    |
 
 * Site-Specific
+** Common
+
+   #+begin_src emacs-lisp
+     (setq qq/shell-prog "/bin/bash")
+   #+end_src
+
 ** Work Build Server
 
    #+BEGIN_SRC emacs-lisp
@@ -1500,6 +1616,11 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (defvar qq/gerrit-creds "")
    #+END_SRC
+*** =alert= notifier
+
+   #+BEGIN_SRC emacs-lisp
+     (setq alert-default-style 'notifier)
+   #+END_SRC
 
 *** Modifier keys
    =C-= means =Control= in combination with another key, eg =C-x= means =Ctrl + x=
@@ -1522,6 +1643,12 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
        (setq ns-function-modifier 'hyper)
+   #+end_src
+
+*** Shell program
+
+   #+begin_src emacs-lisp
+     (setq qq/shell-prog "/usr/local/bin/fish")
    #+end_src
 
 *** Host name mangling
@@ -1712,11 +1839,51 @@ required from *emacs*.
        (company-flx-mode +1))
    #+END_SRC
 
+*** Sort completions by usage frequency
+
+   #+BEGIN_SRC emacs-lisp
+     (eval-after-load 'company
+          (company-statistics-mode))
+   #+END_SRC
+
+*** company-ispell setup
+
+   #+BEGIN_SRC emacs-lisp
+     (defun toggle-company-ispell ()
+       (interactive)
+       (cond
+        ((memq 'company-ispell company-backends)
+         (setq company-backends (delete 'company-ispell company-backends))
+         (message "company-ispell disabled"))
+        (t
+         (add-to-list 'company-backends 'company-ispell)
+         (message "company-ispell enabled!"))))
+
+     (defun company-ispell-setup ()
+       ;; @see https://github.com/company-mode/company-mode/issues/50
+       (when (boundp 'company-backends)
+         (make-local-variable 'company-backends)
+         (add-to-list 'company-backends 'company-ispell)
+         (setq company-ispell-dictionary ispell-alternate-dictionary)))
+
+     ;; message-mode use company-bbdb.
+     ;; So we should NOT turn on company-ispell
+     (add-hook 'org-mode-hook 'company-ispell-setup)
+   #+END_SRC
 *** Enable quick help for company-mode
 
    #+BEGIN_SRC emacs-lisp
      (when (display-graphic-p)
          (company-quickhelp-mode +1))
+   #+END_SRC
+
+*** Disable company-mode for certain major modes.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq company-global-modes
+           '(not
+             eshell-mode comint-mode erc-mode gud-mode rcirc-mode
+             minibuffer-inactive-mode))
    #+END_SRC
 
 *** Keybinding
@@ -1791,14 +1958,127 @@ required from *emacs*.
    [[https://bitbucket.org/lyro/evil/wiki/Home]]
 
 *** Init
+
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(evil evil-indent-textobject
-                evil-jumper ;;evil-nerd-commenter
-;                evil-smartparens
-                evil-visualstar
+                evil-jumper
                 ))
        (require feature))
+   #+END_SRC
+
+*** Enable Evil
+
+   #+BEGIN_SRC emacs-lisp
+     (evil-mode 1)
+   #+END_SRC
+*** Plugins
+**** evil-surround
+   See [[https://github.com/timcharper/evil-surround]] for tutorial
+
+   #+BEGIN_SRC emacs-lisp
+     (global-evil-surround-mode t)
+   #+END_SRC
+
+**** evil-quickscope
+
+   #+BEGIN_SRC emacs-lisp
+     (after 'evil-quickscope
+         (setq evil-quickscope-word-separator " -./")
+         (set-face-attribute 'evil-quickscope-first-face nil
+                             :inherit nil)
+
+         (if (display-graphic-p)
+             (set-face-attribute 'evil-quickscope-second-face nil
+                                 :underline '(:style wave)
+                                 :inherit nil)
+           (set-face-attribute 'evil-quickscope-second-face nil
+                               :inherit nil))
+
+         (defun nadvice/evil-quickscope-update-overlays-bidirectional ()
+           "Update overlays in both directions from point."
+           (evil-quickscope-remove-overlays)
+           (when (memq evil-state '(normal motion))
+             (evil-quickscope-apply-overlays-forward)
+             (evil-quickscope-apply-overlays-backward)))
+
+         (advice-add 'evil-quickscope-update-overlays-bidirectional
+                     :override
+                     #'nadvice/evil-quickscope-update-overlays-bidirectional))
+
+     (global-evil-quickscope-always-mode +1)
+   #+END_SRC
+**** evil-visualstar
+   For example, press =viW*=
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'evil-visualstar)
+     (setq evil-visualstar/persistent t)
+     (global-evil-visualstar-mode t)
+   #+END_SRC
+**** evil-multicursor
+   [[https://github.com/gabesoft/evil-mc]]
+   =grm= create cursor for all matching selected
+   =gru= undo all cursors
+   =grs= pause cursor
+   =grr= resume cursor
+   =grh= make cursor here
+   =C-p=, =C-n= previous cursor, next cursor
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'evil-mc)
+     (global-evil-mc-mode 1)
+   #+END_SRC
+**** evil-matchit
+
+   #+BEGIN_SRC emacs-lisp
+     (global-evil-matchit-mode t)
+   #+END_SRC
+**** evil-nerdcommenter
+   [[https://github.com/redguardtoo/evil-nerd-commenter]]
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'evil-nerd-commenter)
+     (evilnc-default-hotkeys)
+   #+END_SRC
+**** evil-exchange
+   Easy text exchange operator for Evil [[https://github.com/Dewdrops/evil-exchange]]
+
+   Default bindings
+
+   =gx= (evil-exchange)
+
+   On the first use, define (and highlight) the first {motion} to exchange. On
+   the second use, define the second {motion} and perform the exchange.
+
+   =gX= (evil-exchange-cancel)
+
+   Clear any {motion} pending for exchange.
+
+   Notes
+
+   1. =gx= (and =gX=) can also be used from visual mode, which is sometimes easier
+      than coming up with the right {motion}
+   2. If you're using the same motion again (e.g. exchanging two words using
+      =gxiw=), you can use . (evil-repeat) the second time.
+   3. =gxx= works as you expect.
+
+   I.e. to exchange two words, place your cursor on the first word and type
+   =gxiw=. Then move to the second word and type =gxiw= again.
+
+
+   #+BEGIN_SRC emacs-lisp
+     (evil-exchange-install)
+   #+END_SRC
+
+**** general
+   An evil-leader replacement
+
+   https://github.com/noctuid/general.el
+
+   #+BEGIN_SRC emacs-lisp
+     (general-evil-setup t)
+     (setq qq-leader1 "SPC")
    #+END_SRC
 
 *** Common Settings
@@ -1807,15 +2087,32 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (setq evil-search-module 'evil-search
            evil-magic 'very-magic
+   #+END_SRC
 
+**** Set the cursor color for different evil mode:
+
+   #+BEGIN_SRC emacs-lisp
            evil-emacs-state-cursor '("red" box)
            evil-normal-state-cursor '("green" box)
            evil-visual-state-cursor '("orange" box)
            evil-insert-state-cursor '("red" bar)
            evil-replace-state-cursor '("red" bar)
            evil-operator-state-cursor '("red" hollow)
+   #+END_SRC
 
+**** Search word instead of symbol
+   [[https://bitbucket.org/lyro/evil/issue/360/possible-evil-search-symbol-forward]]
+
+   #+BEGIN_SRC emacs-lisp
+           evil-symbol-word-search t
+   #+END_SRC
+
+**** Miscellaneous
+
+   #+BEGIN_SRC emacs-lisp
            evilnc-hotkey-comment-operator "gc"
+
+           evil-want-fine-undo 'fine
 
            evil-jumper-auto-center t
            evil-jumper-file (concat qq/cache-directory "evil-jumps")
@@ -1845,71 +2142,84 @@ required from *emacs*.
                      (if (eq evil-symbol-word-search t) nil t)))
    #+END_SRC
 
-*** When Evil not allowed
-   Do not turn =evil-mode= on certain modes.
+*** Initial evil state for some major mode
 
    #+BEGIN_SRC emacs-lisp
-     (defcustom qq/evil-state-modes
-                '(epa-key-list-mode
-                  comint-mode
-                  )
-                "List of modes that should start up in Evil state."
-                :type '(repeat (symbol))
-                :group 'qq)
-
-     (defun qq/disable-evil-mode ()
-       (if (apply 'derived-mode-p qq/evil-state-modes)
-           (turn-off-evil-mode)
-         (set-cursor-color "red")))
-     (add-hook 'after-change-major-mode-hook 'qq/disable-evil-mode)
-     (evil-mode 1)
+     (loop for (mode . state) in
+           '((minibuffer-inactive-mode . emacs)
+             (ggtags-global-mode . emacs)
+             (grep-mode . emacs)
+             (Info-mode . emacs)
+             (term-mode . emacs)
+;             (sdcv-mode . emacs)
+;             (anaconda-nav-mode . emacs)
+             (log-edit-mode . emacs)
+             (vc-log-edit-mode . emacs)
+             (magit-log-edit-mode . emacs)
+;             (inf-ruby-mode . emacs)
+             (direx:direx-mode . emacs)
+;             (yari-mode . emacs)
+;             (erc-mode . emacs)
+             (neotree-mode . emacs)
+;             (w3m-mode . emacs)
+             (gud-mode . emacs)
+             (help-mode . emacs)
+             (eshell-mode . emacs)
+             (shell-mode . emacs)
+;             ;;(message-mode . emacs)
+             (fundamental-mode . emacs)
+;             (weibo-timeline-mode . emacs)
+;             (weibo-post-mode . emacs)
+;             (sr-mode . emacs)
+             (dired-mode . emacs)
+;             (compilation-mode . emacs)
+             (speedbar-mode . emacs)
+             (messages-buffer-mode . normal)
+             (magit-commit-mode . insert)
+             (magit-diff-mode . normal)
+             (browse-kill-ring-mode . normal)
+             (etags-select-mode . normal)
+;             (js2-error-buffer-mode . emacs)
+             )
+           do (evil-set-initial-state mode state))
    #+END_SRC
 
-*** Make HJKL keys work in special buffers
+*** Define my own text objects
+   Works on evil v1.0.9 using older method
+   @see [[http://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new-text-object-to-select-words-with-any-non-sp]]
 
    #+BEGIN_SRC emacs-lisp
-      ;(evil-add-hjkl-bindings occur-mode 'emacs)
-   #+END_SRC
-*** evil-quickscope
-
-   #+BEGIN_SRC emacs-lisp
-     (after 'evil-quickscope
-         (setq evil-quickscope-word-separator " -./")
-         (set-face-attribute 'evil-quickscope-first-face nil
-                             :inherit nil)
-
-         (if (display-graphic-p)
-             (set-face-attribute 'evil-quickscope-second-face nil
-                                 :underline '(:style wave)
-                                 :inherit nil)
-           (set-face-attribute 'evil-quickscope-second-face nil
-                               :inherit nil))
-
-         (defun nadvice/evil-quickscope-update-overlays-bidirectional ()
-           "Update overlays in both directions from point."
-           (evil-quickscope-remove-overlays)
-           (when (memq evil-state '(normal motion))
-             (evil-quickscope-apply-overlays-forward)
-             (evil-quickscope-apply-overlays-backward)))
-
-         (advice-add 'evil-quickscope-update-overlays-bidirectional
-                     :override
-                     #'nadvice/evil-quickscope-update-overlays-bidirectional))
-
-     (global-evil-quickscope-always-mode +1)
+     (defmacro define-and-bind-text-object (key start-regex end-regex)
+       (let ((inner-name (make-symbol "inner-name"))
+             (outer-name (make-symbol "outer-name")))
+         `(progn
+            (evil-define-text-object ,inner-name (count &optional beg end type)
+              (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+            (evil-define-text-object ,outer-name (count &optional beg end type)
+              (evil-select-paren ,start-regex ,end-regex beg end type count t))
+            (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
+            (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
    #+END_SRC
 
-*** Further Settings
+**** between dollar signs:
    #+BEGIN_SRC emacs-lisp
-     (global-evil-leader-mode)
-     (global-evil-visualstar-mode)
-     (evil-leader/set-leader "SPC")
-     (global-evil-surround-mode t)
-     (setq evil-want-fine-undo 'fine)
-     (evil-exchange-install)
+     (define-and-bind-text-object "$" "\\$" "\\$")
+   #+END_SRC
+**** between pipe characters:
+   #+BEGIN_SRC emacs-lisp
+     (define-and-bind-text-object "|" "|" "|")
+   #+END_SRC
+**** trimmed line
+   #+BEGIN_SRC emacs-lisp
+     (define-and-bind-text-object "l" "^ *" " *$")
+   #+END_SRC
+**** angular template
+   #+BEGIN_SRC emacs-lisp
+     (define-and-bind-text-object "r" "\{\{" "\}\}")
+   #+END_SRC
 
-     (global-evil-matchit-mode t)
-
+*** Term Settings
+   #+BEGIN_SRC emacs-lisp
      (defun qq/send-string-to-terminal (string)
        (unless (display-graphic-p) (send-string-to-terminal string)))
 
@@ -1923,13 +2233,17 @@ required from *emacs*.
 
      (add-hook 'after-make-frame-functions (lambda (frame) (qq/evil-terminal-cursor-change)))
      (qq/evil-terminal-cursor-change)
+   #+END_SRC
 
+*** evil-ex-search behaviour
+   #+BEGIN_SRC emacs-lisp
      (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
        (recenter))
 
      (defadvice evil-ex-search-previous (after advice-for-evil-ex-search-previous activate)
        (recenter))
    #+END_SRC
+
 *** Bindings
 **** Global Mode Binding
     :PROPERTIES:
@@ -1951,8 +2265,6 @@ required from *emacs*.
    #+TBLNAME: evil_std_keys
       | Combo       | Description                                | Command                                              |
       |-------------+--------------------------------------------+------------------------------------------------------|
-      | [backspace] | Disable the active search highlightings    | 'evil-ex-nohighlight                                 |
-      | DEL         | Disable the active search highlightings    | 'evil-ex-nohighlight                                 |
       | C-b         | Scroll one page up                         | 'evil-scroll-up                                      |
       | C-f         | Scroll one page down                       | 'evil-scroll-down                                    |
       | [ SPC       | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
@@ -2036,9 +2348,198 @@ required from *emacs*.
     :END:
    Using The table below as the source for generating [[Evil Leader Bindings][Evil Leader Bindings]]
 
+       | bf | | 'beginning-of-defun |
+       | bu | | 'backward-up-list |
+       | bb | | 'back-to-previous-buffer |
+       | ef | | 'end-of-defun |
+       | ddb | | 'sdcv-search-pointer ; in buffer |
+       | ddt | | 'sdcv-search-input+ ;; in tip |
+       | ddd | | 'my-lookup-dict-org |
+       | ddw | | 'define-word |
+       | ddp | | 'define-word-at-point |
+       | mf | | 'mark-defun |
+       | mmm | | 'mpc-which-song |
+       | mmn | | 'mpc-next-prev-song |
+       | mmp | | '(lambda () (interactive) (mpc-next-prev-song t)) |
+       | em | | 'erase-message-buffer |
+       | eb | | 'eval-buffer |
+       | sd | | 'sudo-edit |
+       | sc | | 'shell-command |
+       | ee | | 'eval-expression |
+       | aa | | 'copy-to-x-clipboard ; used frequently |
+       | aw | | 'ace-swap-window |
+       | af | | 'ace-maximize-window |
+       | zz | | 'paste-from-x-clipboard ; used frequently |
+       | cy | | 'strip-convert-lines-into-one-big-string |
+       | bs | | '(lambda () (interactive) (goto-edge-by-comparing-font-face -1)) |
+       | es | | 'goto-edge-by-comparing-font-face |
+       | ntt | | 'neotree-toggle |
+       | ntf | | 'neotree-find ; open file in current buffer in neotree |
+       | ntd | | 'neotree-project-dir |
+       | nth | | 'neotree-hide |
+       | nts | | 'neotree-show |
+       | fl | | 'cp-filename-line-number-of-current-buffer |
+       | fn | | 'cp-filename-of-current-buffer |
+       | fp | | 'cp-fullpath-of-current-buffer |
+       | dj | | 'dired-jump ;; open the dired from current file |
+       | ff | | 'toggle-full-window ;; I use WIN+F in i3 |
+       | ip | | 'find-file-in-project |
+       | kk | | 'find-file-in-project-by-selected |
+       | fd | | 'find-directory-in-project-by-selected |
+       | trm | | 'get-term |
+       | tff | | 'toggle-frame-fullscreen |
+       | tfm | | 'toggle-frame-maximized |
+        | ci | | 'evilnc-comment-or-uncomment-lines |
+        | cl | | 'evilnc-comment-or-uncomment-to-the-line |
+        | cc | | 'evilnc-copy-and-comment-lines |
+        | cp | | 'evilnc-comment-or-uncomment-paragraphs |
+       | epy | | 'emmet-expand-yas |
+       | epl | | 'emmet-expand-line |
+       | rd | | 'evilmr-replace-in-defun |
+       | rb | | 'evilmr-replace-in-buffer |
+       | tt | | 'evilmr-tag-selected-region ;; recommended |
+       | rt | | 'evilmr-replace-in-tagged-region ;; recommended |
+       | tua | | 'artbollocks-mode |
+       | cby | | 'cb-switch-between-controller-and-view |
+       | cbu | | 'cb-get-url-from-controller |
+       | ht | | 'etags-select-find-tag-at-point ; better than find-tag C-] |
+       | hp | | 'etags-select-find-tag |
+       | hm | | 'counsel-bookmark-goto |
+       | yy | | 'browse-kill-ring |
+       | gf | | 'counsel-git-find-file |
+       | gl | | 'counsel-git-grep-yank-line |
+       | gg | | 'counsel-git-grep ; quickest grep should be easy to press |
+       | gm | | 'counsel-git-find-my-file |
+       | rjs | | 'run-js |
+       | rmz | | 'run-mozilla |
+       | rpy | | 'run-python |
+       | rlu | | 'run-lua |
+       | ud | | 'my-gud-gdb |
+       | uk | | 'gud-kill-yes |
+       | ur | | 'gud-remove |
+       | ub | | 'gud-break |
+       | uu | | 'gud-run |
+       | up | | 'gud-print |
+       | ue | | 'gud-cls |
+       | un | | 'gud-next |
+       | us | | 'gud-step |
+       | ui | | 'gud-stepi |
+       | uc | | 'gud-cont |
+       | uf | | 'gud-finish |
+       | tci | | 'toggle-company-ispell |
+       | kb | | 'kill-buffer-and-window ;; "k" is preserved to replace "C-g" |
+       | it | | 'issue-tracker-increment-issue-id-under-cursor |
+       | ls | | 'highlight-symbol |
+       | lq | | 'highlight-symbol-query-replace |
+       | ln | | 'highlight-symbol-nav-mode ; use M-n/M-p to navigation between symbols |
+       | bm | | 'pomodoro-start ;; beat myself |
+       | im | | 'counsel-imenu-goto |
+       | ii | | 'ido-imenu |
+       | ij | | 'rimenu-jump |
+       | . | | 'evil-ex |
+       ;; @see https://github.com/pidu/git-timemachine
+       ;; p: previous; n: next; w:hash; W:complete hash; g:nth version; q:quit
+       | tmt | | 'git-timemachine-toggle |
+       | tdb | | 'tidy-buffer |
+       | tdl | | 'tidy-current-line |
+       ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
+       | ov | | 'my-overview-of-current-buffer |
+       | or | | 'open-readme-in-git-root-directory |
+       | oo | | 'compile |
+       | c$ | | 'org-archive-subtree ; `C-c $' |
+       ;; org-do-demote/org-do-premote support selected region
+       | c< | | 'org-do-promote ; `C-c C-<' |
+       | c> | | 'org-do-demote ; `C-c C->' |
+       | cam | | 'org-tags-view ; `C-c a m': search items in org-file-apps by tag |
+       | cxi | | 'org-clock-in ; `C-c C-x C-i' |
+       | cxo | | 'org-clock-out ; `C-c C-x C-o' |
+       | cxr | | 'org-clock-report ; `C-c C-x C-r' |
+       | mq | | 'lookup-doc-in-man |
+       | sgg | | 'w3m-google-search |
+       | sgf | | 'w3m-google-by-filetype |
+       | sgd | | 'w3m-search-financial-dictionary |
+       | sgq | | 'w3m-stackoverflow-search |
+       | sgj | | 'w3m-search-js-api-mdn |
+       | sga | | 'w3m-java-search |
+       | sgh | | 'w3mext-hacker-search ; code search in all engines with firefox |
+       | qq | | 'my-grep |
+       | gss | | 'git-gutter:set-start-revision |
+       | gsh | | 'git-gutter-reset-to-head-parent |
+       | gsr | | 'git-gutter-reset-to-default |
+       | xc | | 'save-buffers-kill-terminal |
+       | rr | | 'counsel-recentf-goto |
+       | rh | | 'counsel-yank-bash-history ; bash history command => yank-ring |
+       | dfa | | 'diff-region-tag-selected-as-a |
+       | dfb | | 'diff-region-compare-with-b |
+       | di | | 'evilmi-delete-items |
+       | si | | 'evilmi-select-items |
+       | jb | | 'js-beautify |
+       | jpp | | 'js2-print-json-path |
+       | se | | 'string-edit-at-point |
+       | xe | | 'eval-last-sexp |
+       | x0 | | 'delete-window |
+       | x1 | | 'delete-other-windows |
+       | x2 | | 'split-window-vertically |
+       | x3 | | 'split-window-horizontally |
+       | xrw | | 'rotate-windows |
+       | xru | | 'undo-tree-save-state-to-register ; C-x r u |
+       | xrU | | 'undo-tree-restore-state-from-register ; C-x r U |
+       | xt | | 'toggle-window-split |
+       | su | | 'winner-undo |
+       | xu | | 'winner-undo |
+       | to | | 'toggle-web-js-offset |
+       | sl | | 'sort-lines |
+       | lo | | 'moz-console-log-var |
+       | lj | | 'moz-load-js-file-and-send-it |
+       | lk | | 'latest-kill-to-clipboard |
+       | mr | | 'moz-console-clear |
+       | hst | | 'hs-toggle-fold |
+       | hsa | | 'hs-toggle-fold-all |
+       | hsh | | 'hs-hide-block |
+       | hss | | 'hs-show-block |
+       | hd | | 'describe-function |
+       | hf | | 'find-function |
+       | hk | | 'describe-key |
+       | hv | | 'describe-variable |
+       | gt | | 'ggtags-find-tag-dwim |
+       | gr | | 'ggtags-find-reference |
+       | fb | | 'flyspell-buffer |
+       | fe | | 'flyspell-goto-next-error |
+       | fa | | 'flyspell-auto-correct-word |
+       | pe | | 'flymake-goto-prev-error |
+       | ne | | 'flymake-goto-next-error |
+       | fw | | 'ispell-word |
+       | bc | | '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol))) |
+       | ma | | 'mc/mark-all-like-this-in-defun |
+       | mw | | 'mc/mark-all-words-like-this-in-defun |
+       | ms | | 'mc/mark-all-symbols-like-this-in-defun |
+       | md | | 'mc/mark-all-like-this-dwim |
+       | me | | 'mc/edit-lines |
+       | otl | | 'org-toggle-link-display |
+       | om | | 'toggle-org-or-message-mode |
+       | ut | | 'undo-tree-visualize |
+       | ar | | 'align-regexp |
+       | ww | | 'save-buffer |
+       | wrn | | 'httpd-restart-now |
+       | wrd | | 'httpd-restart-at-default-directory |
+       | so | | 'sos |
+       | xx | | 'er/expand-region |
+       | vv | | 'scroll-other-window |
+       | vu | | 'scroll-other-window-up |
+
    #+TBLNAME: evil_leader_keys
       | Combo | Description                     | Command                         |
       |-------+---------------------------------+---------------------------------|
+      | 0     |                                 | 'select-window-0                |
+      | 1     |                                 | 'select-window-1                |
+      | 2     |                                 | 'select-window-2                |
+      | 3     |                                 | 'select-window-3                |
+      | 4     |                                 | 'select-window-4                |
+      | 5     |                                 | 'select-window-5                |
+      | 6     |                                 | 'select-window-6                |
+      | 7     |                                 | 'select-window-7                |
+      | 8     |                                 | 'select-window-8                |
+      | 9     |                                 | 'select-window-9                |
       | b b   |                                 | 'switch-to-buffer               |
       | b k   | Kill current buffer             | 'ido-kill-buffer                |
       | s     |                                 | 'save-buffer                    |
@@ -2046,7 +2547,6 @@ required from *emacs*.
       | w     |                                 | 'evil-ace-jump-word-mode        |
       | j     |                                 | 'dired-jump                     |
       | i     |                                 | 'swiper                         |
-      | x     |                                 | 'execute-extended-command       |
       | n     |                                 | 'neotree-toggle                 |
       | u     |                                 | 'undo-tree-visualize            |
       | e     |                                 | 'eval-last-sexp                 |
@@ -2059,10 +2559,11 @@ required from *emacs*.
       | b e   |                                 | 'evil-buffer                    |
       | b i   |                                 | 'ibuffer                        |
       | b q   |                                 | 'kill-buffer-and-window         |
+      | b f   |                                 | 'ido-find-file                  |
+      | b x   |                                 | 'ido-switch-buffer              |
       | \\    |                                 | 'evil-execute-in-emacs-state    |
       | P     |                                 | 'package-list-packages          |
       | V     |                                 | (bind (term "vim"))             |
-      | g t   |                                 | 'git-timemachine                |
       | t SPC |                                 | 'whitespace-mode                |
       | t TAB |                                 | 'c-toggle-syntactic-indentation |
       | t b   |                                 | 'sr-speedbar-toggle             |
@@ -2072,6 +2573,15 @@ required from *emacs*.
       | h     |                                 | help-map                        |
       | h x   | Describe character under cursor | 'describe-char                  |
       | h h   |                                 | 'help-for-help-internal         |
+      | x h   |                                 | 'mark-whole-buffer              |
+      | x m   |                                 | 'smex                           |
+      | x n n |                                 | 'narrow-or-widen-dwim           |
+      | x n w |                                 | 'widen                          |
+      | x n d |                                 | 'narrow-to-defun                |
+      | x n r |                                 | 'narrow-to-region               |
+      | x z   |                                 | 'suspend-frame                  |
+      | y h   |                                 | 'cliphist-paste-item            |
+      | y u   |                                 | 'cliphist-select-item           |
 
 ** Helm
    =Helm= is incremental completion and selection narrowing framework for Emacs.
@@ -2219,7 +2729,7 @@ required from *emacs*.
       | f                      |             | 'helm-find-files        |
       | o                      |             | 'helm-imenu             |
       | r t                    |             | 'helm-etags-select      |
-      | y                      |             | 'helm-show-kill-ring    |
+      | y s                    |             | 'helm-show-kill-ring    |
       | m                      |             | 'helm-bookmarks         |
       | r r                    |             | 'helm-register          |
       | SPC                    |             | 'helm-M-x               |
@@ -2386,6 +2896,19 @@ required from *emacs*.
 
      (add-hook 'git-gutter:update-hooks 'magit-revert-buffer-hook)
    #+END_SRC
+*** git-messenger
+
+   #+BEGIN_SRC emacs-lisp
+     ;; show details to play `git blame' game
+     (setq git-messenger:show-detail t)
+     (add-hook 'git-messenger:after-popup-hook
+               (lambda (msg)
+                 ;; extract commit id and put into the kill ring
+                 (when (string-match "\\(commit *: *\\)\\([0-9a-z]+\\)" msg)
+                   (copy-yank-str (match-string 2 msg))
+                   (message "commit hash %s => clipboard & kill-ring" (match-string 2 msg))
+                   )))
+   #+END_SRC
 
 *** Keybinding
     :PROPERTIES:
@@ -2394,21 +2917,23 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
 
    #+TBLNAME: evil_magit_keys
-      | Evil Leader Combo | Description | Command                 |
-      |-------------------+-------------+-------------------------|
-      | g s               |             | 'magit-status           |
-      | g b               |             | 'magit-blame            |
-      | g C               |             | 'magit-commit           |
-      | g i               |             | 'git-blame-line         |
-      | g l               |             | 'magit-log              |
-      | g a               |             | 'git-gutter:stage-hunk  |
-      | g r               |             | 'git-gutter:revert-hunk |
-
-   #+TBLNAME: gitgutter_keys
-      | Combo | Description | Command                   |
-      |-------+-------------+---------------------------|
-      | [ h   |             | 'git-gutter:previous-hunk |
-      | ] h   |             | 'git-gutter:next-hunk     |
+      | Evil Leader Combo | Description | Command                         |
+      |-------------------+-------------+---------------------------------|
+      | g s               |             | 'magit-status                   |
+      | g b               |             | 'magit-blame                    |
+      | g C               |             | 'magit-commit                   |
+      | g m               |             | 'git-messenger:popup-message    |
+      | g i               |             | 'git-blame-line                 |
+      | g l               |             | 'magit-log                      |
+      | g a               |             | 'git-gutter:stage-hunk          |
+      | g r               |             | 'git-gutter:revert-hunk         |
+      | g t               |             | 'git-timemachine                |
+      | g k               |             | 'git-gutter:previous-hunk       |
+      | g j               |             | 'git-gutter:next-hunk           |
+      | g =               |             | 'git-gutter:popup-hunk          |
+      | g t               |             | 'vc-annotate                    |
+      | g x               |             | 'vc-next-action                 |
+      | g L               |             | 'vc-print-log                   |
 
 ** Keyfreq
    Track Emacs commands frequency, github [[https://github.com/dacap/keyfreq][here]].
@@ -2770,14 +3295,14 @@ required from *emacs*.
    =ansi-term= is a terminal emulator written in Emacs Lisp. It’s more like a
    traditional terminal emulator than =eshell=.
 
-   Force ansi-term to be UTF-8 after it launches:
+**** Force ansi-term to be UTF-8 after it launches
 
    #+BEGIN_SRC emacs-lisp
      (defadvice ansi-term (after bw/advise-ansi-term-coding-system activate)
        (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
    #+END_SRC
 
-   When exiting a terminal buffer (either with exit or EOF), automatically kill the buffer:
+**** When exiting a terminal buffer (either with exit or EOF), automatically kill the buffer
 
    #+BEGIN_SRC emacs-lisp
      (defadvice term-sentinel (around bw/advice-term-sentinel (proc msg) activate)
@@ -2786,6 +3311,120 @@ required from *emacs*.
              ad-do-it
              (kill-buffer buffer))
          ad-do-it))
+     (ad-activate 'term-sentinel)
+   #+END_SRC
+**** Stop asking which shell program to use
+
+   #+begin_src emacs-lisp
+     (defadvice ansi-term (before force-bash)
+       (interactive (list qq/shell-prog)))
+     (ad-activate 'ansi-term)
+   #+end_src
+**** Make pasting work
+
+   #+begin_src emacs-lisp
+     (defun qq/term-paste (&optional string)
+      (interactive)
+      (process-send-string
+       (get-buffer-process (current-buffer))
+       (if string string (current-kill 0))))
+   #+end_src
+**** Enable URL clicking & proper color
+
+   #+begin_src emacs-lisp
+     (defun qq/term-hook ()
+       (goto-address-mode)
+       (define-key term-raw-map "\C-y" 'qq/term-paste)
+       ;(let ((base03  "#002b36")
+       ;      (base02  "#073642")
+       ;      (base01  "#586e75")
+       ;      (base00  "#657b83")
+       ;      (base0   "#839496")
+       ;      (base1   "#93a1a1")
+       ;      (base2   "#eee8d5")
+       ;      (base3   "#fdf6e3")
+       ;      (yellow  "#b58900")
+       ;      (orange  "#cb4b16")
+       ;      (red     "#dc322f")
+       ;      (magenta "#d33682")
+       ;      (violet  "#6c71c4")
+       ;      (blue    "#268bd2")
+       ;      (cyan    "#2aa198")
+       ;      (green   "#859900"))
+       ;  (setq ansi-term-color-vector
+       ;        (vconcat `(unspecified ,base02 ,red ,green ,yellow ,blue
+       ;                               ,magenta ,cyan ,base2))))
+     )
+     (add-hook 'term-mode-hook 'qq/term-hook)
+   #+end_src
+*** Serial terminal
+**** For serial port, default to 115200 b/s instead of 9600
+
+   #+BEGIN_SRC emacs-lisp
+     (setq serial-speed-history
+           '("115200" ;; Given twice because 115200 b/s is the most common speed
+             "1200" "2400" "4800" "9600" "14400" "19200"
+             "28800" "38400" "57600" "115200"))
+   #+END_SRC
+
+**** Calling function
+   =eterm-color= is the TERM used by Emacs when using =M-x term RET=
+
+   On Debian-based systems you administer, you can =apt-get install
+   ncurses-term=, which includes /usr/share/terminfo/e/eterm-color.
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/serial-term ()
+       (interactive)
+       (serial-term "/dev/ttyUSB0" 115200)
+       (term-send-string (get-buffer-process (current-buffer))
+                         "export TERM=eterm-color\nclear\n"))
+   #+END_SRC
+
+**** Hook to update window size
+   Pre-condition is to be in a serial term process buffer
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/serial-term-update-window-size ()
+       "Change process window size."
+       (interactive)
+       ;; effectively calls ioctl(TIOCSWINSZ ...)
+       (set-process-window-size (get-buffer-process (current-buffer))
+                                (window-height)
+                                (window-width))
+       ;; this is sad but we can't actually do this:
+       ;;     (signal-process (get-buffer-process (current-buffer)) 'winch)
+       ;; See Info node `(elisp)Serial Ports':
+       ;;     ...
+       ;;     A serial process object has no process ID, however, and you can't send
+       ;;     signals to it, and the status codes are different from other types of
+       ;;     processes.
+       ;;
+       ;; telling the shell to monitor the window size doesn't work either
+       ;;     shopt -s checkwinsize
+       ;; http://unix.stackexchange.com/a/61608/88925
+       ;;
+       ;; What seems to work is to call 'resize ; clear' explicitely on the shell
+
+
+       ;; in case of error one can try to use stty:
+       ;; sudo stty -F/dev/ttyS0 cols 180
+       )
+   #+END_SRC
+
+   Add this hook as buffer local, so it runs once per window as opposed to
+   once per frame
+
+   -- [[http://stackoverflow.com/a/11255996/951426]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/serial-term-mode-hook ()
+       (when (and (derived-mode-p 'term-mode)
+                  (eq (process-type nil) 'serial))
+         (add-hook 'window-configuration-change-hook
+                   'qq/serial-term-update-window-size nil t)))
+
+     (add-hook 'shell-mode-hook 'qq/serial-term-mode-hook)
    #+END_SRC
 
 ** Smartparens
@@ -2968,6 +3607,77 @@ Some general settings that should apply to all programming mode. Highlight
                  (color-identifiers-mode t)))
 #+end_src
 
+** Compilation
+*** Compilation behaviour
+**** Scroll down compilation messages
+
+   #+BEGIN_SRC emacs-lisp
+     (setq compilation-scroll-output t)
+   #+END_SRC
+
+**** Scroll to first error
+
+   #+BEGIN_SRC emacs-lisp
+     (setq compilation-scroll-output 'first-error)
+   #+END_SRC
+
+**** Kill compilation without reconfirmation
+
+   #+BEGIN_SRC emacs-lisp
+     (setq compilation-always-kill t)
+   #+END_SRC
+
+**** Unconditionally save all buffer before compiling
+
+   #+BEGIN_SRC emacs-lisp
+     (setq compilation-ask-about-save nil)
+   #+END_SRC
+
+*** Custom command
+
+#+BEGIN_SRC emacs-lisp
+  (defun qq/c-mode-compile()
+    (interactive)
+    (setq-local compilation-read-command nil)
+    (call-interactively 'compile))
+
+  (after "c-mode" (define-key c-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
+  (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
+#+END_SRC
+
+*** ANSI-escape coloring in compilation-mode
+   =M-x compile= has some issues with ansi color codes. This fixes it. Found at [[http://stackoverflow.com/questions/3072648/cucumbers-ansi-colors-messing-up-emacs-compilation-buffer][StackOverflow]]
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'ansi-color)
+     (defun colorize-compilation-buffer ()
+       (let ((inhibit-read-only t))
+         (ansi-color-apply-on-region (point-min) (point-max))))
+     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+   #+END_SRC
+
+*** Bury compilation buffer
+If compilation is successful namely neither errors nor warnings, the compilation
+buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close/11059012#11059012][stackoverflow]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq-bury-compile-buffer-if-successful (buffer string)
+       "Bury a compilation buffer if succeeded without warnings "
+       (if (and
+            (string-match "compilation" (buffer-name buffer))
+            (string-match "finished" string)
+            (not
+             (with-current-buffer buffer
+               (search-forward "warning" nil t))))
+           (run-with-timer 1 nil
+                           (lambda (buf)
+                             (bury-buffer buf)
+                             (switch-to-prev-buffer (get-buffer-window buf) 'kill))
+                           buffer))
+       (alert string :title buffer))
+     (add-hook 'compilation-finish-functions 'qq-bury-compile-buffer-if-successful)
+   #+END_SRC
+
 ** C and its derivative
 *** Common
    The =c-mode-common-hook= is a general hook that work on all C-like languages
@@ -3012,6 +3722,9 @@ Some general settings that should apply to all programming mode. Highlight
        (eldoc-mode)
        (ggtags-mode 1)
 
+       ;; Highlights suspicious C and C++ constructions
+       (global-cwarn-mode 1)
+
        ;; slow
        ;;(flycheck-mode)
        ;;(setq flycheck-gcc-language-standard "c++11")
@@ -3034,46 +3747,6 @@ Some general settings that should apply to all programming mode. Highlight
      )
      (add-hook 'c-mode-hook 'qq/c-mode-init)
      (add-hook 'c++-mode-hook 'qq/c-mode-init)
-   #+END_SRC
-
-*** Compilation
-**** Custom command
-
-#+BEGIN_SRC emacs-lisp
-  (defun qq/c-mode-compile()
-    (interactive)
-    (setq-local compilation-read-command nil)
-    (call-interactively 'compile))
-
-  (after "c-mode" (define-key c-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
-  (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
-#+END_SRC
-
-**** Scroll down compilation messages
-
-   #+BEGIN_SRC emacs-lisp
-     (setq compilation-scroll-output t)
-   #+END_SRC
-
-**** Bury compilation buffer
-If compilation is successful namely neither errors nor warnings, the compilation
-buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close/11059012#11059012][stackoverflow]]
-
-   #+BEGIN_SRC emacs-lisp
-     (defun sk-bury-compile-buffer-if-successful (buffer string)
-       "Bury a compilation buffer if succeeded without warnings "
-       (if (and
-            (string-match "compilation" (buffer-name buffer))
-            (string-match "finished" string)
-            (not
-             (with-current-buffer buffer
-               (search-forward "warning" nil t))))
-           (run-with-timer 1 nil
-                           (lambda (buf)
-                             (bury-buffer buf)
-                             (switch-to-prev-buffer (get-buffer-window buf) 'kill))
-                           buffer)))
-     (add-hook 'compilation-finish-functions 'sk-bury-compile-buffer-if-successful)
    #+END_SRC
 
 *** C++
@@ -3330,6 +4003,108 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
        (ansi-color-apply-on-region beg end))
    #+END_SRC
 
+** Diff two regions
+   Step 1: Select a region and `M-x diff-region-tag-selected-as-a'
+   Step 2: Select another region and `M-x diff-region-compare-with-b'
+
+   #+BEGIN_SRC emacs-lisp
+     (defun diff-region-format-region-boundary (b e)
+       "Make sure lines are selected and B is less than E"
+       (let (tmp rlt)
+         ;; swap b e, make sure b < e
+         (when (> b e)
+           (setq tmp b)
+           (setq b e)
+           (set e tmp))
+
+         ;; select lines
+         (save-excursion
+           ;; Another workaround for evil-visual-line bug:
+           ;; In evil-mode, if we use hotkey V or `M-x evil-visual-line` to select line,
+           ;; the (line-beginning-position) of the line which is after the last selected
+           ;; line is always (region-end)! Don't know why.
+           (if (and (> e b)
+                    (save-excursion (goto-char e) (= e (line-beginning-position)))
+                    (boundp 'evil-state) (eq evil-state 'visual))
+               (setq e (1- e)))
+           (goto-char b)
+           (setq b (line-beginning-position))
+           (goto-char e)
+           (setq e (line-end-position)))
+         (setq rlt (list b e))
+         rlt))
+
+     (defun diff-region-tag-selected-as-a ()
+       "Select a region to compare"
+       (interactive)
+       (when (region-active-p)
+         (let (tmp buf)
+           ;; select lines
+           (setq tmp (diff-region-format-region-boundary (region-beginning) (region-end)))
+           (setq buf (get-buffer-create "*Diff-regionA*"))
+           (save-current-buffer
+             (set-buffer buf)
+             (erase-buffer))
+           (append-to-buffer buf (car tmp) (cadr tmp))))
+       (message "Now select other region to compare and run `diff-region-compare-with-b`"))
+
+     (defun diff-region-compare-with-b ()
+       "Compare current region with region selected by `diff-region-tag-selected-as-a' "
+       (interactive)
+       (if (region-active-p)
+           (let (rlt-buf
+                 diff-output
+                 (fa (make-temp-file (expand-file-name "scor"
+                                                       (or small-temporary-file-directory
+                                                           temporary-file-directory))))
+                 (fb (make-temp-file (expand-file-name "scor"
+                                                       (or small-temporary-file-directory
+                                                           temporary-file-directory)))))
+             ;;  save current content as file B
+             (when fb
+               (setq tmp (diff-region-format-region-boundary (region-beginning) (region-end)))
+               (write-region (car tmp) (cadr tmp) fb))
+
+             (setq rlt-buf (get-buffer-create "*Diff-region-output*"))
+             (when (and fa (file-exists-p fa) fb (file-exists-p fb))
+               ;; save region A as file A
+               (save-current-buffer
+                 (set-buffer (get-buffer-create "*Diff-regionA*"))
+                 (write-region (point-min) (point-max) fa))
+               ;; diff NOW!
+               (setq diff-output (shell-command-to-string (format "diff -Nabur %s %s" fa fb)))
+               ;; show the diff output
+               (if (string= diff-output "")
+                   ;; two regions are same
+                   (message "Two regions are SAME!")
+                 ;; show the diff
+                 (save-current-buffer
+                   (switch-to-buffer-other-window rlt-buf)
+                   (set-buffer rlt-buf)
+                   (erase-buffer)
+                   (insert diff-output)
+                   (diff-mode))))
+
+             ;; clean the temporary files
+             (if (and fa (file-exists-p fa))
+                 (delete-file fa))
+             (if (and fb (file-exists-p fb))
+                 (delete-file fb)))
+         (message "Please select region at first!")))
+   #+END_SRC
+** Narrow or widen region
+   See [[https://gist.github.com/mwfogleman/95cc60c87a9323876c6c]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun narrow-or-widen-dwim ()
+       "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."
+       (interactive)
+       (cond ((buffer-narrowed-p) (widen))
+             ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
+             ((equal major-mode 'org-mode) (org-narrow-to-subtree))
+             (t (error "Please select a region to narrow to"))))
+   #+END_SRC
+
 ** KeyBindings
     :PROPERTIES:
     :CUSTOM_ID: recipes-binding
@@ -3400,7 +4175,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    Generate binding using table from [[#evil-leader-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="after \"evil-leader-autoloads\"")>>
+     <<gen-fix(pre="nmap :prefix qq-leader1")>>
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
    #+END_SRC
 
@@ -3415,19 +4190,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    Binding code generation for [[#helm-evil-key-binding][this]] table
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-fix(pre="after \"helm-autoloads\"")>>
      <<gen-keys(moda="lead", tname=helm-evil-combo)>>
-     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 ** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="after \"magit-autoloads\"")>>
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
-     <<gen-fix(pos=")\n")>>
-     <<gen-keys(mmap="ev-nor", tname=gitgutter_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
