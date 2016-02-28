@@ -526,12 +526,6 @@ required from *emacs*.
                    split-width-threshold 100
    #+END_SRC
 
-**** Enable saving cursor last position in a file
-
-   #+BEGIN_SRC emacs-lisp
-                   save-place t
-   #+END_SRC
-
 **** Savehist history length
 
    #+BEGIN_SRC emacs-lisp
@@ -551,6 +545,16 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
                    imenu-auto-rescan t)
+   #+END_SRC
+
+*** Remember cursor position
+
+   #+BEGIN_SRC emacs-lisp
+     (if (version< emacs-version "25.0")
+         (progn
+           (require 'saveplace)
+           (setq-default save-place t))
+       (save-place-mode 1))
    #+END_SRC
 
 *** Turn on auto-fill mode in text buffers
@@ -1014,7 +1018,6 @@ required from *emacs*.
 
                      line-number-mode
                      column-number-mode
-                     save-place-mode
                      display-time-mode
                      size-indication-mode
                      region-state-mode         ; A global minor-mode that shows the number of
@@ -2145,7 +2148,7 @@ required from *emacs*.
 *** Initial evil state for some major mode
 
    #+BEGIN_SRC emacs-lisp
-     (loop for (mode . state) in
+     (cl-loop for (mode . state) in
            '((minibuffer-inactive-mode . emacs)
              (ggtags-global-mode . emacs)
              (grep-mode . emacs)
@@ -2157,21 +2160,21 @@ required from *emacs*.
              (vc-log-edit-mode . emacs)
              (magit-log-edit-mode . emacs)
 ;             (inf-ruby-mode . emacs)
-             (direx:direx-mode . emacs)
+;             (direx:direx-mode . emacs)
 ;             (yari-mode . emacs)
 ;             (erc-mode . emacs)
              (neotree-mode . emacs)
 ;             (w3m-mode . emacs)
              (gud-mode . emacs)
-             (help-mode . emacs)
+;             (help-mode . emacs)
              (eshell-mode . emacs)
              (shell-mode . emacs)
-;             ;;(message-mode . emacs)
-             (fundamental-mode . emacs)
+;             (message-mode . emacs)
+;             (fundamental-mode . emacs)
 ;             (weibo-timeline-mode . emacs)
 ;             (weibo-post-mode . emacs)
 ;             (sr-mode . emacs)
-             (dired-mode . emacs)
+;             (dired-mode . emacs)
 ;             (compilation-mode . emacs)
              (speedbar-mode . emacs)
              (messages-buffer-mode . normal)
