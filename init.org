@@ -1711,6 +1711,12 @@ required from *emacs*.
          (message "Lenovo Thinkpad")
    #+END_SRC
 
+*** =alert= notifier
+
+   #+BEGIN_SRC emacs-lisp
+     (setq alert-default-style 'libnotify)
+   #+END_SRC
+
 *** Gerrit Identitiy
     Used by =company-c-headers=
 

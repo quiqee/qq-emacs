@@ -34,7 +34,8 @@ URxvt*fading: 40
 URxvt*termName: rxvt-unicode-256color
 
 URxvt*perl-lib: /home/fikri/Documents/qq-emacs/urxvt-perls/
-URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard,tabbed
+URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard
+!URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard,tabbed
 
 !Keyboard select
 URxvt*keysym.M-Escape: perl:keyboard-select:activate

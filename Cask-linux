@@ -6,10 +6,11 @@
 (depends-on "exec-path-from-shell")
 (depends-on "swiper")
 (depends-on "ranger")
+(depends-on "cliphist")
+(depends-on "multi-term")
 
 ;; UI Enhancement
 (depends-on "hlinum")
-(depends-on "linum-off")
 (depends-on "nlinum")
 (depends-on "info+")
 (depends-on "spaceline")
@@ -17,6 +18,9 @@
 
 ;; Modes
 (depends-on "swift-mode")
+(depends-on "crontab-mode")
+(depends-on "csv-mode")
+(depends-on "csv-nav")
 
 (depends-on "emoji-cheat-sheet-plus")
 (depends-on "emojify")
@@ -26,6 +30,8 @@
 (depends-on "fasd")
 (depends-on "shell-here")
 
+(depends-on "alert")
+
 (depends-on "company")
 (depends-on "company-irony")
 (depends-on "company-irony-c-headers")
@@ -34,6 +40,7 @@
 (depends-on "company-math")
 (depends-on "company-quickhelp")
 (depends-on "company-flx")
+(depends-on "company-statistics")
 (depends-on "irony")
 (depends-on "irony-eldoc")
 (depends-on "flycheck-irony")
@@ -41,14 +48,14 @@
 
 (depends-on "icicles")
 
-;(depends-on "vlfi" :git "https://github.com/m00natic/vlfi.git" :files ("*" (:exclude ".git")))
+(depends-on "vlfi" :git "https://github.com/m00natic/vlfi" :ref "master")
 (depends-on "rtags")
 (depends-on "git-timemachine")
 (depends-on "ggtags")
 
-;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :files ("*" (:exclude ".git")))
-;
-;(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs.git" :files ("*" (:exclude ".git")))
+(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :ref "master")
+
+(depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs" :ref "master")
 
 (depends-on "function-args")
 (depends-on "clean-aindent-mode")
@@ -90,6 +97,8 @@
 (depends-on "grandshell-theme")
 (depends-on "zenburn-theme")
 (depends-on "darktooth-theme")
+(depends-on "material-theme")
+(depends-on "cyberpunk-theme")
 
 (depends-on "expand-region")
 ;; vim emulator
@@ -104,12 +113,13 @@
 (depends-on "evil-surround")
 (depends-on "evil-visualstar")
 (depends-on "evil-quickscope")
+(depends-on "evil-mc")
+(depends-on "general")
 ;(depends-on "evil-smartparens")
 
 
 (depends-on "flx-ido")                 ; Better flex (fuzzy) matching for Ido
 (depends-on "flycheck")                ; on-the-fly syntax checking
-(depends-on "git-gutter-fringe")
 (depends-on "ggtags")
 (depends-on "which-key")
 
@@ -144,6 +154,8 @@
 (depends-on "evil-magit")
 (depends-on "magit")
 (depends-on "magit-gerrit")
+(depends-on "git-gutter-fringe")
+(depends-on "git-messenger")
 
 (depends-on "markdown-mode")
 (depends-on "move-text")               ; Move current line or region with M-up or M-down
