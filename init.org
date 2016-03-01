@@ -1619,6 +1619,18 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (defvar qq/gerrit-creds "")
    #+END_SRC
+
+*** More sane scrolling with OS X mouse/trackpad
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key [wheel-down] (lambda () (interactive) (scroll-up-command 1)))
+     (global-set-key [wheel-up] (lambda () (interactive) (scroll-down-command 1)))
+     (global-set-key [double-wheel-down] (lambda () (interactive) (scroll-up-command 2)))
+     (global-set-key [double-wheel-up] (lambda () (interactive) (scroll-down-command 2)))
+     (global-set-key [triple-wheel-down] (lambda () (interactive) (scroll-up-command 4)))
+     (global-set-key [triple-wheel-up] (lambda () (interactive) (scroll-down-command 4)))
+   #+END_SRC
+
 *** =alert= notifier
 
    #+BEGIN_SRC emacs-lisp
@@ -2035,8 +2047,8 @@ required from *emacs*.
    =C-p=, =C-n= previous cursor, next cursor
 
    #+BEGIN_SRC emacs-lisp
-     (require 'evil-mc)
-     (global-evil-mc-mode 1)
+;     (require 'evil-mc)
+;     (global-evil-mc-mode 1)
    #+END_SRC
 **** evil-matchit
 
@@ -2423,18 +2435,6 @@ required from *emacs*.
        | rmz | | 'run-mozilla |
        | rpy | | 'run-python |
        | rlu | | 'run-lua |
-       | ud | | 'my-gud-gdb |
-       | uk | | 'gud-kill-yes |
-       | ur | | 'gud-remove |
-       | ub | | 'gud-break |
-       | uu | | 'gud-run |
-       | up | | 'gud-print |
-       | ue | | 'gud-cls |
-       | un | | 'gud-next |
-       | us | | 'gud-step |
-       | ui | | 'gud-stepi |
-       | uc | | 'gud-cont |
-       | uf | | 'gud-finish |
        | tci | | 'toggle-company-ispell |
        | kb | | 'kill-buffer-and-window ;; "k" is preserved to replace "C-g" |
        | it | | 'issue-tracker-increment-issue-id-under-cursor |
@@ -2591,6 +2591,18 @@ required from *emacs*.
       | x z   |                                 | 'suspend-frame                  |
       | y h   |                                 | 'cliphist-paste-item            |
       | y u   |                                 | 'cliphist-select-item           |
+      | v d   |                                 | 'my-gud-gdb                     |
+      | v k   |                                 | 'gud-kill-yes                   |
+      | v r   |                                 | 'gud-remove                     |
+      | v b   |                                 | 'gud-break                      |
+      | v u   |                                 | 'gud-run                        |
+      | v p   |                                 | 'gud-print                      |
+      | v e   |                                 | 'gud-cls                        |
+      | v n   |                                 | 'gud-next                       |
+      | v s   |                                 | 'gud-step                       |
+      | v i   |                                 | 'gud-stepi                      |
+      | v c   |                                 | 'gud-cont                       |
+      | v f   |                                 | 'gud-finish                     |
 
 ** Helm
    =Helm= is incremental completion and selection narrowing framework for Emacs.
@@ -3537,6 +3549,25 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩"))
+   #+END_SRC
+
+*** Change what string to display for a given *complete* key binding
+   Eg: After =C-x=, display =8 → +unicode= instead of =8 → +prefix=
+
+   #+BEGIN_SRC emacs-lisp
+     (which-key-add-key-based-replacements
+       "SPC g"   "git/magit"
+       "SPC b"   "buffer related"
+       "SPC p"   "projectile related"
+       "SPC p"   "help related"
+       "SPC t"   "toggling thing"
+       "SPC v"   "GUD related"
+       "C-x 8"   "unicode"
+       "C-x a"   "abbrev/expand"
+       "C-x r"   "rect/reg"
+       "C-c /"   "engine-mode-map"
+       "C-c C-v" "org-babel"
+       "C-x 8 0" "ZWS")
    #+END_SRC
 
 *** Evil Leader Keybinding
