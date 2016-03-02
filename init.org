@@ -339,14 +339,6 @@ required from *emacs*.
            dired-dwim-target t
    #+END_SRC
 
-**** Emacs Garbage Collector
-   We don't really need to garbage collect as frequently as Emacs would like to
-   by default, so set the threshold up hight.
-
-   #+begin_src emacs-lisp
-           gc-cons-threshold 20000000
-   #+end_src
-
 **** Echo commands quicker than the default 1 second
 
    #+begin_src emacs-lisp
@@ -430,6 +422,9 @@ required from *emacs*.
 
            eshell-directory-name
               (concat  qq/cache-directory "eshell" )
+
+           persp-save-dir
+              (concat  qq/cache-directory "persp-conf/")
 
            smex-save-file
               (concat  qq/cache-directory "smex-items")
@@ -1418,6 +1413,10 @@ required from *emacs*.
         (kbd "C-c C-a") 'ibuffer-auto-mode
         (kbd "C-x 4 RET") 'ibuffer-visit-buffer-other-window
         (kbd "C-x 5 RET") 'ibuffer-visit-buffer-other-frame
+
+   #+TBLNAME: evil_ibuffer_keys
+      | Combo       | Description | Command                               |
+      | SPC SPC     |             | 'helm-M-x                             |
       | v           |             | 'ibuffer-toggle-marks                 |
       | l           |             | 'ibuffer-visit-buffer                 |
       | J           |             | 'ibuffer-jump-to-buffer               |
@@ -1433,9 +1432,44 @@ required from *emacs*.
       | C-d         |             | 'ibuffer-mark-for-delete-backwards    |
       | x           |             | 'ibuffer-do-kill-on-deletion-marks    |
 
-   #+TBLNAME: evil_ibuffer_keys
-      | Combo       | Description | Command                               |
-      | SPC SPC     |             | 'helm-M-x                             |
+*** Minibuffer
+**** Enable paredit in lisp related minibuffer
+
+   #+begin_src emacs-lisp
+;      (defvar paredit-minibuffer-commands '(eval-expression
+;                                           pp-eval-expression
+;                                           eval-expression-with-eldoc
+;                                           ibuffer-do-eval
+;                                           ibuffer-do-view-and-eval)
+;       "Interactive commands for which paredit should be enabled in the minibuffer.")
+;
+;     (defun conditionally-paredit-mode (flag)
+;       "Enable paredit during lisp-related minibuffer commands."
+;       (if (memq this-command paredit-minibuffer-commands)
+;           (paredit-mode flag)))
+   #+end_src
+
+**** Proper gc threshold when minibuffer active. Lower it after minibuffer exit
+
+   [[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/]]
+
+   #+begin_src emacs-lisp
+     (defun qq/minibuffer-setup-hook ()
+       ;; Use paredit in the minibuffer
+       ;(conditionally-paredit-mode 1)
+       (local-set-key (kbd "M-y") 'paste-from-x-clipboard)
+       (local-set-key (kbd "C-k") 'kill-line)
+       (setq gc-cons-threshold most-positive-fixnum))
+
+     (defun qq/minibuffer-exit-hook ()
+       ;; evil-mode also use minibuf
+       ;(conditionally-paredit-mode -1)
+       (setq gc-cons-threshold best-gc-cons-threshold))
+
+     (add-hook 'minibuffer-setup-hook #'qq/minibuffer-setup-hook)
+     (add-hook 'minibuffer-exit-hook #'qq/minibuffer-exit-hook)
+   #+end_src
+
 *** GUD
 **** Use gdb-many-windows by default
 
@@ -2098,6 +2132,7 @@ required from *emacs*.
    https://github.com/noctuid/general.el
 
    #+BEGIN_SRC emacs-lisp
+     (setq general-default-non-normal-prefix "M-SPC")
      (general-evil-setup t)
      (setq qq-leader1 "SPC")
    #+END_SRC
@@ -2379,18 +2414,13 @@ required from *emacs*.
        | ddw | | 'define-word |
        | ddp | | 'define-word-at-point |
        | mf | | 'mark-defun |
-       | mmm | | 'mpc-which-song |
-       | mmn | | 'mpc-next-prev-song |
-       | mmp | | '(lambda () (interactive) (mpc-next-prev-song t)) |
        | em | | 'erase-message-buffer |
-       | eb | | 'eval-buffer |
        | sd | | 'sudo-edit |
        | sc | | 'shell-command |
-       | ee | | 'eval-expression |
        | aa | | 'copy-to-x-clipboard ; used frequently |
        | aw | | 'ace-swap-window |
        | af | | 'ace-maximize-window |
-       | zz | | 'paste-from-x-clipboard ; used frequently |
+        zz | | 'paste-from-x-clipboard ; used frequently |
        | cy | | 'strip-convert-lines-into-one-big-string |
        | bs | | '(lambda () (interactive) (goto-edge-by-comparing-font-face -1)) |
        | es | | 'goto-edge-by-comparing-font-face |
@@ -2404,12 +2434,7 @@ required from *emacs*.
        | fp | | 'cp-fullpath-of-current-buffer |
        | dj | | 'dired-jump ;; open the dired from current file |
        | ff | | 'toggle-full-window ;; I use WIN+F in i3 |
-       | ip | | 'find-file-in-project |
-       | kk | | 'find-file-in-project-by-selected |
-       | fd | | 'find-directory-in-project-by-selected |
        | trm | | 'get-term |
-       | tff | | 'toggle-frame-fullscreen |
-       | tfm | | 'toggle-frame-maximized |
         | ci | | 'evilnc-comment-or-uncomment-lines |
         | cl | | 'evilnc-comment-or-uncomment-to-the-line |
         | cc | | 'evilnc-copy-and-comment-lines |
@@ -2441,14 +2466,11 @@ required from *emacs*.
        | ls | | 'highlight-symbol |
        | lq | | 'highlight-symbol-query-replace |
        | ln | | 'highlight-symbol-nav-mode ; use M-n/M-p to navigation between symbols |
-       | bm | | 'pomodoro-start ;; beat myself |
        | im | | 'counsel-imenu-goto |
        | ii | | 'ido-imenu |
        | ij | | 'rimenu-jump |
-       | . | | 'evil-ex |
        ;; @see https://github.com/pidu/git-timemachine
        ;; p: previous; n: next; w:hash; W:complete hash; g:nth version; q:quit
-       | tmt | | 'git-timemachine-toggle |
        | tdb | | 'tidy-buffer |
        | tdl | | 'tidy-current-line |
        ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
@@ -2472,7 +2494,6 @@ required from *emacs*.
        | sga | | 'w3m-java-search |
        | sgh | | 'w3mext-hacker-search ; code search in all engines with firefox |
        | qq | | 'my-grep |
-       | gss | | 'git-gutter:set-start-revision |
        | gsh | | 'git-gutter-reset-to-head-parent |
        | gsr | | 'git-gutter-reset-to-default |
        | xc | | 'save-buffers-kill-terminal |
@@ -2506,10 +2527,6 @@ required from *emacs*.
        | hsa | | 'hs-toggle-fold-all |
        | hsh | | 'hs-hide-block |
        | hss | | 'hs-show-block |
-       | hd | | 'describe-function |
-       | hf | | 'find-function |
-       | hk | | 'describe-key |
-       | hv | | 'describe-variable |
        | gt | | 'ggtags-find-tag-dwim |
        | gr | | 'ggtags-find-reference |
        | fb | | 'flyspell-buffer |
@@ -2526,7 +2543,6 @@ required from *emacs*.
        | me | | 'mc/edit-lines |
        | otl | | 'org-toggle-link-display |
        | om | | 'toggle-org-or-message-mode |
-       | ut | | 'undo-tree-visualize |
        | ar | | 'align-regexp |
        | ww | | 'save-buffer |
        | wrn | | 'httpd-restart-now |
@@ -2558,8 +2574,10 @@ required from *emacs*.
       | i     |                                 | 'swiper                         |
       | n     |                                 | 'neotree-toggle                 |
       | u     |                                 | 'undo-tree-visualize            |
-      | e     |                                 | 'eval-last-sexp                 |
-      | E     |                                 | 'eval-defun                     |
+      | e l   |                                 | 'eval-last-sexp                 |
+      | e b   |                                 | 'eval-buffer                    |
+      | e e   |                                 | 'eval-expression                |
+      | e d   |                                 | 'eval-defun                     |
       | 5     |                                 | 'ctl-x-5-prefix                 |
       | q     |                                 | 'evil-window-delete             |
       | C     |                                 | 'customize-group                |
@@ -2575,10 +2593,11 @@ required from *emacs*.
       | V     |                                 | (bind (term "vim"))             |
       | t SPC |                                 | 'whitespace-mode                |
       | t TAB |                                 | 'c-toggle-syntactic-indentation |
-      | t b   |                                 | 'sr-speedbar-toggle             |
       | t w   |                                 | 'toggle-truncate-lines          |
       | t s   |                                 | 'qq/toggle-evil-search          |
       | t o   |                                 | 'origami-mode                   |
+      | t f   |                                 | 'toggle-frame-fullscreen        |
+      | t m   |                                 | 'toggle-frame-maximized         |
       | h     |                                 | help-map                        |
       | h x   | Describe character under cursor | 'describe-char                  |
       | h h   |                                 | 'help-for-help-internal         |
@@ -2591,7 +2610,7 @@ required from *emacs*.
       | x z   |                                 | 'suspend-frame                  |
       | y h   |                                 | 'cliphist-paste-item            |
       | y u   |                                 | 'cliphist-select-item           |
-      | v d   |                                 | 'my-gud-gdb                     |
+      | v d   |                                 | 'gdb                            |
       | v k   |                                 | 'gud-kill-yes                   |
       | v r   |                                 | 'gud-remove                     |
       | v b   |                                 | 'gud-break                      |
@@ -2938,23 +2957,24 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
 
    #+TBLNAME: evil_magit_keys
-      | Evil Leader Combo | Description | Command                         |
-      |-------------------+-------------+---------------------------------|
-      | g s               |             | 'magit-status                   |
-      | g b               |             | 'magit-blame                    |
-      | g C               |             | 'magit-commit                   |
-      | g m               |             | 'git-messenger:popup-message    |
-      | g i               |             | 'git-blame-line                 |
-      | g l               |             | 'magit-log                      |
-      | g a               |             | 'git-gutter:stage-hunk          |
-      | g r               |             | 'git-gutter:revert-hunk         |
-      | g t               |             | 'git-timemachine                |
-      | g k               |             | 'git-gutter:previous-hunk       |
-      | g j               |             | 'git-gutter:next-hunk           |
-      | g =               |             | 'git-gutter:popup-hunk          |
-      | g t               |             | 'vc-annotate                    |
-      | g x               |             | 'vc-next-action                 |
-      | g L               |             | 'vc-print-log                   |
+      | Evil Leader Combo | Description | Command                        |
+      |-------------------+-------------+--------------------------------|
+      | g s               |             | 'magit-status                  |
+      | g b               |             | 'magit-blame                   |
+      | g C               |             | 'magit-commit                  |
+      | g m               |             | 'git-messenger:popup-message   |
+      | g i               |             | 'git-blame-line                |
+      | g l               |             | 'magit-log                     |
+      | g p               |             | 'git-gutter:stage-hunk         |
+      | g r               |             | 'git-gutter:revert-hunk        |
+      | g t               |             | 'git-timemachine               |
+      | g k               |             | 'git-gutter:previous-hunk      |
+      | g j               |             | 'git-gutter:next-hunk          |
+      | g =               |             | 'git-gutter:popup-hunk         |
+      | g v               |             | 'git-gutter:set-start-revision |
+      | g a               |             | 'vc-annotate                   |
+      | g x               |             | 'vc-next-action                |
+      | g L               |             | 'vc-print-log                  |
 
 ** Keyfreq
    Track Emacs commands frequency, github [[https://github.com/dacap/keyfreq][here]].
@@ -3224,6 +3244,61 @@ required from *emacs*.
       | SPC p e |                                           | 'helm-projectile                 |
       | SPC p f |                                           | 'helm-projectile-find-file       |
       | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim  |
+
+** Persp-mode
+*** Keymap prefix
+
+   #+begin_src emacs-lisp
+       (setq persp-keymap-prefix (kbd "C-c o"))
+   #+end_src
+*** Rename main perspective
+
+   #+begin_src emacs-lisp
+     (setq persp-nil-name "Home")
+   #+end_src
+
+*** Create save folder if it doesn't exist
+
+   #+begin_src emacs-lisp
+     (unless (file-exists-p persp-save-dir)
+       (make-directory persp-save-dir))
+   #+end_src
+
+*** Load persp-mode after init
+   #+begin_src emacs-lisp
+     (with-eval-after-load "persp-mode"
+       (setq wg-morph-on nil)
+       (add-hook 'after-init-hook #'(lambda () (persp-mode 1))))
+     (require 'persp-mode)
+   #+end_src
+
+*** Auto perspective for dired
+
+   #+begin_src emacs-lisp
+     (with-eval-after-load "persp-mode-autoload"
+       (with-eval-after-load "dired"
+         (def-auto-persp "dired"
+           :parameters '((dont-save-to-file . t))
+           :mode dired-mode
+           :dyn-env (after-switch-to-buffer-functions ;; prevent recursion
+                     (persp-add-buffer-on-find-file nil)
+                     persp-add-buffer-on-after-change-major-mode)
+           :hooks (after-switch-to-buffer-functions)
+           :after-match #'(lambda (p b h ha)
+                            (persp-window-switch (safe-persp-name p))))))
+   #+end_src
+
+*** Keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: persp-key-binding
+    :END:
+
+   The code generated from this table is [[Persp-mode Bindings][here]].
+   #+TBLNAME: persp_combo
+      | Combo | Description | Command     |
+      |-------+-------------+-------------|
+      | s-]   |             | 'persp-next |
+      | s-[   |             | 'persp-prev |
 
 ** RTags
    A Client/Server application that indexes C/C++ code and keeps a persistent
@@ -3558,8 +3633,9 @@ required from *emacs*.
      (which-key-add-key-based-replacements
        "SPC g"   "git/magit"
        "SPC b"   "buffer related"
+       "SPC e"   "eval related"
        "SPC p"   "projectile related"
-       "SPC p"   "help related"
+       "SPC h"   "help related"
        "SPC t"   "toggling thing"
        "SPC v"   "GUD related"
        "C-x 8"   "unicode"
@@ -3614,7 +3690,6 @@ required from *emacs*.
 
    (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
  #+end_src
-
 * Languages
 ** General
 Some general settings that should apply to all programming mode. Highlight
@@ -4212,8 +4287,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+END_SRC
 
 ** Evil Leader Bindings
-   Generate binding using table from [[#evil-leader-binding][here]]
-
+Generate binding using table from [[#evil-leader-binding][here]]
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="nmap :prefix qq-leader1")>>
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
@@ -4294,6 +4368,13 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(mmap="t", tname=helm_combo)>>
+   #+END_SRC
+
+** Persp-mode Bindings
+   Binding code generation for [[#persp-key-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-keys(tname=persp_combo)>>
    #+END_SRC
 
 ** Org Mode Bindings
