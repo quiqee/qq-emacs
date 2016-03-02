@@ -299,7 +299,7 @@ required from *emacs*.
 *** Custom variables
 
    #+BEGIN_SRC emacs-lisp
-     (defvar best-gc-cons-threshold 4000000 "Best default gc threshold value. Should't be too big.")
+     (defvar best-gc-cons-threshold 4000000 "Best default gc threshold value. Shouldn't be too big.")
    #+END_SRC
 
 *** Setq
@@ -2438,21 +2438,12 @@ required from *emacs*.
        | cy | | 'strip-convert-lines-into-one-big-string |
        | bs | | '(lambda () (interactive) (goto-edge-by-comparing-font-face -1)) |
        | es | | 'goto-edge-by-comparing-font-face |
-       | ntt | | 'neotree-toggle |
-       | ntf | | 'neotree-find ; open file in current buffer in neotree |
-       | ntd | | 'neotree-project-dir |
-       | nth | | 'neotree-hide |
-       | nts | | 'neotree-show |
        | fl | | 'cp-filename-line-number-of-current-buffer |
        | fn | | 'cp-filename-of-current-buffer |
        | fp | | 'cp-fullpath-of-current-buffer |
        | dj | | 'dired-jump ;; open the dired from current file |
        | ff | | 'toggle-full-window ;; I use WIN+F in i3 |
        | trm | | 'get-term |
-        | ci | | 'evilnc-comment-or-uncomment-lines |
-        | cl | | 'evilnc-comment-or-uncomment-to-the-line |
-        | cc | | 'evilnc-copy-and-comment-lines |
-        | cp | | 'evilnc-comment-or-uncomment-paragraphs |
        | epy | | 'emmet-expand-yas |
        | epl | | 'emmet-expand-line |
        | rd | | 'evilmr-replace-in-defun |
@@ -2466,10 +2457,6 @@ required from *emacs*.
        | hp | | 'etags-select-find-tag |
        | hm | | 'counsel-bookmark-goto |
        | yy | | 'browse-kill-ring |
-       | gf | | 'counsel-git-find-file |
-       | gl | | 'counsel-git-grep-yank-line |
-       | gg | | 'counsel-git-grep ; quickest grep should be easy to press |
-       | gm | | 'counsel-git-find-my-file |
        | rjs | | 'run-js |
        | rmz | | 'run-mozilla |
        | rpy | | 'run-python |
@@ -2508,8 +2495,6 @@ required from *emacs*.
        | sga | | 'w3m-java-search |
        | sgh | | 'w3mext-hacker-search ; code search in all engines with firefox |
        | qq | | 'my-grep |
-       | gsh | | 'git-gutter-reset-to-head-parent |
-       | gsr | | 'git-gutter-reset-to-default |
        | xc | | 'save-buffers-kill-terminal |
        | rr | | 'counsel-recentf-goto |
        | rh | | 'counsel-yank-bash-history ; bash history command => yank-ring |
@@ -2526,8 +2511,6 @@ required from *emacs*.
        | x2 | | 'split-window-vertically |
        | x3 | | 'split-window-horizontally |
        | xrw | | 'rotate-windows |
-       | xru | | 'undo-tree-save-state-to-register ; C-x r u |
-       | xrU | | 'undo-tree-restore-state-from-register ; C-x r U |
        | xt | | 'toggle-window-split |
        | su | | 'winner-undo |
        | xu | | 'winner-undo |
@@ -2567,76 +2550,81 @@ required from *emacs*.
        | vu | | 'scroll-other-window-up |
 
    #+TBLNAME: evil_leader_keys
-      | Combo | Description                     | Command                         |
-      |-------+---------------------------------+---------------------------------|
-      | 0     |                                 | 'select-window-0                |
-      | 1     |                                 | 'select-window-1                |
-      | 2     |                                 | 'select-window-2                |
-      | 3     |                                 | 'select-window-3                |
-      | 4     |                                 | 'select-window-4                |
-      | 5     |                                 | 'select-window-5                |
-      | 6     |                                 | 'select-window-6                |
-      | 7     |                                 | 'select-window-7                |
-      | 8     |                                 | 'select-window-8                |
-      | 9     |                                 | 'select-window-9                |
-      | b b   |                                 | 'switch-to-buffer               |
-      | b k   | Kill current buffer             | 'ido-kill-buffer                |
-      | s     |                                 | 'save-buffer                    |
-      | c     |                                 | 'evil-ace-jump-char-mode        |
-      | w     |                                 | 'evil-ace-jump-word-mode        |
-      | j     |                                 | 'dired-jump                     |
-      | i     |                                 | 'swiper                         |
-      | n     |                                 | 'neotree-toggle                 |
-      | u     |                                 | 'undo-tree-visualize            |
-      | e l   |                                 | 'eval-last-sexp                 |
-      | e b   |                                 | 'eval-buffer                    |
-      | e e   |                                 | 'eval-expression                |
-      | e d   |                                 | 'eval-defun                     |
-      | 5     |                                 | 'ctl-x-5-prefix                 |
-      | q     |                                 | 'evil-window-delete             |
-      | C     |                                 | 'customize-group                |
-      | b S   |                                 | 'bs-show                        |
-      | b d   |                                 | 'kill-this-buffer               |
-      | b e   |                                 | 'evil-buffer                    |
-      | b i   |                                 | 'ibuffer                        |
-      | b q   |                                 | 'kill-buffer-and-window         |
-      | b f   |                                 | 'ido-find-file                  |
-      | b x   |                                 | 'ido-switch-buffer              |
-      | \\    |                                 | 'evil-execute-in-emacs-state    |
-      | P     |                                 | 'package-list-packages          |
-      | V     |                                 | (bind (term "vim"))             |
-      | t SPC |                                 | 'whitespace-mode                |
-      | t TAB |                                 | 'c-toggle-syntactic-indentation |
-      | t w   |                                 | 'toggle-truncate-lines          |
-      | t s   |                                 | 'qq/toggle-evil-search          |
-      | t o   |                                 | 'origami-mode                   |
-      | t f   |                                 | 'toggle-frame-fullscreen        |
-      | t m   |                                 | 'toggle-frame-maximized         |
-      | t g   |                                 | 'gdb-many-windows               |
-      | h     |                                 | help-map                        |
-      | h x   | Describe character under cursor | 'describe-char                  |
-      | h h   |                                 | 'help-for-help-internal         |
-      | x h   |                                 | 'mark-whole-buffer              |
-      | x m   |                                 | 'smex                           |
-      | x n n |                                 | 'narrow-or-widen-dwim           |
-      | x n w |                                 | 'widen                          |
-      | x n d |                                 | 'narrow-to-defun                |
-      | x n r |                                 | 'narrow-to-region               |
-      | x z   |                                 | 'suspend-frame                  |
-      | y h   |                                 | 'cliphist-paste-item            |
-      | y u   |                                 | 'cliphist-select-item           |
-      | v d   |                                 | 'gdb                            |
-      | v k   |                                 | 'gud-kill-yes                   |
-      | v r   |                                 | 'gud-remove                     |
-      | v b   |                                 | 'gud-break                      |
-      | v u   |                                 | 'gud-run                        |
-      | v p   |                                 | 'gud-print                      |
-      | v e   |                                 | 'gud-cls                        |
-      | v n   |                                 | 'gud-next                       |
-      | v s   |                                 | 'gud-step                       |
-      | v i   |                                 | 'gud-stepi                      |
-      | v c   |                                 | 'gud-cont                       |
-      | v f   |                                 | 'gud-finish                     |
+      | Combo | Description                     | Command                                          |
+      |-------+---------------------------------+--------------------------------------------------|
+      | %     |                                 | 'ctl-x-5-prefix                                  |
+      | \\    |                                 | 'evil-execute-in-emacs-state                     |
+      | 0     |                                 | 'select-window-0                                 |
+      | 1     |                                 | 'select-window-1                                 |
+      | 2     |                                 | 'select-window-2                                 |
+      | 3     |                                 | 'select-window-3                                 |
+      | 4     |                                 | 'select-window-4                                 |
+      | 5     |                                 | 'select-window-5                                 |
+      | 6     |                                 | 'select-window-6                                 |
+      | 7     |                                 | 'select-window-7                                 |
+      | 8     |                                 | 'select-window-8                                 |
+      | 9     |                                 | 'select-window-9                                 |
+      | b b   |                                 | 'switch-to-buffer                                |
+      | b k   | Kill current buffer             | 'ido-kill-buffer                                 |
+      | b S   |                                 | 'bs-show                                         |
+      | b d   |                                 | 'kill-this-buffer                                |
+      | b e   |                                 | 'evil-buffer                                     |
+      | b i   |                                 | 'ibuffer                                         |
+      | b q   |                                 | 'kill-buffer-and-window                          |
+      | b f   |                                 | 'ido-find-file                                   |
+      | b x   |                                 | 'ido-switch-buffer                               |
+      | C     |                                 | 'customize-group                                 |
+      | c i   |                                 | 'evilnc-comment-or-uncomment-lines               |
+      | c l   |                                 | 'evilnc-comment-or-uncomment-to-the-line         |
+      | c c   |                                 | 'evilnc-copy-and-comment-lines                   |
+      | c p   |                                 | 'evilnc-comment-or-uncomment-paragraphs          |
+      | d     |                                 | 'dired-jump                                      |
+      | e l   |                                 | 'eval-last-sexp                                  |
+      | e b   |                                 | 'eval-buffer                                     |
+      | e e   |                                 | 'eval-expression                                 |
+      | e d   |                                 | 'eval-defun                                      |
+      | j c   |                                 | 'evil-ace-jump-char-mode                         |
+      | j w   |                                 | 'evil-ace-jump-word-mode                         |
+      | h     |                                 | help-map                                         |
+      | h x   | Describe character under cursor | 'describe-char                                   |
+      | h h   |                                 | 'help-for-help-internal                          |
+      | i     |                                 | 'swiper                                          |
+      | q     |                                 | 'evil-window-delete                              |
+      | P     |                                 | 'package-list-packages                           |
+      | s     |                                 | 'save-buffer                                     |
+      | t SPC |                                 | 'whitespace-mode                                 |
+      | t TAB |                                 | 'c-toggle-syntactic-indentation                  |
+      | t w   |                                 | 'toggle-truncate-lines                           |
+      | t s   |                                 | 'qq/toggle-evil-search                           |
+      | t o   |                                 | 'origami-mode                                    |
+      | t f   |                                 | 'toggle-frame-fullscreen                         |
+      | t m   |                                 | 'toggle-frame-maximized                          |
+      | t g   |                                 | 'gdb-many-windows                                |
+      | u u   |                                 | 'undo-tree-visualize                             |
+      | u s   |                                 | 'undo-tree-save-state-to-register ; C-x r u      |
+      | u r   |                                 | 'undo-tree-restore-state-from-register ; C-x r U |
+      | V     |                                 | (bind (term "vim"))                              |
+      | v d   |                                 | 'gdb                                             |
+      | v k   |                                 | 'gud-kill-yes                                    |
+      | v r   |                                 | 'gud-remove                                      |
+      | v b   |                                 | 'gud-break                                       |
+      | v u   |                                 | 'gud-run                                         |
+      | v p   |                                 | 'gud-print                                       |
+      | v e   |                                 | 'gud-cls                                         |
+      | v n   |                                 | 'gud-next                                        |
+      | v s   |                                 | 'gud-step                                        |
+      | v i   |                                 | 'gud-stepi                                       |
+      | v c   |                                 | 'gud-cont                                        |
+      | v f   |                                 | 'gud-finish                                      |
+      | x h   |                                 | 'mark-whole-buffer                               |
+      | x m   |                                 | 'smex                                            |
+      | x n n |                                 | 'narrow-or-widen-dwim                            |
+      | x n w |                                 | 'widen                                           |
+      | x n d |                                 | 'narrow-to-defun                                 |
+      | x n r |                                 | 'narrow-to-region                                |
+      | x z   |                                 | 'suspend-frame                                   |
+      | y h   |                                 | 'cliphist-paste-item                             |
+      | y u   |                                 | 'cliphist-select-item                            |
 
 ** Helm
    =Helm= is incremental completion and selection narrowing framework for Emacs.
@@ -2911,6 +2899,102 @@ required from *emacs*.
          (require 'magit-gerrit))
      (setq-default magit-gerrit-ssh-creds qq/gerrit-creds)
    #+END_SRC
+*** Miscellaneous git functions
+
+   [[https://github.com/redguardtoo/emacs.d/blob/master/lisp/init-ivy.el]]
+
+   #+BEGIN_SRC emacs-lisp
+     (defun counsel-git-grep-or-find-api (fn git-cmd hint open-another-window)
+       "Apply FN on the output lines of GIT-CMD.  HINT is hint when user input.
+     IF OPEN-ANOTHER-WINDOW is true, open the file in another window."
+       (let ((default-directory (locate-dominating-file
+                                 default-directory ".git"))
+             (keyword (if (region-active-p)
+                          (buffer-substring-no-properties (region-beginning) (region-end))
+                        (read-string (concat "Enter " hint " pattern:" ))))
+             collection val lst)
+
+         (setq collection (split-string (shell-command-to-string (format git-cmd keyword))
+                                        "\n"
+                                        t))
+
+         (when (and collection (> (length collection) 0))
+           (setq val (if (= 1 (length collection)) (car collection)
+                         (ivy-read (format " matching \"%s\":" keyword) collection)))
+           (funcall fn open-another-window val))))
+
+     (defun counsel-git-grep (&optional open-another-window)
+       "Grep in the current git repository.
+     If OPEN-ANOTHER-WINDOW is not nil, results are displayed in new window."
+       (interactive "P")
+       (let (fn)
+         (setq fn (lambda (open-another-window val)
+                    (let ((lst (split-string val ":")))
+                      (funcall (if open-another-window 'find-file-other-window 'find-file)
+                               (car lst))
+                      (let ((linenum (string-to-number (cadr lst))))
+                        (when (and linenum (> linenum 0))
+                          (goto-char (point-min))
+                          (forward-line (1- linenum)))))))
+
+         (counsel-git-grep-or-find-api fn
+                                       "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
+                                       "grep"
+                                       open-another-window)))
+
+     (defun counsel-git-find-file (&optional open-another-window)
+       "Find file in the current git repository.
+     If OPEN-ANOTHER-WINDOW is not nil, results are displayed in new window."
+       (interactive "P")
+       (let (fn)
+         (setq fn (lambda (open-another-window val)
+                    (funcall (if open-another-window 'find-file-other-window 'find-file) val)))
+         (counsel-git-grep-or-find-api fn
+                                       "git ls-tree -r HEAD --name-status | grep \"%s\""
+                                       "file"
+                                       open-another-window)))
+
+     (defun counsel-git-grep-yank-line (&optional insert-line)
+       "Grep in the current git repository and yank the line.
+     If INSERT-LINE is not nil, insert the line grepped"
+       (interactive "P")
+       (let (fn)
+         (setq fn (lambda (unused-param val)
+                    (let ((lst (split-string val ":")) text-line)
+                      ;; the actual text line could contain ":"
+                      (setq text-line (replace-regexp-in-string (format "^%s:%s:" (car lst) (nth 1 lst)) "" val))
+                      ;; trim the text line
+                      (setq text-line (replace-regexp-in-string (rx (* (any " \t\n")) eos) "" text-line))
+                      (kill-new text-line)
+                      (if insert-line (insert text-line))
+                      (message "line from %s:%s => kill-ring" (car lst) (nth 1 lst)))))
+
+         (counsel-git-grep-or-find-api fn
+                                       "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
+                                       "grep"
+                                       nil)))
+
+     (defvar counsel-my-name-regex ""
+       "My name used by `counsel-git-find-my-file', support regex like '[Tt]om [Cc]hen'.")
+
+     (defun counsel-git-find-my-file (&optional num)
+       "Find my files in the current git repository.
+     If NUM is not nil, find files since NUM weeks ago.
+     Or else, find files since 24 weeks (6 months) ago."
+       (interactive "P")
+       (let (fn cmd)
+         (setq fn (lambda (open-another-window val)
+                    (find-file val)))
+         (unless (and num (> num 0))
+           (setq num 24))
+         (setq cmd (concat "git log --pretty=format: --name-only --since=\""
+                                               (number-to-string num)
+                                               " weeks ago\" --author=\""
+                                               counsel-my-name-regex
+                                               "\" | grep \"%s\" | sort | uniq"))
+         ;; (message "cmd=%s" cmd)
+         (counsel-git-grep-or-find-api fn cmd "file" nil)))
+   #+END_SRC
 
 *** git-blame-line
    This function runs git blame on the line the cursor is on. It prints the
@@ -2972,24 +3056,29 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
 
    #+TBLNAME: evil_magit_keys
-      | Evil Leader Combo | Description | Command                        |
-      |-------------------+-------------+--------------------------------|
-      | g s               |             | 'magit-status                  |
-      | g b               |             | 'magit-blame                   |
-      | g C               |             | 'magit-commit                  |
-      | g m               |             | 'git-messenger:popup-message   |
-      | g i               |             | 'git-blame-line                |
-      | g l               |             | 'magit-log                     |
-      | g p               |             | 'git-gutter:stage-hunk         |
-      | g r               |             | 'git-gutter:revert-hunk        |
-      | g t               |             | 'git-timemachine               |
-      | g k               |             | 'git-gutter:previous-hunk      |
-      | g j               |             | 'git-gutter:next-hunk          |
-      | g =               |             | 'git-gutter:popup-hunk         |
-      | g v               |             | 'git-gutter:set-start-revision |
-      | g a               |             | 'vc-annotate                   |
-      | g x               |             | 'vc-next-action                |
-      | g L               |             | 'vc-print-log                  |
+      | Evil Leader Combo | Description | Command                                                   |
+      |-------------------+-------------+-----------------------------------------------------------|
+      | g =               |             | 'git-gutter:popup-hunk                                    |
+      | g a               |             | 'vc-annotate                                              |
+      | g b               |             | 'magit-blame                                              |
+      | g C               |             | 'magit-commit                                             |
+      | g f               |             | 'counsel-git-find-file                                    |
+      | g g               |             | 'counsel-git-grep ; quickest grep should be easy to press |
+      | g i               |             | 'git-blame-line                                           |
+      | g j               |             | 'git-gutter:next-hunk                                     |
+      | g k               |             | 'git-gutter:previous-hunk                                 |
+      | g L               |             | 'vc-print-log                                             |
+      | g l               |             | 'magit-log                                                |
+      | g m               |             | 'git-messenger:popup-message                              |
+      | g n               |             | 'counsel-git-find-my-file                                 |
+      | g p               |             | 'git-gutter:stage-hunk                                    |
+      | g r               |             | 'git-gutter:revert-hunk                                   |
+      | g y               |             | 'counsel-git-grep-yank-line                               |
+      | g s               |             | 'magit-status                                             |
+      | g t               |             | 'git-timemachine                                          |
+      | g u               |             | 'git-gutter:update-all-windows                            |
+      | g x               |             | 'vc-next-action                                           |
+      | g v               |             | 'git-gutter:set-start-revision                            |
 
 ** Keyfreq
    Track Emacs commands frequency, github [[https://github.com/dacap/keyfreq][here]].
@@ -3014,7 +3103,7 @@ required from *emacs*.
      (setq neo-smart-open t)
    #+end_src
 
-*** Keybindings with Evil
+*** Local keybindings with Evil
     :PROPERTIES:
     :CUSTOM_ID: evil-neotree-bindings
     :END:
@@ -3026,6 +3115,21 @@ required from *emacs*.
       | SPC   | evil-normal-state-local-map |             | 'neotree-enter |
       | q     | evil-normal-state-local-map |             | 'neotree-hide  |
       | RET   | evil-normal-state-local-map |             | 'neotree-enter |
+
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-neotree2-binding
+    :END:
+   Using The table below as the source for generating [[Neotree with Evil Bindings][Neotree with Evil Bindings]]
+
+   #+TBLNAME: evil_neotree_keys
+      | Evil Leader Combo | Description | Command                                                   |
+      |-------------------+-------------+-----------------------------------------------------------|
+      | n t               |             | 'neotree-toggle                                           |
+      | n f               |             | 'neotree-find ; open file in current buffer in neotree    |
+      | n d               |             | 'neotree-project-dir                                      |
+      | n h               |             | 'neotree-hide                                             |
+      | n s               |             | 'neotree-show                                             |
 
 ** Origami
    Text folding solution for Emacs
@@ -4321,6 +4425,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(moda="lead", tname=helm-evil-combo)>>
+   #+END_SRC
+
+** Neotree with Evil Bindings
+   Binding code generation for [[#evil-neotree2-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-keys(moda="lead", tname=evil_neotree_keys)>>
    #+END_SRC
 
 ** Evil Magit Bindings
