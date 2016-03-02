@@ -1471,8 +1471,8 @@ required from *emacs*.
      (defun qq/minibuffer-setup-hook ()
        ;; Use paredit in the minibuffer
        ;(conditionally-paredit-mode 1)
-       (local-set-key (kbd "M-y") 'paste-from-x-clipboard)
-       (local-set-key (kbd "M-k") 'kill-line)
+;       (local-set-key (kbd "M-y") 'paste-from-x-clipboard)
+;       (local-set-key (kbd "M-k") 'kill-line)
        (setq gc-cons-threshold most-positive-fixnum))
 
      (defun qq/minibuffer-exit-hook ()
@@ -2612,6 +2612,7 @@ required from *emacs*.
       | t o   |                                 | 'origami-mode                   |
       | t f   |                                 | 'toggle-frame-fullscreen        |
       | t m   |                                 | 'toggle-frame-maximized         |
+      | t g   |                                 | 'gdb-many-windows               |
       | h     |                                 | help-map                        |
       | h x   | Describe character under cursor | 'describe-char                  |
       | h h   |                                 | 'help-for-help-internal         |
