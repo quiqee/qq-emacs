@@ -230,7 +230,8 @@ required from *emacs*.
          (princ las)))
    #+END_SRC
 
-** Require
+** Settings
+*** Require
    Some features are not loaded by default to minimize initialization time,
    so they have to be required (or loaded, if you will). =require= calls
    tends to lead to the largest bottleneck's in a
@@ -253,7 +254,6 @@ required from *emacs*.
        (require feature))
    #+END_SRC
 
-** Settings
 *** Backups
 **** Set up some directories to keep backups and tell emacs to use it
 
@@ -296,28 +296,10 @@ required from *emacs*.
      (setq version-control t)
    #+END_SRC
 
-*** Startup behaviour
-   Inhibit some of those annoying startup display.
+*** Custom variables
 
    #+BEGIN_SRC emacs-lisp
-     (setq inhibit-splash-screen t
-           inhibit-startup-echo-area-message t
-           inhibit-startup-message t                    ; No splash screen please.
-           initial-scratch-message nil)                 ; Clean scratch buffer.
-   #+END_SRC
-
-*** Auto split vertically
-
-   #+BEGIN_SRC emacs-lisp
-     (setq split-height-threshold 0
-           split-width-threshold nil)
-   #+END_SRC
-
-*** Better scrolling
-
-   #+BEGIN_SRC emacs-lisp
-     (setq scroll-conservatively 9999
-           scroll-preserve-screen-position t)
+     (defvar best-gc-cons-threshold 4000000 "Best default gc threshold value. Should't be too big.")
    #+END_SRC
 
 *** Setq
@@ -331,6 +313,38 @@ required from *emacs*.
            sentence-end-double-space nil
            save-interprogram-paste-before-kill t
            history-delete-duplicates t
+   #+END_SRC
+
+**** Emacs Garbage Collector
+   We don't really need to garbage collect as frequently as Emacs would like to
+   by default, so set the threshold up hight.
+
+   #+begin_src emacs-lisp
+           gc-cons-threshold best-gc-cons-threshold
+   #+end_src
+
+**** Startup behaviour
+   Inhibit some of those annoying startup display.
+
+   #+BEGIN_SRC emacs-lisp
+           inhibit-splash-screen t
+           inhibit-startup-echo-area-message t
+           inhibit-startup-message t                    ; No splash screen please.
+           initial-scratch-message nil                 ; Clean scratch buffer.
+   #+END_SRC
+
+**** Auto split vertically
+
+   #+BEGIN_SRC emacs-lisp
+           split-height-threshold 0
+           split-width-threshold nil
+   #+END_SRC
+
+**** Better scrolling
+
+   #+BEGIN_SRC emacs-lisp
+           scroll-conservatively 9999
+           scroll-preserve-screen-position t
    #+END_SRC
 
 **** Activate default value of =C= or =R= commands to another dired window.
@@ -1458,7 +1472,7 @@ required from *emacs*.
        ;; Use paredit in the minibuffer
        ;(conditionally-paredit-mode 1)
        (local-set-key (kbd "M-y") 'paste-from-x-clipboard)
-       (local-set-key (kbd "C-k") 'kill-line)
+       (local-set-key (kbd "M-k") 'kill-line)
        (setq gc-cons-threshold most-positive-fixnum))
 
      (defun qq/minibuffer-exit-hook ()
@@ -3295,10 +3309,11 @@ required from *emacs*.
 
    The code generated from this table is [[Persp-mode Bindings][here]].
    #+TBLNAME: persp_combo
-      | Combo | Description | Command     |
-      |-------+-------------+-------------|
-      | s-]   |             | 'persp-next |
-      | s-[   |             | 'persp-prev |
+      | Combo | Description | Command        |
+      |-------+-------------+----------------|
+      | s-]   |             | 'persp-next    |
+      | s-[   |             | 'persp-prev    |
+      | s-e   |             | 'persp-add-new |
 
 ** RTags
    A Client/Server application that indexes C/C++ code and keeps a persistent

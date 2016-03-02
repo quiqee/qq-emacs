@@ -15,6 +15,7 @@
 (depends-on "info+")
 (depends-on "spaceline")
 (depends-on "window-numbering")
+(depends-on "persp-mode")
 
 ;; Modes
 (depends-on "swift-mode")
