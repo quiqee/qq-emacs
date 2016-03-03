@@ -437,6 +437,12 @@ required from *emacs*.
            eshell-directory-name
               (concat  qq/cache-directory "eshell" )
 
+           projectile-cache-file
+              (concat  qq/cache-directory "projectile.cache" )
+
+           helm-dash-docsets-path
+              (concat  qq/cache-directory "docsets" )
+
            persp-save-dir
               (concat  qq/cache-directory "persp-conf/")
 
@@ -2232,7 +2238,7 @@ required from *emacs*.
 ;             (erc-mode . emacs)
              (neotree-mode . emacs)
 ;             (w3m-mode . emacs)
-             (gud-mode . emacs)
+             (gud-mode . normal)
 ;             (help-mode . emacs)
              (eshell-mode . emacs)
              (shell-mode . emacs)
@@ -2588,6 +2594,7 @@ required from *emacs*.
       | h     |                                 | help-map                                         |
       | h x   | Describe character under cursor | 'describe-char                                   |
       | h h   |                                 | 'help-for-help-internal                          |
+      | h j   |                                 | 'helm-dash-at-point                              |
       | i     |                                 | 'swiper                                          |
       | q     |                                 | 'evil-window-delete                              |
       | P     |                                 | 'package-list-packages                           |
@@ -3595,6 +3602,53 @@ required from *emacs*.
        (serial-term "/dev/ttyUSB0" 115200)
        (term-send-string (get-buffer-process (current-buffer))
                          "export TERM=eterm-color\nclear\n"))
+   #+END_SRC
+
+**** Toggle u-boot auto stop
+   Usefull if there are more than one serial terminal open. From [[https://www.fitzsim.org/blog/?p=44][here]].
+
+   First, a variable to to keep track of whether the mode is enabled or not.
+
+   #+BEGIN_SRC emacs-lisp
+     ;; Detect U-Boot autoboot prompt and stop it.
+     (defvar u-boot-stop-autoboot-mode nil
+       "Non-nil if term-mode should prevent U-Boot from autobooting.
+     Use the function u-boot-toggle-stop-autoboot-mode to toggle.")
+   #+END_SRC
+
+   Then the advice itself. It jacks into the term-emulate-terminal process
+   filter to detect the U-Boot autoboot prompt, then sends a newline in
+   response.
+
+   #+BEGIN_SRC emacs-lisp
+     (defadvice term-emulate-terminal
+       (before u-boot-maybe-stop-autoboot activate disable)
+       (with-current-buffer (process-buffer proc)
+         (when (string-match "Hit any key to stop autoboot:" str)
+           (message "U-Boot autoboot stopped in buffer %s"
+                    (buffer-name (current-buffer)))
+           (term-send-raw-string "\n"))))
+   #+END_SRC
+
+   And finally a function to toggle the advice on and off.
+
+   #+BEGIN_SRC emacs-lisp
+     (defun u-boot-toggle-stop-autoboot-mode ()
+       "Toggle whether or not term-mode should interrupt U-Boot autoboot."
+       (interactive)
+       (if u-boot-stop-autoboot-mode
+           (progn
+             (ad-disable-advice
+              'term-emulate-terminal 'before 'u-boot-maybe-stop-autoboot)
+             (ad-update 'term-emulate-terminal)
+             (setq u-boot-stop-autoboot-mode nil)
+             (message "U-Boot autoboot will not be interrupted"))
+         (progn
+           (ad-enable-advice
+            'term-emulate-terminal 'before 'u-boot-maybe-stop-autoboot)
+           (ad-activate 'term-emulate-terminal)
+           (setq u-boot-stop-autoboot-mode t)
+           (message "U-Boot autoboot will be interrupted"))))
    #+END_SRC
 
 **** Hook to update window size
