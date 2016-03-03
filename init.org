@@ -3085,7 +3085,7 @@ required from *emacs*.
       | g y               |             | 'counsel-git-grep-yank-line                               |
       | g s               |             | 'magit-status                                             |
       | g t               |             | 'git-timemachine                                          |
-      | g u               |             | 'git-gutter:update-all-windows                            |
+      | g u               |             | 'git-gutter:toggle                                        |
       | g x               |             | 'vc-next-action                                           |
       | g v               |             | 'git-gutter:set-start-revision                            |
 
