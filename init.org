@@ -1183,6 +1183,7 @@ required from *emacs*.
                                            dired-mode
                                            help-mode
                                            text-mode
+                                           eww-mode
                                            fundamental-mode
                                            jabber-roster-mode
                                            jabber-chat-mode
@@ -2236,7 +2237,8 @@ required from *emacs*.
 ;             (direx:direx-mode . emacs)
 ;             (yari-mode . emacs)
 ;             (erc-mode . emacs)
-             (neotree-mode . emacs)
+             (neotree-mode . normal)
+             (rtags-mode . emacs)
 ;             (w3m-mode . emacs)
              (gud-mode . normal)
 ;             (help-mode . emacs)
@@ -3132,7 +3134,7 @@ required from *emacs*.
    #+TBLNAME: evil_neotree_keys
       | Evil Leader Combo | Description | Command                                                   |
       |-------------------+-------------+-----------------------------------------------------------|
-      | n t               |             | 'neotree-toggle                                           |
+      | n n               |             | 'neotree-toggle                                           |
       | n f               |             | 'neotree-find ; open file in current buffer in neotree    |
       | n d               |             | 'neotree-project-dir                                      |
       | n h               |             | 'neotree-hide                                             |
