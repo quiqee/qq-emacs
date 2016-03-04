@@ -3554,11 +3554,12 @@ required from *emacs*.
        (get-buffer-process (current-buffer))
        (if string string (current-kill 0))))
    #+end_src
-**** Enable URL clicking & proper color
+**** Enable URL clicking, disable yasnippet & proper color
 
    #+begin_src emacs-lisp
      (defun qq/term-hook ()
        (goto-address-mode)
+       (setq yas-dont-activate t)
        (define-key term-raw-map "\C-y" 'qq/term-paste)
        ;(let ((base03  "#002b36")
        ;      (base02  "#073642")
