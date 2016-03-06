@@ -2592,6 +2592,7 @@ required from *emacs*.
       | e e   |                                 | 'eval-expression                                 |
       | e d   |                                 | 'eval-defun                                      |
       | j c   |                                 | 'evil-ace-jump-char-mode                         |
+      | j l   |                                 | 'evil-ace-jump-line-mode                         |
       | j w   |                                 | 'evil-ace-jump-word-mode                         |
       | h     |                                 | help-map                                         |
       | h x   | Describe character under cursor | 'describe-char                                   |
@@ -2626,7 +2627,7 @@ required from *emacs*.
       | v c   |                                 | 'gud-cont                                        |
       | v f   |                                 | 'gud-finish                                      |
       | x h   |                                 | 'mark-whole-buffer                               |
-      | x m   |                                 | 'smex                                            |
+      | x x   |                                 | 'smex                                            |
       | x n n |                                 | 'narrow-or-widen-dwim                            |
       | x n w |                                 | 'widen                                           |
       | x n d |                                 | 'narrow-to-defun                                 |
@@ -3174,47 +3175,85 @@ required from *emacs*.
 ** Org
    =org-mode= is a plain text system for organising information and notes.
    [[http://orgmode.org]]
+   [[http://sachachua.com/blog/2015/02/learn-take-notes-efficiently-org-mode/]]
 
-*** Enable Org Mode
+*** Settings
+**** Enable =org-mode=
    #+BEGIN_SRC emacs-lisp
+     (require 'org)
      (require 'org-bullets)
      (require 'org-eldoc)
    #+END_SRC
 
-
-   When editing org-files with source-blocks, we want the source blocks to
-   be themed as they would in their native mode.
+**** Change =org-directory= location
+   And ensure the folder exist.
 
    #+BEGIN_SRC emacs-lisp
-     (setq org-src-fontify-natively t)
-     (setq org-src-tab-acts-natively t)
+     (setq org-directory "~/Dropbox/org")
+     (unless (file-exists-p org-directory)
+       (make-directory org-directory))
    #+END_SRC
 
-   Other settings for org.
+**** Enable =writegood-mode=
 
    #+BEGIN_SRC emacs-lisp
-     (after 'org
-       (unless (file-exists-p org-directory)
-         (make-directory org-directory))
+     (add-hook 'org-mode-hook
+                    (lambda ()
+                      (writegood-mode)))
+   #+END_SRC
 
+**** Enable flyspell and rainbow-mode
+
+   #+BEGIN_SRC emacs-lisp
+       (add-hook 'org-mode-hook (lambda ()
+                                  (when (or (executable-find "aspell")
+                                            (executable-find "ispell")
+
+                                            (executable-find "hunspell"))
+                                    (flyspell-mode))
+                                  (diminish 'org-indent-mode)
+                                  (rainbow-mode)
+                                  ))
+   #+END_SRC
+**** Enable =markdown= export
+
+   #+BEGIN_SRC emacs-lisp
        (require 'ox-md nil t)
-       (setq qq/inbox-org-file (concat org-directory "/inbox.org")
+   #+END_SRC
 
-             org-startup-indented t
-             org-mobile-directory (concat org-directory "/MobileOrg")
-             org-mobile-inbox-for-pull (concat org-directory "/from-mobile.org")
+**** Use =ido= for completion
 
-             org-default-notes-file qq/inbox-org-file
-             org-log-done t
-             org-completion-use-ido t
-             org-return-follows-link t
+   #+BEGIN_SRC emacs-lisp
+       (setq org-completion-use-ido t
+   #+END_SRC
 
+**** Elipsis appearance
+
+   #+BEGIN_SRC emacs-lisp
              ;org-ellipsis "▼"
              org-ellipsis "⤵"
              org-columns-ellipses "…"
-             org-indent-indentation-per-level 3
+   #+END_SRC
 
-             org-agenda-files `(,org-directory)
+**** Press =RET= follow links
+
+   #+BEGIN_SRC emacs-lisp
+             org-return-follows-link t
+   #+END_SRC
+**** refile-target
+
+   #+BEGIN_SRC emacs-lisp
+             org-refile-targets '((nil :maxlevel . 9)
+                                  (org-agenda-files :maxlevel . 9))
+   #+END_SRC
+**** Default note file
+
+   #+BEGIN_SRC emacs-lisp
+             org-default-notes-file "organizer.org"
+   #+END_SRC
+**** Capture templates
+
+   #+BEGIN_SRC emacs-lisp
              org-capture-templates
              '(("t" "Todo" entry (file+headline qq/inbox-org-file "TODO")
                 "* TODO %?\n%U\n%a\n")
@@ -3224,9 +3263,45 @@ required from *emacs*.
                 "* MEETING %? :MEETING:\n%U")
                ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org"))
                 "* %?\n%U\n"))
+   #+END_SRC
 
-             ;; allow changing between todo stats directly by hotkey
-             org-use-fast-todo-selection t
+**** Indentation
+
+   #+BEGIN_SRC emacs-lisp
+             org-startup-indented t
+             org-indent-indentation-per-level 3
+             org-src-tab-acts-natively t)
+   #+END_SRC
+
+**** Nice bulleted lists.
+
+   #+begin_src emacs-lisp
+     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+   #+end_src
+
+**** Evil integration
+
+   #+BEGIN_SRC emacs-lisp
+       (after 'evil
+         (add-hook 'org-capture-mode-hook 'evil-insert-state))
+   #+END_SRC
+
+*** org-todo
+**** Enable logging when tasks are complete.
+   This puts a time-stamp on the completed task. Since I usually am doing quite
+   a few things at once, I added the INPROGRESS keyword and made the color blue.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-log-done t
+           org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
+           org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+
+   #+END_SRC
+
+**** Allow changing between todo stats directly by hotkey
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-use-fast-todo-selection t
              org-treat-S-cursor-todo-selection-as-state-change nil
              org-todo-keywords
              '((sequence "TODO(t)" "NEXT(n@)" "|" "DONE(d)")
@@ -3237,65 +3312,175 @@ required from *emacs*.
                 ("WAITING" ("WAITING" . t))
                 ("TODO" ("WAITING") ("CANCELLED"))
                 ("NEXT" ("WAITING") ("CANCELLED"))
-                ("DONE" ("WAITING") ("CANCELLED")))
-
-             org-refile-targets '((nil :maxlevel . 9)
-                                  (org-agenda-files :maxlevel . 9))
-             )
-
-       (unless (file-exists-p org-mobile-directory)
-         (make-directory org-mobile-directory))
-
-       (after 'evil
-         (add-hook 'org-capture-mode-hook 'evil-insert-state))
-
-       (when (boundp 'org-plantuml-jar-path)
-         (org-babel-do-load-languages
-          'org-babel-load-languages
-          '((plantuml . t))))
-
-       (add-hook 'org-mode-hook (lambda ()
-                                  (when (or (executable-find "aspell")
-                                            (executable-find "ispell")
-
-                                            (executable-find "hunspell"))
-                                    (flyspell-mode))
-                                  (diminish 'org-indent-mode)
-                                  (rainbow-mode)
-                                  )))
+                ("DONE" ("WAITING") ("CANCELLED"))))
    #+END_SRC
 
-   Fix =yasnippet= when =org-mode= is on.
+*** org-agenda
+   The agenda view requires that org files be added to it. The personal.org and
+   groupon.org files are my daily files for review. I have a habit to plan the
+   next day. I do this by assessing my calendar and my list of todo items. If a
+   todo item is already scheduled or has a deadline, don't show it in the global
+   todo list.
+
+   For quick access of =org-agenda= I have [[orgmode-key-binding][added]] a global binding This allows it
+   to be quickly accessed.
 
    #+BEGIN_SRC emacs-lisp
-     ;(defun yas-org-very-safe-expand ()
-     ;  (let ((yas-fallback-behavior 'return-nil)) (yas-expand)))
+     (setq org-agenda-show-log t
+           org-agenda-todo-ignore-scheduled t
+           org-agenda-todo-ignore-deadlines t)
+     (setq org-agenda-files (list "personal.org" "groupon.org"))
    #+END_SRC
 
-   Then, tell Org mode what to do with the new function:
+*** org-habit
+   I have several habits that I also track. In order to take full advantage of
+   this feature org-habit has to be required and added to org-modules. A few
+   settings are also tweaked for habit mode to make the tracking a little more
+   palatable. The most significant of these is org-habit-graph-column. This
+   specifies where the graph should start. The default is too low and cuts off a
+   lot, so I start it at 80 characters.
 
    #+BEGIN_SRC emacs-lisp
-     ;(add-hook 'org-mode-hook
-     ;          (lambda ()
-     ;            (make-variable-buffer-local 'yas/trigger-key)
-     ;            (setq yas/trigger-key [tab])
-     ;            (writegood-mode)
-     ;            (add-to-list 'org-tab-first-hook 'yas-org-very-safe-expand)
-     ;            (define-key yas-keymap [tab] 'yas-next-field)))
-
+     (require 'org)
+     (require 'org-install)
+     (require 'org-habit)
+     (add-to-list 'org-modules "org-habit")
+     (setq org-habit-preceding-days 7
+           org-habit-following-days 1
+           org-habit-graph-column 80
+           org-habit-show-habits-only-for-today t
+           org-habit-show-all-today t)
    #+END_SRC
 
-   Nice bulleted lists.
+*** org-babel
+   org-babel is a feature inside of org-mode that makes this document possible.
+   It allows for embedding languages inside of an org-mode document with all the
+   proper font-locking. It also allows you to extract and execute code. It isn't
+   aware of Clojure by default, so the following sets that up.
 
-   #+begin_src emacs-lisp
-     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-   #+end_src
+   #+BEGIN_SRC emacs-lisp
+     (require 'ob)
+   #+END_SRC
 
-*** Just Evaluate It
+**** Default languages accepted
+
+   #+BEGIN_SRC emacs-lisp
+     (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((sh . t)
+        (ditaa . t)
+        (plantuml . t)
+        (dot . t)
+        (ruby . t)
+        (js . t)
+        (C . t)))
+   #+END_SRC
+
+**** Graphviz support
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-src-lang-modes (quote ("dot". graphviz-dot)))
+   #+END_SRC
+
+**** PlantUML support
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
+
+     (setq org-plantuml-jar-path
+             (concat user-emacs-directory "extern/org/plantuml.jar"))
+   #+END_SRC
+
+**** ditaa support
+   There's no substitute for real drawings, but it's nice to be able to sketch
+   things out and produce a picture right from org-mode. This sets up ditaa for
+   execution from inside a babel block.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-ditaa-jar-path
+           (concat user-emacs-directory "extern/org/ditaa0_9.jar"))
+   #+END_SRC
+
+**** Native font-lock
+   When editing org-files with source-blocks, we want the source blocks to
+   be themed as they would in their native mode.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-src-fontify-natively t)
+   #+END_SRC
+
+**** Just Evaluate It
    I'm normally fine with having my code automatically evaluated.
 
    #+BEGIN_SRC emacs-lisp
      (setq org-confirm-babel-evaluate nil)
+   #+END_SRC
+
+**** Clojure support
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'org-babel-tangle-lang-exts '("clojure" . "clj"))
+
+     (defvar org-babel-default-header-args:clojure
+       '((:results . "silent") (:tangle . "yes")))
+
+     (defun org-babel-execute:clojure (body params)
+       (lisp-eval-string body)
+       "Done!")
+
+     (provide 'ob-clojure)
+   #+END_SRC
+
+**** Display inline image after execution
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'org-babel-after-execute-hook (lambda ()
+                                               (condition-case nil
+                                                   (org-display-inline-images)
+                                                 (error nil)))
+               'append)
+   #+END_SRC
+
+*** org-abbrev
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
+
+     (define-skeleton skel-org-block-elisp
+       "Insert an emacs-lisp block"
+       ""
+       "#+begin_src emacs-lisp\n"
+       _ - \n
+       "#+end_src\n")
+
+     (define-abbrev org-mode-abbrev-table "elsrc" "" 'skel-org-block-elisp)
+
+     (define-skeleton skel-org-block-js
+       "Insert a JavaScript block"
+       ""
+       "#+begin_src js\n"
+       _ - \n
+       "#+end_src\n")
+
+     (define-abbrev org-mode-abbrev-table "jssrc" "" 'skel-org-block-js)
+
+     (define-skeleton skel-header-block
+       "Creates my default header"
+       ""
+       "#+TITLE: " str "\n"
+       "#+AUTHOR: Fikri Pribadi\n"
+       "#+EMAIL: \n"
+       "#+OPTIONS: toc:3 num:nil\n"
+       "#+STYLE: <link rel=\"stylesheet\" type=\"text/css\" href=\"http://thomasf.github.io/solarized-css/solarized-light.min.css\" />\n")
+
+     (define-abbrev org-mode-abbrev-table "sheader" "" 'skel-header-block)
+
+     (define-skeleton skel-org-html-file-name
+       "Insert an HTML snippet to reference the file by name"
+       ""
+       "#+HTML: <strong><i>"str"</i></strong>")
+
+     (define-abbrev org-mode-abbrev-table "fname" "" 'skel-org-html-file-name)
    #+END_SRC
 
 *** Bindings
@@ -4238,25 +4423,51 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      ;; optional key bindings, easier than hs defaults
      (define-key nxml-mode-map (kbd "z t") 'hs-toggle-hiding)
    #+END_SRC
+*** Enable nxml-mode when the user starts typing an xml document
+
+   #+BEGIN_SRC emacs-lisp
+     (setq magic-mode-alist
+           (cons '("<\\?xml " . nxml-mode)
+                magic-mode-alist))
+   #+END_SRC
+
+*** Rebind '>', so that it automatically inserts a closing xml tag (if appropriate)
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/nxml-end-tag ()
+       (interactive)
+       (if (eq (face-at-point) 'default)
+           (condition-case nil
+               (nxml-balanced-close-start-tag-inline)
+             (error
+              (insert ">")))
+         (insert ">")))
+
+     (add-hook 'nxml-mode-hook
+               (lambda ()
+                 ;; rebind > to close the current tag
+                 (define-key nxml-mode-map ">" 'qq/nxml-end-tag)))
+   #+END_SRC
+
 *** Color scheme
 
    #+BEGIN_SRC emacs-lisp
-    ; (set-face-foreground 'nxml-attribute-local-name-face "#3387cc")
-    ; (set-face-foreground 'nxml-attribute-colon-face "#e28964")
-    ; (set-face-foreground 'nxml-attribute-prefix-face "#cf6a4c")
-    ; (set-face-foreground 'nxml-attribute-value-face "#65b042")
-    ; (set-face-foreground 'nxml-attribute-value-delimiter-face "#99cf50")
-    ; (set-face-foreground 'nxml-namespace-attribute-prefix-face "#9b859d")
-    ; (set-face-foreground 'nxml-comment-content-face "#666")
-    ; (set-face-foreground 'nxml-comment-delimiter-face "#333")
-    ; (set-face-foreground 'nxml-element-local-name-face "#e9c062")
-    ; (set-face-foreground 'nxml-markup-declaration-delimiter-face "#aeaeae")
-    ; (set-face-foreground 'nxml-namespace-attribute-xmlns-face "#8b98ab")
-    ; (set-face-foreground 'nxml-prolog-keyword-face "#c5af75")
-    ; (set-face-foreground 'nxml-prolog-literal-content-face "#dad085")
-    ; (set-face-foreground 'nxml-tag-delimiter-face "#cda869")
-    ; (set-face-foreground 'nxml-tag-slash-face "#cda869")
-    ; (set-face-foreground 'nxml-text-face "#ddd")
+     ; (set-face-foreground 'nxml-attribute-local-name-face "#3387cc")
+     ; (set-face-foreground 'nxml-attribute-colon-face "#e28964")
+     ; (set-face-foreground 'nxml-attribute-prefix-face "#cf6a4c")
+     ; (set-face-foreground 'nxml-attribute-value-face "#65b042")
+     ; (set-face-foreground 'nxml-attribute-value-delimiter-face "#99cf50")
+     ; (set-face-foreground 'nxml-namespace-attribute-prefix-face "#9b859d")
+     ; (set-face-foreground 'nxml-comment-content-face "#666")
+     ; (set-face-foreground 'nxml-comment-delimiter-face "#333")
+     ; (set-face-foreground 'nxml-element-local-name-face "#e9c062")
+     ; (set-face-foreground 'nxml-markup-declaration-delimiter-face "#aeaeae")
+     ; (set-face-foreground 'nxml-namespace-attribute-xmlns-face "#8b98ab")
+     ; (set-face-foreground 'nxml-prolog-keyword-face "#c5af75")
+     ; (set-face-foreground 'nxml-prolog-literal-content-face "#dad085")
+     ; (set-face-foreground 'nxml-tag-delimiter-face "#cda869")
+     ; (set-face-foreground 'nxml-tag-slash-face "#cda869")
+     ; (set-face-foreground 'nxml-text-face "#ddd")
    #+END_SRC
 
 * Recipes

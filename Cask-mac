@@ -49,14 +49,14 @@
 
 (depends-on "icicles")
 
-(depends-on "vlfi" :git "https://github.com/m00natic/vlfi" :ref "master")
+(depends-on "vlf")
 (depends-on "rtags")
 (depends-on "git-timemachine")
 (depends-on "ggtags")
 
 (depends-on "xcode-mode" :git  "https://github.com/nicklanasa/xcode-mode" :ref "master")
 
-(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :ref "master")
+;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :ref "master")
 
 (depends-on "highlight-indentation" :git  "https://github.com/antonj/Highlight-Indentation-for-Emacs" :ref "master")
 
