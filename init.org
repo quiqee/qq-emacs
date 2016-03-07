@@ -1993,7 +1993,7 @@ required from *emacs*.
       | TAB   |                                   | 'company-complete-common-or-complete-full |
 
 ** Diminish
-   Diminish will remove the minor mode indicators from the mode line (or powerline).
+   Remove the minor mode indicators from the mode line (or powerline).
 
    [[https://github.com/myrjola/diminish.el]]
 
@@ -3985,7 +3985,7 @@ required from *emacs*.
 *** Use cool unicode characters if available
 
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩"))
+     (add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩-"))
    #+END_SRC
 
 *** Change what string to display for a given *complete* key binding
