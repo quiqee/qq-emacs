@@ -3367,13 +3367,19 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (org-babel-do-load-languages
       'org-babel-load-languages
-      '((sh . t)
-        (ditaa . t)
-        (plantuml . t)
-        (dot . t)
-        (ruby . t)
-        (js . t)
-        (C . t)))
+      '((sh         . t)
+        (js         . t)
+        (emacs-lisp . t)
+        (ditaa      . t)
+        (perl       . t)
+        (scala      . t)
+        (clojure    . t)
+        (python     . t)
+        (ruby       . t)
+        (dot        . t)
+        (css        . t)
+        (C          . t)
+        (plantuml   . t)))
    #+END_SRC
 
 **** Graphviz support
@@ -3504,15 +3510,18 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Org Bindings][Evil Org Bindings]]
 
    #+TBLNAME: evil_org_keys
-      | Combo  | Mode         | Evil Mode | Description | Command                                                       |
-      | z c    | org-mode-map | normal    |             | 'hide-subtree                                                 |
-      | \\ TAB | org-mode-map | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
-      | RET    | org-mode-map | normal    |             | 'org-open-at-point                                            |
-      | s-v    | org-mode-map | insert    |             | 'org-cliplink                                                 |
-      | -      | org-mode-map | normal    |             | 'org-cycle-list-bullet                                        |
-      | C-c .  | org-mode-map | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t))        |
-      | >      | org-mode-map | normal    |             | 'org-metaright                                                |
-      | <      | org-mode-map | normal    |             | 'org-metaleft                                                 |
+      | Combo   | Mode             | Evil Mode | Description | Command                                                       |
+      | z c     | org-mode-map     | normal    |             | 'hide-subtree                                                 |
+      | \\ TAB  | org-mode-map     | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
+      | RET     | org-mode-map     | normal    |             | 'org-open-at-point                                            |
+      | s-v     | org-mode-map     | insert    |             | 'org-cliplink                                                 |
+      | -       | org-mode-map     | normal    |             | 'org-cycle-list-bullet                                        |
+      | C-c .   | org-mode-map     | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t))        |
+      | E       | org-mode-map     | normal    |             | 'org-edit-src-code                                            |
+      | q       | org-src-mode-map | normal    |             | 'org-edit-src-exit                                            |
+      | C-x C-s | org-src-mode-map | insert    |             | 'org-edit-src-exit                                            |
+      | >       | org-mode-map     | normal    |             | 'org-metaright                                                |
+      | <       | org-mode-map     | normal    |             | 'org-metaleft                                                 |
 
 ** Projectile
    Project interaction module for Emacs.
