@@ -3522,6 +3522,7 @@ required from *emacs*.
       | C-x C-s | org-src-mode-map | insert    |             | 'org-edit-src-exit                                            |
       | >       | org-mode-map     | normal    |             | 'org-metaright                                                |
       | <       | org-mode-map     | normal    |             | 'org-metaleft                                                 |
+      | SPC k   | org-mode-map     | normal    |             | 'outline-up-heading                                           |
 
 ** Projectile
    Project interaction module for Emacs.
