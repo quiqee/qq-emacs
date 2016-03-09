@@ -739,14 +739,14 @@ required from *emacs*.
      ;(when (member "Inconsolata-g" (font-family-list))
      (cond ((eq system-type 'darwin)
             ;; Set font for Mac OS X
-            (set-face-attribute 'default nil :font "PragmataPro for Powerline-12"))
+            (set-face-attribute 'default nil :font "PragmataPro-12"))
            ((eq system-type 'windows-nt)
             ;; Set font for Win32 application
-            (set-face-attribute 'default nil :font "PragmataPro for Powerline-11"))
+            (set-face-attribute 'default nil :font "PragmataPro-11"))
            (t
             ;; Emacs version 22.3 or later.
-            (set-frame-font "PragmataPro for Powerline-9" t) ; set font for all frames
-            (set-face-attribute 'default nil :font "PragmataPro for Powerline-9")))
+            (set-frame-font "PragmataPro-9" t) ; set font for all frames
+            (set-face-attribute 'default nil :font "PragmataPro-9")))
    #+END_SRC
 
 *** Modeline
@@ -862,11 +862,11 @@ required from *emacs*.
        '(mapc
          (lambda (face)
            (if (memq window-system '(mac ns))
-               (set-face-attribute face nil :font "PragmataPro for Powerline-11"
+               (set-face-attribute face nil :font "PragmataPro-11"
                                    :inherit (qq/adjoin-to-list-or-symbol
                                              'fixed-pitch
                                              (face-attribute face :inherit)))
-             (set-face-attribute face nil :font "PragmataPro for Powerline-9"
+             (set-face-attribute face nil :font "PragmataPro-9"
                                  :inherit (qq/adjoin-to-list-or-symbol
                                            'fixed-pitch
                                            (face-attribute face :inherit))))
