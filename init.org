@@ -1125,15 +1125,15 @@ required from *emacs*.
        (mapc (lambda (mode-hook)
                (add-hook mode-hook hook))
              mode-hooks))
-     (defun my/set-fringe-background ()
+     (defun qq/set-fringe-background ()
        "Set the fringe background to the same color as the regular background."
        (interactive)
-       (setq my/fringe-background-color
+       (setq qq/fringe-background-color
              (face-background 'default))
        (custom-set-faces
-        `(fringe ((t (:background ,my/fringe-background-color))))))
+        `(fringe ((t (:background ,qq/fringe-background-color))))))
 
-     (add-hook 'after-init-hook #'my/set-fringe-background)
+     (add-hook 'after-init-hook #'qq/set-fringe-background)
    #+END_SRC
 
 *** ediff
@@ -2889,14 +2889,9 @@ required from *emacs*.
        (interactive)
        (kill-buffer)
        (jump-to-register :magit-fullscreen))
-     (after 'evil
-       (after 'git-commit-mode
-         (add-hook 'git-commit-mode-hook 'evil-emacs-state))
-       (after 'magit-blame
-         (defadvice magit-blame-file-on (after advice-for-magit-blame-file-on activate)
-           (evil-emacs-state))
-         (defadvice magit-blame-file-off (after advice-for-magit-blame-file-off activate)
-           (evil-exit-emacs-state))))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
      (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
      (unless (display-graphic-p)
        (diff-hl-margin-mode))
@@ -2909,6 +2904,24 @@ required from *emacs*.
          (require 'magit-gerrit))
      (setq-default magit-gerrit-ssh-creds qq/gerrit-creds)
    #+END_SRC
+*** magit-commit-mode
+
+   #+BEGIN_SRC emacs-lisp
+     (setq git-commit-finish-query-functions nil)
+     (add-hook 'git-commit-mode-hook
+               '(lambda () (auto-fill-mode 0)
+                  (evil-insert-state))
+               ;; append rather than prepend to git-commit-mode-hook, since the
+               ;; thing that turns auto-fill-mode on in the first place is itself
+               ;; another hook on git-commit-mode.
+               t)
+
+     (custom-set-faces
+      '(git-commit-overlong-summary ((t (:inherit nil))))
+      '(git-commit-nonempty-second-line ((t (:inherit nil))))
+      '(git-commit-summary ((t nil))))
+   #+END_SRC
+
 *** Miscellaneous git functions
 
    [[https://github.com/redguardtoo/emacs.d/blob/master/lisp/init-ivy.el]]
@@ -4148,8 +4161,9 @@ If compilation is successful namely neither errors nor warnings, the compilation
 buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close/11059012#11059012][stackoverflow]]
 
    #+BEGIN_SRC emacs-lisp
-     (defun qq-bury-compile-buffer-if-successful (buffer string)
+     (defun qq/bury-compile-buffer-if-successful (buffer string)
        "Bury a compilation buffer if succeeded without warnings "
+       (alert string :title (buffer-name buffer))
        (if (and
             (string-match "compilation" (buffer-name buffer))
             (string-match "finished" string)
@@ -4159,10 +4173,9 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
            (run-with-timer 1 nil
                            (lambda (buf)
                              (bury-buffer buf)
-                             (switch-to-prev-buffer (get-buffer-window buf) 'kill))
-                           buffer))
-       (alert string :title buffer))
-     (add-hook 'compilation-finish-functions 'qq-bury-compile-buffer-if-successful)
+                             (delete-window (get-buffer-window (get-buffer "*compilation*"))))
+                           buffer)))
+     (add-hook 'compilation-finish-functions 'qq/bury-compile-buffer-if-successful)
    #+END_SRC
 
 ** C and its derivative
