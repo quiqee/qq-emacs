@@ -721,6 +721,7 @@ required from *emacs*.
 
      ;(load-theme 'gotham t)
      (load-theme 'darktooth t)
+     ;(load-theme 'gruvbox t)
      ;(load-theme 'cyberpunk t)
      ;(load-theme 'material t)
 
@@ -729,8 +730,44 @@ required from *emacs*.
      ;(load-theme 'ample-light t t)
      ;; choose one to enable
      ;(enable-theme 'ample)
+     ;(enable-theme 'ample-flat)
+     ;(enable-theme 'ample-light)
 
      ;(enable-theme 'monokai)
+   #+END_SRC
+
+**** Theme customization
+   Added/modify some color for some minor/major mode that I use
+
+***** smartparens
+   #+BEGIN_SRC emacs-lisp
+     (custom-set-faces
+         '(sp-show-pair-match-face ((t (
+                         :inherit nil
+                         :background "#282828"
+                         :bold t
+                         :foreground "#ffffff"))))
+
+         '(sp-pair-overlay-face ((t (
+                         :inherit nil
+                         :background nil
+                         :foreground "#7cfc00"))))
+
+         '(sp-wrap-overlay-face ((t (
+                         :inherit nil
+                         :background nil
+                         :foreground "#ff4500"))))
+
+         '(sp-wrap-tag-overlay-face ((t (
+                         :inherit nil
+                         :background nil
+                         :foreground "#ff1493"))))
+
+         '(sp-show-pair-enclosing ((t (
+                         :inherit nil
+                         :foreground "#000000"
+                         :background "#ff6347"))))
+     )
    #+END_SRC
 
 *** My preferred font
@@ -841,9 +878,14 @@ required from *emacs*.
    on the mode we're in (eg: Info and ERC should not be monospaced)
 
    #+begin_src emacs-lisp
-     (add-hook 'text-mode-hook 'variable-pitch-mode)
-     (add-hook 'erc-mode-hook 'variable-pitch-mode)
-     (add-hook 'Info-mode-hook 'variable-pitch-mode)
+     (defun qq/set-font-to-variable-width ()
+       "Change font in current window to a variable-width font."
+       (interactive)
+       (face-remap-add-relative 'default '(:family "CMU Sans Serif" :height 120 )))
+
+     (add-hook 'text-mode-hook 'qq/set-font-to-variable-width)
+     (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
+     (add-hook 'Info-mode-hook 'qq/set-font-to-variable-width)
    #+end_src
 
    For =org-mode= we'll be using monospace font for formula, meta-line, tables
@@ -3920,34 +3962,6 @@ required from *emacs*.
      ;(add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
 
      (show-smartparens-global-mode t)
-
-     (custom-set-faces
-         '(sp-show-pair-match-face ((t (
-                         :inherit nil
-                         :background "#00ffff"
-                         :bold t
-                         :foreground "#000000"))))
-
-         '(sp-pair-overlay-face ((t (
-                         :inherit nil
-                         :background nil
-                         :foreground "#7cfc00"))))
-
-         '(sp-wrap-overlay-face ((t (
-                         :inherit nil
-                         :background nil
-                         :foreground "#ff4500"))))
-
-         '(sp-wrap-tag-overlay-face ((t (
-                         :inherit nil
-                         :background nil
-                         :foreground "#ff1493"))))
-
-         '(sp-show-pair-enclosing ((t (
-                         :inherit nil
-                         :foreground "#000000"
-                         :background "#ff6347"))))
-     )
    #+END_SRC
 
 *** Keybinding

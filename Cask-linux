@@ -100,6 +100,7 @@
 (depends-on "darktooth-theme")
 (depends-on "material-theme")
 (depends-on "cyberpunk-theme")
+(depends-on "gruvbox-theme")
 
 (depends-on "expand-region")
 ;; vim emulator
