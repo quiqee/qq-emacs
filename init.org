@@ -767,6 +767,21 @@ required from *emacs*.
                          :inherit nil
                          :foreground "#000000"
                          :background "#ff6347"))))
+   #+END_SRC
+***** powerline
+   #+BEGIN_SRC emacs-lisp
+         `(powerline-inactive1  ((t (
+                         :background "#1D2021"
+                         :foreground "#a89984"
+                         :inherit mode-line-inactive))))
+         `(powerline-inactive2  ((t (
+                         :background "#504945"
+                         :forground "#a89984"
+                         :inherit mode-line-inactive))))
+   #+END_SRC
+***** which-func-mode
+   #+BEGIN_SRC emacs-lisp
+         '(which-func  ((t (:foreground "#87d7af"))))
      )
    #+END_SRC
 
@@ -4233,26 +4248,27 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 **** Minor modes
 
    #+BEGIN_SRC emacs-lisp
-       (eldoc-mode)
-       (ggtags-mode 1)
+     (eldoc-mode)
+     (ggtags-mode 1)
 
-       ;; Highlights suspicious C and C++ constructions
-       (global-cwarn-mode 1)
+     ;; Highlights suspicious C and C++ constructions
+     (global-cwarn-mode 1)
+     (diminish 'cwarn-mode)
 
-       ;; slow
-       ;;(flycheck-mode)
-       ;;(setq flycheck-gcc-language-standard "c++11")
-       ;;(flycheck-select-checker 'c/c++-gcc)
-       ;;;(setq flycheck-clang-language-standard "c++11")
-       ;;;(setq flycheck-clang-standard-library "libc++")
-       ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
+     ;; slow
+     ;;(flycheck-mode)
+     ;;(setq flycheck-gcc-language-standard "c++11")
+     ;;(flycheck-select-checker 'c/c++-gcc)
+     ;;;(setq flycheck-clang-language-standard "c++11")
+     ;;;(setq flycheck-clang-standard-library "libc++")
+     ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
 
-       ;(setq rtags-completions-enabled t)
-       ;(define-key c-mode-map  [(control tab)] 'company-complete)
-       ;(define-key c++-mode-map  [(control tab)] 'company-complete)
+     ;(setq rtags-completions-enabled t)
+     ;(define-key c-mode-map  [(control tab)] 'company-complete)
+     ;(define-key c++-mode-map  [(control tab)] 'company-complete)
 
-       ; enable spell check in comment area
-       (flyspell-prog-mode)
+     ; enable spell check in comment area
+     (flyspell-prog-mode)
    #+END_SRC
 
 **** End
