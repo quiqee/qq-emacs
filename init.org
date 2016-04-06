@@ -4678,7 +4678,16 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
              ((equal major-mode 'org-mode) (org-narrow-to-subtree))
              (t (error "Please select a region to narrow to"))))
    #+END_SRC
+** Abort minibuffer when it lose focus
 
+   #+BEGIN_SRC emacs-lisp
+     (defun stop-using-minibuffer ()
+       "kill the minibuffer"
+       (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
+         (abort-recursive-edit)))
+
+     (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
+   #+END_SRC
 ** KeyBindings
     :PROPERTIES:
     :CUSTOM_ID: recipes-binding
