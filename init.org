@@ -264,7 +264,7 @@ required from *emacs*.
     Used by =company-c-headers=
 
    #+BEGIN_SRC emacs-lisp
-     (defvar qq/gerrit-creds "fikri.pribadi@greenwavereality.com")
+     (defvar qq/gerrit-creds "fpribadi@gitgerrit-01.greenwavereality.eu")
    #+END_SRC
 
 **** LibClang path
@@ -430,7 +430,7 @@ required from *emacs*.
     Used by =company-c-headers=
 
    #+BEGIN_SRC emacs-lisp
-     (defvar qq/gerrit-creds "fikri.pribadi@greenwavereality.com")
+     (defvar qq/gerrit-creds "fpribadi@gitgerrit-01.greenwavereality.eu")
    #+END_SRC
 
 **** End
