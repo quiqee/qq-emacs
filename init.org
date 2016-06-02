@@ -430,7 +430,7 @@ required from *emacs*.
     Used by =company-c-headers=
 
    #+BEGIN_SRC emacs-lisp
-     (defvar qq/gerrit-creds "fpribadi@gitgerrit-01.greenwavereality.eu")
+     (defvar qq/gerrit-creds "fpribadi@gitgerrit-02.greenwavereality.eu")
    #+END_SRC
 
 **** End
@@ -2808,6 +2808,12 @@ required from *emacs*.
      (helm-descbinds-mode +1)
    #+END_SRC
 
+*** helm-M-x configuration
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key (kbd "M-x") 'helm-M-x)
+   #+END_SRC
+
 *** Enter search pattern in the header line
    Via: [[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reddit post]]
 
@@ -3865,6 +3871,32 @@ required from *emacs*.
      )
      (add-hook 'term-mode-hook 'qq/term-hook)
    #+end_src
+**** Improved term mode usage
+   From: [[https://sourceforge.net/u/gavenkoa/dot-emacs/ci/default/tree/.emacs-my][Oleksandr Gavenko (aka gavenkoa) / Hg-Dot-Emacs / {ec4a06} /.emacs-my]]
+
+   #+begin_src emacs-lisp
+     (setq term-buffer-maximum-size (lsh 1 14))
+
+     (eval-after-load 'term
+       '(progn
+         (defun my-term-send-delete-word-forward () (interactive) (term-send-raw-string "\ed"))
+         (defun my-term-send-delete-word-backward () (interactive) (term-send-raw-string "\e\C-h"))
+         (define-key term-raw-map [C-delete] 'my-term-send-delete-word-forward)
+         (define-key term-raw-map [C-backspace] 'my-term-send-delete-word-backward)
+         (defun my-term-send-forward-word () (interactive) (term-send-raw-string "\ef"))
+         (defun my-term-send-backward-word () (interactive) (term-send-raw-string "\eb"))
+         (define-key term-raw-map [C-left] 'my-term-send-backward-word)
+         (define-key term-raw-map [C-right] 'my-term-send-forward-word)
+         (defun my-term-send-m-right () (interactive) (term-send-raw-string "\e[1;3C"))
+         (defun my-term-send-m-left () (interactive) (term-send-raw-string "\e[1;3D"))
+         (define-key term-raw-map [M-right] 'my-term-send-m-right)
+         (define-key term-raw-map [M-left] 'my-term-send-m-left)
+         ))
+
+     (defun my-term-mode-hook ()
+       (goto-address-mode 1))
+     (add-hook 'term-mode-hook #'my-term-mode-hook)
+   #+end_src
 *** Serial terminal
 **** For serial port, default to 115200 b/s instead of 9600
 
@@ -3980,6 +4012,15 @@ required from *emacs*.
                    'qq/serial-term-update-window-size nil t)))
 
      (add-hook 'shell-mode-hook 'qq/serial-term-mode-hook)
+   #+END_SRC
+
+**** Remap =ESC= key
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'term-mode-hook
+               (lambda ()
+                 (define-key term-mode-map (kbd "<escape>") 'term-char-mode)
+                 (define-key term-raw-map (kbd "<escape>") 'term-line-mode)))
    #+END_SRC
 
 ** Smartparens
