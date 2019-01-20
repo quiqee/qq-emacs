@@ -165,7 +165,7 @@ emacs --batch --eval="(require 'org-install)" \
     --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
     --eval='(org-babel-tangle-file "init.org")' \
-    --eval='(byte-compile-file "~/.emacs.d/init.el")' >> /dev/null 2>&1
+    --eval="(progn (require 'cask \"~/.emacs.d/extern/cask/cask.el\") (cask-initialize) (byte-compile-file \"~/.emacs.d/init.el\"))" >> /dev/null 2>&1
 ) || exit 1
 echo " ... done"
 

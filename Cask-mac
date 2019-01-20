@@ -12,16 +12,16 @@
 ;; UI Enhancement
 (depends-on "hlinum")
 (depends-on "nlinum")
-(depends-on "info+")
+;(depends-on "info+")
 (depends-on "spaceline")
 (depends-on "window-numbering")
 (depends-on "persp-mode")
 
 ;; Modes
 (depends-on "swift-mode")
-(depends-on "crontab-mode")
+;(depends-on "crontab-mode")
 (depends-on "csv-mode")
-(depends-on "csv-nav")
+;(depends-on "csv-nav")
 
 (depends-on "emoji-cheat-sheet-plus")
 (depends-on "emojify")
@@ -47,7 +47,7 @@
 (depends-on "flycheck-irony")
 (depends-on "irony-eldoc")
 
-(depends-on "icicles")
+;(depends-on "icicles")
 
 (depends-on "vlf")
 (depends-on "rtags")
@@ -71,13 +71,14 @@
 (depends-on "auctex")                  ; integrated environment for *TeX*
 (depends-on "auto-compile")            ; automatically compile Emacs Lisp libraries
 (depends-on "bind-key")                ; a simple way to manage personal keybindings
+(depends-on "bind-map")                ; a simple way to manage personal keybindings
 (depends-on "color-identifiers-mode")  ; gives colors to unique variables passed into functions
-(depends-on "crosshairs")              ; Highlight current line & current column
+;(depends-on "crosshairs")              ; Highlight current line & current column
 (depends-on "diminish")                ; fight modeline clutter by removing or
                                      ; abbreviating minor mode indicators
 
 (depends-on "diff-hl")
-(depends-on "dired+")
+;(depends-on "dired+")
 (depends-on "discover-my-major")       ; Discover key bindings and their meaning for
                                      ; the current Emacs major mode
 (depends-on "elisp-slime-nav")         ; Provide convinient navigation to the definitions
@@ -108,7 +109,7 @@
 (depends-on "evil")
 (depends-on "evil-exchange")
 (depends-on "evil-indent-textobject")
-(depends-on "evil-jumper")
+;(depends-on "evil-jumper")
 (depends-on "evil-leader")
 (depends-on "evil-matchit")
 (depends-on "evil-nerd-commenter")
@@ -126,7 +127,7 @@
 (depends-on "ggtags")
 (depends-on "which-key")
 
-(depends-on "help-fns+")              ; better help functions
+;(depends-on "help-fns+")              ; better help functions
 
 (depends-on "helm")
 (depends-on "helm-ag")
@@ -145,7 +146,7 @@
 (depends-on "idle-highlight-mode")     ; sets an idle timer that highlights all
                                      ; occurences in the buffer of the word under cursor
 (depends-on "ido-vertical-mode")       ; Makes ido-mode display vertically.
-(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
+;(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
 (depends-on "highlight-indent-guides")            ; a neat mode to show indentation
 
 (depends-on "key-chord")
@@ -168,7 +169,7 @@
 (depends-on "org-cliplink")
 (depends-on "paredit")                 ; minor mode for editing parentheses
 (depends-on "popwin")                  ; popup window manager
-(depends-on "pretty-lambdada")
+;(depends-on "pretty-lambdada")
 (depends-on "rainbow-delimiters")
 (depends-on "rainbow-mode")            ; colorized color code in file
 (depends-on "smart-mode-line")

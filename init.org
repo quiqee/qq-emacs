@@ -91,7 +91,7 @@
      (defcustom qq/cache-directory
        (concat user-emacs-directory ".cache/")
        "The storage location for various persistent files."
-       ;:type '(string)
+       :type '(string)
        :group 'qq)
    #+END_SRC
 
@@ -289,7 +289,7 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-font "PragmataPro-12")
+     (setq qq/preferred-font "PragmataPro-14")
    #+end_src
 
 **** Fix Powerline color issue
@@ -467,7 +467,6 @@ required from *emacs*.
                 diminish
                 git-timemachine   ; walkthrough git revisions of a file
                 hlinum                ; highlight current line in line number column
-                info+
                 region-state
                 saveplace
                 spaceline-config
@@ -3618,12 +3617,11 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (org-babel-do-load-languages
       'org-babel-load-languages
-      '((sh         . t)
+      '((shell      . t)
         (js         . t)
         (emacs-lisp . t)
         (ditaa      . t)
         (perl       . t)
-        (scala      . t)
         (clojure    . t)
         (python     . t)
         (ruby       . t)
