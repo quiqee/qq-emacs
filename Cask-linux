@@ -8,6 +8,9 @@
 (depends-on "ranger")
 (depends-on "cliphist")
 (depends-on "multi-term")
+(depends-on "refine")
+(depends-on "logview")
+(depends-on "clang-format")
 
 ;; UI Enhancement
 (depends-on "hlinum")
@@ -51,6 +54,7 @@
 
 (depends-on "vlf")
 (depends-on "rtags")
+(depends-on "cmake-ide")
 (depends-on "git-timemachine")
 (depends-on "ggtags")
 
@@ -108,7 +112,6 @@
 (depends-on "evil")
 (depends-on "evil-exchange")
 (depends-on "evil-indent-textobject")
-(depends-on "evil-jumper")
 (depends-on "evil-leader")
 (depends-on "evil-matchit")
 (depends-on "evil-nerd-commenter")
@@ -117,7 +120,8 @@
 (depends-on "evil-visualstar")
 (depends-on "evil-quickscope")
 (depends-on "evil-mc")
-(depends-on "general")
+(depends-on "bind-map")
+;(depends-on "general")
 ;(depends-on "evil-smartparens")
 
 

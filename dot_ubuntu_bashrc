@@ -88,7 +88,7 @@ fi
 # some more ls aliases
 alias la='ls -alFh'
 alias ll='ls -lFh'
-alias l.='ls -A'
+alias l.='ls -lFhd .*'
 alias l='ls -CF'
 
 # Add an "alert" alias for long running commands.  Use like so:
@@ -156,3 +156,5 @@ PANEL_FONT_FAMILY="-*-terminus-medium-r-normal-*-12-*-*-*-c-*-*-1"
 export PANEL_FIFO PANEL_HEIGHT PANEL_FONT_FAMILY
 
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+
+stty -ixon    # allow forward search in BASH

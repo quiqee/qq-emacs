@@ -59,7 +59,7 @@
               (equal (buffer-file-name)
                      (expand-file-name (concat user-emacs-directory "init.org")))
               (equal (buffer-file-name)
-                     (expand-file-name "~/Documents/qq-emacs/init.org")))
+                     (expand-file-name "~/Documents/git/qq-emacs/init.org")))
             (org-babel-tangle)
             (setq org-confirm-babel-evaluate nil)
             (byte-compile-file (concat user-emacs-directory "init.el"))
@@ -409,9 +409,10 @@ required from *emacs*.
 *** Work Laptop
 
    #+BEGIN_SRC emacs-lisp
-      ((string-equal qq/system-name "ThinkPad-E440") ; Lenovo Thinkpad
-       (progn
-         (message "Lenovo Thinkpad")
+     ((or (string-equal qq/system-name "ThinkPad-440SSD")
+          (string-equal qq/system-name "ThinkPad-E440")) ; Lenovo Thinkpad
+      (progn
+        (message "Lenovo Thinkpad")
    #+END_SRC
 
 **** Fonts
@@ -1026,6 +1027,7 @@ required from *emacs*.
      (setq-default spaceline-window-numbers-unicode 1)
      (setq-default spaceline-workspace-numbers-unicode 1)
      (setq-default powerline-height 18)
+     (spaceline-compile)
    #+END_SRC
 
 **** Clean Modeline
@@ -1183,34 +1185,6 @@ required from *emacs*.
          (list 'markdown-pre-face 'markdown-inline-code-face)))
    #+end_src
 
-*** Pretty Symbol
-   Displaying sequences of characters as fancy characters or symbols
-   for example, showing -> as →
-
-   May need to revisit the code below since new Emacs 24.4 support built-in
-   =prettify-symbols-mode=
-
-   #+BEGIN_SRC emacs-lisp
-     (global-prettify-symbols-mode 1)
-     ;(global-pretty-lambda-mode 1) ; enabling this will conflict with helm
-                               ; such that helm-buffer will have no color
-     (setq coq-symbols
-           '(("forall" ?∀)
-             ("->" ?→)
-             ("exists" ?∃)
-             ("=>" ?⇒)
-             ("False" ?⊥)
-             ("True" ?⊤)))
-
-     (add-hook 'coq-mode-hook
-               (lambda ()
-                 (setq prettify-symbols-alist coq-symbols)))
-     (add-hook 'js2-mode-hook
-               (lambda ()
-                 (push '("function" . 955) prettify-symbols-alist)
-                 (push '("return" . 8592) prettify-symbols-alist)))
-   #+END_SRC
-
 *** Emoji font support
 
    #+BEGIN_SRC emacs-lisp
@@ -1236,6 +1210,190 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (set-face-attribute 'italic nil :inherit nil :slant 'italic)
+   #+END_SRC
+*** PragmataPro Ligatures
+   Displaying sequences of characters as fancy characters or symbols
+   for example, showing -> as →
+
+   This only work for Pragmata Pro fonts, details [[https://www.reddit.com/r/emacs/comments/4sm6fa/how_to_enable_pragmatapro_ligatures/][here]].
+
+   #+BEGIN_SRC emacs-lisp
+       ;; PRETTIFY SYMBOLS (with Pragmata Pro)
+       (defun setup-pragmata-ligatures ()
+         (setq prettify-symbols-alist
+               (append prettify-symbols-alist
+                '(("!!"   . ?)
+                  ("!="   . ?)
+                  ("!=="  . ?)
+                  ("!≡"   . ?)
+                  ("!≡≡"  . ?)
+                  ("!>"   . ?)
+                  ("#("   . ?)
+                  ("#_"   . ?)
+                  ("#{"   . ?)
+                  ("#?"   . ?)
+                  ("#>"   . ?)
+                  ("%="   . ?)
+                  ("%>"   . ?)
+                  ("<~"   . ?)
+                  ("&%"   . ?)
+                  ("&&"   . ?)
+                  ("&*"   . ?)
+                  ("&+"   . ?)
+                  ("&-"   . ?)
+                  ("&/"   . ?)
+                  ("&="   . ?)
+                  ("&&&"  . ?)
+                  ("&>"   . ?)
+                  ("$>"   . ?)
+                  ("~>"   . ?)
+                  ("***"  . ?) ; I prefer not to use this one
+                  ("*="   . ?)
+                  ("*/"   . ?)
+                  ("*>"   . ?)
+                  ("++"   . ?)
+                  ("+++"  . ?)
+                  ("+="   . ?)
+                  ("+>"   . ?)
+                  ("--"   . ?)
+                  ("-<"   . ?)
+                  ("-<<"  . ?)
+                  ("-="   . ?)
+                  ("->>"  . ?)
+                  ("---"  . ?)
+                  ("-->"  . ?)
+                  (".."   . ?)
+                  ("..."  . ?)
+                  ("..<"  . ?)
+                  (".>"   . ?)
+                  (".~"   . ?)
+                  (".="   . ?)
+                  ("/*"   . ?)
+                  ("//"   . ?)
+                  ("/>"   . ?)
+                  ("/="   . ?)
+                  ("/=="  . ?)
+                  ("///"  . ?)
+                  ("/**"  . ?)
+                  ("::"   . ?)
+                  (":="   . ?)
+                  (":≡"   . ?)
+                  (":>"   . ?)
+                  (":=>"  . ?)
+                  ("<$>"  . ?)
+                  ("<*"   . ?)
+                  ("<*>"  . ?)
+                  ("<+>"  . ?)
+                  ;; ("<-"   . ?) ; I like different arrows (see below)
+                  ("<<"   . ?)
+                  ("<<<"  . ?)
+                  ("<<="  . ?)
+                  ("<="   . ?)
+                  ;; ("<=>"  . ?) ; I like different arrows (see below)
+                  ("<>"   . ?)
+                  ("<|>"  . ?)
+                  ("<<-"  . ?)
+                  ("<|"   . ?)
+                  ("<=<"  . ?)
+                  ("<~~"  . ?)
+                  ("<<~"  . ?)
+                  ("<$"   . ?)
+                  ("<+"   . ?)
+                  ("<!>"  . ?)
+                  ("<@>"  . ?)
+                  ("<#>"  . ?)
+                  ("<%>"  . ?)
+                  ("<^>"  . ?)
+                  ("<&>"  . ?)
+                  ("<?>"  . ?)
+                  ("<.>"  . ?)
+                  ("</>"  . ?)
+                  ("<\>"  . ?)
+                  ("<\">" . ?)
+                  ("<:>"  . ?)
+                  ("<~>"  . ?)
+                  ("<**>" . ?)
+                  ("<<^"  . ?)
+                  ("<!"   . ?)
+                  ("<@"   . ?)
+                  ("<#"   . ?)
+                  ("<%"   . ?)
+                  ("<^"   . ?)
+                  ("<&"   . ?)
+                  ("<?"   . ?)
+                  ("<."   . ?)
+                  ("</"   . ?)
+                  ("<\\"  . ?)
+                  ("<\""  . ?)
+                  ("<:"   . ?)
+                  ("<->"  . ?)
+                  ("<!--" . ?)
+                  ("<--"  . ?)
+                  ("=<<"  . ?)
+                  ("=="   . ?)
+                  ("==="  . ?)
+                  ;; ("==>"  . ?) ; I like different arrows (see below)
+                  ;; ("=>"   . ?)  ; I like different arrows (see below)
+                  ("=~"   . ?)
+                  ("=>>"  . ?)
+                  ("≡≡"   . ?)
+                  ("≡≡≡"  . ?)
+                  ("≡:≡"  . ?)
+                  (">-"   . ?)
+                  (">="   . ?)
+                  (">>"   . ?)
+                  (">>-"  . ?)
+                  (">>="  . ?)
+                  (">>>"  . ?)
+                  (">=>"  . ?)
+                  (">>^"  . ?)
+                  ("??"   . ?)
+                  ("?~"   . ?)
+                  ("?="   . ?)
+                  ("?>"   . ?)
+                  ("^="   . ?)
+                  ("^."   . ?)
+                  ("^?"   . ?)
+                  ("^.."  . ?)
+                  ("^<<"  . ?)
+                  ("^>>"  . ?)
+                  ("^>"   . ?)
+                  ("\\\\" . ?)
+                  ("\\>"  . ?)
+                  ("@>"   . ?)
+                  ("|="   . ?)
+                  ("||"   . ?)
+                  ("|>"   . ?)
+                  ("|||"  . ?)
+                  ("|+|"  . ?)
+                  ("~="   . ?)
+                  ("~~>"  . ?)
+                  ("~>>"  . ?)
+
+                  ;; Personal preference: I like this set of arrows better than default
+                  ("<-"   . ?🡐)
+                  ("->"   . ?🡒)
+                  ("=>"   . ?⇒)
+                  ("<=>"  . ?⟺)
+                  ("<==>" . ?⟺)
+                  ("==>"  . ?⟹)
+                  ("<=="  . ?⟸)
+                  ("|->"  . ?⟼)
+                  ("<-|"  . ?⟻)
+                  ("|=>"  . ?⟾)
+                  ("<=|"  . ?⟽)
+                  ))))
+
+       (defun refresh-pretty ()
+         (prettify-symbols-mode -1)
+         (prettify-symbols-mode +1))
+
+       ;; Hooks for modes in which to install the Pragmata ligatures
+       (mapc (lambda (hook)
+               (add-hook hook (lambda () (setup-pragmata-ligatures) (refresh-pretty))))
+             '(text-mode-hook
+               prog-mode-hook))
+       (global-prettify-symbols-mode +1)
    #+END_SRC
 
 ** Advice
@@ -2110,7 +2268,6 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(evil evil-indent-textobject
-                evil-jumper
                 ))
        (require feature))
    #+END_SRC
@@ -2219,15 +2376,18 @@ required from *emacs*.
      (evil-exchange-install)
    #+END_SRC
 
-**** general
+**** bind-map
    An evil-leader replacement
 
-   https://github.com/noctuid/general.el
+[[https://github.com/justbur/emacs-bind-map][GitHub - justbur/emacs-bind-map: Bind personal keymaps in multiple locations]]
+   +https://github.com/noctuid/general.el+
 
    #+BEGIN_SRC emacs-lisp
-     (setq general-default-non-normal-prefix "M-SPC")
-     (general-evil-setup t)
-     (setq qq-leader1 "SPC")
+     (require 'bind-map)
+     (bind-map qq/base-leader-map
+       :keys ("M-m")
+       :evil-keys ("SPC")
+       :evil-states (normal motion visual))
    #+END_SRC
 
 *** Common Settings
@@ -2300,7 +2460,7 @@ required from *emacs*.
              (grep-mode . emacs)
              (Info-mode . emacs)
              (term-mode . emacs)
-;             (sdcv-mode . emacs)
+             (refine-mode . emacs)
 ;             (anaconda-nav-mode . emacs)
              (log-edit-mode . emacs)
              (vc-log-edit-mode . emacs)
@@ -2900,22 +3060,22 @@ required from *emacs*.
 
 *** Company integration
  #+begin_src emacs-lisp
-   (eval-after-load 'company
-     '(add-to-list 'company-backends 'company-irony))
+   ;;(eval-after-load 'company
+   ;;  '(add-to-list 'company-backends 'company-irony))
 
-   ;; (optional) adds CC special commands to `company-begin-commands' in order to
-   ;; trigger completion at interesting places, such as after scope operator
-   ;;     std::|
-   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+   ;;;; (optional) adds CC special commands to `company-begin-commands' in order to
+   ;;;; trigger completion at interesting places, such as after scope operator
+   ;;;;     std::|
+   ;;(add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
  #+end_src
 
 *** C-Headers
    #+begin_src emacs-lisp
-     (require 'company-irony-c-headers)
-     ;; Load with `irony-mode` as a grouped backend
-     (eval-after-load 'company
-       '(add-to-list
-         'company-backends '(company-irony-c-headers company-irony)))
+     ;;(require 'company-irony-c-headers)
+     ;;;; Load with `irony-mode` as a grouped backend
+     ;;(eval-after-load 'company
+     ;;  '(add-to-list
+     ;;    'company-backends '(company-irony-c-headers company-irony)))
    #+end_src
 
 *** Flycheck integration
@@ -4292,15 +4452,56 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
      (modify-syntax-entry ?_ "w")
    #+END_SRC
 
-**** Coding style
+**** Coding style via =clang-format=
 
    #+BEGIN_SRC emacs-lisp
-       (setq c-default-style "stroustrup"
-             c-basic-offset 4)
-       (setq-default c-basic-offset 4
-                     tab-width 4
-                     indent-tabs-mode t)
-       (c-set-offset 'innamespace 0)
+     (require 'clang-format)
+     (require 'rx)
+
+     ;; Note, if a .dir-locals.el set some variables, it won't work, since local
+     ;; variables are set after mode-hooks, they will be overriden, I think it make
+     ;; sense to be able to override with .dir-locals.el so I'm not trying to counter
+     ;; this. In case it appears to be necessary to counter it, see
+     ;; http://stackoverflow.com/a/5148435/951426
+     (defun qq/clang-format-set-c-style ()
+       (let ((orig-path (or buffer-file-name default-directory))
+             vars)
+         (when (and orig-path
+                    (string= clang-format-style "file")
+                    (locate-dominating-file orig-path ".clang-format"))
+           (with-temp-buffer
+             (call-process clang-format-executable nil t nil
+                           "-style" clang-format-style
+                           "-dump-config")
+             ;; TODO: narrow region to Langage Cpp?
+             (goto-char (point-min))
+             (when (re-search-forward (rx bol "IndentWidth"
+                                          (zero-or-more blank)
+                                          ":"
+                                          (zero-or-more blank)
+                                          (group (one-or-more digit)))
+                                      nil t)
+               (setq vars (cons (cons 'c-basic-offset
+                                      (string-to-number (match-string 1)))
+                                vars)))))
+         (dolist (var vars)
+           (set (car var) (cdr var)))))
+
+     (add-hook 'c++-mode-hook 'qq/clang-format-set-c-style)
+   #+END_SRC
+
+   Add hook to =clang-format-buffer= when saving C++ files
+   #+BEGIN_SRC emacs-lisp
+     ;; Hook function
+     (defun clang-format-before-save ()
+       "Add this to .emacs to clang-format on save
+      (add-hook 'before-save-hook 'clang-format-before-save)."
+
+       (interactive)
+       (when (eq major-mode 'c++-mode) (clang-format-buffer)))
+
+     ;; Install hook to use clang-format on save
+     (add-hook 'before-save-hook 'clang-format-before-save)
    #+END_SRC
 
 **** Minor modes
@@ -4451,8 +4652,9 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    Using The table below as the source for generating [[Evil CC Mode Bindings][Evil CC Mode Bindings]]
 
    #+TBLNAME: cc_mode_keys
-      | Combo | Mode            | Evil Mode | Description | Command             |
-      | RET   | c-mode-base-map | insert    |             | 'newline-and-indent |
+      | Combo | Mode            | Evil Mode | Description | Command              |
+      | RET   | c-mode-base-map | insert    |             | 'newline-and-indent  |
+      | C-S-f | c-mode-base-map | visual    |             | 'clang-format-region |
 
 ** Lisp
 
@@ -4729,6 +4931,41 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
      (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
    #+END_SRC
+** Inline PlantUML image
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'iimage)
+     (autoload 'iimage-mode "iimage" "Support Inline image minor mode." t)
+     (autoload 'turn-on-iimage-mode "iimage" "Turn on Inline image minor mode." t)
+     (add-to-list 'iimage-mode-image-regex-alist '("@startuml\s+\\(.+\\)" . 1))
+
+     ;; Rendering plantuml
+     (defun plantuml-render-buffer ()
+       (interactive)
+       (message "PLANTUML Start rendering")
+       (shell-command (concat "java -jar " org-plantuml-jar-path " "
+                              buffer-file-name))
+       (message (concat "PLANTUML Rendered:  " (buffer-name))))
+
+     ;; Image reloading
+     (defun reload-image-at-point ()
+       (interactive)
+       (message "reloading image at point in the current buffer...")
+       (image-refresh (get-text-property (point) 'display)))
+
+     ;; Image resizing and reloading
+     (defun resize-image-at-point ()
+       (interactive)
+       (message "resizing image at point in the current buffer123...")
+       (let* ((image-spec (get-text-property (point) 'display))
+              (file (cadr (member :file image-spec))))
+         (message (concat "resizing image..." file))
+         (shell-command (format "convert -resize %d %s %s "
+                                (* (window-width (selected-window)) (frame-char-width))
+                                file file))
+         (reload-image-at-point)))
+   #+END_SRC
+
 ** KeyBindings
     :PROPERTIES:
     :CUSTOM_ID: recipes-binding
@@ -4798,7 +5035,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 ** Evil Leader Bindings
 Generate binding using table from [[#evil-leader-binding][here]]
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="nmap :prefix qq-leader1")>>
+     <<gen-fix(pre="bind-map-set-keys qq/base-leader-map")>>
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
    #+END_SRC
 

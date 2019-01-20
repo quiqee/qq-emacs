@@ -33,7 +33,7 @@ URxvt*fading: 40
 !Set TERM environments
 URxvt*termName: rxvt-unicode-256color
 
-URxvt*perl-lib: /home/fikri/Documents/qq-emacs/urxvt-perls/
+URxvt*perl-lib: /home/fikri/Documents/git/qq-emacs/urxvt-perls/
 URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard
 !URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard,tabbed
 
