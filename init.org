@@ -1,7 +1,7 @@
 #+BABEL: :cache yes
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
-#+PROPERTY: header-args :tangle ~/.emacs.d/init.el :comments org
+#+PROPERTY: header-args :output-dir ~/.emacs.d/ :tangle yes
 #+DATE:  <2016-01-25 Mon>
 
 #+TITLE: Emacs configuration file
@@ -12,10 +12,7 @@
    reasons why I wanted to do this. I wanted to learn =org-mode=, one way to do
    this is by practicing on file I'm often work with. I just started using emacs
    a couple of weeks ago. When I saw an Emacs configuration done in =org-mode=,
-   I knew this is what I wanted to do. This way I could gain more knowledge of
-   Emacs as I added new stuff here from where ever I can gather from the web.
-
-   *This is live document, always work in progress*
+   I knew this is what I wanted to do.
 
 ** How does it work?
    =org-mode= support code block exports through a process called =tangle=. This
@@ -31,12 +28,215 @@
 * Basic
 ** Meta
 *** Packages
-   =Cask= is my choice of package manager for emacs. Plenty other package
-   manager exist for emacs now. But =cask= fits my need quite well.
+   List of packages used through out this configuration.
+
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/packages.el
+     (package-initialize)
+
+     ; find package information from following archives
+     (setq package-archives (quote (("gnu" . "https://elpa.gnu.org/packages/")
+                              ("org" . "https://orgmode.org/elpa/")
+                              ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
+
+     (list-packages)
+
+     (mapcar (lambda (package)
+               ; install package if not already installed
+               (unless (package-installed-p package)
+                 (let ((inhibit-message t))
+                   (package-install package))
+                 (if (package-installed-p package)
+                     (message "✓ Installed %s" package)
+                   (error "✕ Couldn't install %s" package))))
+
+             ; list of packages to be installed
+             '(yasnippet
+
+               ;; Tools
+               exec-path-from-shell
+               swiper
+               ranger
+               cliphist
+               multi-term
+
+               ;; UI Enhancement
+               ;(depends-on "info+")
+               hlinum
+               ;nlinum
+               spaceline
+               window-numbering
+               persp-mode
+
+               ;; Modes
+               ;(depends-on "crontab-mode")
+               ;(depends-on "csv-nav")
+               swift-mode
+               csv-mode
+
+               emoji-cheat-sheet-plus
+               emojify
+
+               bug-hunter
+
+               fasd
+               shell-here
+
+               alert
+
+               company
+               company-box
+               company-irony
+               company-irony-c-headers
+               company-sourcekit
+               company-emoji
+               company-math
+               company-quickhelp
+               company-flx
+               company-statistics
+               irony
+               irony-eldoc
+               flycheck-irony
+               irony-eldoc
+
+               ;(depends-on "icicles")
+
+               vlf
+               rtags
+               git-timemachine
+               ggtags
+
+               xcode-mode
+
+               ;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :ref "master")
+
+               highlight-indentation
+
+               function-args
+               clean-aindent-mode
+               ;(depends-on "dtrt-indent")
+               ws-butler
+               projectile
+               ace-jump-mode           ; quick cursor location minor mode
+               ag
+               ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
+               auctex                  ; integrated environment for *TeX*
+               auto-compile            ; automatically compile Emacs Lisp libraries
+               bind-key                ; a simple way to manage personal keybindings
+               bind-map                ; a simple way to manage personal keybindings
+               color-identifiers-mode  ; gives colors to unique variables passed into functions
+               ;(depends-on "crosshairs")              ; Highlight current line & current column
+               diminish                ; fight modeline clutter by removing or
+                                                    ; abbreviating minor mode indicators
+
+               diff-hl
+               ;(depends-on "dired+")
+               discover-my-major       ; Discover key bindings and their meaning for
+                                                    ; the current Emacs major mode
+               elisp-slime-nav         ; Provide convinient navigation to the definitions
+                                                    ; of variables, functions, libraries and faces.
+               elscreen                ; window session manager
+
+               neotree
+
+               speed-type
+
+               origami
+               region-state
+               keyfreq
+
+               gotham-theme
+               ample-theme
+               moe-theme
+               monokai-theme
+               gruber-darker-theme
+               grandshell-theme
+               zenburn-theme
+               darktooth-theme
+               material-theme
+               cyberpunk-theme
+
+               expand-region
+               ;; vim emulator
+               evil
+               evil-exchange
+               evil-indent-textobject
+               ;(depends-on "evil-jumper")
+               evil-leader
+               evil-matchit
+               evil-nerd-commenter
+               evil-numbers
+               evil-surround
+               evil-visualstar
+               evil-quickscope
+               evil-mc
+               general
+               ;(depends-on "evil-smartparens")
+
+
+               flycheck                ; on-the-fly syntax checking
+               ggtags
+               which-key
+
+               ;(depends-on "help-fns+")              ; better help functions
+
+               helm
+               helm-ag
+               helm-dash
+               helm-cmd-t
+               helm-orgcard
+               helm-pydoc
+               helm-themes
+               helm-swoop
+               helm-gtags
+               helm-projectile
+               helm-descbinds
+
+               hungry-delete
+               idle-highlight-mode     ; sets an idle timer that highlights all
+                                                    ; occurences in the buffer of the word under cursor
+               ;(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
+               highlight-indent-guides            ; a neat mode to show indentation
+
+               key-chord
+
+               latex-preview-pane
+
+               magic-latex-buffer
+
+               evil-magit
+               magit
+               magit-gerrit
+               git-gutter-fringe
+               git-messenger
+
+               markdown-mode
+               move-text               ; Move current line or region with M-up or M-down
+               multiple-cursors        ; Multiple cursors for Emacs.
+               org-plus-contrib        ; Outline-based notes management and organizer
+               org-bullets             ; show org bullet as Unicode character
+               org-cliplink
+               paredit                 ; minor mode for editing parentheses
+               popwin                  ; popup window manager
+               ;(depends-on "pretty-lambdada")
+               rainbow-delimiters
+               rainbow-mode            ; colorized color code in file
+               smart-mode-line
+               smartparens             ; Minor mode for Emacs that deals with parens pairs
+               smart-tabs-mode         ; provide semantic way of using tab in source code
+               smex                    ; M-x interface with Ido-style fuzzy matching.
+
+               sr-speedbar
+               undo-tree               ; Treat undo history as a tree
+               volatile-highlights
+               wgrep-ag
+               writegood-mode
+               xcscope
+               yasnippet               ; snippet tools for emacs
+              ))
+   #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
-     (require 'cask "~/.emacs.d/extern/cask/cask.el")
-     (cask-initialize)
+     (package-initialize)
    #+END_SRC
 
    Cask packages configuration for Mac OS X: [[file:Cask-mac][Cask]]
@@ -235,7 +435,9 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (setq qq/shell-prog "/bin/bash")
-     (setq qq/preferred-font "PragmataPro-12")
+     (setq qq/preferred-fixed-font "PragmataPro-12")
+     (setq qq/preferred-variable-family "CMU Sans Serif")
+     (setq qq/preferred-variable-height 120)
    #+end_src
 
 *** Work Build Server
@@ -250,7 +452,7 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-font "PragmataPro-9")
+     (setq qq/preferred-fixed-font "PragmataPro-9")
    #+end_src
 
 **** C-Headers path
@@ -279,7 +481,7 @@ required from *emacs*.
      ))
    #+END_SRC
 
-*** Mac Pro @home
+*** Mac @home
    #+BEGIN_SRC emacs-lisp
       ((string-equal system-type "darwin") ; Mac OS X
        (progn
@@ -289,7 +491,8 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-font "PragmataPro-14")
+     (setq qq/preferred-fixed-font "PragmataPro-14")
+     (setq qq/preferred-variable-height 140)
    #+end_src
 
 **** Fix Powerline color issue
@@ -418,7 +621,7 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-font "PragmataPro-9")
+     (setq qq/preferred-fixed-font "PragmataPro-9")
    #+end_src
 
 **** =alert= notifier
@@ -1009,8 +1212,8 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      ;; Emacs version 22.3 or later.
-     (set-frame-font qq/preferred-font t) ; set font for all frames
-     (set-face-attribute 'default nil :font qq/preferred-font)
+     (set-frame-font qq/preferred-fixed-font t) ; set font for all frames
+     (set-face-attribute 'default nil :font qq/preferred-fixed-font)
    #+END_SRC
 
 *** Modeline
@@ -1109,11 +1312,11 @@ required from *emacs*.
      (defun qq/set-font-to-fixed-width ()
        "Change font in current window to a variable-width font."
        (interactive)
-       (face-remap-add-relative 'default '(:font qq/preferred-font)))
+       (face-remap-add-relative 'default '(:font qq/preferred-fixed-font)))
      (defun qq/set-font-to-variable-width ()
        "Change font in current window to a variable-width font."
        (interactive)
-       (face-remap-add-relative 'default '(:family "CMU Sans Serif" :height 120)))
+       (face-remap-add-relative 'default '(:family qq/preferred-variable-family :height qq/preferred-variable-height)))
 
      (add-hook 'text-mode-hook 'qq/set-font-to-variable-width)
      (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
@@ -1135,15 +1338,10 @@ required from *emacs*.
      (eval-after-load "org"
        '(mapc
          (lambda (face)
-           (if (memq window-system '(mac ns))
-               (set-face-attribute face nil :font "PragmataPro-11"
-                                   :inherit (qq/adjoin-to-list-or-symbol
-                                             'fixed-pitch
-                                             (face-attribute face :inherit)))
-             (set-face-attribute face nil :font "PragmataPro-9"
+             (set-face-attribute face nil :font qq/preferred-fixed-font
                                  :inherit (qq/adjoin-to-list-or-symbol
                                            'fixed-pitch
-                                           (face-attribute face :inherit))))
+                                           (face-attribute face :inherit)))
            )
          (list 'org-meta-line 'org-code 'org-formula 'org-block
                'org-block-begin-line 'org-block-end-line 'org-verbatim
@@ -2149,6 +2347,14 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (eval-after-load 'company
           (company-statistics-mode))
+   #+END_SRC
+
+*** Use =company-postframe= for frontend
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'company-box)
+     (add-hook 'company-mode-hook 'company-box-mode)
+     (diminish 'company-box-mode)
    #+END_SRC
 
 *** company-ispell setup

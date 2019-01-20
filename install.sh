@@ -56,14 +56,7 @@ git_config() {
 mkdir -p ~/.emacs.d/elisp
 mkdir -p ~/.emacs.d/extern
 
-if [ "$(uname)" == "Darwin" ]; then
-    ln -s $(pwd)/Cask-mac $HOME/.emacs.d/Cask
-    profile="$HOME/.profile"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    ln -s $(pwd)/Cask-linux $HOME/.emacs.d/Cask
-    profile="$HOME/.bashrc"
-fi
-ln -s $(pwd)/init.org $HOME/.emacs.d/init.org
+ln -sf $(pwd)/init.org $HOME/.emacs.d/init.org
 
 update_bzr_lib() {
     path=$1
@@ -105,67 +98,23 @@ clone_git_repo() {
         echo " ... done"
     fi
 }
-clone_git_repo ".emacs.d/extern/cask" "https://github.com/cask/cask.git"
+#clone_git_repo ".emacs.d/extern/cask" "https://github.com/cask/cask.git"
 
-if [[ $(grep "cask/bin" $profile) == "" ]]
-then
-    echo "Adding \$HOME/.emacs.d/extern/cask/bin to \$PATH in $profile"
-    echo '' >> $profile
-    echo "# Added by ~/.emacs.d/install.sh" >> $profile
-    echo "export PATH=\$HOME/.emacs.d/extern/cask/bin:\$PATH" >> $profile
-fi
-
-export PATH=$HOME/.emacs.d/extern/cask/bin:$PATH
-
-build_lib() {
-    echo -n "** Building: $1"
-
-    # Use ginstall-info if available
-    hash ginstall-info 2>/dev/null && install_info_arg="INSTALL-INFO=ginstall-info"
-
-    # Use my Emacs
-    [[ $EMACS ]] && emacs_arg="EMACS=$EMACS"
-
-    (
-        cd "$HOME/$1"
-        output_on_error make $emacs_arg $install_info_arg
-    ) || exit 1
-    echo " ... done"
-}
-#build_lib ".emacs.d/extern/cedet"
-#build_lib ".emacs.d/extern/cedet/contrib"
-
-run_cask() {
-    echo -n "** Installing cask packages"
-    (
-        cd "$HOME/.emacs.d"
-        output_on_error $HOME/.emacs.d/extern/cask/bin/cask install
-    ) || exit 1
-    echo " ... done"
-
-    echo -n "** Updating cask"
-    (
-        cd "$HOME/.emacs.d"
-        output_on_error $HOME/.emacs.d/extern/cask/bin/cask upgrade
-    ) || exit 1
-    echo " ... done"
-
-    echo -n "** Updating cask packages"
-    (
-        cd "$HOME/.emacs.d"
-        output_on_error $HOME/.emacs.d/extern/cask/bin/cask update
-    ) || exit 1
-    echo " ... done"
-}
-run_cask
-
-echo -n "** Generating Emacs' init.el"
+echo -n "** Generating Emacs' script files"
 (
 emacs --batch --eval="(require 'org-install)" \
     --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
-    --eval='(org-babel-tangle-file "init.org")' \
-    --eval="(progn (require 'cask \"~/.emacs.d/extern/cask/cask.el\") (cask-initialize) (byte-compile-file \"~/.emacs.d/init.el\"))" >> /dev/null 2>&1
+    --eval='(org-babel-tangle-file "init.org")' >> /dev/null 2>&1
 ) || exit 1
 echo " ... done"
 
+emacs -q --script ~/.emacs.d/packages.el
+echo " "
+
+echo -n "** Compiling init.el"
+(
+mv init.el ~/.emacs.d/
+emacs --batch --eval="(progn (package-initialize) (byte-compile-file \"~/.emacs.d/init.el\"))" >> /dev/null 2>&1
+) || exit 1
+echo " ... done"
