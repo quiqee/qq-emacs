@@ -125,8 +125,6 @@
                bind-map                ; a simple way to manage personal keybindings
                color-identifiers-mode  ; gives colors to unique variables passed into functions
                ;(depends-on "crosshairs")              ; Highlight current line & current column
-               diminish                ; fight modeline clutter by removing or
-                                                    ; abbreviating minor mode indicators
 
                diff-hl
                ;(depends-on "dired+")
@@ -257,7 +255,7 @@
                  tangled, and the tangled file is compiled."
        (when (or
               (equal (buffer-file-name)
-                     (expand-file-name (concat user-emacs-directory "init.org")))
+                     (expand-file-name "~/LocalDocuments/git/qq-emacs/init.org"))
               (equal (buffer-file-name)
                      (expand-file-name "~/Documents/git/qq-emacs/init.org")))
             (org-babel-tangle)
@@ -667,7 +665,6 @@ required from *emacs*.
      (dolist (feature
               '(
                 auto-compile          ; auto-compile .el files
-                diminish
                 git-timemachine   ; walkthrough git revisions of a file
                 hlinum                ; highlight current line in line number column
                 region-state
@@ -1229,6 +1226,7 @@ required from *emacs*.
      (setq-default spaceline-window-numbers-unicode 1)
      (setq-default spaceline-workspace-numbers-unicode 1)
      (setq-default powerline-height 18)
+     (spaceline-toggle-minor-modes-off)
      (spaceline-compile)
    #+END_SRC
 
@@ -2354,7 +2352,6 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (require 'company-box)
      (add-hook 'company-mode-hook 'company-box-mode)
-     (diminish 'company-box-mode)
    #+END_SRC
 
 *** company-ispell setup
@@ -2427,41 +2424,6 @@ required from *emacs*.
       | C-k   | move cursor to the previous entry | 'company-select-previous                  |
       | TAB   |                                   | 'company-complete-common-or-complete-full |
 
-** Diminish
-   Remove the minor mode indicators from the mode line (or powerline).
-
-   [[https://github.com/myrjola/diminish.el]]
-
-   #+begin_src emacs-lisp
-     (diminish 'visual-line-mode)
-     (diminish 'hungry-delete-mode)
-     (after 'hi-lock '(diminish 'hi-lock-mode))
-     (after 'ggtags (diminish 'ggtags-mode))
-     (after 'flyspell (diminish 'flyspell-mode))
-     (after 'which-key (diminish 'which-key-mode))
-     (after 'abbrev (diminish 'abbrev-mode))
-     (after 'irony (diminish 'irony-mode))
-     (after 'autopair (diminish 'autopair-mode))
-     (after 'undo-tree (diminish 'undo-tree-mode))
-     (after 'auto-complete (diminish 'auto-complete-mode))
-     (after 'projectile (diminish 'projectile-mode))
-     (after 'guide-key (diminish 'guide-key-mode))
-     (after 'eldoc (diminish 'eldoc-mode))
-     (after 'smartparens (diminish 'smartparens-mode))
-     (after 'evil-smartparens (diminish 'evil-smartparens-mode))
-     (after 'company (diminish 'company-mode))
-     (after 'elisp-slime-nav (diminish 'elisp-slime-nav-mode))
-     (after 'git-gutter-fringe (diminish 'git-gutter-mode))
-     (after 'indent-guide (diminish 'indent-guide-mode))
-     (after 'hs-minor-mode (diminish 'hs-minor-mode))
-     (after 'color-identifiers-mode (diminish 'color-identifiers-mode))
-     (after 'rainbow-mode (diminish 'rainbow-mode))
-     (after 'persp-mode (diminish 'persp-mode))
-     (after 'highlight-indentation (diminish 'highlight-indentation-mode))
-     (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
-     (eval-after-load "face-remap" '(diminish 'buffer-face-mode))
-     (diminish 'auto-revert-mode)
-   #+end_src
 ** Evil
    As a long time Vim user, =evil-mode= is essential tools in order for Emacs
    to be my default text editor.
@@ -3164,7 +3126,6 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
      (helm-mode 1)
-     (diminish 'helm-mode)
    #+END_SRC
 *** helm-descbinds configuration
 
@@ -3661,15 +3622,14 @@ required from *emacs*.
 **** Enable flyspell and rainbow-mode
 
    #+BEGIN_SRC emacs-lisp
-       (add-hook 'org-mode-hook (lambda ()
-                                  (when (or (executable-find "aspell")
-                                            (executable-find "ispell")
+     (add-hook 'org-mode-hook (lambda ()
+                                (when (or (executable-find "aspell")
+                                          (executable-find "ispell")
 
-                                            (executable-find "hunspell"))
-                                    (flyspell-mode))
-                                  (diminish 'org-indent-mode)
-                                  (rainbow-mode)
-                                  ))
+                                          (executable-find "hunspell"))
+                                  (flyspell-mode))
+                                (rainbow-mode)
+                                ))
    #+END_SRC
 **** Enable =markdown= export
 
@@ -4716,7 +4676,6 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 
      ;; Highlights suspicious C and C++ constructions
      (global-cwarn-mode 1)
-     (diminish 'cwarn-mode)
 
      ;; slow
      ;;(flycheck-mode)

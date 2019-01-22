@@ -102,6 +102,17 @@ clone_git_repo() {
 
 echo -n "** Generating Emacs' script files"
 (
+cat > ~/.emacs.d/upgrade.el <<- EOM
+(setq package-archives
+       (quote
+        (("gnu" . "https://elpa.gnu.org/packages/")
+         ("melpa" . "https://melpa.org/packages/")
+         ("org" . "https://orgmode.org/elpa/")))
+       package-menu-async nil)
+(list-packages)
+(package-menu-mark-upgrades)
+(package-menu-execute t)
+EOM
 emacs --batch --eval="(require 'org-install)" \
     --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
