@@ -240,30 +240,97 @@
    Cask packages configuration for Mac OS X: [[file:Cask-mac][Cask]]
    For Linux: [[file:Cask-linux][Cask]]
 
+*** Init utilites
+   Convenient macro to allow processing after checking existing pre-condition
+
+   #+BEGIN_SRC emacs-lisp
+     (defmacro after (feature &rest body)
+       "Load BODY after FEATURE, catching errors and displaying as warnings."
+       (declare (indent defun))
+       `(with-eval-after-load ,feature
+          (condition-case-unless-debug err
+              (progn
+                ,@body)
+            (error
+             (display-warning
+              'init
+              (format "%s eval-after-load: %s "
+                      (symbol-name ,feature)
+                      (error-message-string err))
+              :error)))))
+   #+END_SRC
+
 *** Tangling Function
    Emacs can only load =.el=-files. We can use =C-c C-v t= to run
    =org-babel-tangle=, which extracts the code blocks from the current file
    into a source-specific file (in this case a =.el=-file).
 
+<<<<<<< Updated upstream
    To avoid doing this each time a change is made we can add a function to
    the =after-save-hook= ensuring to always tangle and byte-compile the
    =org=-document after changes.
 
    #+BEGIN_SRC emacs-lisp
-     (defun qq/tangle-init ()
-       "If the current buffer is 'init.org' the code-blocks are
-                 tangled, and the tangled file is compiled."
-       (when (or
-              (equal (buffer-file-name)
-                     (expand-file-name "~/LocalDocuments/git/qq-emacs/init.org"))
-              (equal (buffer-file-name)
-                     (expand-file-name "~/Documents/git/qq-emacs/init.org")))
-            (org-babel-tangle)
-            (setq org-confirm-babel-evaluate nil)
-            (byte-compile-file (concat user-emacs-directory "init.el"))
-            (alert "Init file is compiled")))
+     ;(defun qq/tangle-init ()
+     ;  "If the current buffer is 'init.org' the code-blocks are
+     ;            tangled, and the tangled file is compiled."
+     ;  (when (or
+     ;         (equal (buffer-file-name)
+     ;                (expand-file-name "~/LocalDocuments/git/qq-emacs/init.org"))
+     ;         (equal (buffer-file-name)
+     ;                (expand-file-name "~/Documents/git/qq-emacs/init.org")))
+     ;       (org-babel-tangle)
+     ;       (setq org-confirm-babel-evaluate nil)
+     ;       (byte-compile-file (concat user-emacs-directory "init.el"))
+     ;       (alert "Init file is compiled")))
 
-     (add-hook 'after-save-hook 'qq/tangle-init)
+     ;(add-hook 'after-save-hook 'qq/tangle-init)
+=======
+   Here I define a function that uses [[https://github.com/jwiegley/emacs-async][async.el]] to open and tangle an org file
+   asynchronously. This is how I tangle init.org (and rc.org) directly to
+   init.el on save, since it’s long enough that a synchronous tangle causes
+   a pretty annoynig lag.
+
+    - If qq/asyncbabel-tangle-decrypt is set to t in the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html#Specifying-File-Variables][file variables]], org
+      entries are decrypted first. Mostly useful if you do something like
+      keep sensitive configuration files in an org file.
+    - If qq/show-async-tangle-results is t, don’t dispose of async emacs process
+      buffers. This is useful for debugging errors.
+
+   #+BEGIN_SRC emacs-lisp
+     (after 'org
+       (defvar qq/show-async-tangle-results nil
+         "Keep *emacs* async buffers around for later inspection.")
+       (defvar qq/async-babel-tangle-decrypt nil
+         "Decrypt org entries before tangling. Probably most useful as a file-local variable.")
+
+       (defun qq/async-babel-tangle (&optional decrypt)
+         "Tangle org file asynchronously.
+
+     If optional DECRYPT argument is given, dercypt entries before
+     tangling."
+         (interactive)
+         (let ((init-tangle-start-time (current-time))
+               (file (buffer-file-name))
+               (async-quiet-switch "-q"))
+           (async-start
+            `(lambda ()
+               (require 'org)
+               (when ,qq/async-babel-tangle-decrypt
+                 (require 'org-crypt)
+                 (org-crypt-use-before-save-magic)
+                 (add-hook 'org-babel-pre-tangle-hook 'org-decrypt-entries)
+                 (remove-hook 'org-babel-pre-tangle-hook 'save-buffer))
+               (org-babel-tangle-file ,file))
+            (unless qq/show-async-tangle-results
+              `(lambda (result)
+                 (if result
+                     (message "SUCCESS: %s successfully tangled. (%.3fs)"
+                              ,(file-name-nondirectory file)
+                              (float-time (time-subtract (current-time)
+                                                         ',init-tangle-start-time)))
+                   (message "ERROR: %s tangle failed." ,(file-name-nondirectory file)))))))))
+>>>>>>> Stashed changes
    #+END_SRC
 
    #+RESULTS:
@@ -312,17 +379,6 @@
 Here we create the directory =~/.emacs.d/elisp= if it does not exist, add it to
 the =load-path=. Doing that any =.el= or =.elc= files in this directory can be
 required from *emacs*.
-
-*** Miscelaneaus Macros & Functions
-   Convenient macro to allow processing after checking existing pre-condition
-
-   #+BEGIN_SRC emacs-lisp
-     (defmacro after (feature &rest body)
-                    "After FEATURE is loaded, evaluate BODY."
-                    (declare (indent defun))
-                    `(eval-after-load ,feature
-                       '(progn ,@body)))
-   #+END_SRC
 
 *** Custom Cache
    By default, Emacs saves the options you set via the `customize-*` functions
@@ -526,7 +582,7 @@ required from *emacs*.
 **** =alert= notifier
 
    #+BEGIN_SRC emacs-lisp
-     (setq alert-default-style 'notifier)
+     (setq alert-default-style 'osx-notifier)
    #+END_SRC
 
 **** Modifier keys
@@ -5332,3 +5388,9 @@ Generate binding using table from [[#evil-leader-binding][here]]
 
    #+RESULTS:
    : sp-forward-sexp
+* Local vars
+#+begin_example
+# Local Variables:
+# eval: (add-hook 'after-save-hook 'qq/async-babel-tangle 'append 'local)
+# End:
+#+end_example
