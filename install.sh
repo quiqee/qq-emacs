@@ -126,6 +126,6 @@ echo " "
 echo -n "** Compiling init.el"
 (
 mv init.el ~/.emacs.d/
-emacs --batch --eval="(progn (package-initialize) (byte-compile-file \"~/.emacs.d/init.el\"))" >> /dev/null 2>&1
+emacs --batch --eval='(progn (package-initialize) (byte-compile-file "~/.emacs.d/init.el"))' >> /dev/null 2>&1
 ) || exit 1
 echo " ... done"

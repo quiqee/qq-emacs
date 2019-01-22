@@ -8,9 +8,11 @@
 (depends-on "ranger")
 (depends-on "cliphist")
 (depends-on "multi-term")
+;;;;;;;;;;;;;;;;
 (depends-on "refine")
 (depends-on "logview")
 (depends-on "clang-format")
+;;;;;;;;;;;;;;;;
 
 ;; UI Enhancement
 (depends-on "hlinum")
@@ -104,8 +106,10 @@
 (depends-on "darktooth-theme")
 (depends-on "material-theme")
 (depends-on "cyberpunk-theme")
+;;;;;;;;;;;;;;;;
 (depends-on "gruvbox-theme")
 (depends-on "quickrun")
+;;;;;;;;;;;;;;;;
 
 (depends-on "expand-region")
 ;; vim emulator

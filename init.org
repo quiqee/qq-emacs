@@ -265,28 +265,7 @@
    =org-babel-tangle=, which extracts the code blocks from the current file
    into a source-specific file (in this case a =.el=-file).
 
-<<<<<<< Updated upstream
-   To avoid doing this each time a change is made we can add a function to
-   the =after-save-hook= ensuring to always tangle and byte-compile the
-   =org=-document after changes.
-
-   #+BEGIN_SRC emacs-lisp
-     ;(defun qq/tangle-init ()
-     ;  "If the current buffer is 'init.org' the code-blocks are
-     ;            tangled, and the tangled file is compiled."
-     ;  (when (or
-     ;         (equal (buffer-file-name)
-     ;                (expand-file-name "~/LocalDocuments/git/qq-emacs/init.org"))
-     ;         (equal (buffer-file-name)
-     ;                (expand-file-name "~/Documents/git/qq-emacs/init.org")))
-     ;       (org-babel-tangle)
-     ;       (setq org-confirm-babel-evaluate nil)
-     ;       (byte-compile-file (concat user-emacs-directory "init.el"))
-     ;       (alert "Init file is compiled")))
-
-     ;(add-hook 'after-save-hook 'qq/tangle-init)
-=======
-   Here I define a function that uses [[https://github.com/jwiegley/emacs-async][async.el]] to open and tangle an org file
+   Tangle function below uses [[https://github.com/jwiegley/emacs-async][async.el]] to open and tangle an org file
    asynchronously. This is how I tangle init.org (and rc.org) directly to
    init.el on save, since it’s long enough that a synchronous tangle causes
    a pretty annoynig lag.
@@ -315,6 +294,9 @@
                (async-quiet-switch "-q"))
            (async-start
             `(lambda ()
+               ;; make async emacs aware of packages (for byte-compilation)
+               (package-initialize)
+               (setq package-enable-at-startup nil)
                (require 'org)
                (when ,qq/async-babel-tangle-decrypt
                  (require 'org-crypt)
@@ -325,12 +307,12 @@
             (unless qq/show-async-tangle-results
               `(lambda (result)
                  (if result
-                     (message "SUCCESS: %s successfully tangled. (%.3fs)"
-                              ,(file-name-nondirectory file)
-                              (float-time (time-subtract (current-time)
-                                                         ',init-tangle-start-time)))
-                   (message "ERROR: %s tangle failed." ,(file-name-nondirectory file)))))))))
->>>>>>> Stashed changes
+                     (alert "SUCCESS: %s successfully tangled. (%.3fs)"
+                            ,(file-name-nondirectory file)
+                            (float-time (time-subtract (current-time)
+                                                       ',init-tangle-start-time)))
+                   (alert "ERROR: %s tangle failed." ,(file-name-nondirectory file)))))))))
+     (setq qq/show-async-tangle-results 1)
    #+END_SRC
 
    #+RESULTS:
@@ -489,9 +471,9 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (setq qq/shell-prog "/bin/bash")
-     (setq qq/preferred-fixed-font "PragmataPro-12")
-     (setq qq/preferred-variable-family "CMU Sans Serif")
-     (setq qq/preferred-variable-height 120)
+     (set-face-attribute 'default nil :font "PragmataPro-10")
+     (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
+     (set-face-attribute 'variable-pitch nil :family "Caldera")
    #+end_src
 
 *** Work Build Server
@@ -506,7 +488,9 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-fixed-font "PragmataPro-9")
+     (set-face-attribute 'default nil :font "PragmataPro-10")
+     (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
+     (set-face-attribute 'variable-pitch nil :family "Caldera")
    #+end_src
 
 **** C-Headers path
@@ -545,8 +529,9 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-fixed-font "PragmataPro-14")
-     (setq qq/preferred-variable-height 140)
+     (set-face-attribute 'default nil :font "PragmataPro-14")
+     (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
+     (set-face-attribute 'variable-pitch nil :family "Arial")
    #+end_src
 
 **** Fix Powerline color issue
@@ -666,7 +651,7 @@ required from *emacs*.
 *** Work Laptop
 
    #+BEGIN_SRC emacs-lisp
-     ((or (string-equal qq/system-name "ThinkPad-440SSD")
+     ((or (string-equal qq/system-name "fikri-Latitude-E5470")
           (string-equal qq/system-name "ThinkPad-E440")) ; Lenovo Thinkpad
       (progn
         (message "Lenovo Thinkpad")
@@ -675,7 +660,7 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-fixed-font "PragmataPro-9")
+     (set-face-attribute 'default nil :font "PragmataPro-10")
    #+end_src
 
 **** =alert= notifier
@@ -1261,14 +1246,6 @@ required from *emacs*.
      )
    #+END_SRC
 
-*** My preferred font
-
-   #+BEGIN_SRC emacs-lisp
-     ;; Emacs version 22.3 or later.
-     (set-frame-font qq/preferred-fixed-font t) ; set font for all frames
-     (set-face-attribute 'default nil :font qq/preferred-fixed-font)
-   #+END_SRC
-
 *** Modeline
    [[https://github.com/TheBB/spaceline][Spaceline]] is an extension to customize the mode line. This is modified
    version extracted from [[https://github.com/syl20bnr/spacemacs][Spacemacs]].
@@ -1354,87 +1331,6 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      ;(global-hl-line-mode)
    #+END_SRC
-
-*** Fixed/Variable Width Faces
-   I love monospaced fonts (I used =PragmataPro= extensively), but they can be
-   harder to read when it comes to documentation or simple conversation.
-
-   So, let's make Emacs use different fonts (monospaced and variable) depending
-   on the mode we're in (eg: Info and ERC should not be monospaced)
-
-   #+begin_src emacs-lisp
-     (defun qq/set-font-to-fixed-width ()
-       "Change font in current window to a variable-width font."
-       (interactive)
-       (face-remap-add-relative 'default '(:font qq/preferred-fixed-font)))
-     (defun qq/set-font-to-variable-width ()
-       "Change font in current window to a variable-width font."
-       (interactive)
-       (face-remap-add-relative 'default '(:family qq/preferred-variable-family :height qq/preferred-variable-height)))
-
-     (add-hook 'text-mode-hook 'qq/set-font-to-variable-width)
-     (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
-     (add-hook 'Info-mode-hook 'qq/set-font-to-variable-width)
-   #+end_src
-
-   For =org-mode= we'll be using monospace font for formula, meta-line, tables
-   and code blocks, while still using =variable-pitch-mode= in the rest of
-   =org-mode= buffers
-
-   #+BEGIN_SRC emacs-lisp
-     (defun qq/adjoin-to-list-or-symbol (element list-or-symbol)
-       (let ((list (if (not (listp list-or-symbol))
-                       (list list-or-symbol)
-                     list-or-symbol)))
-         (require 'cl-lib)
-         (cl-adjoin element list)))
-
-     (eval-after-load "org"
-       '(mapc
-         (lambda (face)
-             (set-face-attribute face nil :font qq/preferred-fixed-font
-                                 :inherit (qq/adjoin-to-list-or-symbol
-                                           'fixed-pitch
-                                           (face-attribute face :inherit)))
-           )
-         (list 'org-meta-line 'org-code 'org-formula 'org-block
-               'org-block-begin-line 'org-block-end-line 'org-verbatim
-               'org-table)))
-   #+END_SRC
-
-   Same settings applied for =Info buffers= as well. Code examples will be using
-   monospace font
-
-   #+begin_src emacs-lisp
-     (defvar qq/rx-info-code (rx bol "     " (* not-newline) eol))
-     (add-hook 'Info-mode-hook 'qq/Info-font-lock)
-     (defun qq/Info-font-lock ()
-       (interactive)
-       (require 'org)
-       (font-lock-add-keywords
-        nil
-        `((,qq/rx-info-code
-           .
-           ;; let's just use org-block
-           (quote org-block)
-           ))))
-   #+end_src
-
-   Display source code blocks or pre blocks in monospace for =markdown-mode=
-   buffers
-
-   #+begin_src emacs-lisp
-     (eval-after-load "markdown-mode"
-       '(mapc
-         (lambda (face)
-           (set-face-attribute
-            face nil
-            :inherit
-            (qq/adjoin-to-list-or-symbol
-             'fixed-pitch
-             (face-attribute face :inherit))))
-         (list 'markdown-pre-face 'markdown-inline-code-face)))
-   #+end_src
 
 *** Emoji font support
 

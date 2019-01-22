@@ -22,8 +22,8 @@ urxvt*background: black
 *color14: #fcaf3e
 *color15: #EEEEEC
 
-urxvt*font:xft:PragmataPro:pixelsize=10
-URxvt*italicFont:PragmataPro Italic:pixelsize=10
+urxvt*font:xft:PragmataPro:pixelsize=12
+URxvt*italicFont:PragmataPro Italic:pixelsize=12
 URxvt*scrollBar: false
 URxvt*visualBell: true
 URxvt.letterSpace: -1
