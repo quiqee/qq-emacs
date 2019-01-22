@@ -242,6 +242,7 @@
    For Linux: [[file:Cask-linux][Cask]]
 
 *** Init utilites
+**** Evaluate after
    Convenient macro to allow processing after checking existing pre-condition
 
    #+BEGIN_SRC emacs-lisp
@@ -266,54 +267,44 @@
    =org-babel-tangle=, which extracts the code blocks from the current file
    into a source-specific file (in this case a =.el=-file).
 
-   Tangle function below uses [[https://github.com/jwiegley/emacs-async][async.el]] to open and tangle an org file
-   asynchronously. This is how I tangle init.org (and rc.org) directly to
-   init.el on save, since it’s long enough that a synchronous tangle causes
-   a pretty annoynig lag.
-
-    - If qq/asyncbabel-tangle-decrypt is set to t in the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html#Specifying-File-Variables][file variables]], org
-      entries are decrypted first. Mostly useful if you do something like
-      keep sensitive configuration files in an org file.
-    - If qq/show-async-tangle-results is t, don’t dispose of async emacs process
-      buffers. This is useful for debugging errors.
+   To avoid doing this each time a change is made we can add a function to
+   the =after-save-hook= ensuring to always tangle and byte-compile the
+   =org=-document after changes.
 
    #+BEGIN_SRC emacs-lisp
-     (after 'org
-       (defvar qq/show-async-tangle-results nil
-         "Keep *emacs* async buffers around for later inspection.")
-       (defvar qq/async-babel-tangle-decrypt nil
-         "Decrypt org entries before tangling. Probably most useful as a file-local variable.")
+     (defun qq/tangle-init ()
+       "If the current buffer is 'init.org' the code-blocks are
+                      tangled, and the tangled file is compiled."
+       (when (string= "init.org" (buffer-name))
+         (let ((inhibit-message t)) (org-babel-tangle))
+         (setq org-confirm-babel-evaluate nil)
+         (delete-file (concat user-emacs-directory
+                              (file-name-base buffer-file-name) ".el"))
+         (rename-file
+          (concat (file-name-sans-extension buffer-file-name) ".el")
+          (concat user-emacs-directory (file-name-base buffer-file-name) ".el"))
+                                             ;(byte-compile-file (concat user-emacs-directory "init.el"))
+         (alert "Init file is compiled")))
 
-       (defun qq/async-babel-tangle (&optional decrypt)
-         "Tangle org file asynchronously.
+     (add-hook 'after-save-hook 'qq/tangle-init)
+   #+END_SRC
 
-     If optional DECRYPT argument is given, dercypt entries before
-     tangling."
-         (interactive)
-         (let ((init-tangle-start-time (current-time))
-               (file (buffer-file-name))
-               (async-quiet-switch "-q"))
-           (async-start
-            `(lambda ()
-               ;; make async emacs aware of packages (for byte-compilation)
-               (package-initialize)
-               (setq package-enable-at-startup nil)
-               (require 'org)
-               (when ,qq/async-babel-tangle-decrypt
-                 (require 'org-crypt)
-                 (org-crypt-use-before-save-magic)
-                 (add-hook 'org-babel-pre-tangle-hook 'org-decrypt-entries)
-                 (remove-hook 'org-babel-pre-tangle-hook 'save-buffer))
-               (org-babel-tangle-file ,file))
-            (unless qq/show-async-tangle-results
-              `(lambda (result)
-                 (if result
-                     (alert "SUCCESS: %s successfully tangled. (%.3fs)"
-                            ,(file-name-nondirectory file)
-                            (float-time (time-subtract (current-time)
-                                                       ',init-tangle-start-time)))
-                   (alert "ERROR: %s tangle failed." ,(file-name-nondirectory file)))))))))
-     (setq qq/show-async-tangle-results 1)
+   Disable garbage collector when tangle running
+
+   #+BEGIN_SRC emacs-lisp
+     (setq qq/default-gc-cons-threshold gc-cons-threshold)
+     (defun qq/set-gc-cons-threshold (&optional multiplier notify)
+       "Set `gc-cons-threshold' either to its default value or a
+        `multiplier' thereof."
+       (let* ((new-multiplier (or multiplier 1))
+              (new-threshold (* qq/default-gc-cons-threshold
+                                new-multiplier)))
+         (setq gc-cons-threshold new-threshold)
+         (when notify (message "Setting `gc-cons-threshold' to %s"
+                               new-threshold))))
+     (defun qq/double-gc-cons-threshold () "Double `gc-cons-threshold'." (qq/set-gc-cons-threshold 2))
+     (add-hook 'org-babel-pre-tangle-hook #'qq/double-gc-cons-threshold)
+     (add-hook 'org-babel-post-tangle-hook #'qq/set-gc-cons-threshold)
    #+END_SRC
 
    #+RESULTS:
@@ -378,7 +369,7 @@ required from *emacs*.
    exist.
 
    #+BEGIN_SRC emacs-lisp
-     (setq custom-file (concat user-emacs-directory "custom.el"))
+     (setq custom-file (concat qq/cache-directory "custom.el"))
      (when (file-exists-p custom-file)
        (load custom-file))
    #+END_SRC
@@ -3589,6 +3580,58 @@ required from *emacs*.
      (require 'org-eldoc)
    #+END_SRC
 
+**** Start of =setq=
+
+   #+BEGIN_SRC emacs-lisp
+       (setq
+   #+END_SRC
+
+***** Elipsis appearance
+
+   #+BEGIN_SRC emacs-lisp
+             ;org-ellipsis "▼"
+             org-ellipsis "⤵"
+             org-columns-ellipses "…"
+   #+END_SRC
+
+***** Press =RET= follow links
+
+   #+BEGIN_SRC emacs-lisp
+             org-return-follows-link t
+   #+END_SRC
+***** refile-target
+
+   #+BEGIN_SRC emacs-lisp
+             org-refile-targets '((nil :maxlevel . 9)
+                                  (org-agenda-files :maxlevel . 9))
+   #+END_SRC
+***** Default note file
+
+   #+BEGIN_SRC emacs-lisp
+             org-default-notes-file "organizer.org"
+   #+END_SRC
+***** Capture templates
+
+   #+BEGIN_SRC emacs-lisp
+             org-capture-templates
+             '(("t" "Todo" entry (file+headline qq/inbox-org-file "TODO")
+                "* TODO %?\n%U\n%a\n")
+               ("n" "Note" entry (file+headline qq/inbox-org-file "NOTES")
+                "* %? :NOTE:\n%U\n%a\n")
+               ("m" "Meeting" entry (file qq/inbox-org-file)
+                "* MEETING %? :MEETING:\n%U")
+               ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org"))
+                "* %?\n%U\n"))
+   #+END_SRC
+
+***** Indentation
+
+   #+BEGIN_SRC emacs-lisp
+             org-startup-indented t
+             org-indent-indentation-per-level 3
+             org-src-tab-acts-natively t)
+   #+END_SRC
+
 **** Change =org-directory= location
    And ensure the folder exist.
 
@@ -3622,58 +3665,6 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
        (require 'ox-md nil t)
-   #+END_SRC
-
-**** Use =ido= for completion
-
-   #+BEGIN_SRC emacs-lisp
-       (setq org-completion-use-ido t
-   #+END_SRC
-
-**** Elipsis appearance
-
-   #+BEGIN_SRC emacs-lisp
-             ;org-ellipsis "▼"
-             org-ellipsis "⤵"
-             org-columns-ellipses "…"
-   #+END_SRC
-
-**** Press =RET= follow links
-
-   #+BEGIN_SRC emacs-lisp
-             org-return-follows-link t
-   #+END_SRC
-**** refile-target
-
-   #+BEGIN_SRC emacs-lisp
-             org-refile-targets '((nil :maxlevel . 9)
-                                  (org-agenda-files :maxlevel . 9))
-   #+END_SRC
-**** Default note file
-
-   #+BEGIN_SRC emacs-lisp
-             org-default-notes-file "organizer.org"
-   #+END_SRC
-**** Capture templates
-
-   #+BEGIN_SRC emacs-lisp
-             org-capture-templates
-             '(("t" "Todo" entry (file+headline qq/inbox-org-file "TODO")
-                "* TODO %?\n%U\n%a\n")
-               ("n" "Note" entry (file+headline qq/inbox-org-file "NOTES")
-                "* %? :NOTE:\n%U\n%a\n")
-               ("m" "Meeting" entry (file qq/inbox-org-file)
-                "* MEETING %? :MEETING:\n%U")
-               ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org"))
-                "* %?\n%U\n"))
-   #+END_SRC
-
-**** Indentation
-
-   #+BEGIN_SRC emacs-lisp
-             org-startup-indented t
-             org-indent-indentation-per-level 3
-             org-src-tab-acts-natively t)
    #+END_SRC
 
 **** Nice bulleted lists.
@@ -5319,9 +5310,3 @@ Generate binding using table from [[#evil-leader-binding][here]]
 
    #+RESULTS:
    : sp-forward-sexp
-* Local vars
-#+begin_example
-# Local Variables:
-# eval: (add-hook 'after-save-hook 'qq/async-babel-tangle 'append 'local)
-# End:
-#+end_example
