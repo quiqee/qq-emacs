@@ -242,8 +242,15 @@
    For Linux: [[file:Cask-linux][Cask]]
 
 *** Init utilites
+**** Garbage collection threshold
+Increase the garbage collection threshold to 500 MB to ease startup
+
+   #+BEGIN_SRC emacs-lisp
+     (setq gc-cons-threshold (* 500 1024 1024))
+   #+END_SRC
+
 **** Evaluate after
-   Convenient macro to allow processing after checking existing pre-condition
+Convenient macro to allow processing after checking existing pre-condition
 
    #+BEGIN_SRC emacs-lisp
      (defmacro after (feature &rest body)
@@ -469,6 +476,7 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (setq qq/shell-prog "/bin/bash")
+     (setq qq/preferred-font "PragmataPro-12")
      (set-face-attribute 'default nil :font "PragmataPro-10")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
      (set-face-attribute 'variable-pitch nil :family "Caldera")
@@ -527,6 +535,7 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
+     (setq qq/preferred-font "PragmataPro-14")
      (set-face-attribute 'default nil :font "PragmataPro-14")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
      (set-face-attribute 'variable-pitch nil :family "Arial")
@@ -658,6 +667,7 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
+     (setq qq/preferred-font "PragmataPro-10")
      (set-face-attribute 'default nil :font "PragmataPro-10")
    #+end_src
 
@@ -746,20 +756,27 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (setq delete-old-versions t
            kept-new-versions 2
-           kept-old-versions 2)
+           kept-old-versions 2
    #+END_SRC
 
 **** Finally, use version numbers in the filenames:
 
    #+BEGIN_SRC emacs-lisp
-     (setq version-control t)
+           version-control t)
    #+END_SRC
 
 *** Custom variables
 
    #+BEGIN_SRC emacs-lisp
-     (defvar best-gc-cons-threshold 4000000 "Best default gc threshold value. Shouldn't be too big.")
+     (defvar best-gc-cons-threshold (* 5 1024 1024) "Best default gc threshold value (5 MB). Shouldn't be too big.")
    #+END_SRC
+
+*** Emacs Garbage Collector
+   Once startup complete decrease threshold to 5 MB
+
+   #+begin_src emacs-lisp
+     (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
+   #+end_src
 
 *** Setq
 
@@ -773,14 +790,6 @@ required from *emacs*.
            save-interprogram-paste-before-kill t
            history-delete-duplicates t
    #+END_SRC
-
-**** Emacs Garbage Collector
-   We don't really need to garbage collect as frequently as Emacs would like to
-   by default, so set the threshold up hight.
-
-   #+begin_src emacs-lisp
-           gc-cons-threshold best-gc-cons-threshold
-   #+end_src
 
 **** Startup behaviour
    Inhibit some of those annoying startup display.
@@ -1358,6 +1367,92 @@ required from *emacs*.
      ;(global-hl-line-mode)
    #+END_SRC
 
+*** Fixed/Variable Width Faces
+   I love monospaced fonts (I used =PragmataPro= extensively), but they can be
+   harder to read when it comes to documentation or simple conversation.
+
+   So, let's make Emacs use different fonts (monospaced and variable) depending
+   on the mode we're in (eg: Info and ERC should not be monospaced)
+
+   #+begin_src emacs-lisp
+     (defun qq/set-font-to-fixed-width ()
+       "Change font in current window to a variable-width font."
+       (interactive)
+       (face-remap-add-relative 'default '(:font qq/preferred-font)))
+     (defun qq/set-font-to-variable-width ()
+       "Change font in current window to a variable-width font."
+       (interactive)
+       (face-remap-add-relative 'default '(:family "Baskerville" :height 120)))
+
+     (add-hook 'text-mode-hook 'qq/set-font-to-variable-width)
+     (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
+     (add-hook 'Info-mode-hook 'qq/set-font-to-variable-width)
+   #+end_src
+
+   For =org-mode= we'll be using monospace font for formula, meta-line, tables
+   and code blocks, while still using =variable-pitch-mode= in the rest of
+   =org-mode= buffers
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/adjoin-to-list-or-symbol (element list-or-symbol)
+       (let ((list (if (not (listp list-or-symbol))
+                       (list list-or-symbol)
+                     list-or-symbol)))
+         (require 'cl-lib)
+         (cl-adjoin element list)))
+
+     (eval-after-load "org"
+       '(mapc
+         (lambda (face)
+           (if (memq window-system '(mac ns))
+               (set-face-attribute face nil :font "PragmataPro-11"
+                                   :inherit (qq/adjoin-to-list-or-symbol
+                                             'fixed-pitch
+                                             (face-attribute face :inherit)))
+             (set-face-attribute face nil :font "PragmataPro-9"
+                                 :inherit (qq/adjoin-to-list-or-symbol
+                                           'fixed-pitch
+                                           (face-attribute face :inherit))))
+           )
+         (list 'org-meta-line 'org-code 'org-formula 'org-block
+               'org-block-begin-line 'org-block-end-line 'org-verbatim
+               'org-table)))
+   #+END_SRC
+
+   Same settings applied for =Info buffers= as well. Code examples will be using
+   monospace font
+
+   #+begin_src emacs-lisp
+     (defvar qq/rx-info-code (rx bol "     " (* not-newline) eol))
+     (add-hook 'Info-mode-hook 'qq/Info-font-lock)
+     (defun qq/Info-font-lock ()
+       (interactive)
+       (require 'org)
+       (font-lock-add-keywords
+        nil
+        `((,qq/rx-info-code
+           .
+           ;; let's just use org-block
+           (quote org-block)
+           ))))
+   #+end_src
+
+   Display source code blocks or pre blocks in monospace for =markdown-mode=
+   buffers
+
+   #+begin_src emacs-lisp
+     (eval-after-load "markdown-mode"
+       '(mapc
+         (lambda (face)
+           (set-face-attribute
+            face nil
+            :inherit
+            (qq/adjoin-to-list-or-symbol
+             'fixed-pitch
+             (face-attribute face :inherit))))
+         (list 'markdown-pre-face 'markdown-inline-code-face)))
+   #+end_src
+
 *** Emoji font support
 
    #+BEGIN_SRC emacs-lisp
@@ -1740,14 +1835,15 @@ required from *emacs*.
      (add-hook 'after-init-hook #'qq/set-fringe-background)
    #+END_SRC
 
-*** ediff
+*** =ediff=
 
-[[https://www.gnu.org/software/emacs/manual/html_mono/ediff.html][   ediff]] is a full-featured visual diff and merge tool, built into Emacs.
+[[https://www.gnu.org/software/emacs/manual/html_mono/ediff.html][   =ediff=]] is a full-featured visual diff and merge tool, built into Emacs.
 
    Make sure that the window split is always side-by-side:
 
    #+BEGIN_SRC emacs-lisp
-     (setq ediff-split-window-function 'split-window-horizontally)
+     (setq ediff-window-setup-function 'ediff-setup-windows-plain
+           ediff-split-window-function 'split-window-horizontally)
    #+END_SRC
 
    Ignore whitespace changes:
@@ -1762,6 +1858,16 @@ required from *emacs*.
      (setq ediff-window-setup-function 'ediff-setup-windows-plain)
    #+END_SRC
 
+*** =tramp=
+   [[https://www.emacswiki.org/emacs/TrampMode][=tramp=]] lets you edit files remotely from your local Emacs which is useful
+   because it lets you have all the default configuration. Let’s make sure the
+   default protocol is =ssh=.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq tramp-default-method "ssh"
+           tramp-backup-directory-alist backup-directory-alist
+           tramp-ssh-controlmaster-options "ssh")
+   #+END_SRC
 *** linum
 **** Customize linum format
 
@@ -2099,7 +2205,8 @@ required from *emacs*.
 **** Use gdb-many-windows by default
 
    #+BEGIN_SRC emacs-lisp
-     (setq gdb-many-windows t)
+     (setq gdb-many-windows t
+           gdb-show-main t)
    #+END_SRC
 
 **** Turn on tooltip-mode
@@ -2802,137 +2909,6 @@ required from *emacs*.
     :CUSTOM_ID: evil-leader-binding
     :END:
    Using The table below as the source for generating [[Evil Leader Bindings][Evil Leader Bindings]]
-
-       | bf | | 'beginning-of-defun |
-       | bu | | 'backward-up-list |
-       | bb | | 'back-to-previous-buffer |
-       | ef | | 'end-of-defun |
-       | ddb | | 'sdcv-search-pointer ; in buffer |
-       | ddt | | 'sdcv-search-input+ ;; in tip |
-       | ddd | | 'my-lookup-dict-org |
-       | ddw | | 'define-word |
-       | ddp | | 'define-word-at-point |
-       | mf | | 'mark-defun |
-       | em | | 'erase-message-buffer |
-       | sd | | 'sudo-edit |
-       | sc | | 'shell-command |
-       | aa | | 'copy-to-x-clipboard ; used frequently |
-       | aw | | 'ace-swap-window |
-       | af | | 'ace-maximize-window |
-        zz | | 'paste-from-x-clipboard ; used frequently |
-       | cy | | 'strip-convert-lines-into-one-big-string |
-       | bs | | '(lambda () (interactive) (goto-edge-by-comparing-font-face -1)) |
-       | es | | 'goto-edge-by-comparing-font-face |
-       | fl | | 'cp-filename-line-number-of-current-buffer |
-       | fn | | 'cp-filename-of-current-buffer |
-       | fp | | 'cp-fullpath-of-current-buffer |
-       | dj | | 'dired-jump ;; open the dired from current file |
-       | ff | | 'toggle-full-window ;; I use WIN+F in i3 |
-       | trm | | 'get-term |
-       | epy | | 'emmet-expand-yas |
-       | epl | | 'emmet-expand-line |
-       | rd | | 'evilmr-replace-in-defun |
-       | rb | | 'evilmr-replace-in-buffer |
-       | tt | | 'evilmr-tag-selected-region ;; recommended |
-       | rt | | 'evilmr-replace-in-tagged-region ;; recommended |
-       | tua | | 'artbollocks-mode |
-       | cby | | 'cb-switch-between-controller-and-view |
-       | cbu | | 'cb-get-url-from-controller |
-       | ht | | 'etags-select-find-tag-at-point ; better than find-tag C-] |
-       | hp | | 'etags-select-find-tag |
-       | hm | | 'counsel-bookmark-goto |
-       | yy | | 'browse-kill-ring |
-       | rjs | | 'run-js |
-       | rmz | | 'run-mozilla |
-       | rpy | | 'run-python |
-       | rlu | | 'run-lua |
-       | tci | | 'toggle-company-ispell |
-       | kb | | 'kill-buffer-and-window ;; "k" is preserved to replace "C-g" |
-       | it | | 'issue-tracker-increment-issue-id-under-cursor |
-       | ls | | 'highlight-symbol |
-       | lq | | 'highlight-symbol-query-replace |
-       | ln | | 'highlight-symbol-nav-mode ; use M-n/M-p to navigation between symbols |
-       | im | | 'counsel-imenu-goto |
-       | ii | | 'ido-imenu |
-       | ij | | 'rimenu-jump |
-       ;; @see https://github.com/pidu/git-timemachine
-       ;; p: previous; n: next; w:hash; W:complete hash; g:nth version; q:quit
-       | tdb | | 'tidy-buffer |
-       | tdl | | 'tidy-current-line |
-       ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
-       | ov | | 'my-overview-of-current-buffer |
-       | or | | 'open-readme-in-git-root-directory |
-       | oo | | 'compile |
-       | c$ | | 'org-archive-subtree ; `C-c $' |
-       ;; org-do-demote/org-do-premote support selected region
-       | c< | | 'org-do-promote ; `C-c C-<' |
-       | c> | | 'org-do-demote ; `C-c C->' |
-       | cam | | 'org-tags-view ; `C-c a m': search items in org-file-apps by tag |
-       | cxi | | 'org-clock-in ; `C-c C-x C-i' |
-       | cxo | | 'org-clock-out ; `C-c C-x C-o' |
-       | cxr | | 'org-clock-report ; `C-c C-x C-r' |
-       | mq | | 'lookup-doc-in-man |
-       | sgg | | 'w3m-google-search |
-       | sgf | | 'w3m-google-by-filetype |
-       | sgd | | 'w3m-search-financial-dictionary |
-       | sgq | | 'w3m-stackoverflow-search |
-       | sgj | | 'w3m-search-js-api-mdn |
-       | sga | | 'w3m-java-search |
-       | sgh | | 'w3mext-hacker-search ; code search in all engines with firefox |
-       | qq | | 'my-grep |
-       | xc | | 'save-buffers-kill-terminal |
-       | rr | | 'counsel-recentf-goto |
-       | rh | | 'counsel-yank-bash-history ; bash history command => yank-ring |
-       | dfa | | 'diff-region-tag-selected-as-a |
-       | dfb | | 'diff-region-compare-with-b |
-       | di | | 'evilmi-delete-items |
-       | si | | 'evilmi-select-items |
-       | jb | | 'js-beautify |
-       | jpp | | 'js2-print-json-path |
-       | se | | 'string-edit-at-point |
-       | xe | | 'eval-last-sexp |
-       | x0 | | 'delete-window |
-       | x1 | | 'delete-other-windows |
-       | x2 | | 'split-window-vertically |
-       | x3 | | 'split-window-horizontally |
-       | xrw | | 'rotate-windows |
-       | xt | | 'toggle-window-split |
-       | su | | 'winner-undo |
-       | xu | | 'winner-undo |
-       | to | | 'toggle-web-js-offset |
-       | sl | | 'sort-lines |
-       | lo | | 'moz-console-log-var |
-       | lj | | 'moz-load-js-file-and-send-it |
-       | lk | | 'latest-kill-to-clipboard |
-       | mr | | 'moz-console-clear |
-       | hst | | 'hs-toggle-fold |
-       | hsa | | 'hs-toggle-fold-all |
-       | hsh | | 'hs-hide-block |
-       | hss | | 'hs-show-block |
-       | gt | | 'ggtags-find-tag-dwim |
-       | gr | | 'ggtags-find-reference |
-       | fb | | 'flyspell-buffer |
-       | fe | | 'flyspell-goto-next-error |
-       | fa | | 'flyspell-auto-correct-word |
-       | pe | | 'flymake-goto-prev-error |
-       | ne | | 'flymake-goto-next-error |
-       | fw | | 'ispell-word |
-       | bc | | '(lambda () (interactive) (wxhelp-browse-class-or-api (thing-at-point 'symbol))) |
-       | ma | | 'mc/mark-all-like-this-in-defun |
-       | mw | | 'mc/mark-all-words-like-this-in-defun |
-       | ms | | 'mc/mark-all-symbols-like-this-in-defun |
-       | md | | 'mc/mark-all-like-this-dwim |
-       | me | | 'mc/edit-lines |
-       | otl | | 'org-toggle-link-display |
-       | om | | 'toggle-org-or-message-mode |
-       | ar | | 'align-regexp |
-       | ww | | 'save-buffer |
-       | wrn | | 'httpd-restart-now |
-       | wrd | | 'httpd-restart-at-default-directory |
-       | so | | 'sos |
-       | xx | | 'er/expand-region |
-       | vv | | 'scroll-other-window |
-       | vu | | 'scroll-other-window-up |
 
    #+TBLNAME: evil_leader_keys
       | Combo | Description                     | Command                                          |
@@ -4408,6 +4384,8 @@ required from *emacs*.
        "SPC g"   "git/magit"
        "SPC b"   "buffer related"
        "SPC e"   "eval related"
+       "SPC j"   "evil ace-jump"
+       "SPC n"   "neotree"
        "SPC p"   "projectile related"
        "SPC h"   "help related"
        "SPC t"   "toggling thing"
