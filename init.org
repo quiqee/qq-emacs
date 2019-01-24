@@ -154,6 +154,9 @@
                cyberpunk-theme
                doom-themes
 
+               pdf-tools
+               tablist
+
                expand-region
                ;; vim emulator
                evil
@@ -1911,6 +1914,7 @@ required from *emacs*.
                                            gnus-group-mode
                                            inf-ruby-mode
                                            gud-mode
+                                           pdf-view-mode
                                            org-mode
                                            vc-git-log-edit-mode
                                            log-edit-mode
@@ -2200,6 +2204,12 @@ required from *emacs*.
      (add-hook 'minibuffer-setup-hook #'qq/minibuffer-setup-hook)
      (add-hook 'minibuffer-exit-hook #'qq/minibuffer-exit-hook)
    #+end_src
+
+*** PDF-Tools
+
+   #+BEGIN_SRC emacs-lisp
+     (pdf-loader-install)
+   #+END_SRC
 
 *** GUD
 **** Use gdb-many-windows by default
@@ -2914,7 +2924,7 @@ required from *emacs*.
       | Combo | Description                     | Command                                          |
       |-------+---------------------------------+--------------------------------------------------|
       | %     |                                 | 'ctl-x-5-prefix                                  |
-      | \\    |                                 | 'evil-execute-in-emacs-state                     |
+      | \\     |                                 | 'evil-execute-in-emacs-state                     |
       | 0     |                                 | 'select-window-0                                 |
       | 1     |                                 | 'select-window-1                                 |
       | 2     |                                 | 'select-window-2                                 |
@@ -2954,6 +2964,8 @@ required from *emacs*.
       | i     |                                 | 'swiper                                          |
       | q     |                                 | 'evil-window-delete                              |
       | P     |                                 | 'package-list-packages                           |
+      | r 1   |                                 | 'qq/serial-term-1                                |
+      | r 2   |                                 | 'qq/serial-term-2                                |
       | s     |                                 | 'save-buffer                                     |
       | t SPC |                                 | 'whitespace-mode                                 |
       | t TAB |                                 | 'c-toggle-syntactic-indentation                  |
@@ -3991,8 +4003,8 @@ required from *emacs*.
    #+TBLNAME: persp_combo
       | Combo | Description | Command        |
       |-------+-------------+----------------|
-      | s-]   |             | 'persp-next    |
-      | s-[   |             | 'persp-prev    |
+      | s-2   |             | 'persp-next    |
+      | s-1   |             | 'persp-prev    |
       | s-e   |             | 'persp-add-new |
 
 ** RTags
@@ -4192,9 +4204,14 @@ required from *emacs*.
    ncurses-term=, which includes /usr/share/terminfo/e/eterm-color.
 
    #+BEGIN_SRC emacs-lisp
-     (defun qq/serial-term ()
+     (defun qq/serial-term-1 ()
        (interactive)
        (serial-term "/dev/ttyUSB0" 115200)
+       (term-send-string (get-buffer-process (current-buffer))
+                         "export TERM=eterm-color\nclear\n"))
+     (defun qq/serial-term-2 ()
+       (interactive)
+       (serial-term "/dev/ttyUSB1" 115200)
        (term-send-string (get-buffer-process (current-buffer))
                          "export TERM=eterm-color\nclear\n"))
    #+END_SRC
@@ -4387,6 +4404,7 @@ required from *emacs*.
        "SPC j"   "evil ace-jump"
        "SPC n"   "neotree"
        "SPC p"   "projectile related"
+       "SPC r"   "serial commands"
        "SPC h"   "help related"
        "SPC t"   "toggling thing"
        "SPC v"   "GUD related"
