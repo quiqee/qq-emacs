@@ -100,6 +100,8 @@
 
                ;(depends-on "icicles")
 
+               ibuffer-vc
+
                vlf
                rtags
                git-timemachine
@@ -4314,8 +4316,8 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (add-hook 'term-mode-hook
                (lambda ()
-                 (define-key term-mode-map (kbd "<escape>") 'term-char-mode)
-                 (define-key term-raw-map (kbd "<escape>") 'term-line-mode)))
+                 (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode)
+                 (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
    #+END_SRC
 
 ** Smartparens
