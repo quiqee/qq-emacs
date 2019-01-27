@@ -102,8 +102,9 @@
 
                ibuffer-vc
 
+               lsp-mode
+               ;lsp-sourcekit
                vlf
-               rtags
                git-timemachine
                ggtags
 
@@ -147,6 +148,7 @@
                gotham-theme
                ample-theme
                moe-theme
+               jbeans-theme
                monokai-theme
                gruber-darker-theme
                grandshell-theme
@@ -482,6 +484,10 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (setq qq/shell-prog "/bin/bash")
      (setq qq/preferred-font "PragmataPro-12")
+     (defun qq/set-font-to-variable-width ()
+       "Change font in current window to a variable-width font."
+       (interactive)
+       (face-remap-add-relative 'default '(:family "Baskerville" :height 120)))
      (set-face-attribute 'default nil :font "PragmataPro-10")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
      (set-face-attribute 'variable-pitch nil :family "Caldera")
@@ -540,6 +546,10 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
+     (defun qq/set-font-to-variable-width ()
+       "Change font in current window to a variable-width font."
+       (interactive)
+       (face-remap-add-relative 'default '(:family "Baskerville" :height 150)))
      (setq qq/preferred-font "PragmataPro-14")
      (set-face-attribute 'default nil :font "PragmataPro-14")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
@@ -1189,14 +1199,14 @@ required from *emacs*.
      ;(moe-theme-set-color 'blue)
        ;; (Available colors: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
 
-     ;(load-theme 'gruber-darker t)
-     (load-theme 'monokai t)
-     (setq monokai-height-minus-1 0.8
-      monokai-height-plus-1 1.1
-      monokai-height-plus-2 1.15
-      monokai-height-plus-3 1.2
-      monokai-height-plus-4 1.3)
-     (setq monokai-user-variable-pitch t)
+     ;;(load-theme 'gruber-darker t)
+     ;(load-theme 'monokai t)
+     ;(setq monokai-height-minus-1 0.8
+     ; monokai-height-plus-1 1.1
+     ; monokai-height-plus-2 1.15
+     ; monokai-height-plus-3 1.2
+     ; monokai-height-plus-4 1.3)
+     ;(setq monokai-user-variable-pitch t)
 
      ;(load-theme 'darkokai t)
      ;(setq darkokai-height-minus-1 0.8
@@ -1206,6 +1216,7 @@ required from *emacs*.
      ; darkokai-height-plus-4 1.3)
      ;(setq darkokai-user-variable-pitch t)
 
+     (load-theme 'jbeans t)
      ;(load-theme 'gotham t)
      ;(load-theme 'darktooth t)
      ;(load-theme 'cyberpunk t)
@@ -1384,10 +1395,6 @@ required from *emacs*.
        "Change font in current window to a variable-width font."
        (interactive)
        (face-remap-add-relative 'default '(:font qq/preferred-font)))
-     (defun qq/set-font-to-variable-width ()
-       "Change font in current window to a variable-width font."
-       (interactive)
-       (face-remap-add-relative 'default '(:family "Baskerville" :height 120)))
 
      (add-hook 'text-mode-hook 'qq/set-font-to-variable-width)
      (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
@@ -1409,15 +1416,10 @@ required from *emacs*.
      (eval-after-load "org"
        '(mapc
          (lambda (face)
-           (if (memq window-system '(mac ns))
-               (set-face-attribute face nil :font "PragmataPro-11"
-                                   :inherit (qq/adjoin-to-list-or-symbol
-                                             'fixed-pitch
-                                             (face-attribute face :inherit)))
-             (set-face-attribute face nil :font "PragmataPro-9"
+             (set-face-attribute face nil :font qq/preferred-font
                                  :inherit (qq/adjoin-to-list-or-symbol
                                            'fixed-pitch
-                                           (face-attribute face :inherit))))
+                                           (face-attribute face :inherit)))
            )
          (list 'org-meta-line 'org-code 'org-formula 'org-block
                'org-block-begin-line 'org-block-end-line 'org-verbatim
