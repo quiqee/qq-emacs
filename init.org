@@ -3933,6 +3933,44 @@ required from *emacs*.
       | C-<     | org-mode-map     | normal    |             | 'org-promote-subtree                                          |
       | SPC k   | org-mode-map     | normal    |             | 'outline-up-heading                                           |
 
+** PDFTools
+   [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
+   It require certain setting to configure in the OS to make it work, so
+   be sure to read the github page for installation procedure.
+
+*** Settings
+   Automatically annotate highlights
+
+   #+begin_src emacs-lisp
+     (setq pdf-annot-activate-created-annotations t)
+   #+end_src
+
+   Turn off cua so copy works
+
+   #+begin_src emacs-lisp
+     ;(add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+   #+end_src
+
+   More fine grained zooming with + and - than the default 25%, so set it to 10%
+
+   #+begin_src emacs-lisp
+     (setq pdf-view-resize-factor 1.1)
+   #+end_src
+
+*** Local keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: pdftools-bindings
+    :END:
+
+   The table below will be generated as key-bindings [[PDFTools Bindings][here]].
+   #+TBLNAME: pdftools-keys
+      | Combo | Mode              | Description | Command                                    |
+      | h     | pdf-view-mode-map |             | 'pdf-annot-add-highlight-markup-annotation |
+      | t     | pdf-view-mode-map |             | 'pdf-annot-add-text-annotation             |
+      | D     | pdf-view-mode-map |             | 'pdf-annot-delete                          |
+      | C-F   | pdf-view-mode-map |             | 'pdf-view-scroll-up-or-next-page           |
+      | C-B   | pdf-view-mode-map |             | 'pdf-view-scroll-down-or-previous-page     |
+
 ** Projectile
    Project interaction module for Emacs.
 
@@ -5363,6 +5401,15 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pre="add-hook 'neotree-mode-hook\n(lambda()")>>
      <<gen-keys(mmap="t", tname=neotree-evil-keys)>>
      <<gen-fix(pos=")))\n")>>
+   #+END_SRC
+
+** PDFTools Bindings
+   Binding code generation for [[#pdftools-bindings][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-fix(pre="add-hook 'pdf-view-mode-hook\n(lambda()")>>
+     <<gen-keys(mmap="t", tname=pdftools-keys)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Helm Bindings
