@@ -222,6 +222,7 @@
                org-plus-contrib        ; Outline-based notes management and organizer
                org-bullets             ; show org bullet as Unicode character
                org-cliplink
+               org-pdfview
                paredit                 ; minor mode for editing parentheses
                popwin                  ; popup window manager
                ;(depends-on "pretty-lambdada")
@@ -1941,6 +1942,7 @@ required from *emacs*.
                                            inf-ruby-mode
                                            gud-mode
                                            pdf-view-mode
+                                           pdf-view
                                            org-mode
                                            vc-git-log-edit-mode
                                            log-edit-mode
@@ -2950,7 +2952,7 @@ required from *emacs*.
       | Combo | Description                     | Command                                          |
       |-------+---------------------------------+--------------------------------------------------|
       | %     |                                 | 'ctl-x-5-prefix                                  |
-      | \\     |                                 | 'evil-execute-in-emacs-state                     |
+      | \\    |                                 | 'evil-execute-in-emacs-state                     |
       | 0     |                                 | 'select-window-0                                 |
       | 1     |                                 | 'select-window-1                                 |
       | 2     |                                 | 'select-window-2                                 |
@@ -3948,7 +3950,7 @@ required from *emacs*.
    Turn off cua so copy works
 
    #+begin_src emacs-lisp
-     ;(add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+     (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
    #+end_src
 
    More fine grained zooming with + and - than the default 25%, so set it to 10%
@@ -3957,19 +3959,110 @@ required from *emacs*.
      (setq pdf-view-resize-factor 1.1)
    #+end_src
 
+*** Evil-mode
+   Set =evil-mode= initial state to normal mode and disable insert mode. Mostly
+   taken from [[https://github.com/emacs-evil/evil-collection][evil-collection]]
+
+   #+begin_src emacs-lisp
+     (evil-set-initial-state 'pdf-view-mode 'normal)
+
+     (defun qq-pdf-view-next-line-or-next-page (&optional count)
+        "'evil' wrapper include a count argument to `pdf-view-next-line-or-next-page'"
+          (interactive "P")
+            (if count
+                   (dotimes (_ count nil)
+                      (pdf-view-next-line-or-next-page 1))
+                       (pdf-view-next-line-or-next-page 1)))
+
+      (defun qq-pdf-view-previous-line-or-previous-page (&optional count)
+         "'evil' wrapper include a count argument to `pdf-view-previous-line-or-previous-page'"
+           (interactive "P")
+             (if count
+                    (dotimes (_ count nil)
+                      (pdf-view-previous-line-or-previous-page 1))
+                        (pdf-view-previous-line-or-previous-page 1)))
+
+      (defun qq-pdf-view-goto-page (&optional page)
+         "`evil' wrapper around `pdf-view-last-page'."
+           (interactive "P")
+             (if page
+                    (pdf-view-goto-page page)
+                        (pdf-view-last-page)
+                            (image-eob)))
+
+      (defun qq-pdf-view-goto-first-page (&optional page)
+         "`evil' wrapper around `pdf-view-first-page'."
+           (interactive "P")
+             (if page
+                    (pdf-view-goto-page page)
+                        (pdf-view-first-page)
+                            (image-bob)))
+   #+end_src
+
+*** Org-mode links
+   Out of the box, org-mode doesn't know about pdf-tools. However, you can add support
+   for opening org links to pdf files with =org-pdfview=
+
+   #+begin_src emacs-lisp
+     (after 'org '(require 'org-pdfview))
+     (add-to-list 'org-file-apps
+                   '("\\.pdf\\'" . (lambda (file link)
+                                   (org-pdfview-open link))))
+   #+end_src
+   Doing this will provide a new completion target for adding links via =C-c= =C-l=, =pdfview:=,
+   with support for jumping to specific pages.
+
 *** Local keybindings
     :PROPERTIES:
     :CUSTOM_ID: pdftools-bindings
     :END:
 
    The table below will be generated as key-bindings [[PDFTools Bindings][here]].
+   #+TBLNAME: pdftools-evil-keys
+      | Combo            | Mode              | Evil Mode | Description  | Command                                     |
+      | h                | pdf-view-mode-map | normal    | Annotation   | 'pdf-annot-add-highlight-markup-annotation  |
+      | t                | pdf-view-mode-map | normal    |              | 'pdf-annot-add-text-annotation              |
+      | D                | pdf-view-mode-map | normal    |              | 'pdf-annot-delete                           |
+      | C-F              | pdf-view-mode-map | normal    | Motion       | 'pdf-view-scroll-up-or-next-page            |
+      | C-B              | pdf-view-mode-map | normal    |              | 'pdf-view-scroll-down-or-previous-page      |
+      | gg               | pdf-view-mode-map | normal    |              | 'qq-pdf-view-goto-first-page                |
+      | gt               | pdf-view-mode-map | normal    |              | 'pdf-view-goto-page                         |
+      | G                | pdf-view-mode-map | normal    |              | 'qq-pdf-view-goto-page                      |
+      | RET              | pdf-view-mode-map | normal    |              | 'pdf-view-scroll-up-or-next-page            |
+      | DEL              | pdf-view-mode-map | normal    |              | 'pdf-view-scroll-down-or-previous-page      |
+      | j                | pdf-view-mode-map | normal    |              | 'qq-pdf-view-next-line-or-next-page         |
+      | k                | pdf-view-mode-map | normal    |              | 'qq-pdf-view-previous-line-or-previous-page |
+      | gr               | pdf-view-mode-map | normal    | Refresh      | 'pdf-view-revert-buffer                     |
+      | zd               | pdf-view-mode-map | normal    | Dark mode    | 'pdf-view-dark-minor-mode                   |
+      | zm               | pdf-view-mode-map | normal    |              | 'pdf-view-midnight-minor-mode               |
+      | zp               | pdf-view-mode-map | normal    | Printer mode | 'pdf-view-printer-minor-mode                |
+      | o                | pdf-view-mode-map | normal    | Show outline | 'pdf-outline                                |
+      | q                | pdf-view-mode-map | normal    |              | 'next-buffer                                |
+      | Q                | pdf-view-mode-map | normal    |              | 'kill-this-buffer                           |
+      | fh               | pdf-view-mode-map | normal    | Page layout  | 'pdf-view-fit-height-to-window              |
+      | fp               | pdf-view-mode-map | normal    |              | 'pdf-view-fit-page-to-window                |
+      | fw               | pdf-view-mode-map | normal    |              | 'pdf-view-fit-width-to-window               |
+      | +                | pdf-view-mode-map | normal    | Zoom         | 'pdf-view-enlarge                           |
+      | zi               | pdf-view-mode-map | normal    |              | 'pdf-view-enlarge                           |
+      | =                | pdf-view-mode-map | normal    |              | 'pdf-view-enlarge                           |
+      | -                | pdf-view-mode-map | normal    |              | 'pdf-view-shrink                            |
+      | zo               | pdf-view-mode-map | normal    |              | 'pdf-view-shrink                            |
+      | 0                | pdf-view-mode-map | normal    |              | 'pdf-view-scale-reset                       |
+      | z0               | pdf-view-mode-map | normal    |              | 'pdf-view-scale-reset                       |
+      | <C-down-mouse-1> | pdf-view-mode-map | normal    | Mark         | 'pdf-view-mouse-extend-region               |
+      | <M-down-mouse-1> | pdf-view-mode-map | normal    |              | 'pdf-view-mouse-set-region-rectangle        |
+      | <down-mouse-1>   | pdf-view-mode-map | normal    |              | 'pdf-view-mouse-set-region                  |
+      | y                | pdf-view-mode-map | visual    |              | 'pdf-view-kill-ring-save                    |
+      | /                | pdf-view-mode-map | normal    | Search       | 'isearch-forward                            |
+      | ?                | pdf-view-mode-map | normal    |              | 'isearch-backward                           |
+      | n                | pdf-view-mode-map | normal    |              | 'isearch-repeat-forward                     |
+      | N                | pdf-view-mode-map | normal    |              | 'isearch-repeat-backward                    |
+      | ss               | pdf-view-mode-map | normal    | Occur        | 'pdf-occur                                  |
+
    #+TBLNAME: pdftools-keys
-      | Combo | Mode              | Description | Command                                    |
-      | h     | pdf-view-mode-map |             | 'pdf-annot-add-highlight-markup-annotation |
-      | t     | pdf-view-mode-map |             | 'pdf-annot-add-text-annotation             |
-      | D     | pdf-view-mode-map |             | 'pdf-annot-delete                          |
-      | C-F   | pdf-view-mode-map |             | 'pdf-view-scroll-up-or-next-page           |
-      | C-B   | pdf-view-mode-map |             | 'pdf-view-scroll-down-or-previous-page     |
+      | Combo | Mode              | Description | Command |
+      | SPC   | pdf-view-mode-map |             | nil     |
+      | S-SPC | pdf-view-mode-map |             | nil     |
 
 ** Projectile
    Project interaction module for Emacs.
@@ -5394,6 +5487,16 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
    #+END_SRC
 
+** PDFTools Bindings
+   Binding code generation for [[#pdftools-bindings][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-fix(pre="add-hook 'pdf-view-mode-hook\n(lambda()")>>
+     <<gen-keys(moda="evil", tname=pdftools-evil-keys)>>
+     <<gen-keys(mmap="t", tname=pdftools-keys)>>
+     <<gen-fix(pos="))\n")>>
+   #+END_SRC
+
 ** Evil Neotree Bindings
    Binding code generation for [[#evil-neotree-bindings][this]] table
 
@@ -5401,15 +5504,6 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pre="add-hook 'neotree-mode-hook\n(lambda()")>>
      <<gen-keys(mmap="t", tname=neotree-evil-keys)>>
      <<gen-fix(pos=")))\n")>>
-   #+END_SRC
-
-** PDFTools Bindings
-   Binding code generation for [[#pdftools-bindings][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-fix(pre="add-hook 'pdf-view-mode-hook\n(lambda()")>>
-     <<gen-keys(mmap="t", tname=pdftools-keys)>>
-     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Helm Bindings
