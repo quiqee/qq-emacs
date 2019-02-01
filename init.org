@@ -49,28 +49,16 @@
 
      (mapcar (lambda (package)
                ; install package if not already installed
-               (unless (package-installed-p package)
+               (let* ((ret (car-safe package)) (meth (plist-get package ret)))
+               (unless (package-installed-p (or ret package))
+                (if (and ret (eq meth 'builtin))
                  (let ((inhibit-message t))
-                   (package-install package))
-                 (if (package-installed-p package)
-                     (message "✓ Installed %s" package)
-                   (error "✕ Couldn't install %s" package))))
-
-             '(csv-mode
-               auctex                  ; integrated environment for *TeX*
-               rainbow-mode            ; colorized color code in file
-               undo-tree               ; Treat undo history as a tree
-               org-plus-contrib        ; Outline-based notes management and organizer
-               bug-hunter))
-
-     (mapcar (lambda (package)
-               ; install package if not already installed
-               (unless (package-installed-p package)
-                 (let ((inhibit-message t))
-                   (quelpa package))
-                 (if (package-installed-p package)
-                     (message "✓ Installed %s" package)
-                   (error "✕ Couldn't install %s" package))))
+                   (package-install ret))
+                 (let* ((inhibit-message t))
+                   (quelpa package)))
+                 (if (package-installed-p (or ret package))
+                     (message "✓ Installed %s" (or ret package))
+                   (error "✕ Couldn't install %s" (or ret package))))))
 
              ; list of packages to be installed
              '(
@@ -98,9 +86,17 @@
                emojify
 
                fasd
+               (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
                shell-here
 
                alert
+               (csv-mode builtin)
+               (auctex builtin)                 ; integrated environment for *TeX*
+               (rainbow-mode builtin)            ; colorized color code in file
+               (undo-tree builtin)               ; Treat undo history as a tree
+               (org-plus-contrib builtin)        ; Outline-based notes management and organizer
+               (bug-hunter builtin)
+
 
                company
                company-box
@@ -253,7 +249,6 @@
                writegood-mode
                xcscope
                yasnippet               ; snippet tools for emacs
-               (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
               ))
    #+END_SRC
 
@@ -1778,7 +1773,8 @@ required from *emacs*.
                      region-state-mode         ; A global minor-mode that shows the number of
                                                         ; chars/lines or rows/columns in the region (aka. selection)
 
-                     global-linum-mode          ; turn on line number globally
+                     ;; mess up with pdf-tools, so turn on locally per major mode
+                     ;global-linum-mode          ; turn on line number globally
                      ))
             (funcall mode 1))
 
@@ -1954,6 +1950,7 @@ required from *emacs*.
                                            gud-mode
                                            pdf-view-mode
                                            pdf-view
+                                           doc-view-mode
                                            org-mode
                                            vc-git-log-edit-mode
                                            log-edit-mode
@@ -4631,7 +4628,7 @@ Some general settings that should apply to all programming mode. Highlight
 
     (add-hook 'prog-mode-hook
               '(lambda()
-                 ;(nlinum-mode)
+                 (linum-mode)
                  (qq/add-watchwords)
                  (rainbow-delimiters-mode)
                  (highlight-indent-guides-mode)
