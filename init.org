@@ -33,8 +33,15 @@
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/packages.el
      (package-initialize)
 
+     (let ((inhibit-message t))
+     (if (require 'quelpa nil t)
+       (quelpa-self-upgrade)
+       (with-temp-buffer
+         (url-insert-file-contents "https://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
+         (eval-buffer))))
+
      ; find package information from following archives
-     (setq package-archives (quote (("gnu" . "https://elpa.gnu.org/packages/")
+     (setq package-archives (quote (("gnu" . "http://elpa.gnu.org/packages/")
                               ("org" . "https://orgmode.org/elpa/")
                               ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
 
@@ -49,9 +56,24 @@
                      (message "✓ Installed %s" package)
                    (error "✕ Couldn't install %s" package))))
 
-             ; list of packages to be installed
-             '(yasnippet
+             '(csv-mode
+               auctex                  ; integrated environment for *TeX*
+               rainbow-mode            ; colorized color code in file
+               undo-tree               ; Treat undo history as a tree
+               org-plus-contrib        ; Outline-based notes management and organizer
+               bug-hunter))
 
+     (mapcar (lambda (package)
+               ; install package if not already installed
+               (unless (package-installed-p package)
+                 (let ((inhibit-message t))
+                   (quelpa package))
+                 (if (package-installed-p package)
+                     (message "✓ Installed %s" package)
+                   (error "✕ Couldn't install %s" package))))
+
+             ; list of packages to be installed
+             '(
                ;; Tools
                exec-path-from-shell
                swiper
@@ -71,12 +93,9 @@
                ;(depends-on "crontab-mode")
                ;(depends-on "csv-nav")
                swift-mode
-               csv-mode
 
                emoji-cheat-sheet-plus
                emojify
-
-               bug-hunter
 
                fasd
                shell-here
@@ -111,8 +130,6 @@
                swift-mode
                xcode-mode
 
-               ;(depends-on "fasd-shell" :git "https://gitlab.com/emacs-stuff/fasd-shell.git" :ref "master")
-
                highlight-indentation
 
                function-args
@@ -123,7 +140,6 @@
                ace-jump-mode           ; quick cursor location minor mode
                ag
                ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
-               auctex                  ; integrated environment for *TeX*
                auto-compile            ; automatically compile Emacs Lisp libraries
                bind-key                ; a simple way to manage personal keybindings
                bind-map                ; a simple way to manage personal keybindings
@@ -219,7 +235,6 @@
                markdown-mode
                move-text               ; Move current line or region with M-up or M-down
                multiple-cursors        ; Multiple cursors for Emacs.
-               org-plus-contrib        ; Outline-based notes management and organizer
                org-bullets             ; show org bullet as Unicode character
                org-cliplink
                org-pdfview
@@ -227,19 +242,18 @@
                popwin                  ; popup window manager
                ;(depends-on "pretty-lambdada")
                rainbow-delimiters
-               rainbow-mode            ; colorized color code in file
                smart-mode-line
                smartparens             ; Minor mode for Emacs that deals with parens pairs
                smart-tabs-mode         ; provide semantic way of using tab in source code
                smex                    ; M-x interface with Ido-style fuzzy matching.
 
                sr-speedbar
-               undo-tree               ; Treat undo history as a tree
                volatile-highlights
                wgrep-ag
                writegood-mode
                xcscope
                yasnippet               ; snippet tools for emacs
+               (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
               ))
    #+END_SRC
 
@@ -1755,13 +1769,10 @@ required from *emacs*.
 
                      global-auto-revert-mode
 
-                     ;; Enabled by default in 24.4:
-                     ;electric-indent-mode
                      transient-mark-mode
                      delete-selection-mode
 
                      line-number-mode
-                     column-number-mode
                      display-time-mode
                      size-indication-mode
                      region-state-mode         ; A global minor-mode that shows the number of
@@ -2760,7 +2771,6 @@ required from *emacs*.
 ;             (yari-mode . emacs)
 ;             (erc-mode . emacs)
              (neotree-mode . normal)
-             (rtags-mode . emacs)
 ;             (w3m-mode . emacs)
              (gud-mode . normal)
 ;             (help-mode . emacs)
@@ -4164,17 +4174,6 @@ required from *emacs*.
       | s-1   |             | 'persp-prev    |
       | s-e   |             | 'persp-add-new |
 
-** RTags
-   A Client/Server application that indexes C/C++ code and keeps a persistent
-   in-memory database for references
-
-   [[http://www.rtags.net]]
-
-   #+begin_src emacs-lisp
-     (require 'rtags)
-     (rtags-enable-standard-keybindings c-mode-base-map)
-   #+end_src
-
 ** Shell/Term/Fasd
    Launch shell/term within emacs
 
@@ -4217,6 +4216,7 @@ required from *emacs*.
    line utility: [[https://github.com/clvv/fasd]]
 
    #+BEGIN_SRC emacs-lisp
+     (require 'fasd-shell)
      (add-hook 'shell-mode-hook 'fasd-shell-mode)
    #+END_SRC
 
@@ -4816,7 +4816,6 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
      ;;;(setq flycheck-clang-standard-library "libc++")
      ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
 
-     ;(setq rtags-completions-enabled t)
      ;(define-key c-mode-map  [(control tab)] 'company-complete)
      ;(define-key c++-mode-map  [(control tab)] 'company-complete)
 

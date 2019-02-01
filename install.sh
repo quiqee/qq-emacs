@@ -55,8 +55,10 @@ git_config() {
 
 mkdir -p ~/.emacs.d/elisp
 mkdir -p ~/.emacs.d/extern
+mkdir -p ~/.emacs.d/.cache/themes
 
 ln -sf $(pwd)/init.org $HOME/.emacs.d/init.org
+ln -sf $(pwd)/quickbean-theme.el $HOME/.emacs.d/.cache/themes/quickbean-theme.el
 
 update_bzr_lib() {
     path=$1
