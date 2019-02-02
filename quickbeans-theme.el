@@ -37,11 +37,41 @@
 
 (deftheme quickbeans "The jellybeans color theme")
 
-(let ((class '((class color) (min-colors 89)))
+(defgroup quickbeans nil
+  "Quickbeans theme options.
+The theme has to be reloaded after changing anything in this group."
+  :group 'faces)
+
+(defcustom quickbeans-height-minus-1 0.8
+  "Font size -1."
+  :type 'number
+  :group 'quickbeans)
+
+(defcustom quickbeans-height-plus-1 1.1
+  "Font size +1."
+  :type 'number
+  :group 'quickbeans)
+
+(defcustom quickbeans-height-plus-2 1.15
+  "Font size +2."
+  :type 'number
+  :group 'quickbeans)
+
+(defcustom quickbeans-height-plus-3 1.2
+  "Font size +3."
+  :type 'number
+  :group 'quickbeans)
+
+(defcustom quickbeans-height-plus-4 1.3
+  "Font size +4."
+  :type 'number
+  :group 'quickbeans)
+
+(let* ((class '((class color) (min-colors 89)))
       ;;                                            GUI       TER
       (quickbeans-fg         (if (display-graphic-p) "#cccccc" "#cccccc"))
       (quickbeans-bg         (if (display-graphic-p) "#151515" "#151515"))
-      (quickbeans-grey-0     (if (display-graphic-p) "#151515" "#151515"))
+      (quickbeans-grey-0     (if (display-graphic-p) "#121212" "#121212"))
       (quickbeans-grey-1     (if (display-graphic-p) "#112433" "#112433"))
       (quickbeans-grey-2     (if (display-graphic-p) "#222222" "#222222"))
       (quickbeans-grey-3     (if (display-graphic-p) "#333344" "#444455"))
@@ -49,6 +79,7 @@
       (quickbeans-grey-5     (if (display-graphic-p) "#444444" "#444444"))
       (quickbeans-grey-6     (if (display-graphic-p) "#7f7f7f" "#7f7f7f"))
       (quickbeans-grey-7     (if (display-graphic-p) "#888888" "#888888"))
+      (quickbeans-emphasis   (if (display-graphic-p) "#f8f8f0" "#f8f8f0"))
       (quickbeans-purple-0   (if (display-graphic-p) "#ff73fd" "#ff73fd"))
       (quickbeans-purple-1   (if (display-graphic-p) "#cd00cd" "#cd00cd"))
       (quickbeans-purple-2   (if (display-graphic-p) "#a40073" "#a40073"))
@@ -195,13 +226,13 @@
        `(highlight                           ((,class (:background ,quickbeans-grey-3))))
        `(hl-line                             ((,class (:background ,quickbeans-purple-5))))
 ;;;;; hi-lock
-       `(hi-blue                             ((t (:background ,quickbeans-blue-4    :foreground ,quickbeans-grey-1))))
-       `(hi-green                            ((t (:background ,quickbeans-green-4 :foreground ,quickbeans-grey-1))))
-       `(hi-pink                             ((t (:background ,quickbeans-purple-4 :foreground ,quickbeans-grey-1))))
-       `(hi-yellow                           ((t (:background ,quickbeans-yellow-0  :foreground ,quickbeans-grey-1))))
-       `(hi-blue-b                           ((t (:foreground ,quickbeans-blue-0    :weight     bold))))
-       `(hi-green-b                          ((t (:foreground ,quickbeans-green-2 :weight     bold))))
-       `(hi-red-b                            ((t (:foreground ,quickbeans-red-0     :weight     bold))))
+       `(hi-blue                             ((,class (:background ,quickbeans-blue-4 :foreground ,quickbeans-grey-1))))
+       `(hi-green                            ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-grey-1))))
+       `(hi-pink                             ((,class (:background ,quickbeans-purple-4 :foreground ,quickbeans-grey-1))))
+       `(hi-yellow                           ((,class (:background ,quickbeans-yellow-0 :foreground ,quickbeans-grey-1))))
+       `(hi-blue-b                           ((,class (:foreground ,quickbeans-blue-0 :weight bold))))
+       `(hi-green-b                          ((,class (:foreground ,quickbeans-green-2 :weight bold))))
+       `(hi-red-b                            ((,class (:foreground ,quickbeans-red-0 :weight bold))))
 ;;;;; iSearch
        `(isearch                             ((,class (:foreground ,quickbeans-fg :background ,quickbeans-red-4))))
        `(isearch-fail                        ((,class (:background ,quickbeans-red-4))))
@@ -230,7 +261,7 @@
 ;;;;; Lazy highlight
        `(lazy-highlight                      ((,class (:foreground ,quickbeans-red-4 :background nil))))
 ;;;;; Linum
-       `(linum                               ((,class (:foreground ,quickbeans-grey-5 :background ,quickbeans-grey-2))))
+       `(linum                               ((,class (:foreground ,quickbeans-grey-3 :background ,quickbeans-grey-0))))
 ;;;;; Display line numbers
        `(line-number                         ((,class (:foreground ,quickbeans-grey-5 :background ,quickbeans-grey-2))))
 ;;;;; Ediff
@@ -367,15 +398,24 @@
 ;;;;; Org
        `(org-checkbox                        ((,class (:foreground ,quickbeans-green-5))))
        `(org-date                            ((,class (:foreground ,quickbeans-blue-0))))
-       `(org-document-title                  ((,class (:foreground ,quickbeans-red-9))))
+       `(org-document-title                  ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-4 :foreground ,quickbeans-red-9))))
        `(org-done                            ((,class (:foreground ,quickbeans-green-2))))
-       `(org-level-1                         ((,class (:foreground ,quickbeans-orange-0 :weight bold))))
-       `(org-level-2                         ((,class (:foreground ,quickbeans-green-5 :weight bold))))
-       `(org-level-3                         ((,class (:foreground ,quickbeans-red-0))))
+       `(org-level-1                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-4 :foreground ,quickbeans-orange-0))))
+       `(org-level-2                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-3 :foreground ,quickbeans-green-5))))
+       `(org-level-3                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-3 :foreground ,quickbeans-yellow-0))))
+       `(org-level-4                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-3 :foreground ,quickbeans-red-0))))
+       `(org-level-5                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-orange-0))))
+       `(org-level-6                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-green-0))))
+       `(org-level-7                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-red-7))))
+       `(org-level-8                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-blue-0))))
        `(org-link                            ((,class (:foreground ,quickbeans-blue-1))))
        `(org-special-keyword                 ((,class (:foreground ,quickbeans-blue-0))))
        `(org-table                           ((,class (:foreground ,quickbeans-orange-0))))
        `(org-todo                            ((,class (:foreground ,quickbeans-red-1))))
+       `(org-block                           ((,class (:foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
+       `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
+       `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
+
 ;;;;; Region
        `(region                              ((,class (:background ,quickbeans-grey-3))))
 ;;;;; SHM

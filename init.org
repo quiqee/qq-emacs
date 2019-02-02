@@ -34,31 +34,31 @@
      (package-initialize)
 
      (let ((inhibit-message t))
-     (if (require 'quelpa nil t)
-       (quelpa-self-upgrade)
-       (with-temp-buffer
-         (url-insert-file-contents "https://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
-         (eval-buffer))))
+       (if (require 'quelpa nil t)
+           (quelpa-self-upgrade)
+         (with-temp-buffer
+           (url-insert-file-contents "https://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
+           (eval-buffer))))
 
      ; find package information from following archives
      (setq package-archives (quote (("gnu" . "http://elpa.gnu.org/packages/")
-                              ("org" . "https://orgmode.org/elpa/")
-                              ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
+                                    ("org" . "https://orgmode.org/elpa/")
+                                    ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
 
      (list-packages)
 
      (mapcar (lambda (package)
                ; install package if not already installed
                (let* ((ret (car-safe package)) (meth (plist-get package ret)))
-               (unless (package-installed-p (or ret package))
-                (if (and ret (eq meth 'builtin))
-                 (let ((inhibit-message t))
-                   (package-install ret))
-                 (let* ((inhibit-message t))
-                   (quelpa package)))
-                 (if (package-installed-p (or ret package))
-                     (message "✓ Installed %s" (or ret package))
-                   (error "✕ Couldn't install %s" (or ret package))))))
+                 (unless (package-installed-p (or ret package))
+                   (if (and ret (eq meth 'builtin))
+                       (let ((inhibit-message t))
+                         (package-install ret))
+                     (let* ((inhibit-message t))
+                       (quelpa package)))
+                   (if (package-installed-p (or ret package))
+                       (message "✓ Installed %s" (or ret package))
+                     (error "✕ Couldn't install %s" (or ret package))))))
 
              ; list of packages to be installed
              '(
@@ -68,18 +68,19 @@
                ranger
                cliphist
                multi-term
+               restart-emacs
 
                ;; UI Enhancement
-               ;(depends-on "info+")
+                                             ;(depends-on "info+")
                hlinum
-               ;nlinum
+                                             ;nlinum
                spaceline
                window-numbering
                persp-mode
 
                ;; Modes
-               ;(depends-on "crontab-mode")
-               ;(depends-on "csv-nav")
+                                             ;(depends-on "crontab-mode")
+                                             ;(depends-on "csv-nav")
                swift-mode
 
                emoji-cheat-sheet-plus
@@ -91,10 +92,10 @@
 
                alert
                (csv-mode builtin)
-               (auctex builtin)                 ; integrated environment for *TeX*
-               (rainbow-mode builtin)            ; colorized color code in file
-               (undo-tree builtin)               ; Treat undo history as a tree
-               (org-plus-contrib builtin)        ; Outline-based notes management and organizer
+               (auctex builtin)              ; integrated environment for *TeX*
+               (rainbow-mode builtin)        ; colorized color code in file
+               (undo-tree builtin)           ; Treat undo history as a tree
+               (org-plus-contrib builtin)    ; Outline-based notes management and organizer
                (bug-hunter builtin)
 
 
@@ -114,12 +115,12 @@
                flycheck-irony
                irony-eldoc
 
-               ;(depends-on "icicles")
+                                             ;(depends-on "icicles")
 
                ibuffer-vc
 
                lsp-mode
-               ;lsp-sourcekit
+                                             ;lsp-sourcekit
                vlf
                git-timemachine
                ggtags
@@ -131,25 +132,25 @@
 
                function-args
                clean-aindent-mode
-               ;(depends-on "dtrt-indent")
+                                             ;(depends-on "dtrt-indent")
                ws-butler
                projectile
-               ace-jump-mode           ; quick cursor location minor mode
+               ace-jump-mode                 ; quick cursor location minor mode
                ag
-               ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
-               auto-compile            ; automatically compile Emacs Lisp libraries
-               bind-key                ; a simple way to manage personal keybindings
-               bind-map                ; a simple way to manage personal keybindings
-               color-identifiers-mode  ; gives colors to unique variables passed into functions
-               ;(depends-on "crosshairs")              ; Highlight current line & current column
+                                             ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
+               auto-compile                  ; automatically compile Emacs Lisp libraries
+               bind-key                      ; a simple way to manage personal keybindings
+               bind-map                      ; a simple way to manage personal keybindings
+               color-identifiers-mode        ; gives colors to unique variables passed into functions
+                                             ;(depends-on "crosshairs")              ; Highlight current line & current column
 
                diff-hl
-               ;(depends-on "dired+")
-               discover-my-major       ; Discover key bindings and their meaning for
-                                                    ; the current Emacs major mode
-               elisp-slime-nav         ; Provide convinient navigation to the definitions
-                                                    ; of variables, functions, libraries and faces.
-               elscreen                ; window session manager
+                                             ;(depends-on "dired+")
+               discover-my-major             ; Discover key bindings and their meaning for
+                                             ; the current Emacs major mode
+               elisp-slime-nav               ; Provide convinient navigation to the definitions
+                                             ; of variables, functions, libraries and faces.
+               elscreen                      ; window session manager
 
                neotree
 
@@ -179,7 +180,7 @@
                evil
                evil-exchange
                evil-indent-textobject
-               ;(depends-on "evil-jumper")
+                                             ;(depends-on "evil-jumper")
                evil-leader
                evil-matchit
                evil-nerd-commenter
@@ -189,14 +190,14 @@
                evil-quickscope
                evil-mc
                general
-               ;(depends-on "evil-smartparens")
+                                             ;(depends-on "evil-smartparens")
 
 
-               flycheck                ; on-the-fly syntax checking
+               flycheck                      ; on-the-fly syntax checking
                ggtags
                which-key
 
-               ;(depends-on "help-fns+")              ; better help functions
+                                             ;(depends-on "help-fns+")              ; better help functions
 
                helm
                helm-ag
@@ -211,10 +212,10 @@
                helm-descbinds
 
                hungry-delete
-               idle-highlight-mode     ; sets an idle timer that highlights all
-                                                    ; occurences in the buffer of the word under cursor
-               ;(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
-               highlight-indent-guides            ; a neat mode to show indentation
+               idle-highlight-mode           ; sets an idle timer that highlights all
+                                             ; occurences in the buffer of the word under cursor
+                                             ;(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
+               highlight-indent-guides       ; a neat mode to show indentation
 
                key-chord
 
@@ -229,27 +230,27 @@
                git-messenger
 
                markdown-mode
-               move-text               ; Move current line or region with M-up or M-down
-               multiple-cursors        ; Multiple cursors for Emacs.
-               org-bullets             ; show org bullet as Unicode character
+               move-text                     ; Move current line or region with M-up or M-down
+               multiple-cursors              ; Multiple cursors for Emacs.
+               org-bullets                   ; show org bullet as Unicode character
                org-cliplink
                org-pdfview
-               paredit                 ; minor mode for editing parentheses
-               popwin                  ; popup window manager
-               ;(depends-on "pretty-lambdada")
+               paredit                       ; minor mode for editing parentheses
+               popwin                        ; popup window manager
+                                             ;(depends-on "pretty-lambdada")
                rainbow-delimiters
                smart-mode-line
-               smartparens             ; Minor mode for Emacs that deals with parens pairs
-               smart-tabs-mode         ; provide semantic way of using tab in source code
-               smex                    ; M-x interface with Ido-style fuzzy matching.
+               smartparens                   ; Minor mode for Emacs that deals with parens pairs
+               smart-tabs-mode               ; provide semantic way of using tab in source code
+               smex                          ; M-x interface with Ido-style fuzzy matching.
 
                sr-speedbar
                volatile-highlights
                wgrep-ag
                writegood-mode
                xcscope
-               yasnippet               ; snippet tools for emacs
-              ))
+               yasnippet                     ; snippet tools for emacs
+               ))
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -484,14 +485,13 @@ required from *emacs*.
 
 ** Site-Specific
 *** Common
-
 **** Fonts
 
    #+begin_src emacs-lisp
      (setq qq/preferred-font "PragmataPro-12")
      (set-face-attribute 'default nil :font "PragmataPro-10")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
-     (set-face-attribute 'variable-pitch nil :family "Caldera")
+     (set-face-attribute 'variable-pitch nil :family "Baskerville")
      (defun qq/set-font-to-variable-width ()
        "Change font in current window to a variable-width font."
        (interactive)
@@ -567,11 +567,11 @@ required from *emacs*.
      (defun qq/set-font-to-variable-width ()
        "Change font in current window to a variable-width font."
        (interactive)
-       (face-remap-add-relative 'default '(:family "Baskerville" :height 150)))
+       (face-remap-add-relative 'default '(:family "Baskerville" :height 160)))
      (setq qq/preferred-font "PragmataPro-14")
      (set-face-attribute 'default nil :font "PragmataPro-14")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
-     (set-face-attribute 'variable-pitch nil :family "Arial")
+     (set-face-attribute 'variable-pitch nil :family "Baskerville")
    #+end_src
 
 **** Swift =sourcekit-lsp=
@@ -1231,7 +1231,7 @@ required from *emacs*.
      ; monokai-height-plus-2 1.15
      ; monokai-height-plus-3 1.2
      ; monokai-height-plus-4 1.3)
-     ;(setq monokai-user-variable-pitch t)
+     ;(setq monokai-use-variable-pitch t)
 
      ;(load-theme 'darkokai t)
      ;(setq darkokai-height-minus-1 0.8
@@ -3605,9 +3605,10 @@ required from *emacs*.
 ***** Elipsis appearance
 
    #+BEGIN_SRC emacs-lisp
-             ;org-ellipsis "▼"
-             org-ellipsis "⤵"
-             org-columns-ellipses "…"
+     ;org-ellipsis "▼"
+     ;org-ellipsis "⤵"
+     org-ellipsis " ⚡"
+     org-columns-ellipses "…"
    #+END_SRC
 
 ***** Press =RET= follow links
@@ -3684,9 +3685,32 @@ required from *emacs*.
    #+END_SRC
 
 **** Nice bulleted lists.
+   my candidate symbol lists
+
+   hexagrams
+       “✡” “⎈” “✽” “✲” “✱” “✻” “✼” “✽” “✾” “✿” “❀” “❁” “❂” “❃” “❄” “❅” “❆” “❇”
+
+   circles
+       “○” “☉” “◎” “◉” “○” “◌” “◎” “●” “◦” “◯” “⚪” “⚫” “⚬” “❍” “￮” “⊙” “⊚” “⊛” “∙” “∘”
+
+   special circles
+       “◐” “◑” “◒” “◓” “◴” “◵” “◶” “◷” “⚆” “⚇” “⚈” “⚉” “♁” “⊖” “⊗” “⊘”
+
+   crosses
+       “✙” “♱” “♰” “☥” “✞” “✟” “✝” “†” “✠” “✚” “✜” “✛” “✢” “✣” “✤” “✥”
+
+   poker sybmols
+       “♠” “♣” “♥” “♦” “♤” “♧” “♡” “♢”
+
+   yinyang
+       “☯” “☰” “☱” “☲” “☳” “☴” “☵” “☶” “☷”
+
+   special symbols
+       “☀” “♼” “☼” “☾” “☽” “☣” “§” “¶” “‡” “※” “✕” “△” “◇” “▶” “◀” “◈”
 
    #+begin_src emacs-lisp
      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+     (setq org-bullets-bullet-list '("✛" "✢" "✣" "✤" "✥" "✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜"))
    #+end_src
 
 **** Evil integration
@@ -4724,6 +4748,7 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
        (c-set-style "stroustrup")   ; C indenting style
        (c-set-offset 'inline-open 0)
    #+END_SRC
+
 **** Underscore "_" is not a word character
    An underscore "_" is a word character in Vim. This means that word-motions
    like w skip over underlines in a sequence of letters as if it was a letter
