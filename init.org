@@ -10,9 +10,8 @@
 * About
    This is an Emacs configuration file written in =org-mode=. There are a few
    reasons why I wanted to do this. I wanted to learn =org-mode=, one way to do
-   this is by practicing on file I'm often work with. I just started using emacs
-   a couple of weeks ago. When I saw an Emacs configuration done in =org-mode=,
-   I knew this is what I wanted to do.
+   this is by practicing on file I'm often work with. When I saw an Emacs
+   configuration done in =org-mode=, I knew this is what I wanted to do.
 
 ** How does it work?
    =org-mode= support code block exports through a process called =tangle=. This
@@ -1212,65 +1211,7 @@ required from *emacs*.
    Change the color-theme to =moe-theme= (downloaded using =package=).
 
    #+BEGIN_SRC emacs-lisp
-     ;;; Show highlighted buffer-id as decoration. (Default: nil)
-     ;(setq moe-theme-highlight-buffer-id nil)
-
-     ;;; Resize titles (optional).
-     ;(setq moe-theme-resize-markdown-title '(1.5 1.4 1.3 1.2 1.0 1.0))
-     ;(setq moe-theme-resize-org-title '(1.5 1.4 1.3 1.2 1.1 1.0 1.0 1.0 1.0))
-     ;(setq moe-theme-resize-rst-title '(1.5 1.4 1.3 1.2 1.1 1.0))
-
-     ;(load-theme 'moe-dark t)
-     ;(moe-theme-set-color 'blue)
-       ;; (Available colors: blue, orange, green ,magenta, yellow, purple, red, cyan, w/b.)
-
-     ;;(load-theme 'gruber-darker t)
-     ;(load-theme 'monokai t)
-     ;(setq monokai-height-minus-1 0.8
-     ; monokai-height-plus-1 1.1
-     ; monokai-height-plus-2 1.15
-     ; monokai-height-plus-3 1.2
-     ; monokai-height-plus-4 1.3)
-     ;(setq monokai-use-variable-pitch t)
-
-     ;(load-theme 'darkokai t)
-     ;(setq darkokai-height-minus-1 0.8
-     ; darkokai-height-plus-1 1.1
-     ; darkokai-height-plus-2 1.15
-     ; darkokai-height-plus-3 1.2
-     ; darkokai-height-plus-4 1.3)
-     ;(setq darkokai-user-variable-pitch t)
-
      (load-theme 'quickbeans t)
-     ;(load-theme 'gotham t)
-     ;(load-theme 'darktooth t)
-     ;(load-theme 'cyberpunk t)
-     ;(load-theme 'material t)
-
-     ;(load-theme 'ample t t)
-     ;(load-theme 'ample-flat t t)
-     ;(load-theme 'ample-light t t)
-     ;; choose one to enable
-     ;(enable-theme 'ample)
-     ;(enable-theme 'ample-flat)
-     ;(enable-theme 'ample-light)
-
-     ;(enable-theme 'monokai)
-
-     ;;; Global settings (defaults)
-     ;(setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-     ;      doom-themes-enable-italic t) ; if nil, italics is universally disabled
-     ;(load-theme 'doom-Iosvkem t)
-     ;;; Enable flashing mode-line on errors
-     ;(doom-themes-visual-bell-config)
-
-     ;;; Enable custom neotree theme (all-the-icons must be installed!)
-     ;(doom-themes-neotree-config)
-     ;;; or for treemacs users
-     ;(doom-themes-treemacs-config)
-
-     ;;; Corrects (and improves) org-mode's native fontification.
-     ;(doom-themes-org-config)
    #+END_SRC
 
 **** Theme customization
@@ -1776,7 +1717,7 @@ required from *emacs*.
 
    #+END_SRC
 
-***   =hunglry-delete-mode=
+*** =hungry-delete-mode=
    Makes =backspace= and =C-d= erase /all/ consecutive white space in a given
    direction (instead of just one). Use it everywhere.
 
@@ -2296,27 +2237,6 @@ required from *emacs*.
       | k        |             | 'undo-tree-visualize-undo                |
       | h        |             | 'undo-tree-visualize-switch-branch-left  |
       | l        |             | 'undo-tree-visualize-switch-branch-right |
-
-**** Compress the history files as .xz files
-
-   #+BEGIN_SRC emacs-lisp
-     (when (executable-find "xz")
-       (defun qq-advice/undo-tree-make-history-save-file-name (_ret)
-         (let ((auto-save-file-name-transforms
-                '((".*" (concat qq/cache-directory "backups/") t))))
-           (concat (make-auto-save-file-name) ".undo.xz")))
-
-       (defun qq-advice/undo-tree-load-history (old-fun &rest args)
-         (let ((jka-compr-verbose))
-           (apply old-fun args)))
-
-       (advice-add 'undo-tree-make-history-save-file-name
-                   :filter-return
-                   #'qq-advice/undo-tree-make-history-save-file-name)
-       (advice-add 'undo-tree-load-history
-                   :around
-                   #'qq-advice/undo-tree-load-history))
-   #+END_SRC
 
 **** Persistent undo-tree history across emacs sessions
 
@@ -3596,12 +3516,21 @@ required from *emacs*.
      (require 'org-eldoc)
    #+END_SRC
 
-**** Start of =setq=
+**** =setq=
 
    #+BEGIN_SRC emacs-lisp
        (setq
    #+END_SRC
 
+***** Default directory
+   Org mode operates from a directory. You need a directory to store all your
+   org files and be default. Typically, you can use Org without setting these but
+   it is useful to set this location to help in capturing and archiving org files
+   effectively.
+
+   #+BEGIN_SRC emacs-lisp
+     org-directory "~/Dropbox/org"
+   #+END_SRC
 ***** Elipsis appearance
 
    #+BEGIN_SRC emacs-lisp
@@ -3614,77 +3543,69 @@ required from *emacs*.
 ***** Press =RET= follow links
 
    #+BEGIN_SRC emacs-lisp
-             org-return-follows-link t
+     org-return-follows-link t
    #+END_SRC
 ***** refile-target
 
    #+BEGIN_SRC emacs-lisp
-             org-refile-targets '((nil :maxlevel . 9)
-                                  (org-agenda-files :maxlevel . 9))
+     org-refile-targets '((nil :maxlevel . 9)
+                          (org-agenda-files :maxlevel . 9))
    #+END_SRC
+***** Markup
+   Org mode has its own [[https://orgmode.org/manual/Markup.html][markup syntax]] but seeing the [[https://orgmode.org/manual/Emphasis-and-monospace.html#Emphasis-and-monospace][emphasis markers]] is distracting. I prefer to hide it.
+
+   #+BEGIN_SRC emacs-lisp
+     org-hide-emphasis-markers t
+   #+END_SRC
+***** Minimal outline
+   Remove all the "*" but the last one for [[https://orgmode.org/org.html#Headlines][headline]]
+
+   #+BEGIN_SRC emacs-lisp
+     org-hide-leading-stars t
+   #+END_SRC
+***** Image
+   The GUI Emacs has the ability to display images. But if the image is pretty
+   large, it displays the whole thing. Let’s restrict it from doing that.
+
+   #+BEGIN_SRC emacs-lisp
+     org-image-actual-width '(300)
+   #+END_SRC
+***** Native font-lock
+   When editing org-files with source-blocks, we want the source blocks to
+   be themed as they would in their native mode.
+
+   #+BEGIN_SRC emacs-lisp
+     org-src-fontify-natively t
+   #+END_SRC
+
 ***** Default note file
 
    #+BEGIN_SRC emacs-lisp
-             org-default-notes-file "organizer.org"
+     org-default-notes-file "organizer.org"
    #+END_SRC
 ***** Capture templates
 
    #+BEGIN_SRC emacs-lisp
-             org-capture-templates
-             '(("t" "Todo" entry (file+headline qq/inbox-org-file "TODO")
-                "* TODO %?\n%U\n%a\n")
-               ("n" "Note" entry (file+headline qq/inbox-org-file "NOTES")
-                "* %? :NOTE:\n%U\n%a\n")
-               ("m" "Meeting" entry (file qq/inbox-org-file)
-                "* MEETING %? :MEETING:\n%U")
-               ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org"))
-                "* %?\n%U\n"))
+     org-capture-templates
+     '(("t" "Todo" entry (file+headline qq/inbox-org-file "TODO")
+        "* TODO %?\n%U\n%a\n")
+       ("n" "Note" entry (file+headline qq/inbox-org-file "NOTES")
+        "* %? :NOTE:\n%U\n%a\n")
+       ("m" "Meeting" entry (file qq/inbox-org-file)
+        "* MEETING %? :MEETING:\n%U")
+       ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org"))
+        "* %?\n%U\n"))
    #+END_SRC
 
 ***** Indentation
 
    #+BEGIN_SRC emacs-lisp
-             org-startup-indented t
-             org-indent-indentation-per-level 3
-             org-src-tab-acts-natively t)
+     org-startup-indented t
+     org-indent-indentation-per-level 3
+     org-src-tab-acts-natively t
    #+END_SRC
 
-**** Change =org-directory= location
-   And ensure the folder exist.
-
-   #+BEGIN_SRC emacs-lisp
-     (setq org-directory "~/Dropbox/org")
-     (unless (file-exists-p org-directory)
-       (make-directory org-directory))
-   #+END_SRC
-
-**** Enable =writegood-mode=
-
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'org-mode-hook
-                    (lambda ()
-                      (writegood-mode)))
-   #+END_SRC
-
-**** Enable flyspell and rainbow-mode
-
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'org-mode-hook (lambda ()
-                                (when (or (executable-find "aspell")
-                                          (executable-find "ispell")
-
-                                          (executable-find "hunspell"))
-                                  (flyspell-mode))
-                                (rainbow-mode)
-                                ))
-   #+END_SRC
-**** Enable =markdown= export
-
-   #+BEGIN_SRC emacs-lisp
-       (require 'ox-md nil t)
-   #+END_SRC
-
-**** Nice bulleted lists.
+***** Nice bulleted lists.
    my candidate symbol lists
 
    hexagrams
@@ -3709,61 +3630,339 @@ required from *emacs*.
        “☀” “♼” “☼” “☾” “☽” “☣” “§” “¶” “‡” “※” “✕” “△” “◇” “▶” “◀” “◈”
 
    #+begin_src emacs-lisp
-     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-     (setq org-bullets-bullet-list '("✛" "✢" "✣" "✤" "✥" "✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜"))
+     org-bullets-bullet-list '("✛" "✢" "✣" "✤" "✥" "✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜")
    #+end_src
 
-**** Evil integration
+***** Enable logging when tasks are complete.
+   This puts a time-stamp on the completed task. Since I usually am doing quite
+   a few things at once, I added the INPROGRESS keyword and made the color blue.
+
+   #+BEGIN_SRC emacs-lisp
+     org-log-done t
+     org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
+     org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold)))
+   #+END_SRC
+
+***** Allow changing between todo stats directly by hotkey
+
+   #+BEGIN_SRC emacs-lisp
+     org-use-fast-todo-selection t
+     org-treat-S-cursor-todo-selection-as-state-change nil
+     org-todo-keywords
+     '((sequence "TODO(t)" "NEXT(n@)" "|" "DONE(d)")
+       (sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))
+
+     org-todo-state-tags-triggers
+     ' (("CANCELLED" ("CANCELLED" . t))
+        ("WAITING" ("WAITING" . t))
+        ("TODO" ("WAITING") ("CANCELLED"))
+        ("NEXT" ("WAITING") ("CANCELLED"))
+        ("DONE" ("WAITING") ("CANCELLED")))
+   #+END_SRC
+
+***** org-agenda
+   The [[https://orgmode.org/manual/Agenda-Views.html][agenda view]] is an amazing way to search your org files for tags, TODOs,
+   keywords, and even view deadlines. It requires that org files be added to it.
+
+   #+BEGIN_SRC emacs-lisp
+     org-agenda-files (list
+                       "~/Dropbox/org/blog.org"
+                       "~/Dropbox/org/errands.org"
+                       "~/Dropbox/org/references/articles.org"
+                       "~/Dropbox/org/ledger.org"
+                       "~/Dropbox/org/notes.org"
+                       "~/Dropbox/org/fun.org")
+   #+END_SRC
+
+   Then, a smaller part of org is the way it shows the [[https://orgmode.org/manual/Deadlines-and-scheduling.html][deadlines]] of all the
+   TODOs and show them in a view that spans a fortnight. It can be set it
+   weekly, monthly or daily too.
+
+   #+BEGIN_SRC emacs-lisp
+     org-deadline-warning-days 7
+     org-agenda-span 'fortnight
+     org-agenda-skip-scheduled-if-deadline-is-shown t
+     org-agenda-show-log t
+   #+END_SRC
+
+***** Tagging
+
+   Org mode has a [[https://orgmode.org/manual/Tags.html][tagging system]] that is very useful to organize the contents
+   and notes. You can select the tags with a single letter (the letter after “?”
+   in the following code).
+
+   #+BEGIN_SRC emacs-lisp
+     org-tag-alist (quote (("article"   . ?a) ;; temporary
+                           ("books"     . ?b)
+                           ("courses"   . ?c) ;; temporary
+                           ("code"      . ?C)
+                           ("card"      . ?d)
+                           ("drill"     . ?D)
+                           ("errands"   . ?e)
+                           ("films"     . ?f)
+                           ("gubby"     . ?g)
+                           ("home"      . ?h)
+                           ("idea"      . ?i)
+                           ("job"       . ?j)
+                           ("ledger"    . ?l)
+                           ("meeting"   . ?m)
+                           ("note"      . ?n)
+                           ("online"    . ?o)
+                           ("personal"  . ?p)
+                           ("project"   . ?P)
+                           ("reference" . ?r) ;; temporary
+                           ("reveal"    . ?R)
+                           ("story"     . ?s)
+                           ("technical" . ?t)
+                           ("vague"     . ?v)
+                           ("work"      . ?w)
+                           ("noexport"  . ?x)
+                           ("cash"      . ?$)))
+   #+END_SRC
+***** Capture
+   Capture is an amazing tool. It was the final push to Org and I use it many
+   times per day. First, we have to setup the capture templates. Templates is
+   not that vast and can be easily understood by going through the manual.
+
+#+BEGIN_SRC emacs-lisp
+  org-capture-templates '(
+
+        ;; For code snippets
+        ("a"               ; key
+         "Algo/Code"       ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/notes.org" "Code")  ; target
+         "* %^{TITLE} %(org-set-tags)  :code:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\#+BEGIN_SRC %^{language}\n%?\n\#END_SRC"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For taking notes on random things
+        ("n"               ; key
+         "Note"            ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/notes.org" "Notes")  ; target
+         "* %? %(org-set-tags)  :note:\n:PROPERTIES:\n:Created: %U\n:Linked: %A\n:END:\n%i"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; Ledger is a CLI accounting system
+        ("l"               ; key
+         "Ledger"          ; name
+         entry             ; type
+         (file+datetree "~/Dropbox/org/ledger.org" "Ledger")  ; target
+         "* %^{expense} %(org-set-tags)  :accounts:\n:PROPERTIES:\n:Created: %U\n:END:\n%i
+#+NAME: %\\1-%t
+\#+BEGIN_SRC ledger :noweb yes
+%^{Date of expense (yyyy/mm/dd)} %^{'*' if cleared, else blank} %\\1
+    %^{Account name}                                $%^{Amount}
+    %?
+\#+END_SRC
+"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For notes or something regarding more work
+        ("w"               ; key
+         "Work"            ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/phd.org" "Work")  ; target
+         "* TODO %^{Todo} %(org-set-tags)  :work:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For capturing some things that are worth reading
+        ("r"               ; key
+         "Reading"         ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/fun.org" "Reading")  ; target
+         "* %^{Title} %(org-set-tags)\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For capturing minutes of the meeting
+        ("m"               ; key
+         "Meeting"         ; name
+         entry             ; type
+         (file+datetree "~/Dropbox/org/phd.org" "Meeting")  ; target
+         "* %^{Title} %(org-set-tags)  :meeting:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n** Agenda:\n%?\n\n** Minutes of the meeting:\n"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; To practice for my driving test
+        ("d"               ; key
+         "Drill driving"   ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/drill.org" "Driving")  ; target
+         "* Question  :drill:driving:\n%^{Question}\n** Answer\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For taking notes of math/stats stuff that I keep forgetting
+        ("s"              ; key
+         "Drill math"     ; name
+         entry            ; type
+         (file+headline "~/Dropbox/org/drill.org" "Stats/Math")  ; target
+         "* Question  :drill:stats:math:\n%^{Question}\n** Answer\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For capturing some physics concepts that I need to remember
+        ("p"              ; key
+         "Drill physics"  ; name
+         entry            ; type
+         (file+headline "~/Dropbox/org/drill.org" "Physics")  ; target
+         "* Question  :drill:physics:\n%^{Question}\n** Answer\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; For capturing details of a job application/details
+        ("j"                      ; key
+         "Jobs"                   ; name
+         table-line               ; type
+         (file+headline "~/Dropbox/org/notes.org" "Jobs")  ; target
+         "| %u | %^{Company} | [[%^{job link}][%^{position}]] | %^{referrals?} | %^{Experience?} | %^t | %^{Status} | %^{Follow up} | %^{Result} |"  ; template
+         :prepend t               ; properties
+         ;; :table-line-pos "II-3"   ; properties
+         :empty-lines 1           ; properties
+         :created t               ; properties
+         :kill-buffer t)          ; properties
+
+        ;; To capture movies that I plan to see
+        ("f"              ; key
+         "films"          ; name
+         entry            ; type
+         (file+headline "~/Dropbox/org/fun.org" "Movies")  ; target
+         "* %^{Movie} %(org-set-tags)  :film:\n:PROPERTIES:\n:Created: %U\n:END:\n%i
+Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; To capture ideas for my blog
+        ("b"               ; key
+         "Blog"            ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/blog.org" "Blog")  ; target
+         "* %^{Title} %(org-set-tags)  :blog:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; To capture tons of errands
+        ("e"               ; key
+         "Errands"         ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/errands.org" "Errands")  ; target
+         "* TODO %^{Todo} %(org-set-tags)  :errands:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+        ;; To capture things regarding my course
+        ("c"               ; key
+         "Courses"         ; name
+         entry             ; type
+         (file+headline "~/Dropbox/org/phd.org" "Courses")  ; target
+         "* %^{Course} %(org-set-tags)  :courses:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)) ; properties
+#+END_SRC
+
+   Then, we have to choose where to [[https://orgmode.org/manual/Capture-_002d-Refile-_002d-Archive.html][refile and archive]] too.
+
+#+BEGIN_SRC emacs-lisp
+  org-refile-targets '((nil :maxlevel . 9)
+                       (org-agenda-files :maxlevel . 9))
+  org-refile-use-outline-path t
+  org-outline-path-complete-in-steps nil
+#+END_SRC
+
+***** End of =setq=
+
+#+BEGIN_SRC emacs-lisp
+     )
+#+END_SRC
+
+**** Change =org-directory= location
+   And ensure the folder exist.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-directory "~/Dropbox/org")
+     (unless (file-exists-p org-directory)
+       (make-directory org-directory))
+   #+END_SRC
+
+**** Hooks
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'org-mode-hook (lambda ()
+   #+END_SRC
+
+***** Enable bulleted lists
+
+   #+BEGIN_SRC emacs-lisp
+     (org-bullets-mode 1)
+   #+END_SRC
+***** Enable =writegood-mode=
+
+   #+BEGIN_SRC emacs-lisp
+     (writegood-mode)
+   #+END_SRC
+
+***** Enable =org-abbrev=
+
+   #+BEGIN_SRC emacs-lisp
+     (abbrev-mode 1)
+   #+END_SRC
+
+***** Enable flyspell and rainbow-mode
+
+   #+BEGIN_SRC emacs-lisp
+     (when (or (executable-find "aspell")
+               (executable-find "ispell")
+               (executable-find "hunspell"))
+       (flyspell-mode))
+     (rainbow-mode)
+   #+END_SRC
+***** End of hook
+   #+BEGIN_SRC emacs-lisp
+     ))
+   #+END_SRC
+
+***** Evil integration
 
    #+BEGIN_SRC emacs-lisp
        (after 'evil
          (add-hook 'org-capture-mode-hook 'evil-insert-state))
    #+END_SRC
 
-*** org-todo
-**** Enable logging when tasks are complete.
-   This puts a time-stamp on the completed task. Since I usually am doing quite
-   a few things at once, I added the INPROGRESS keyword and made the color blue.
+**** Enable =markdown= export
 
    #+BEGIN_SRC emacs-lisp
-     (setq org-log-done t
-           org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
-           org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
-
-   #+END_SRC
-
-**** Allow changing between todo stats directly by hotkey
-
-   #+BEGIN_SRC emacs-lisp
-     (setq org-use-fast-todo-selection t
-             org-treat-S-cursor-todo-selection-as-state-change nil
-             org-todo-keywords
-             '((sequence "TODO(t)" "NEXT(n@)" "|" "DONE(d)")
-               (sequence "WAITING(w@/!)" "|" "CANCELLED(c@/!)"))
-
-             org-todo-state-tags-triggers
-             ' (("CANCELLED" ("CANCELLED" . t))
-                ("WAITING" ("WAITING" . t))
-                ("TODO" ("WAITING") ("CANCELLED"))
-                ("NEXT" ("WAITING") ("CANCELLED"))
-                ("DONE" ("WAITING") ("CANCELLED"))))
-   #+END_SRC
-
-*** org-agenda
-   The agenda view requires that org files be added to it. The personal.org and
-   groupon.org files are my daily files for review. I have a habit to plan the
-   next day. I do this by assessing my calendar and my list of todo items. If a
-   todo item is already scheduled or has a deadline, don't show it in the global
-   todo list.
-
-   For quick access of =org-agenda= I have [[orgmode-key-binding][added]] a global binding This allows it
-   to be quickly accessed.
-
-   #+BEGIN_SRC emacs-lisp
-     (setq org-agenda-show-log t
-           org-agenda-todo-ignore-scheduled t
-           org-agenda-todo-ignore-deadlines t)
-     (setq org-agenda-files (list "personal.org" "groupon.org"))
+       (require 'ox-md nil t)
    #+END_SRC
 
 *** org-habit
@@ -3840,14 +4039,6 @@ required from *emacs*.
            (concat user-emacs-directory "extern/org/ditaa0_9.jar"))
    #+END_SRC
 
-**** Native font-lock
-   When editing org-files with source-blocks, we want the source blocks to
-   be themed as they would in their native mode.
-
-   #+BEGIN_SRC emacs-lisp
-     (setq org-src-fontify-natively t)
-   #+END_SRC
-
 **** Just Evaluate It
    I'm normally fine with having my code automatically evaluated.
 
@@ -3883,8 +4074,6 @@ required from *emacs*.
 *** org-abbrev
 
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
-
      (define-skeleton skel-org-block-elisp
        "Insert an emacs-lisp block"
        ""
@@ -4023,6 +4212,44 @@ required from *emacs*.
                             (image-bob)))
    #+end_src
 
+*** Midnight mode
+   Additional midnite mode taken from [[https://babbagefiles.blogspot.com/2017/11/more-pdf-tools-tricks.html][here]]
+
+   #+begin_src emacs-lisp
+     (add-hook 'pdf-view-mode-hook (lambda ()
+                                     (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
+
+     (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
+
+     (defun qq/pdf-no-filter ()
+       "View pdf without colour filter."
+       (interactive)
+       (pdf-view-midnight-minor-mode -1)
+       )
+
+     ;; change midnite mode colours functions
+     (defun qq/pdf-midnite-original ()
+       "Set pdf-view-midnight-colors to original colours."
+       (interactive)
+       (setq pdf-view-midnight-colors '("#839496" . "#002b36" )) ; original values
+       (pdf-view-midnight-minor-mode)
+       )
+
+     (defun qq/pdf-midnite-amber ()
+       "Set pdf-view-midnight-colors to amber on dark slate blue."
+       (interactive)
+       (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; amber
+       (pdf-view-midnight-minor-mode)
+       )
+
+     (defun qq/pdf-midnite-green ()
+       "Set pdf-view-midnight-colors to green on black."
+       (interactive)
+       (setq pdf-view-midnight-colors '("#00B800" . "#000000" )) ; green
+       (pdf-view-midnight-minor-mode)
+       )
+   #+end_src
+
 *** Org-mode links
    Out of the box, org-mode doesn't know about pdf-tools. However, you can add support
    for opening org links to pdf files with =org-pdfview=
@@ -4057,8 +4284,10 @@ required from *emacs*.
       | j                | pdf-view-mode-map | normal    |              | 'qq-pdf-view-next-line-or-next-page         |
       | k                | pdf-view-mode-map | normal    |              | 'qq-pdf-view-previous-line-or-previous-page |
       | gr               | pdf-view-mode-map | normal    | Refresh      | 'pdf-view-revert-buffer                     |
-      | zd               | pdf-view-mode-map | normal    | Dark mode    | 'pdf-view-dark-minor-mode                   |
-      | zm               | pdf-view-mode-map | normal    |              | 'pdf-view-midnight-minor-mode               |
+      | ma               | pdf-view-mode-map | normal    | Dark mode    | 'qq/pdf-midnite-amber                       |
+      | mg               | pdf-view-mode-map | normal    |              | 'qq/pdf-midnite-green                       |
+      | mo               | pdf-view-mode-map | normal    |              | 'qq/pdf-midnite-original                    |
+      | mx               | pdf-view-mode-map | normal    |              | 'qq/pdf-no-filter                           |
       | zp               | pdf-view-mode-map | normal    | Printer mode | 'pdf-view-printer-minor-mode                |
       | o                | pdf-view-mode-map | normal    | Show outline | 'pdf-outline                                |
       | q                | pdf-view-mode-map | normal    |              | 'next-buffer                                |
@@ -5314,6 +5543,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
              ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
              ((equal major-mode 'org-mode) (org-narrow-to-subtree))
              (t (error "Please select a region to narrow to"))))
+   #+END_SRC
+** Open the =init.org= file
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/open-init-config ()
+       "Opens the configuration file from anywhere"
+       (interactive)
+       (find-file (concat user-emacs-directory "init.org")))
    #+END_SRC
 ** Abort minibuffer when it lose focus
 

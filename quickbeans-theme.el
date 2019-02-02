@@ -415,7 +415,6 @@ The theme has to be reloaded after changing anything in this group."
        `(org-block                           ((,class (:foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
-
 ;;;;; Region
        `(region                              ((,class (:background ,quickbeans-grey-3))))
 ;;;;; SHM
