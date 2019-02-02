@@ -30,7 +30,7 @@
 *** Packages
    List of packages used through out this configuration.
 
-   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/packages.el
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/bin/packages.el
      (package-initialize)
 
      (let ((inhibit-message t))
@@ -99,7 +99,8 @@
 
 
                company
-               company-box
+               ;company-box
+               (company-posframe :fetcher git :url "https://github.com/tumashu/company-posframe.git")
                company-irony
                company-irony-c-headers
                company-sourcekit
@@ -161,7 +162,6 @@
                gotham-theme
                ample-theme
                moe-theme
-               jbeans-theme
                monokai-theme
                gruber-darker-theme
                grandshell-theme
@@ -301,15 +301,8 @@ Convenient macro to allow processing after checking existing pre-condition
        "If the current buffer is 'init.org' the code-blocks are
                       tangled, and the tangled file is compiled."
        (when (string= "init.org" (buffer-name))
-         (let ((inhibit-message t)) (org-babel-tangle))
-         (setq org-confirm-babel-evaluate nil)
-         (delete-file (concat user-emacs-directory
-                              (file-name-base buffer-file-name) ".el"))
-         (rename-file
-          (concat (file-name-sans-extension buffer-file-name) ".el")
-          (concat user-emacs-directory (file-name-base buffer-file-name) ".el"))
-                                             ;(byte-compile-file (concat user-emacs-directory "init.el"))
-         (alert "Init file is compiled")))
+         (call-process-shell-command "~/.emacs.d/bin/tangle &" nil 0)
+         ))
 
      (add-hook 'after-save-hook 'qq/tangle-init)
    #+END_SRC
@@ -1248,7 +1241,7 @@ required from *emacs*.
      ; darkokai-height-plus-4 1.3)
      ;(setq darkokai-user-variable-pitch t)
 
-     (load-theme 'jbeans t)
+     (load-theme 'quickbeans t)
      ;(load-theme 'gotham t)
      ;(load-theme 'darktooth t)
      ;(load-theme 'cyberpunk t)
@@ -2481,8 +2474,8 @@ required from *emacs*.
 *** Use =company-postframe= for frontend
 
    #+BEGIN_SRC emacs-lisp
-     (require 'company-box)
-     (add-hook 'company-mode-hook 'company-box-mode)
+     (require 'company-posframe)
+     (add-hook 'company-mode-hook 'company-posframe-mode)
    #+END_SRC
 
 *** company-ispell setup
@@ -4183,7 +4176,7 @@ required from *emacs*.
 
 *** Highlight some text based on regexp (useful to see "OK" or warnings):
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'shell-mode-hook (lambda () (highlight-regexp "\\[OK\\]" "hi-green-b")))
+     ;(add-hook 'shell-mode-hook (lambda () (highlight-regexp "\\[OK\\]" "hi-green-b")))
    #+END_SRC
 
 *** Make URLs clickable

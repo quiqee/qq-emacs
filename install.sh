@@ -54,11 +54,12 @@ git_config() {
 #fi
 
 mkdir -p ~/.emacs.d/elisp
-mkdir -p ~/.emacs.d/extern
+#mkdir -p ~/.emacs.d/extern
+mkdir -p ~/.emacs.d/bin
 mkdir -p ~/.emacs.d/.cache/themes
 
 ln -sf $(pwd)/init.org $HOME/.emacs.d/init.org
-ln -sf $(pwd)/quickbean-theme.el $HOME/.emacs.d/.cache/themes/quickbean-theme.el
+ln -sf $(pwd)/quickbeans-theme.el $HOME/.emacs.d/.cache/themes/quickbeans-theme.el
 
 update_bzr_lib() {
     path=$1
@@ -104,7 +105,7 @@ clone_git_repo() {
 
 echo -n "** Generating Emacs' script files"
 (
-cat > ~/.emacs.d/upgrade.el <<- EOM
+cat > ~/.emacs.d/bin/upgrade.el <<- EOM
 (setq package-archives
        (quote
         (("gnu" . "https://elpa.gnu.org/packages/")
@@ -115,6 +116,27 @@ cat > ~/.emacs.d/upgrade.el <<- EOM
 (package-menu-mark-upgrades)
 (package-menu-execute t)
 EOM
+cat > ~/.emacs.d/bin/compile.el <<- EOM
+(package-initialize)
+(require 'org-install)
+(require 'ob-tangle)
+(require 'alert)
+(setq org-confirm-babel-evaluate nil)
+(org-babel-tangle-file "$(PWD)/init.org")
+
+(cond
+ ((string-equal system-type "darwin") ; Mac OS X
+  (setq alert-default-style 'osx-notifier))
+ ((string-equal system-type "gnu/linux") ; linux
+    (setq alert-default-style 'libnotify)))
+
+(alert "Finish tangling 'init.org'" :title "Emacs")
+EOM
+cat > ~/.emacs.d/bin/tangle <<- EOM
+#!/bin/bash
+emacs --script ~/.emacs.d/bin/compile.el >> /dev/null 2>&1 && mv $(PWD)/init.el ~/.emacs.d/
+EOM
+chmod +x ~/.emacs.d/bin/tangle
 emacs --batch --eval="(require 'org-install)" \
     --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
@@ -122,7 +144,10 @@ emacs --batch --eval="(require 'org-install)" \
 ) || exit 1
 echo " ... done"
 
-emacs -q --script ~/.emacs.d/packages.el
+echo "** Installing Emacs' packages"
+(
+emacs -q --script ~/.emacs.d/bin/packages.el
+) || exit 1
 echo " "
 
 echo -n "** Compiling init.el"
