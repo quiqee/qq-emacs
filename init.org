@@ -28,10 +28,40 @@
 
 * Basic
 ** Meta
+*** Personal Custom group
+   Create a custom group to group any custom variable so it will not
+   polute built in variable space
+
+   #+BEGIN_SRC emacs-lisp
+     (defgroup qq nil
+       "Personal Custom configuration."
+       ;:type '(string)
+       :group 'local)
+   #+END_SRC
+
+   Add a cache-directory root folder custom variable
+
+   #+BEGIN_SRC emacs-lisp
+     (defcustom qq/cache-directory
+       (concat user-emacs-directory ".cache/")
+       "The storage location for various persistent files."
+       :type '(string)
+       :group 'qq)
+   #+END_SRC
+
+   Add a custom theme folder under cache-directory
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
+   #+END_SRC
+
 *** Packages
    List of packages used through out this configuration.
 
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/bin/packages.el
+     (setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
+        package-user-dir (concat user-emacs-directory ".cache/elpa/"))
+
      (package-initialize)
 
      (let ((inhibit-message t))
@@ -254,6 +284,8 @@
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
+     (setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
+        package-user-dir (concat user-emacs-directory ".cache/elpa/"))
      (package-initialize)
    #+END_SRC
 
@@ -331,33 +363,6 @@ Convenient macro to allow processing after checking existing pre-condition
 
    To export to other format, just press =C-c C-e=, which will display further
    option to choose output format like HTML, PDF or LaTeX.
-
-*** Personal Custom group
-   Create a custom group to group any custom variable so it will not
-   polute built in variable space
-
-   #+BEGIN_SRC emacs-lisp
-     (defgroup qq nil
-       "Personal Custom configuration."
-       ;:type '(string)
-       :group 'local)
-   #+END_SRC
-
-   Add a cache-directory root folder custom variable
-
-   #+BEGIN_SRC emacs-lisp
-     (defcustom qq/cache-directory
-       (concat user-emacs-directory ".cache/")
-       "The storage location for various persistent files."
-       :type '(string)
-       :group 'qq)
-   #+END_SRC
-
-   Add a custom theme folder under cache-directory
-
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
-   #+END_SRC
 
 *** Custom =load-path=
    The variable =load-path= lists all the directories where Emacs should look
