@@ -13,6 +13,8 @@
    this is by practicing on file I'm often work with. When I saw an Emacs
    configuration done in =org-mode=, I knew this is what I wanted to do.
 
+   ☯
+
 ** How does it work?
    =org-mode= support code block exports through a process called =tangle=. This
    document have a global setting that will enable =tangle= on all code block
@@ -82,7 +84,6 @@
                                              ;(depends-on "csv-nav")
                swift-mode
 
-               emoji-cheat-sheet-plus
                emojify
 
                fasd
@@ -1718,8 +1719,10 @@ required from *emacs*.
                      line-number-mode
                      display-time-mode
                      size-indication-mode
-                     region-state-mode         ; A global minor-mode that shows the number of
-                                                        ; chars/lines or rows/columns in the region (aka. selection)
+                     region-state-mode          ; A global minor-mode that shows the number of
+                                                ; chars/lines or rows/columns in the region (aka. selection)
+
+                     global-emojify-mode
 
                      ;; mess up with pdf-tools, so turn on locally per major mode
                      ;global-linum-mode          ; turn on line number globally
@@ -2382,13 +2385,13 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq company-backends '((company-capf
-                                 company-emoji
-                                 company-math-symbols-unicode
-                                 company-dabbrev-code
-                                 company-files
-                                 company-keywords)
+                               company-emoji
+                               company-math-symbols-unicode
+                               company-dabbrev-code
+                               company-files
+                               company-keywords)
 
-                                company-dabbrev))
+                              company-dabbrev))
    #+END_SRC
 
 *** flx matching in company
@@ -2886,7 +2889,7 @@ required from *emacs*.
       | Combo | Description                     | Command                                          |
       |-------+---------------------------------+--------------------------------------------------|
       | %     |                                 | 'ctl-x-5-prefix                                  |
-      | \\    |                                 | 'evil-execute-in-emacs-state                     |
+      | \\     |                                 | 'evil-execute-in-emacs-state                     |
       | 0     |                                 | 'select-window-0                                 |
       | 1     |                                 | 'select-window-1                                 |
       | 2     |                                 | 'select-window-2                                 |
@@ -2923,6 +2926,7 @@ required from *emacs*.
       | h x   | Describe character under cursor | 'describe-char                                   |
       | h h   |                                 | 'help-for-help-internal                          |
       | h j   |                                 | 'helm-dash-at-point                              |
+      | h e   |                                 | 'emojify-describe-emoji-at-point                 |
       | i     |                                 | 'swiper                                          |
       | q     |                                 | 'evil-window-delete                              |
       | P     |                                 | 'package-list-packages                           |
