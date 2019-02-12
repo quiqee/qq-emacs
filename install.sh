@@ -122,8 +122,7 @@ cat > ~/.emacs.d/bin/compile.el <<- EOM
 (require 'ob-tangle)
 (require 'alert)
 (setq org-confirm-babel-evaluate nil)
-(org-babel-tangle-file "$(PWD)/init.org")
-
+(org-babel-tangle-file "$(pwd)/init.org")
 (cond
  ((string-equal system-type "darwin") ; Mac OS X
   (setq alert-default-style 'osx-notifier))
@@ -134,7 +133,7 @@ cat > ~/.emacs.d/bin/compile.el <<- EOM
 EOM
 cat > ~/.emacs.d/bin/tangle <<- EOM
 #!/bin/bash
-emacs --script ~/.emacs.d/bin/compile.el >> /dev/null 2>&1 && mv $(PWD)/init.el ~/.emacs.d/
+emacs --script ~/.emacs.d/bin/compile.el >> /dev/null 2>&1 && mv $(pwd)/init.el ~/.emacs.d/
 EOM
 chmod +x ~/.emacs.d/bin/tangle
 emacs --batch --eval="(require 'org-install)" \
