@@ -152,7 +152,7 @@
                                              ; of variables, functions, libraries and faces.
                elscreen                      ; window session manager
 
-               neotree
+               treemacs
 
                speed-type
 
@@ -953,6 +953,9 @@ required from *emacs*.
            recentf-max-menu-items 500
            ido-save-directory-list-file
               (concat qq/cache-directory "ido.last")
+
+           emojify-emojis-dir
+              (concat  qq/cache-directory "emojis" )
 
            eshell-directory-name
               (concat  qq/cache-directory "eshell" )
@@ -2697,7 +2700,7 @@ required from *emacs*.
 ;             (direx:direx-mode . emacs)
 ;             (yari-mode . emacs)
 ;             (erc-mode . emacs)
-             (neotree-mode . normal)
+;             (neotree-mode . normal)
 ;             (w3m-mode . emacs)
              (gud-mode . normal)
 ;             (help-mode . emacs)
@@ -3448,47 +3451,6 @@ required from *emacs*.
      (keyfreq-mode 1)
      (keyfreq-autosave-mode 1)
    #+end_src
-
-** Neotree
-   A emacs tree plugin like =NERD tree= for =Vim=. Refer more [[http://www.emacswiki.org/emacs/NeoTree][here]].
-
-   #+begin_src emacs-lisp
-     (require 'neotree)
-   #+end_src
-
-   Every time when the neotree window is opened, let it find current file
-   and jump to node.
-   #+begin_src emacs-lisp
-     (setq neo-smart-open t)
-   #+end_src
-
-*** Local keybindings with Evil
-    :PROPERTIES:
-    :CUSTOM_ID: evil-neotree-bindings
-    :END:
-
-   The table below will be generated as key-bindings [[Evil Neotree Bindings][here]].
-   #+TBLNAME: neotree-evil-keys
-      | Combo | Mode                        | Description | Command        |
-      | TAB   | evil-normal-state-local-map |             | 'neotree-enter |
-      | SPC   | evil-normal-state-local-map |             | 'neotree-enter |
-      | q     | evil-normal-state-local-map |             | 'neotree-hide  |
-      | RET   | evil-normal-state-local-map |             | 'neotree-enter |
-
-*** Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: evil-neotree2-binding
-    :END:
-   Using The table below as the source for generating [[Neotree with Evil Bindings][Neotree with Evil Bindings]]
-
-   #+TBLNAME: evil_neotree_keys
-      | Evil Leader Combo | Description | Command                                                   |
-      |-------------------+-------------+-----------------------------------------------------------|
-      | n n               |             | 'neotree-toggle                                           |
-      | n f               |             | 'neotree-find ; open file in current buffer in neotree    |
-      | n d               |             | 'neotree-project-dir                                      |
-      | n h               |             | 'neotree-hide                                             |
-      | n s               |             | 'neotree-show                                             |
 
 ** Origami
    Text folding solution for Emacs
@@ -4362,13 +4324,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      (add-to-list 'projectile-globally-ignored-files ".DS_Store")
    #+END_SRC
 
-*** Working with Neotree
-   When running =projectile-switch-project=, =neotree= will change
-   root automatically.
-   #+BEGIN_SRC emacs-lisp
-     (setq projectile-switch-project-action 'neotree-projectile-action)
-   #+END_SRC
-
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: evil-projectile-binding
@@ -4826,7 +4781,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
        "SPC b"   "buffer related"
        "SPC e"   "eval related"
        "SPC j"   "evil ace-jump"
-       "SPC n"   "neotree"
        "SPC p"   "projectile related"
        "SPC r"   "serial commands"
        "SPC h"   "help related"
@@ -5708,13 +5662,6 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="lead", tname=helm-evil-combo)>>
    #+END_SRC
 
-** Neotree with Evil Bindings
-   Binding code generation for [[#evil-neotree2-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-keys(moda="lead", tname=evil_neotree_keys)>>
-   #+END_SRC
-
 ** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
@@ -5769,15 +5716,6 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pre="add-hook 'pdf-view-mode-hook\n(lambda()")>>
      <<gen-keys(moda="evil", tname=pdftools-evil-keys)>>
      <<gen-keys(mmap="t", tname=pdftools-keys)>>
-     <<gen-fix(pos="))\n")>>
-   #+END_SRC
-
-** Evil Neotree Bindings
-   Binding code generation for [[#evil-neotree-bindings][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-fix(pre="add-hook 'neotree-mode-hook\n(lambda()")>>
-     <<gen-keys(mmap="t", tname=neotree-evil-keys)>>
      <<gen-fix(pos=")))\n")>>
    #+END_SRC
 
