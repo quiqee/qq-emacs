@@ -163,4 +163,4 @@ export PANEL_FIFO PANEL_HEIGHT PANEL_FONT_FAMILY
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 
 stty -ixon    # allow forward search in BASH
-eval `ssh-agent`
+#eval `ssh-agent`

@@ -106,6 +106,8 @@ clone_git_repo() {
 echo -n "** Generating Emacs' script files"
 (
 cat > ~/.emacs.d/bin/upgrade.el <<- EOM
+(setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
+   package-user-dir (concat user-emacs-directory ".cache/elpa/"))
 (setq package-archives
        (quote
         (("gnu" . "https://elpa.gnu.org/packages/")
@@ -117,6 +119,8 @@ cat > ~/.emacs.d/bin/upgrade.el <<- EOM
 (package-menu-execute t)
 EOM
 cat > ~/.emacs.d/bin/compile.el <<- EOM
+(setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
+   package-user-dir (concat user-emacs-directory ".cache/elpa/"))
 (package-initialize)
 (require 'org-install)
 (require 'ob-tangle)

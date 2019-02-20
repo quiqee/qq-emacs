@@ -2,8 +2,14 @@ URxvt*loginShell: true
 URxvt*saveLines: 10000
 URxvt*cutchars: "`\"'&()*,:;<=>?[\\]^{|}$"
 
-urxvt*foreground: white
-urxvt*background: black
+!urxvt*foreground: white
+!urxvt*background: black
+
+URxvt.depth: 32
+URxvt.foreground: rgba:eeee/eeee/eeee/ffff
+URxvt.background: rgba:0000/0000/0000/cccc
+URxvt.cursorBlink: True
+URxvt.cursorUnderline: True
 
 *color0:  #2E3436
 *color1:  #a40000
@@ -34,12 +40,15 @@ URxvt*fading: 40
 URxvt*termName: rxvt-unicode-256color
 
 URxvt*perl-lib: /home/fikri/Documents/git/qq-emacs/urxvt-perls/
-URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard
+URxvt.perl-ext-common: fullscreen,keyboard-select,url-select,clipboard
 !URxvt*perl-ext-common: keyboard-select,url-select,default,clipboard,tabbed
 
 !Keyboard select
 URxvt*keysym.M-Escape: perl:keyboard-select:activate
 URxvt*keysym.M-s: perl:keyboard-select:search
+
+!Fullscreen
+URxvt.keysym.F11: perl:fullscreen:switch
 
 !URL Select
 URxvt*keysym.M-u: perl:url-select:select_next

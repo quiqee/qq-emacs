@@ -1385,7 +1385,7 @@ required from *emacs*.
        (interactive)
        (face-remap-add-relative 'default '(:font qq/preferred-font)))
 
-     (add-hook 'text-mode-hook 'qq/set-font-to-variable-width)
+     (add-hook 'org-mode-hook 'qq/set-font-to-variable-width)
      (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
      (add-hook 'Info-mode-hook 'qq/set-font-to-variable-width)
    #+end_src
@@ -2808,29 +2808,29 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Normal Bindings][Evil Normal Bindings]]
 
    #+TBLNAME: evil_std_keys
-      | Combo       | Description                                | Command                                              |
-      |-------------+--------------------------------------------+------------------------------------------------------|
-      | C-b         | Scroll one page up                         | 'evil-scroll-up                                      |
-      | C-f         | Scroll one page down                       | 'evil-scroll-down                                    |
-      | [ SPC       | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
-      | ] SPC       | Insert empty line below current line       | (bind (evil-insert-newline-below) (forward-line -1)) |
-      | [ e         | Move current line up one line              | (kbd "ddkP")                                         |
-      | ] e         | Move current line down one line            | (kbd "ddp")                                          |
-      | [ b         | Jump to the previous buffer                | 'previous-buffer                                     |
-      | ] b         | Jump to the next buffer                    | 'next-buffer                                         |
-      | [ q         | Jump to the previous error                 | 'previous-error                                      |
-      | ] q         | Jump to the next error                     | 'next-error                                          |
-      | C-j         | Navigate cursor to the lower window        | 'windmove-down                                       |
-      | C-k         | Navigate cursor to the upper window        | 'windmove-up                                         |
-      | C-h         | Navigate cursor to the window on the left  | 'windmove-left                                       |
-      | C-l         | Navigate cursor to the window on the right | 'windmove-right                                      |
-      | C-a         | Increment number at cursor                 | 'evil-numbers/inc-at-pt                              |
-      | -           | Decrement number at cursor                 | 'evil-numbers/dec-at-pt                              |
-      | Q           | Close a window                             | 'qq/window-killer                                    |
-      | Y           |                                            | (kbd "y$")                                           |
-      | g ]         |                                            | 'ggtags-find-definition                              |
-      | g [         |                                            | 'ggtags-find-reference                               |
-      | g p         |                                            | 'hydra-projectile/body                               |
+      | Combo | Description                                | Command                                              |
+      |-------+--------------------------------------------+------------------------------------------------------|
+      | C-b   | Scroll one page up                         | 'evil-scroll-up                                      |
+      | C-f   | Scroll one page down                       | 'evil-scroll-down                                    |
+      | [ SPC | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
+      | ] SPC | Insert empty line below current line       | (bind (evil-insert-newline-below) (forward-line -1)) |
+      | [ e   | Move current line up one line              | (kbd "ddkP")                                         |
+      | ] e   | Move current line down one line            | (kbd "ddp")                                          |
+      | [ b   | Jump to the previous buffer                | 'previous-buffer                                     |
+      | ] b   | Jump to the next buffer                    | 'next-buffer                                         |
+      | [ q   | Jump to the previous error                 | 'previous-error                                      |
+      | ] q   | Jump to the next error                     | 'next-error                                          |
+      | C-j   | Navigate cursor to the lower window        | 'windmove-down                                       |
+      | C-k   | Navigate cursor to the upper window        | 'windmove-up                                         |
+      | C-h   | Navigate cursor to the window on the left  | 'windmove-left                                       |
+      | C-l   | Navigate cursor to the window on the right | 'windmove-right                                      |
+      | C-a   | Increment number at cursor                 | 'evil-numbers/inc-at-pt                              |
+      | "-"   | Decrement number at cursor                 | 'evil-numbers/dec-at-pt                              |
+      | Q     | Close a window                             | 'qq/window-killer                                    |
+      | Y     |                                            | (kbd "y$")                                           |
+      | g ]   |                                            | 'ggtags-find-definition                              |
+      | g [   |                                            | 'ggtags-find-reference                               |
+      | g p   |                                            | 'hydra-projectile/body                               |
 
 **** Motion Mode Binding
     :PROPERTIES:
@@ -5280,12 +5280,11 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
                   (cons (concat "\\." (regexp-opt '("xml" "xsd" "sch" "rng" "xslt" "svg" "rss") t) "\\'")
                         'nxml-mode))
 
-      (unify-8859-on-decoding-mode)
+     (unify-8859-on-decoding-mode)
 
-        (setq magic-mode-alist
-          (cons '("<＼＼?xml " . nxml-mode)
-          magic-mode-alist))
-       (fset 'xml-mode 'nxml-mode)
+     (fset 'xml-mode 'nxml-mode)
+     (fset 'html-mode 'nxml-mode)
+     (require 'rng-loc nil t)
    #+END_SRC
 
 *** Settings
@@ -5293,7 +5292,8 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp
      (add-hook 'nxml-mode-hook
                (lambda ()
-                 (qq/set-font-to-fixed-width)
+                 (linum-mode)
+                 ;(qq/set-font-to-fixed-width)
                  (setq auto-fill-mode -1)
                  (setq nxml-slash-auto-complete-flag t)      ; auto-complete the closing tag at the input of the slash
                  (setq nxml-child-indent 2)                  ; tag indentation
@@ -5331,17 +5331,22 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+BEGIN_SRC emacs-lisp
      (add-to-list 'hs-special-modes-alist
-                  (list 'nxml-mode
-                        "<!--\\|<[^/>]*[^/]>"
-                        "-->\\|</[^/>]*[^/]>"
-                        "<!--"
-                        'nxml-forward-element
-                        nil))
-
+                  '(nxml-mode
+                    "<!--\\|<[^/>]*[^/]>" ;; regexp for start block
+                    "-->\\|</[^/>]*[^/]>" ;; regexp for end block
+                    "<!--"
+                    nxml-forward-element
+                    nil))
      (add-hook 'nxml-mode-hook 'hs-minor-mode)
 
      ;; optional key bindings, easier than hs defaults
-     (define-key nxml-mode-map (kbd "z t") 'hs-toggle-hiding)
+     (defun lgfang-toggle-level ()
+       "mainly to be used in nxml mode"
+       (interactive) (hs-show-block) (hs-hide-level 1))
+     (eval-after-load "nxml-mode"
+       '(progn
+          (define-key nxml-mode-map (kbd "C-m") 'lgfang-toggle-level)
+          (define-key nxml-mode-map [mouse-3] 'lgfang-toggle-level)))
    #+END_SRC
 *** Enable nxml-mode when the user starts typing an xml document
 
