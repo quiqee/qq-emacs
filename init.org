@@ -158,8 +158,6 @@
                swift-mode
                xcode-mode
 
-               highlight-indentation
-
                function-args
                clean-aindent-mode
                                              ;(depends-on "dtrt-indent")
@@ -244,7 +242,6 @@
                hungry-delete
                idle-highlight-mode           ; sets an idle timer that highlights all
                                              ; occurences in the buffer of the word under cursor
-                                             ;(depends-on "ido-ubiquitous")          ; use ido with almost anything that uses completion
                highlight-indent-guides       ; a neat mode to show indentation
 
                key-chord
@@ -944,61 +941,70 @@ required from *emacs*.
    directory
 
    #+BEGIN_SRC emacs-lisp
-           abbrev-file-name
-              (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
-           save-place-file
-              (concat qq/cache-directory "places")      ; cache for save-place
-           savehist-file
-              (concat qq/cache-directory "savehist")    ; cache for minibuffer history
-           savehist-additional-variables
-              '(search ring regexp-search-ring)
-           recentf-save-file
-              (concat qq/cache-directory "recentf")     ; cache folder for recently open files
-           recentf-max-saved-items 1000                 ; maximum saved items in recentf
-           recentf-max-menu-items 500
-           ido-save-directory-list-file
-              (concat qq/cache-directory "ido.last")
+     abbrev-file-name
+        (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
+     save-place-file
+        (concat qq/cache-directory "places")      ; cache for save-place
+     savehist-file
+        (concat qq/cache-directory "savehist")    ; cache for minibuffer history
+     savehist-additional-variables
+        '(search ring regexp-search-ring)
+     recentf-save-file
+        (concat qq/cache-directory "recentf")     ; cache folder for recently open files
+     recentf-max-saved-items 1000                 ; maximum saved items in recentf
+     recentf-max-menu-items 500
+     ido-save-directory-list-file
+        (concat qq/cache-directory "ido.last")
 
-           emojify-emojis-dir
-              (concat  qq/cache-directory "emojis" )
+     emojify-emojis-dir
+        (concat  qq/cache-directory "emojis" )
 
-           eshell-directory-name
-              (concat  qq/cache-directory "eshell" )
+     eshell-directory-name
+        (concat  qq/cache-directory "eshell" )
 
-           projectile-cache-file
-              (concat  qq/cache-directory "projectile.cache" )
+     projectile-cache-file
+        (concat  qq/cache-directory "projectile.cache" )
 
-           helm-dash-docsets-path
-              (concat  qq/cache-directory "docsets" )
+     helm-dash-docsets-path
+        (concat  qq/cache-directory "docsets" )
 
-           persp-save-dir
-              (concat  qq/cache-directory "persp-conf/")
+     persp-save-dir
+        (concat  qq/cache-directory "persp-conf/")
 
-           smex-save-file
-              (concat  qq/cache-directory "smex-items")
+     smex-save-file
+        (concat  qq/cache-directory "smex-items")
 
-           nsm-settings-file
-              (concat  qq/cache-directory "network-security.data")
+     nsm-settings-file
+        (concat  qq/cache-directory "network-security.data")
 
-           image-dired-dir
-              (concat  qq/cache-directory "image-dired")
+     image-dired-dir
+        (concat  qq/cache-directory "image-dired")
 
-           projectile-known-projects-file
-              (concat  qq/cache-directory "projectile-bookmarks.eld")
+     projectile-known-projects-file
+        (concat  qq/cache-directory "projectile-bookmarks.eld")
 
-           company-statistics-file
-              (concat  qq/cache-directory "company-statistics-cache.el")
+     company-statistics-file
+        (concat  qq/cache-directory "company-statistics-cache.el")
 
-           bookmark-default-file
-              (concat qq/cache-directory "bookmarks")   ; cache for bookmark
-           backup-directory-alist
-           `(("." . ,(concat qq/cache-directory "backups")))
-           auto-save-file-name-transforms
-           `(("." ,(concat qq/cache-directory "backups/") t))
-           auto-save-list-file-prefix
-           (concat qq/cache-directory "auto-save-list/saves-")
+     bookmark-default-file
+        (concat qq/cache-directory "bookmarks")   ; cache for bookmark
 
-           delete-auto-save-files t
+     backup-directory-alist
+     `(("." . ,(concat qq/cache-directory "backups")))
+
+     auto-save-file-name-transforms
+     `(("." ,(concat qq/cache-directory "backups/") t))
+
+     auto-save-list-file-prefix
+     (concat qq/cache-directory "auto-save-list/saves-")
+
+     tramp-persistency-file-name
+        (concat qq/cache-directory "tramp")      ; cache for tramp
+
+     tramp-auto-save-directory
+        qq/cache-directory                        ; auto-save tramp files
+
+     delete-auto-save-files t
    #+END_SRC
 
    #+RESULTS:
@@ -1020,6 +1026,13 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
            savehist-autosave-interval 60
+   #+END_SRC
+
+**** Redisplay is bit too slow
+
+   #+BEGIN_SRC emacs-lisp
+     jit-lock-defer-time 0
+     fast-but-imprecise-scrolling t
    #+END_SRC
 
 **** Autosave bookmark on each change
@@ -4737,6 +4750,24 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
        (require 'swiper)
    #+END_SRC
 
+** Highlight-indent-guides
+   Add highlight column guides on indentation
+
+   [[https://github.com/abo-abo/swiper]]
+
+   #+BEGIN_SRC emacs-lisp
+     (setq highlight-indent-guides-method 'character)
+     ;darktooth-theme
+     ;(set-face-background 'highlight-indent-guides-odd-face "#323232")
+     ;(set-face-background 'highlight-indent-guides-even-face "#202020")
+     ;gruber-theme
+     ;(set-face-background 'highlight-indent-guides-odd-face "#151515")
+     ;(set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
+     ;gotham-theme
+     ;(set-face-background 'highlight-indent-guides-odd-face "#11151c")
+     ;(set-face-background 'highlight-indent-guides-even-face "#071110")
+   #+END_SRC
+
 ** Which key
    Show keybindings.
 
@@ -4860,19 +4891,9 @@ Some general settings that should apply to all programming mode. Highlight
                  (linum-mode)
                  (qq/add-watchwords)
                  (rainbow-delimiters-mode)
-                 (highlight-indent-guides-mode)
+                 (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
                  (smart-tabs-insinuate 'c++ 'c 'javascript)
-                 ;darktooth-theme
-                 (set-face-background 'highlight-indent-guides-odd-face "#323232")
-                 (set-face-background 'highlight-indent-guides-even-face "#202020")
-                 ;gruber-theme
-                 ;(set-face-background 'highlight-indent-guides-odd-face "#151515")
-                 ;(set-face-background 'highlight-indent-guides-even-face "#1d1d1d")
-                 ;gotham-theme
-                 ;(set-face-background 'highlight-indent-guides-odd-face "#11151c")
-                 ;(set-face-background 'highlight-indent-guides-even-face "#071110")
-                 (setq indent-guide-recursive t)
-                 (color-identifiers-mode t)))
+                 (color-identifiers-mode t)))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
 ** Compilation
