@@ -516,6 +516,13 @@ required from *emacs*.
      (setq qq/shell-prog "/bin/bash")
    #+end_src
 
+**** System Environment
+   Tells emacs to use path from shell
+
+   #+begin_src emacs-lisp
+      (exec-path-from-shell-initialize)
+   #+end_src
+
 **** Fulscreen setting
 
    #+begin_src emacs-lisp
@@ -589,7 +596,7 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (setq qq/swift-toolchain-path "/Library/Developer/Toolchains/swift-latest.xctoolchain")
-     (setq qq/swift-lsp-executable "~/LocalDocuments/Projects/sourcekit-lsp/.build/debug/sourcekit-lsp")
+     (setq qq/swift-lsp-executable "~/Documents/Projects/sourcekit-lsp/.build/debug/sourcekit-lsp")
    #+END_SRC
 
 **** Fix Powerline color issue
@@ -657,10 +664,11 @@ required from *emacs*.
        (setq ns-function-modifier 'hyper)
    #+end_src
 
-**** Shell program
+**** Shell environment
 
    #+begin_src emacs-lisp
      (setq qq/shell-prog "/usr/local/bin/fish")
+     (exec-path-from-shell-copy-env "PKG_CONFIG_PATH")
    #+end_src
 
 **** Host name mangling
@@ -1205,13 +1213,6 @@ required from *emacs*.
      (when (display-graphic-p)
        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
    #+END_SRC
-
-*** System Environment
-   Tells emacs to use path from shell
-
-   #+begin_src emacs-lisp
-      (exec-path-from-shell-initialize)
-   #+end_src
 
 *** Start emacs @fullscreen
    #+begin_src emacs-lisp
@@ -2294,7 +2295,7 @@ required from *emacs*.
       | C-M-s    | Do incremental search forward                                              | 'isearch-forward         |
       | C-r      | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
       | C-M-r    | Do incremental search backward                                             | 'isearch-backward        |
-      | C-c s    | Jump to *scratch* buffer                                                   | 'qq/goto-scratch-buffer  |
+      | C-c s    | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer  |
       | C-x C-b  | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
       | C-x C-k  | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
       | C-c e    |                                                                            | 'qq/eval-and-replace     |
@@ -2797,9 +2798,10 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Global Bindings][Evil Global Bindings]]
 
    #+TBLNAME: evil_global_keys
-      | Combo | Description                  | Command          |
-      |-------+------------------------------+------------------|
-      | C-w   | Prefix for windows operation | 'evil-window-map |
+      | Combo | Description                  | Command            |
+      |-------+------------------------------+--------------------|
+      | C-w   | Prefix for windows operation | 'evil-window-map   |
+      | C-S-g | Show buffer full path        | 'qq/show-file-name |
 
 **** Normal Mode Binding
     :PROPERTIES:
@@ -5549,6 +5551,16 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
          (abort-recursive-edit)))
 
      (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
+   #+END_SRC
+** Show current buffer full path in minibuffer
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/show-file-name ()
+       "Show the full path file name in the minibuffer."
+       (interactive)
+       (message (buffer-file-name)))
+
+     (global-set-key [C-S-g] 'qq/show-file-name)
    #+END_SRC
 ** Inline PlantUML image
 
