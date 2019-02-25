@@ -2814,7 +2814,7 @@ required from *emacs*.
       | Combo | Description                  | Command            |
       |-------+------------------------------+--------------------|
       | C-w   | Prefix for windows operation | 'evil-window-map   |
-      | C-S-g | Show buffer full path        | 'qq/show-file-name |
+      | C-S-g | Show fie path in minibuffer  | 'qq/show-file-name |
 
 **** Normal Mode Binding
     :PROPERTIES:
@@ -5573,6 +5573,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
      (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
    #+END_SRC
+
 ** Show current buffer full path in minibuffer
 
    #+BEGIN_SRC emacs-lisp
@@ -5580,8 +5581,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
        "Show the full path file name in the minibuffer."
        (interactive)
        (message (buffer-file-name)))
-
-     (global-set-key [C-S-g] 'qq/show-file-name)
    #+END_SRC
 ** Inline PlantUML image
 
