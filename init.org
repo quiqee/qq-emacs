@@ -150,6 +150,9 @@
                ibuffer-vc
 
                lsp-mode
+               company-lsp
+               lsp-ui
+               ccls
                                              ;lsp-sourcekit
                vlf
                git-timemachine
@@ -209,7 +212,6 @@
                evil-exchange
                evil-indent-textobject
                                              ;(depends-on "evil-jumper")
-               evil-leader
                evil-matchit
                evil-nerd-commenter
                evil-numbers
@@ -2705,42 +2707,43 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (cl-loop for (mode . state) in
-           '((minibuffer-inactive-mode . emacs)
-             (ggtags-global-mode . emacs)
-             (grep-mode . emacs)
-             (Info-mode . emacs)
-             (term-mode . emacs)
-             (refine-mode . emacs)
-;             (anaconda-nav-mode . emacs)
-             (log-edit-mode . emacs)
-             (vc-log-edit-mode . emacs)
-             (magit-log-edit-mode . emacs)
-;             (inf-ruby-mode . emacs)
-;             (direx:direx-mode . emacs)
-;             (yari-mode . emacs)
-;             (erc-mode . emacs)
-;             (neotree-mode . normal)
-;             (w3m-mode . emacs)
-             (gud-mode . normal)
-;             (help-mode . emacs)
-             (eshell-mode . emacs)
-             (shell-mode . emacs)
-;             (message-mode . emacs)
-;             (fundamental-mode . emacs)
-;             (weibo-timeline-mode . emacs)
-;             (weibo-post-mode . emacs)
-;             (sr-mode . emacs)
-;             (dired-mode . emacs)
-;             (compilation-mode . emacs)
-             (speedbar-mode . emacs)
-             (messages-buffer-mode . normal)
-             (magit-commit-mode . insert)
-             (magit-diff-mode . normal)
-             (browse-kill-ring-mode . normal)
-             (etags-select-mode . normal)
-;             (js2-error-buffer-mode . emacs)
-             )
-           do (evil-set-initial-state mode state))
+              '((minibuffer-inactive-mode . emacs)
+                (ag-mode . normal)
+                (ggtags-global-mode . emacs)
+                (grep-mode . emacs)
+                (Info-mode . emacs)
+                (term-mode . emacs)
+                (refine-mode . emacs)
+                ;(anaconda-nav-mode . emacs)
+                (log-edit-mode . emacs)
+                (vc-log-edit-mode . emacs)
+                (magit-log-edit-mode . emacs)
+                ;(inf-ruby-mode . emacs)
+                ;(direx:direx-mode . emacs)
+                ;(yari-mode . emacs)
+                ;(erc-mode . emacs)
+                ;(neotree-mode . normal)
+                ;(w3m-mode . emacs)
+                (gud-mode . normal)
+                (eshell-mode . emacs)
+                (shell-mode . emacs)
+                ;(help-mode . emacs)
+                ;(message-mode . emacs)
+                ;(fundamental-mode . emacs)
+                ;(weibo-timeline-mode . emacs)
+                ;(weibo-post-mode . emacs)
+                ;(sr-mode . emacs)
+                ;(dired-mode . emacs)
+                ;(compilation-mode . emacs)
+                ;(js2-error-buffer-mode . emacs)
+                (speedbar-mode . emacs)
+                (messages-buffer-mode . normal)
+                (magit-commit-mode . insert)
+                (magit-diff-mode . normal)
+                (browse-kill-ring-mode . normal)
+                (etags-select-mode . normal)
+                )
+              do (evil-set-initial-state mode state))
    #+END_SRC
 
 *** Define my own text objects
@@ -2803,6 +2806,32 @@ required from *emacs*.
        (recenter))
    #+END_SRC
 
+*** evil search in minor mode
+   #+BEGIN_SRC emacs-lisp
+     (defvar qq/evil-search-forward
+       '(menu-item "" nil :filter (lambda (&optional _)
+                                    (if (eq evil-search-module 'evil-search)
+                                        #'evil-ex-search-forward
+                                      #'evil-search-forward))))
+
+     (defvar qq/evil-search-backward
+       '(menu-item "" nil :filter (lambda (&optional _)
+                                    (if (eq evil-search-module 'evil-search)
+                                        #'evil-ex-search-backward
+                                      #'evil-search-backward))))
+
+     (defvar qq/evil-search-next
+       '(menu-item "" nil :filter (lambda (&optional _)
+                                    (if (eq evil-search-module 'evil-search)
+                                        #'evil-ex-search-next
+                                      #'evil-search-next))))
+
+     (defvar qq/evil-search-previous
+       '(menu-item "" nil :filter (lambda (&optional _)
+                                    (if (eq evil-search-module 'evil-search)
+                                        #'evil-ex-search-previous
+                                      #'evil-search-previous))))
+   #+END_SRC
 *** Bindings
 **** Global Mode Binding
     :PROPERTIES:
@@ -3138,7 +3167,7 @@ required from *emacs*.
    #+TBLNAME: helm-evil-combo
       | Combo with Evil Leader | Description | Command                 |
       | b s                    |             | 'helm-mini              |
-      | f                      |             | 'helm-find-files        |
+      | "."                    |             | 'helm-find-files        |
       | o                      |             | 'helm-imenu             |
       | r t                    |             | 'helm-etags-select      |
       | y s                    |             | 'helm-show-kill-ring    |
@@ -3230,6 +3259,28 @@ required from *emacs*.
    (local-set-key [tab] 'irony--indent-or-complete))
    (add-hook 'c-mode-common-hook 'irony-mode-keys)
  #+end_src
+
+** Ag
+*** Evil Binding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-ag-binding
+    :END:
+   Using The table below as the source for generating [[Evil Ag Bindings][Evil Ag Bindings]]
+
+   #+TBLNAME: evil_ag_keys
+      | Combo | Mode        | Evil Mode       | Description | Command                     |
+      | h     | ag-mode-map | (visual normal) |             | 'evil-backward-char         |
+      | g r   | ag-mode-map | (visual normal) | refresh     | 'recompile                  |
+      | g j   | ag-mode-map | (visual normal) | navigation  | 'compilation-next-error     |
+      | g k   | ag-mode-map | (visual normal) |             | 'compilation-previous-error |
+      | C-j   | ag-mode-map | (visual normal) |             | 'compilation-next-error     |
+      | C-k   | ag-mode-map | (visual normal) |             | 'compilation-previous-error |
+      | ]     | ag-mode-map | (visual normal) |             | 'compilation-next-error     |
+      | [     | ag-mode-map | (visual normal) |             | 'compilation-previous-error |
+      | ?     | ag-mode-map | (visual normal) | search      | 'qq/evil-search-backward    |
+      | "/"   | ag-mode-map | (visual normal) |             | 'qq/evil-search-forward     |
+      | n     | ag-mode-map | (visual normal) |             | 'qq/evil-search-next        |
+      | N     | ag-mode-map | (visual normal) |             | 'qq/evil-search-previous    |
 
 ** Git/Magit
 *** Settings
@@ -3489,19 +3540,19 @@ required from *emacs*.
    Using The table below as the source for generating [[Evil Origami Bindings][Evil Origami Bindings]]
 
    #+TBLNAME: evil_origami_keys
-      | Combo | Description                                                                                                                 | Command                         |
-      |-------+-----------------------------------------------------------------------------------------------------------------------------+---------------------------------|
-      | z o   | open fold node                                                                                                              | 'origami-open-node              |
-      | z O   | open fold node and all of its children                                                                                      | 'origami-open-node-recursively  |
-      | z s   | Like origami-open-node but also opens parent fold nodes recursively so as to ensure the position where point is is visible. | 'origami-show-node              |
-      | z c   | Close a fold node.                                                                                                          | 'origami-close-node             |
-      | z C   | Close a fold node and all of its children                                                                                   | 'origami-close-node-recursively |
-      | z a   | Toggle open or closed a fold node.                                                                                          | 'origami-toggle-node            |
-      | z m   | Close all fold in the buffer                                                                                                | 'origami-close-all-nodes        |
-      | z r   | Open all fold in the buffer                                                                                                 | 'origami-open-all-nodes         |
-      | z d   | Close all fold but the current one                                                                                          | 'origami-show-only-node         |
-      | z n   | Move to the next fold.                                                                                                      | 'origami-next-fold              |
-      | z p   | Move to the previous fold.                                                                                                  | 'origami-previous-fold          |
+      | Combo | Description                                                          | Command                         |
+      |-------+----------------------------------------------------------------------+---------------------------------|
+      | z o   | open fold node                                                       | 'origami-open-node              |
+      | z O   | open fold node and all of its children                               | 'origami-open-node-recursively  |
+      | z s   | Like origami-open-node but also opens parent fold nodes recursively. | 'origami-show-node              |
+      | z c   | Close a fold node.                                                   | 'origami-close-node             |
+      | z C   | Close a fold node and all of its children                            | 'origami-close-node-recursively |
+      | z a   | Toggle open or closed a fold node.                                   | 'origami-toggle-node            |
+      | z m   | Close all fold in the buffer                                         | 'origami-close-all-nodes        |
+      | z r   | Open all fold in the buffer                                          | 'origami-open-all-nodes         |
+      | z d   | Close all fold but the current one                                   | 'origami-show-only-node         |
+      | z n   | Move to the next fold.                                               | 'origami-next-fold              |
+      | z p   | Move to the previous fold.                                           | 'origami-previous-fold          |
 
 ** Org
    =org-mode= is a plain text system for organising information and notes.
@@ -4354,10 +4405,10 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | Combo   | Description                               | Command                          |
       |---------+-------------------------------------------+----------------------------------|
       | SPC /   | Search using ag within projectile project | 'helm-projectile-ag              |
-      | SPC p a |                                           | 'helm-projectile-find-other-file |
+      | SPC f a |                                           | 'helm-projectile-find-other-file |
       | SPC p s |                                           | 'helm-projectile-switch-project  |
       | SPC p e |                                           | 'helm-projectile                 |
-      | SPC p f |                                           | 'helm-projectile-find-file       |
+      | SPC ,   |                                           | 'helm-projectile-find-file       |
       | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim  |
 
 ** Persp-mode
@@ -5723,7 +5774,7 @@ Generate binding using table from [[#evil-leader-binding][here]]
    Generate binding using table from [[#evil-projectile-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="after \"projectile-autoloads\"")>>
+     <<gen-fix(pre="after \"projectile\"")>>
      <<gen-keys(mmap="ev-nor", tname=evil_projectile_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
@@ -5742,6 +5793,15 @@ Generate binding using table from [[#evil-leader-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=cc_mode_keys)>>
+   #+END_SRC
+
+** Evil Ag Bindings
+   Generate binding using table from [[#evil-ag-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="add-hook 'ag-mode-hook\n(lambda()")>>
+     <<gen-keys(moda="evil", tname=evil_ag_keys)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Evil Org Bindings
