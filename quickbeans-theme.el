@@ -263,8 +263,8 @@ The theme has to be reloaded after changing anything in this group."
 ;;;;; Linum
        `(linum                               ((,class (:foreground ,quickbeans-grey-3 :background ,quickbeans-grey-0))))
 ;;;;; Display line numbers
-       `(line-number                         ((,class (:foreground ,quickbeans-grey-5 :background ,quickbeans-grey-2))))
-       `(line-number-current-line            ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-0))))
+       `(line-number                         ((,class (:foreground ,quickbeans-grey-5 :background ,quickbeans-grey-0))))
+       `(line-number-current-line            ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
 ;;;;; Ediff
        `(ediff-even-diff-A                   ((,class (:background ,quickbeans-grey-2 :foreground ,quickbeans-fg))))
        `(ediff-even-diff-B                   ((,class (:background ,quickbeans-grey-3 :foreground ,quickbeans-fg))))
