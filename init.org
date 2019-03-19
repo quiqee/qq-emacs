@@ -2164,6 +2164,16 @@ required from *emacs*.
      (pdf-loader-install)
    #+END_SRC
 
+*** Display Line Numbers
+   Add a toggle function for toggling relative line number
+
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/toggle-line-numbers ()
+       "Toggle Evil search mode between symbol search or word search"
+       (interactive)
+       (setq display-line-numbers (if (eq display-line-numbers 'relative) 'default 'relative)))
+   #+END_SRC
+
 *** GUD
 **** Use gdb-many-windows by default
 
@@ -2934,6 +2944,7 @@ required from *emacs*.
       | t o   |                                 | 'origami-mode                                    |
       | t f   |                                 | 'toggle-frame-fullscreen                         |
       | t m   |                                 | 'toggle-frame-maximized                          |
+      | t l   |                                 | 'qq/toggle-line-numbers                          |
       | t g   |                                 | 'gdb-many-windows                                |
       | u u   |                                 | 'undo-tree-visualize                             |
       | u s   |                                 | 'undo-tree-save-state-to-register ; C-x r u      |
