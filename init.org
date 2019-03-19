@@ -103,8 +103,6 @@
 
                ;; UI Enhancement
                                              ;(depends-on "info+")
-               hlinum
-                                             ;nlinum
                spaceline
                window-numbering
                persp-mode
@@ -779,7 +777,6 @@ required from *emacs*.
               '(
                 auto-compile          ; auto-compile .el files
                 git-timemachine   ; walkthrough git revisions of a file
-                hlinum                ; highlight current line in line number column
                 region-state
                 saveplace
                 spaceline-config
@@ -1302,6 +1299,14 @@ required from *emacs*.
      )
    #+END_SRC
 
+*** Transparency
+   95% transparency is nice.
+
+   #+BEGIN_SRC emacs-lisp
+     (set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+     (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
+   #+END_SRC
+
 *** Modeline
    [[https://github.com/TheBB/spaceline][Spaceline]] is an extension to customize the mode line. This is modified
    version extracted from [[https://github.com/syl20bnr/spacemacs][Spacemacs]].
@@ -1749,7 +1754,6 @@ required from *emacs*.
                      global-emojify-mode
 
                      ;; mess up with pdf-tools, so turn on locally per major mode
-                     ;global-linum-mode          ; turn on line number globally
                      ))
             (funcall mode 1))
 
@@ -1822,7 +1826,7 @@ required from *emacs*.
    Set fringe width on each side to 12 and add few indications
 
    #+BEGIN_SRC emacs-lisp
-     (fringe-mode 12)
+     (fringe-mode 8)
 
      ; Indicate where a buffer stars and stops
      (setq-default indicate-buffer-boundaries 'right)
@@ -1880,68 +1884,6 @@ required from *emacs*.
            tramp-backup-directory-alist backup-directory-alist
            tramp-ssh-controlmaster-options "ssh")
    #+END_SRC
-*** linum
-**** Customize linum format
-
-   #+BEGIN_SRC emacs-lisp
-     (hlinum-activate)
-     ;(setq linum-format (lambda (line)
-     ;                     (propertize (format
-     ;                                  (let ((w (length (number-to-string
-     ;                                                    (count-lines (point-min) (point-max))))))
-     ;                                    (concat "%" (number-to-string w) "d ")) line) 'face 'linum)))
-   #+END_SRC
-
-**** Turn off linum-mode on some major mode
-   [[http://stackoverflow.com/questions/3875213/turning-on-linum-mode-when-in-python-c-mode]]
-
-   #+BEGIN_SRC emacs-lisp
-     (setq linum-mode-inhibit-modes-list '(eshell-mode
-                                           shell-mode
-                                           dictionary-mode
-                                           erc-mode
-                                           browse-kill-ring-mode
-                                           etags-select-mode
-                                           dired-mode
-                                           help-mode
-                                           text-mode
-                                           eww-mode
-                                           fundamental-mode
-                                           jabber-roster-mode
-                                           jabber-chat-mode
-                                           inferior-js-mode
-                                           inferior-python-mode
-                                           inferior-scheme-mode
-                                           twittering-mode
-                                           compilation-mode
-                                           weibo-timeline-mode
-                                           woman-mode
-                                           Info-mode
-                                           calc-mode
-                                           calc-trail-mode
-                                           comint-mode
-                                           gnus-group-mode
-                                           inf-ruby-mode
-                                           gud-mode
-                                           pdf-view-mode
-                                           pdf-view
-                                           doc-view-mode
-                                           org-mode
-                                           vc-git-log-edit-mode
-                                           log-edit-mode
-                                           term-mode
-                                           w3m-mode
-                                           speedbar-mode
-                                           gnus-summary-mode
-                                           gnus-article-mode
-                                           calendar-mode))
-     (defadvice linum-on (around linum-on-inhibit-for-modes)
-                "Stop the load of linum-mode for some major modes."
-                (unless (member major-mode linum-mode-inhibit-modes-list)
-                  ad-do-it))
-     (ad-activate 'linum-on)
-   #+END_SRC
-
 *** Ibuffer customization
 **** Use human readable size column (from [[http://www.emacswiki.org/emacs/IbufferMode#toc12][coldnew]])
 
@@ -4941,7 +4883,7 @@ Some general settings that should apply to all programming mode. Highlight
 
     (add-hook 'prog-mode-hook
               '(lambda()
-                 (linum-mode)
+                 (display-line-numbers-mode)
                  (qq/add-watchwords)
                  (rainbow-delimiters-mode)
                  (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
@@ -5366,7 +5308,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp
      (add-hook 'nxml-mode-hook
                (lambda ()
-                 (linum-mode)
+                 (display-line-numbers-mode)
                  ;(qq/set-font-to-fixed-width)
                  (setq auto-fill-mode -1)
                  (setq nxml-slash-auto-complete-flag t)      ; auto-complete the closing tag at the input of the slash

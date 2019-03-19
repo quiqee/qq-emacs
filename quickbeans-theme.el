@@ -70,8 +70,8 @@ The theme has to be reloaded after changing anything in this group."
 (let* ((class '((class color) (min-colors 89)))
       ;;                                            GUI       TER
       (quickbeans-fg         (if (display-graphic-p) "#cccccc" "#cccccc"))
-      (quickbeans-bg         (if (display-graphic-p) "#151515" "#151515"))
-      (quickbeans-grey-0     (if (display-graphic-p) "#121212" "#121212"))
+      (quickbeans-bg         (if (display-graphic-p) "#080808" "#080808"))
+      (quickbeans-grey-0     (if (display-graphic-p) "#0f0f0f" "#0f0f0f"))
       (quickbeans-grey-1     (if (display-graphic-p) "#112433" "#112433"))
       (quickbeans-grey-2     (if (display-graphic-p) "#222222" "#222222"))
       (quickbeans-grey-3     (if (display-graphic-p) "#333344" "#444455"))
@@ -264,6 +264,7 @@ The theme has to be reloaded after changing anything in this group."
        `(linum                               ((,class (:foreground ,quickbeans-grey-3 :background ,quickbeans-grey-0))))
 ;;;;; Display line numbers
        `(line-number                         ((,class (:foreground ,quickbeans-grey-5 :background ,quickbeans-grey-2))))
+       `(line-number-current-line            ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-0))))
 ;;;;; Ediff
        `(ediff-even-diff-A                   ((,class (:background ,quickbeans-grey-2 :foreground ,quickbeans-fg))))
        `(ediff-even-diff-B                   ((,class (:background ,quickbeans-grey-3 :foreground ,quickbeans-fg))))
@@ -349,6 +350,7 @@ The theme has to be reloaded after changing anything in this group."
        `(magit-hash                          ((,class (:foreground ,quickbeans-grey-5))))
        `(magit-head                          ((,class (:inherit magit-branch-local))))
        `(magit-header-line                   ((,class (:inherit magit-section-heading))))
+       `(magit-item-highlight                ((,class (:background ,quickbeans-grey-3))))
        `(magit-log-author                    ((,class (:foreground ,quickbeans-blue-0))))
        `(magit-log-date                      ((,class (:foreground ,quickbeans-green-5))))
        `(magit-log-graph                     ((,class (:foreground ,quickbeans-fg))))
@@ -416,7 +418,7 @@ The theme has to be reloaded after changing anything in this group."
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
 ;;;;; Region
-       `(region                              ((,class (:background ,quickbeans-grey-3))))
+       `(region                              ((,class (:background ,quickbeans-grey-1))))
 ;;;;; SHM
        `(shm-current-face                    ((,class (:background ,quickbeans-grey-4))))
        `(shm-quarantine-face                 ((,class (:background ,quickbeans-red-4))))
