@@ -2164,6 +2164,13 @@ required from *emacs*.
      (pdf-loader-install)
    #+END_SRC
 
+*** Whitespace-mode
+
+   #+BEGIN_SRC emacs-lisp
+     (setq whitespace-style (quote
+                             (face spaces trailing tabs newline space-mark tab-mark newline-mark)))
+   #+END_SRC
+
 *** Display Line Numbers
    Add a toggle function for toggling relative line number
 
@@ -2940,6 +2947,7 @@ required from *emacs*.
       | t SPC |                                 | 'whitespace-mode                                 |
       | t TAB |                                 | 'c-toggle-syntactic-indentation                  |
       | t w   |                                 | 'toggle-truncate-lines                           |
+      | t i   | toggle indent guide             | 'highlight-indent-guides-mode                    |
       | t s   |                                 | 'qq/toggle-evil-search                           |
       | t o   |                                 | 'origami-mode                                    |
       | t f   |                                 | 'toggle-frame-fullscreen                         |

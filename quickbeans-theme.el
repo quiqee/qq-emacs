@@ -463,6 +463,10 @@ The theme has to be reloaded after changing anything in this group."
        `(term-default-bg-color               ((,class (:inherit term-color-black))))
 ;;;;; Whitespace
        `(trailing-whitespace                 ((,class (:background ,quickbeans-red-4))))
+       `(whitespace-indentation              ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-bg))))
+       `(whitespace-space                    ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-bg))))
+       `(whitespace-tab                      ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-bg))))
+       `(whitespace-space-after-tab          ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-bg))))
 ;;;;; Vertical border
        `(vertical-border                     ((,class (:foreground ,quickbeans-grey-3))))
 ;;;;; Web Mode

@@ -2,12 +2,12 @@ URxvt*loginShell: true
 URxvt*saveLines: 10000
 URxvt*cutchars: "`\"'&()*,:;<=>?[\\]^{|}$"
 
-!urxvt*foreground: white
-!urxvt*background: black
+urxvt*foreground: white
+urxvt*background: black
 
 URxvt.depth: 32
-URxvt.foreground: rgba:eeee/eeee/eeee/ffff
-URxvt.background: rgba:0000/0000/0000/cccc
+!URxvt.foreground: rgba:eeee/eeee/eeee/ffff
+!URxvt.background: [98]#000000
 URxvt.cursorBlink: True
 URxvt.cursorUnderline: True
 
