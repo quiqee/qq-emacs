@@ -2946,6 +2946,7 @@ required from *emacs*.
       | t SPC |                                 | 'whitespace-mode                                 |
       | t TAB |                                 | 'c-toggle-syntactic-indentation                  |
       | t w   |                                 | 'toggle-truncate-lines                           |
+      | t d   |                                 | 'toggle-debug-on-error                           |
       | t i   | toggle indent guide             | 'highlight-indent-guides-mode                    |
       | t s   |                                 | 'qq/toggle-evil-search                           |
       | t o   |                                 | 'origami-mode                                    |
@@ -4345,6 +4346,11 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      (add-to-list 'projectile-globally-ignored-files "GRTAGS")
      (add-to-list 'projectile-globally-ignored-files "GSYMS")
      (add-to-list 'projectile-globally-ignored-files ".DS_Store")
+     (add-to-list 'projectile-globally-ignored-files ".clang-format")
+     (add-to-list 'projectile-globally-ignored-files ".clang-tidy")
+     (add-to-list 'projectile-globally-ignored-files ".gitignore")
+     (add-to-list 'projectile-globally-ignored-files ".gitattributes")
+     (add-to-list 'projectile-globally-ignored-directories ".cquery_cached_index")
    #+END_SRC
 
 *** Keybinding
@@ -4354,14 +4360,14 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]]
 
    #+TBLNAME: evil_projectile_keys
-      | Combo   | Description                               | Command                         |
-      |---------+-------------------------------------------+---------------------------------|
-      | SPC /   | Search using ag within projectile project | 'helm-projectile-ag             |
-      | SPC f a |                                           | 'projectile-find-other-file     |
-      | SPC p s |                                           | 'helm-projectile-switch-project |
-      | SPC p e |                                           | 'helm-projectile                |
-      | SPC ,   |                                           | 'helm-projectile-find-file      |
-      | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim |
+      | Combo   | Description                               | Command                                                                    |
+      |---------+-------------------------------------------+----------------------------------------------------------------------------|
+      | SPC /   | Search using ag within projectile project | 'helm-projectile-ag                                                        |
+      | SPC f a |                                           | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
+      | SPC p s |                                           | 'helm-projectile-switch-project                                            |
+      | SPC p e |                                           | 'helm-projectile                                                           |
+      | SPC ,   |                                           | 'helm-projectile-find-file                                                 |
+      | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim                                            |
 
 ** Persp-mode
 *** Keymap prefix
