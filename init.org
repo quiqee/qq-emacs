@@ -126,6 +126,7 @@
                (org-plus-contrib builtin)    ; Outline-based notes management and organizer
                (bug-hunter builtin)
 
+               clang-format
 
                company
                ;company-box
@@ -252,7 +253,6 @@
 
                evil-magit
                magit
-               magit-gerrit
                git-gutter-fringe
                git-messenger
 
@@ -3246,7 +3246,6 @@ required from *emacs*.
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (require 'magit)
-     (require 'magit-gerrit)
      (require 'evil-magit)
      (setq magit-diff-options '("--histogram"))
      (setq magit-push-always-verify nil)
@@ -3267,13 +3266,6 @@ required from *emacs*.
        (diff-hl-margin-mode))
    #+END_SRC
 
-   Setup for =magit-gerrit=
-
-   #+BEGIN_SRC emacs-lisp
-     (after 'magit
-         (require 'magit-gerrit))
-     (setq-default magit-gerrit-ssh-creds qq/gerrit-creds)
-   #+END_SRC
 *** magit-commit-mode
 
    #+BEGIN_SRC emacs-lisp
@@ -4362,14 +4354,14 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]]
 
    #+TBLNAME: evil_projectile_keys
-      | Combo   | Description                               | Command                          |
-      |---------+-------------------------------------------+----------------------------------|
-      | SPC /   | Search using ag within projectile project | 'helm-projectile-ag              |
-      | SPC f a |                                           | 'helm-projectile-find-other-file |
-      | SPC p s |                                           | 'helm-projectile-switch-project  |
-      | SPC p e |                                           | 'helm-projectile                 |
-      | SPC ,   |                                           | 'helm-projectile-find-file       |
-      | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim  |
+      | Combo   | Description                               | Command                         |
+      |---------+-------------------------------------------+---------------------------------|
+      | SPC /   | Search using ag within projectile project | 'helm-projectile-ag             |
+      | SPC f a |                                           | 'projectile-find-other-file     |
+      | SPC p s |                                           | 'helm-projectile-switch-project |
+      | SPC p e |                                           | 'helm-projectile                |
+      | SPC ,   |                                           | 'helm-projectile-find-file      |
+      | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim |
 
 ** Persp-mode
 *** Keymap prefix
@@ -4396,6 +4388,13 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
        (setq wg-morph-on nil)
        (add-hook 'after-init-hook #'(lambda () (persp-mode 1))))
      (require 'persp-mode)
+   #+end_src
+
+*** Buffer lists
+   #+begin_src emacs-lisp
+     (with-eval-after-load "persp-mode"
+       (substitute-key-definition #'switch-to-buffer #'persp-switch-to-buffer global-map)
+       (substitute-key-definition #'kill-buffer #'persp-kill-buffer global-map))
    #+end_src
 
 *** Auto perspective for dired
