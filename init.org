@@ -144,6 +144,9 @@
                flycheck-irony
 
                                              ;(depends-on "icicles")
+               dired-narrow
+               dired-subtree
+               all-the-icons-dired
 
                ibuffer-vc
 
@@ -185,7 +188,6 @@
 
                speed-type
 
-               origami
                region-state
                keyfreq
 
@@ -2694,7 +2696,7 @@ required from *emacs*.
                 ;(weibo-timeline-mode . emacs)
                 ;(weibo-post-mode . emacs)
                 ;(sr-mode . emacs)
-                ;(dired-mode . emacs)
+                (dired-mode . normal)
                 ;(compilation-mode . emacs)
                 ;(js2-error-buffer-mode . emacs)
                 (speedbar-mode . emacs)
@@ -2952,7 +2954,6 @@ required from *emacs*.
       | t d   |                                 | 'toggle-debug-on-error                           |
       | t i   | toggle indent guide             | 'highlight-indent-guides-mode                    |
       | t s   |                                 | 'qq/toggle-evil-search                           |
-      | t o   |                                 | 'origami-mode                                    |
       | t f   |                                 | 'toggle-frame-fullscreen                         |
       | t m   |                                 | 'toggle-frame-maximized                          |
       | t l   |                                 | 'qq/toggle-line-numbers                          |
@@ -3142,6 +3143,152 @@ required from *emacs*.
       | h w                    |             | 'helm-wikipedia-suggest |
       | l                      |             | 'helm-swoop             |
       | L                      |             | 'helm-multi-swoop       |
+
+** Dired
+   #+begin_src emacs-lisp
+     (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+   #+end_src
+
+*** Evil Binding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-dired-binding
+    :END:
+   Using The table below as the source for generating [[Evil Dired Bindings][Evil Dired Bindings]]
+
+   #+TBLNAME: evil_dired_keys
+      | Combo         | Mode           | Evil Mode       | Description                 | Command                                  |
+      | <tab>         | dired-mode-map | (visual normal) |                             | 'dired-subtree-toggle                    |
+      | q             | dired-mode-map | (normal)        |                             | 'quit-window                             |
+      | nn            | dired-mode-map | (normal)        | dired-narrow operation      | 'dired-narrow                            |
+      | nx            | dired-mode-map | (normal)        |                             | 'dired-narrow-regexp                     |
+      | j             | dired-mode-map | (normal)        |                             | 'dired-next-line                         |
+      | j             | dired-mode-map | (normal)        |                             | 'dired-next-line                         |
+      | k             | dired-mode-map | (normal)        |                             | 'dired-previous-line                     |
+      | [mouse-2]     | dired-mode-map | (normal)        |                             | 'dired-mouse-find-file-other-window      |
+      | [follow-link] | dired-mode-map | (normal)        |                             | 'mouse-face                              |
+      | "#"           | dired-mode-map | (normal)        | Commands to mark or         | 'dired-flag-auto-save-files              |
+      | .             | dired-mode-map | (normal)        | flag certain categories     | 'dired-clean-directory                   |
+      | ~             | dired-mode-map | (normal)        | of files                    | 'dired-flag-backup-files                 |
+      | A             | dired-mode-map | (normal)        | Upper case keys (except !)  | 'dired-do-find-regexp                    |
+      | C             | dired-mode-map | (normal)        | for operating on the        | 'dired-do-copy                           |
+      | B             | dired-mode-map | (normal)        | marked files                | 'dired-do-byte-compile                   |
+      | D             | dired-mode-map | (normal)        |                             | 'dired-do-delete                         |
+      | gc            | dired-mode-map | (normal)        |                             | 'dired-do-chgrp                          |
+      | H             | dired-mode-map | (normal)        |                             | 'dired-do-hardlink                       |
+      | L             | dired-mode-map | (normal)        |                             | 'dired-do-load                           |
+      | M             | dired-mode-map | (normal)        |                             | 'dired-do-chmod                          |
+      | O             | dired-mode-map | (normal)        |                             | 'dired-do-chown                          |
+      | P             | dired-mode-map | (normal)        |                             | 'dired-do-print                          |
+      | Q             | dired-mode-map | (normal)        |                             | 'dired-do-find-regexp-and-replace        |
+      | R             | dired-mode-map | (normal)        |                             | 'dired-do-rename                         |
+      | S             | dired-mode-map | (normal)        |                             | 'dired-do-symlink                        |
+      | T             | dired-mode-map | (normal)        |                             | 'dired-do-touch                          |
+      | X             | dired-mode-map | (normal)        |                             | 'dired-do-shell-command                  |
+      | Z             | dired-mode-map | (normal)        |                             | 'dired-do-compress                       |
+      | c             | dired-mode-map | (normal)        |                             | 'dired-do-compress-to                    |
+      | "!"           | dired-mode-map | (normal)        |                             | 'dired-do-shell-command                  |
+      | &             | dired-mode-map | (normal)        |                             | 'dired-do-async-shell-command            |
+      | "="           | dired-mode-map | (normal)        | Comparison commands         | 'dired-diff                              |
+      | M-C-?         | dired-mode-map | (normal)        | Tree Dired commands         | 'dired-unmark-all-files                  |
+      | M-C-d         | dired-mode-map | (normal)        |                             | 'dired-tree-down                         |
+      | M-C-u         | dired-mode-map | (normal)        |                             | 'dired-tree-up                           |
+      | M-C-n         | dired-mode-map | (normal)        |                             | 'dired-next-subdir                       |
+      | M-C-p         | dired-mode-map | (normal)        |                             | 'dired-prev-subdir                       |
+      | M-{           | dired-mode-map | (normal)        | move to marked files        | 'dired-prev-marked-file                  |
+      | M-}           | dired-mode-map | (normal)        |                             | 'dired-next-marked-file                  |
+      | %             | dired-mode-map | (normal)        | Make all regexp commands    | nil                                      |
+      | %u            | dired-mode-map | (normal)        | share a `%' prefix:         | 'dired-upcase                            |
+      | %l            | dired-mode-map | (normal)        |                             | 'dired-downcase                          |
+      | %d            | dired-mode-map | (normal)        |                             | 'dired-flag-files-regexp                 |
+      | %g            | dired-mode-map | (normal)        |                             | 'dired-mark-files-containing-regexp      |
+      | %m            | dired-mode-map | (normal)        |                             | 'dired-mark-files-regexp                 |
+      | %r            | dired-mode-map | (normal)        |                             | 'dired-do-rename-regexp                  |
+      | %C            | dired-mode-map | (normal)        |                             | 'dired-do-copy-regexp                    |
+      | %H            | dired-mode-map | (normal)        |                             | 'dired-do-hardlink-regexp                |
+      | %R            | dired-mode-map | (normal)        |                             | 'dired-do-rename-regexp                  |
+      | %S            | dired-mode-map | (normal)        |                             | 'dired-do-symlink-regexp                 |
+      | %&            | dired-mode-map | (normal)        |                             | 'dired-flag-garbage-files                |
+      | "*"           | dired-mode-map | (normal)        | mark                        | nil                                      |
+      | **            | dired-mode-map | (normal)        |                             | 'dired-mark-executables                  |
+      | "*/"          | dired-mode-map | (normal)        |                             | 'dired-mark-directories                  |
+      | *@            | dired-mode-map | (normal)        |                             | 'dired-mark-symlinks                     |
+      | *%            | dired-mode-map | (normal)        |                             | 'dired-mark-files-regexp                 |
+      | *(            | dired-mode-map | (normal)        |                             | 'dired-mark-sexp                         |
+      | *.            | dired-mode-map | (normal)        |                             | 'dired-mark-extension                    |
+      | *O            | dired-mode-map | (normal)        |                             | 'dired-mark-omitted                      |
+      | *c            | dired-mode-map | (normal)        |                             | 'dired-change-marks                      |
+      | *s            | dired-mode-map | (normal)        |                             | 'dired-mark-subdir-files                 |
+      | *m            | dired-mode-map | (normal)        |                             | 'dired-mark                              |
+      | *u            | dired-mode-map | (normal)        |                             | 'dired-unmark                            |
+      | *?            | dired-mode-map | (normal)        |                             | 'dired-unmark-all-files                  |
+      | *!            | dired-mode-map | (normal)        |                             | 'dired-unmark-all-marks                  |
+      | U             | dired-mode-map | (normal)        |                             | 'dired-unmark-all-marks                  |
+      | * <delete>    | dired-mode-map | (normal)        |                             | 'dired-unmark-backward                   |
+      | * C-n         | dired-mode-map | (normal)        |                             | 'dired-next-marked-file                  |
+      | * C-p         | dired-mode-map | (normal)        |                             | 'dired-prev-marked-file                  |
+      | *t            | dired-mode-map | (normal)        |                             | 'dired-toggle-marks                      |
+      | a             | dired-mode-map | (normal)        | Lower keys for commands not | 'dired-find-alternate-file               |
+      | d             | dired-mode-map | (normal)        | operating on all            | 'dired-flag-file-deletion                |
+      | gf            | dired-mode-map | (normal)        | the marked files            | 'dired-find-file                         |
+      | C-m           | dired-mode-map | (normal)        |                             | 'dired-find-file                         |
+      | gr            | dired-mode-map | (normal)        |                             | 'revert-buffer                           |
+      | i             | dired-mode-map | (normal)        |                             | 'dired-toggle-read-only                  |
+      | I             | dired-mode-map | (normal)        |                             | 'dired-maybe-insert-subdir               |
+      | J             | dired-mode-map | (normal)        |                             | 'dired-goto-file                         |
+      | K             | dired-mode-map | (normal)        |                             | 'dired-do-kill-lines                     |
+      | r             | dired-mode-map | (normal)        |                             | 'dired-do-redisplay                      |
+      | m             | dired-mode-map | (normal)        |                             | 'dired-mark                              |
+      | t             | dired-mode-map | (normal)        |                             | 'dired-toggle-marks                      |
+      | u             | dired-mode-map | (normal)        | also "*u"                   | 'dired-unmark                            |
+      | W             | dired-mode-map | (normal)        |                             | 'browse-url-of-dired-file                |
+      | x             | dired-mode-map | (normal)        |                             | 'dired-do-flagged-delete                 |
+      | f             | dired-mode-map | (normal)        |                             | 'dired-show-file-type                    |
+      | Y             | dired-mode-map | (normal)        |                             | 'dired-copy-filename-as-kill             |
+      | +             | dired-mode-map | (normal)        |                             | 'dired-create-directory                  |
+      | <return>      | dired-mode-map | (normal)        | open                        | 'dired-find-file                         |
+      | S-<return>    | dired-mode-map | (normal)        |                             | 'dired-find-file-other-window            |
+      | M-<return>    | dired-mode-map | (normal)        |                             | 'dired-display-file                      |
+      | gO            | dired-mode-map | (normal)        |                             | 'dired-find-file-other-window            |
+      | go            | dired-mode-map | (normal)        |                             | 'dired-view-file                         |
+      | o             | dired-mode-map | (normal)        | sort                        | 'dired-sort-toggle-or-edit               |
+      | gj            | dired-mode-map | (normal)        | moving                      | 'dired-next-dirline                      |
+      | gk            | dired-mode-map | (normal)        |                             | 'dired-prev-dirline                      |
+      | [ [           | dired-mode-map | (normal)        |                             | 'dired-prev-dirline                      |
+      | ] ]           | dired-mode-map | (normal)        |                             | 'dired-next-dirline                      |
+      | <             | dired-mode-map | (normal)        |                             | 'dired-prev-dirline                      |
+      | >             | dired-mode-map | (normal)        |                             | 'dired-next-dirline                      |
+      | "^"           | dired-mode-map | (normal)        |                             | 'dired-up-directory                      |
+      | gh            | dired-mode-map | (normal)        | hiding                      | 'dired-hide-subdir                       |
+      | M-$           | dired-mode-map | (normal)        |                             | 'dired-hide-all                          |
+      | (             | dired-mode-map | (normal)        |                             | 'dired-hide-details-mode                 |
+      | M-s a C-s     | dired-mode-map | (normal)        | isearch                     | 'dired-do-isearch                        |
+      | M-s a M-C-s   | dired-mode-map | (normal)        |                             | 'dired-do-isearch-regexp                 |
+      | M-s f C-s     | dired-mode-map | (normal)        |                             | 'dired-isearch-filenames                 |
+      | M-s f M-C-s   | dired-mode-map | (normal)        |                             | 'dired-isearch-filenames-regexp          |
+      | g?            | dired-mode-map | (normal)        | misc                        | 'dired-summary                           |
+      | <delete>      | dired-mode-map | (normal)        |                             | 'dired-unmark-backward                   |
+      | C-t d         | dired-mode-map | (normal)        | thumbnail manipulation      | 'image-dired-display-thumbs              |
+      | C-t t         | dired-mode-map | (normal)        | (image-dired)               | 'image-dired-tag-files                   |
+      | C-t r         | dired-mode-map | (normal)        |                             | 'image-dired-delete-tag                  |
+      | C-t j         | dired-mode-map | (normal)        |                             | 'image-dired-jump-thumbnail-buffer       |
+      | C-t i         | dired-mode-map | (normal)        |                             | 'image-dired-dired-display-image         |
+      | C-t x         | dired-mode-map | (normal)        |                             | 'image-dired-dired-display-external      |
+      | C-t a         | dired-mode-map | (normal)        |                             | 'image-dired-display-thumbs-append       |
+      | C-t .         | dired-mode-map | (normal)        |                             | 'image-dired-display-thumb               |
+      | C-t c         | dired-mode-map | (normal)        |                             | 'image-dired-dired-comment-files         |
+      | C-t f         | dired-mode-map | (normal)        |                             | 'image-dired-mark-tagged-files           |
+      | C-t C-t       | dired-mode-map | (normal)        |                             | 'image-dired-dired-toggle-marked-thumbs  |
+      | C-t e         | dired-mode-map | (normal)        |                             | 'image-dired-dired-edit-comment-and-tags |
+      | ;d            | dired-mode-map | (normal)        | encryption and decryption   | 'epa-dired-do-decrypt                    |
+      | ;v            | dired-mode-map | (normal)        | (epa-dired)                 | 'epa-dired-do-verify                     |
+      | ;s            | dired-mode-map | (normal)        |                             | 'epa-dired-do-sign                       |
+      | ;e            | dired-mode-map | (normal)        |                             | 'epa-dired-do-encrypt                    |
+
+   #+TBLNAME: dired-keys
+      | Combo | Mode           | Description | Command |
+      | SPC   | dired-mode-map |             | nil     |
+      | S-SPC | dired-mode-map |             | nil     |
+      | n     | dired-mode-map |             | nil     |
 
 ** Irony
    A alternate Client/Server application that indexes C/C++ code and keeps a persistent
@@ -3478,37 +3625,6 @@ required from *emacs*.
      (keyfreq-mode 1)
      (keyfreq-autosave-mode 1)
    #+end_src
-
-** Origami
-   Text folding solution for Emacs
-
-   [[https://github.com/gregsexton/origami.el]]
-
-   #+BEGIN_SRC emacs-lisp
-       (require 'origami)
-       (add-hook 'prog-mode-hook 'origami-mode)
-   #+END_SRC
-
-*** Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: evil-origami-binding
-    :END:
-   Using The table below as the source for generating [[Evil Origami Bindings][Evil Origami Bindings]]
-
-   #+TBLNAME: evil_origami_keys
-      | Combo | Description                                                          | Command                         |
-      |-------+----------------------------------------------------------------------+---------------------------------|
-      | z o   | open fold node                                                       | 'origami-open-node              |
-      | z O   | open fold node and all of its children                               | 'origami-open-node-recursively  |
-      | z s   | Like origami-open-node but also opens parent fold nodes recursively. | 'origami-show-node              |
-      | z c   | Close a fold node.                                                   | 'origami-close-node             |
-      | z C   | Close a fold node and all of its children                            | 'origami-close-node-recursively |
-      | z a   | Toggle open or closed a fold node.                                   | 'origami-toggle-node            |
-      | z m   | Close all fold in the buffer                                         | 'origami-close-all-nodes        |
-      | z r   | Open all fold in the buffer                                          | 'origami-open-all-nodes         |
-      | z d   | Close all fold but the current one                                   | 'origami-show-only-node         |
-      | z n   | Move to the next fold.                                               | 'origami-next-fold              |
-      | z p   | Move to the previous fold.                                           | 'origami-previous-fold          |
 
 ** Org
    =org-mode= is a plain text system for organising information and notes.
@@ -5742,17 +5858,8 @@ Generate binding using table from [[#evil-leader-binding][here]]
    Generate binding using table from [[#evil-projectile-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="after \"projectile\"")>>
+     <<gen-fix(pre="after 'projectile")>>
      <<gen-keys(mmap="ev-nor", tname=evil_projectile_keys)>>
-     <<gen-fix(pos=")\n")>>
-   #+END_SRC
-
-** Evil Origami Bindings
-   Generate binding using table from [[#evil-origami-binding][here]]
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="after \"origami-autoloads\"")>>
-     <<gen-keys(mmap="ev-nor", tname=evil_origami_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
@@ -5769,6 +5876,16 @@ Generate binding using table from [[#evil-leader-binding][here]]
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="add-hook 'ag-mode-hook\n(lambda()")>>
      <<gen-keys(moda="evil", tname=evil_ag_keys)>>
+     <<gen-fix(pos="))\n")>>
+   #+END_SRC
+
+** Evil Dired Bindings
+   Generate binding using table from [[#evil-dired-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="add-hook 'dired-mode-hook\n(lambda()")>>
+     <<gen-keys(moda="evil", tname=evil_dired_keys)>>
+     <<gen-keys(mmap="t", tname=dired-keys)>>
      <<gen-fix(pos="))\n")>>
    #+END_SRC
 
