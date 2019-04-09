@@ -142,7 +142,6 @@
                irony
                irony-eldoc
                flycheck-irony
-               irony-eldoc
 
                                              ;(depends-on "icicles")
 
@@ -190,17 +189,7 @@
                region-state
                keyfreq
 
-               gotham-theme
-               ample-theme
-               moe-theme
-               monokai-theme
-               gruber-darker-theme
-               grandshell-theme
-               zenburn-theme
-               darktooth-theme
-               material-theme
-               cyberpunk-theme
-               doom-themes
+               doom-modeline
 
                pdf-tools
                tablist
@@ -1308,20 +1297,18 @@ required from *emacs*.
    #+END_SRC
 
 *** Modeline
-   [[https://github.com/TheBB/spaceline][Spaceline]] is an extension to customize the mode line. This is modified
-   version extracted from [[https://github.com/syl20bnr/spacemacs][Spacemacs]].
+   Using [[https://github.com/seagle0128/doom-modeline][doom-modeline]].
 
    #+BEGIN_SRC emacs-lisp
-     (spaceline-spacemacs-theme)
-     (spaceline-helm-mode)
-     (spaceline-info-mode)
-     (setq-default powerline-default-separator 'contour)
-     (setq-default spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
-     (setq-default spaceline-window-numbers-unicode 1)
-     (setq-default spaceline-workspace-numbers-unicode 1)
-     (setq-default powerline-height 18)
-     (spaceline-toggle-minor-modes-off)
-     (spaceline-compile)
+     (require 'doom-modeline)
+     (doom-modeline-def-modeline 'qq-simple-line
+       '(bar persp-name evil-state matches buffer-info remote-host buffer-position parrot selection-info)
+       '(input-method buffer-encoding process vcs checker))
+     (defun setup-custom-doom-modeline ()
+       (doom-modeline-set-modeline 'qq-simple-line 'default))
+
+     (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
+     (doom-modeline-mode 1)
    #+END_SRC
 
 **** Clean Modeline
@@ -2253,6 +2240,22 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
      (global-undo-tree-mode 1)
+   #+END_SRC
+
+*** =which-function-mode=
+   This mode will show current function name. the code below will show it in HeaderLine
+
+   #+BEGIN_SRC emacs-lisp
+     (which-function-mode)
+
+     (setq mode-line-format (delete (assoc 'which-func-mode
+                                           mode-line-format) mode-line-format)
+           which-func-header-line-format '(which-func-mode ("" which-func-format)))
+     (defadvice which-func-ff-hook (after header-line activate)
+       (when which-func-mode
+         (setq mode-line-format (delete (assoc 'which-func-mode
+                                               mode-line-format) mode-line-format)
+               header-line-format which-func-header-line-format)))
    #+END_SRC
 
 ** Keybindings
@@ -4226,8 +4229,8 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    Additional midnite mode taken from [[https://babbagefiles.blogspot.com/2017/11/more-pdf-tools-tricks.html][here]]
 
    #+begin_src emacs-lisp
-     (add-hook 'pdf-view-mode-hook (lambda ()
-                                     (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
+     ;(add-hook 'pdf-view-mode-hook (lambda ()
+     ;                                (pdf-view-midnight-minor-mode))) ; automatically turns on midnight-mode for pdfs
 
      (setq pdf-view-midnight-colors '("#ff9900" . "#0a0a12" )) ; set the amber profile as default (see below)
 

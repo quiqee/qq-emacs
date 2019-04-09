@@ -133,9 +133,9 @@ The theme has to be reloaded after changing anything in this group."
        `(alchemist-test--success-face        ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; Company
        `(company-preview-common              ((,class (:foreground nil :background ,quickbeans-purple-4))))
-       `(company-scrollbar-bg                ((,class (:background ,quickbeans-grey-0))))
+       `(company-scrollbar-bg                ((,class (:background ,quickbeans-grey-1))))
        `(company-scrollbar-fg                ((,class (:background ,quickbeans-grey-7))))
-       `(company-tooltip                     ((,class (:background ,quickbeans-grey-0 :foreground ,quickbeans-fg :weight bold))))
+       `(company-tooltip                     ((,class (:background ,quickbeans-grey-1 :foreground ,quickbeans-fg :weight bold))))
        `(company-tooltip-annotation          ((,class (:inherit company-tooltip :foreground ,quickbeans-blue-0))))
        `(company-tooltip-common              ((,class (:inherit company-tooltip :weight bold :underline nil))))
        `(company-tooltip-common-selection    ((,class (:inherit company-tooltip-selection :foreground ,quickbeans-fg :underline nil :weight bold))))
