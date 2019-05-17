@@ -1372,8 +1372,8 @@ required from *emacs*.
    Enable highlighting similar word under the cursor (point)
 
    #+BEGIN_SRC emacs-lisp
-     (setq idle-highlight-idle-time 0.3)
-     (add-hook 'prog-mode-hook 'idle-highlight-mode)
+     ;(setq idle-highlight-idle-time 0.3)
+     ;(add-hook 'prog-mode-hook 'idle-highlight-mode)
    #+END_SRC
 
    Highlight current line mode
