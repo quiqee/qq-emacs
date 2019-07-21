@@ -2868,6 +2868,95 @@ required from *emacs*.
       | l     | bs-mode-map | normal    |             | 'evil-forwared-char |
       | RET   | bs-mode-map | normal    |             | 'bs-select          |
 
+*** Evil-Leader Binding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-leader-binding
+    :END:
+   Using The table below as the source for generating [[Evil Leader Bindings][Evil Leader Bindings]]
+
+   #+TBLNAME: evil_leader_keys
+      | Combo  | Description                     | Command                                          |
+      |--------+---------------------------------+--------------------------------------------------|
+      | %      |                                 | 'ctl-x-5-prefix                                  |
+      | "\\\\" |                                 | 'evil-execute-in-emacs-state                     |
+      | 0      |                                 | 'select-window-0                                 |
+      | 1      |                                 | 'select-window-1                                 |
+      | 2      |                                 | 'select-window-2                                 |
+      | 3      |                                 | 'select-window-3                                 |
+      | 4      |                                 | 'select-window-4                                 |
+      | 5      |                                 | 'select-window-5                                 |
+      | 6      |                                 | 'select-window-6                                 |
+      | 7      |                                 | 'select-window-7                                 |
+      | 8      |                                 | 'select-window-8                                 |
+      | 9      |                                 | 'select-window-9                                 |
+      | b b    |                                 | 'switch-to-buffer                                |
+      | b k    | Kill current buffer             | 'ido-kill-buffer                                 |
+      | b S    |                                 | 'bs-show                                         |
+      | b d    |                                 | 'kill-this-buffer                                |
+      | b e    |                                 | 'evil-buffer                                     |
+      | b i    |                                 | 'ibuffer                                         |
+      | b q    |                                 | 'kill-buffer-and-window                          |
+      | b f    |                                 | 'ido-find-file                                   |
+      | b x    |                                 | 'ido-switch-buffer                               |
+      | C      |                                 | 'customize-group                                 |
+      | c i    |                                 | 'evilnc-comment-or-uncomment-lines               |
+      | c l    |                                 | 'evilnc-comment-or-uncomment-to-the-line         |
+      | c c    |                                 | 'evilnc-copy-and-comment-lines                   |
+      | c p    |                                 | 'evilnc-comment-or-uncomment-paragraphs          |
+      | d      |                                 | 'dired-jump                                      |
+      | e l    |                                 | 'eval-last-sexp                                  |
+      | e b    |                                 | 'eval-buffer                                     |
+      | e e    |                                 | 'eval-expression                                 |
+      | e d    |                                 | 'eval-defun                                      |
+      | j c    |                                 | 'evil-ace-jump-char-mode                         |
+      | j l    |                                 | 'evil-ace-jump-line-mode                         |
+      | j w    |                                 | 'evil-ace-jump-word-mode                         |
+      | h      |                                 | help-map                                         |
+      | h x    | Describe character under cursor | 'describe-char                                   |
+      | h h    |                                 | 'help-for-help-internal                          |
+      | h j    |                                 | 'helm-dash-at-point                              |
+      | h e    |                                 | 'emojify-describe-emoji-at-point                 |
+      | q      |                                 | 'evil-window-delete                              |
+      | P      |                                 | 'package-list-packages                           |
+      | r 1    |                                 | 'qq/serial-term-1                                |
+      | r 2    |                                 | 'qq/serial-term-2                                |
+      | s      |                                 | 'save-buffer                                     |
+      | t SPC  |                                 | 'whitespace-mode                                 |
+      | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
+      | t w    |                                 | 'toggle-truncate-lines                           |
+      | t d    |                                 | 'toggle-debug-on-error                           |
+      | t i    | toggle indent guide             | 'highlight-indent-guides-mode                    |
+      | t s    |                                 | 'qq/toggle-evil-search                           |
+      | t f    |                                 | 'toggle-frame-fullscreen                         |
+      | t m    |                                 | 'toggle-frame-maximized                          |
+      | t l    |                                 | 'qq/toggle-line-numbers                          |
+      | t g    |                                 | 'gdb-many-windows                                |
+      | u u    |                                 | 'undo-tree-visualize                             |
+      | u s    |                                 | 'undo-tree-save-state-to-register ; C-x r u      |
+      | u r    |                                 | 'undo-tree-restore-state-from-register ; C-x r U |
+      | V      |                                 | (bind (term "vim"))                              |
+      | v d    |                                 | 'gdb                                             |
+      | v k    |                                 | 'gud-kill-yes                                    |
+      | v r    |                                 | 'gud-remove                                      |
+      | v b    |                                 | 'gud-break                                       |
+      | v u    |                                 | 'gud-run                                         |
+      | v p    |                                 | 'gud-print                                       |
+      | v e    |                                 | 'gud-cls                                         |
+      | v n    |                                 | 'gud-next                                        |
+      | v s    |                                 | 'gud-step                                        |
+      | v i    |                                 | 'gud-stepi                                       |
+      | v c    |                                 | 'gud-cont                                        |
+      | v f    |                                 | 'gud-finish                                      |
+      | x h    |                                 | 'mark-whole-buffer                               |
+      | x x    |                                 | 'smex                                            |
+      | x n n  |                                 | 'narrow-or-widen-dwim                            |
+      | x n w  |                                 | 'widen                                           |
+      | x n d  |                                 | 'narrow-to-defun                                 |
+      | x n r  |                                 | 'narrow-to-region                                |
+      | x z    |                                 | 'suspend-frame                                   |
+      | y h    |                                 | 'cliphist-paste-item                             |
+      | y u    |                                 | 'cliphist-select-item                            |
+
 ** Ivy/Counsel
    Ivy documentation: [[https://oremacs.com/swiper/][oremacs.com/swiper]]
 
@@ -2905,22 +2994,11 @@ required from *emacs*.
 
         (global-set-key (kbd "C-s") 'swiper)
         (global-set-key (kbd "M-x") 'counsel-M-x)
-        (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-        (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-        (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-        (global-set-key (kbd "<f1> l") 'counsel-find-library)
-        (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-        (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+        (global-set-key (kbd "C-c x") 'counsel-M-x)
    #+END_SRC
 
    Ivy-based interface to shell and system tools
    #+BEGIN_SRC emacs-lisp
-        (global-set-key (kbd "C-c x") 'counsel-M-x)
-        (global-set-key (kbd "C-c c") 'counsel-compile)
-        (global-set-key (kbd "C-c g") 'counsel-git)
-        (global-set-key (kbd "C-c j") 'counsel-git-grep)
-        (global-set-key (kbd "C-c k") 'counsel-ag)
-        (global-set-key (kbd "C-x l") 'counsel-locate)
         (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
 
                                                 ;Ivy-resume and other commands
@@ -3229,7 +3307,31 @@ required from *emacs*.
                        :delimiter "\t")))
    #+END_SRC
 
-*** Evil Binding
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-ivy-binding
+    :END:
+   Using The table below as the source for generating [[Evil Ivy Bindings][Evil Ivy Bindings]]
+
+   #+TBLNAME: evil_ivy_keys
+      | Evil Leader Combo | Description | Command                     |
+      |-------------------+-------------+-----------------------------|
+      | SPC               |             | 'counsel-M-x                |
+      | "."               |             | 'counsel-find-file          |
+      | h f               |             | 'counsel-describe-function  |
+      | h v               |             | 'counsel-describe-variable  |
+      | h l               |             | 'counsel-find-library       |
+      | i y               |             | 'counsel-info-lookup-symbol |
+      | i u               |             | 'counsel-unicode-char       |
+      | c                 |             | 'counsel-compile            |
+      | g c               |             | 'counsel-git                |
+      | g f               |             | 'counsel-git-find-file      |
+      | g g               |             | 'counsel-git-grep           |
+      | "/"               |             | 'counsel-ag                 |
+      | l                 |             | 'counsel-locate             |
+      | r                 |             | 'ivy-resume                 |
+
+*** Ivy Map Binding
     :PROPERTIES:
     :CUSTOM_ID: ivy-map-binding
     :END:
@@ -3635,8 +3737,6 @@ required from *emacs*.
       | g a               |             | 'vc-annotate                                              |
       | g b               |             | 'magit-blame                                              |
       | g C               |             | 'magit-commit                                             |
-      | g f               |             | 'counsel-git-find-file                                    |
-      | g g               |             | 'counsel-git-grep ; quickest grep should be easy to press |
       | g i               |             | 'git-blame-line                                           |
       | g j               |             | 'git-gutter:next-hunk                                     |
       | g k               |             | 'git-gutter:previous-hunk                                 |
@@ -4536,10 +4636,11 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
     :END:
    Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]]
 
+      | SPC / | Search using ag within projectile project | 'helm-projectile-ag |
+
    #+TBLNAME: evil_projectile_keys
       | Combo   | Description                               | Command                                                                    |
       |---------+-------------------------------------------+----------------------------------------------------------------------------|
-      | SPC /   | Search using ag within projectile project | 'helm-projectile-ag                                                        |
       | SPC f a |                                           | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
       | SPC p s |                                           | 'helm-projectile-switch-project                                            |
       | SPC p e |                                           | 'helm-projectile                                                           |
@@ -5745,44 +5846,48 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=std_keys)>>
    #+END_SRC
+** Evil Bindings
+*** Start
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="after 'evil")>>
+   #+END_SRC
 
-** Evil Global Bindings
+*** Evil Global Bindings
    Generate binding using table from [[#evil-global-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="after 'evil")>>
      <<gen-keys(tname=evil_global_keys)>>
    #+END_SRC
 
-** Evil Normal Bindings
+*** Evil Normal Bindings
    Generate binding using table from [[#evil-normal-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-nor", tname=evil_std_keys)>>
    #+END_SRC
 
-** Evil Motion Bindings
+*** Evil Motion Bindings
    Generate binding using table from [[#evil-motion-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-mot", tname=evil_motion_keys)>>
    #+END_SRC
 
-** Evil Visual Bindings
+*** Evil Visual Bindings
    Generate binding using table from [[#evil-visual-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(mmap="ev-vis", tname=evil_visual_keys)>>
    #+END_SRC
 
-** Evil Ex Bindings
+*** Evil Ex Bindings
    Generate binding using table from [[#evil-ex-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="xvil", tname=evil_ex_keys)>>
    #+END_SRC
 
-** Evil BS Bindings
+*** Evil BS Bindings
    Generate binding using table from [[#evil-bs-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -5791,32 +5896,44 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-** Evil Whichkey Bindings
-   Generate binding using table from [[#evil-whichkey-binding][here]]
-
+*** Leader Bindings
+**** Start
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<leader_normal>>
-     <<gen-keys(moda="lead", tname=evil_whichkey_keys)>>
-     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-** Evil Magit Bindings
+**** Evil Leader Bindings
+Generate binding using table from [[#evil-leader-binding][here]]
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=evil_leader_keys)>>
+   #+END_SRC
+**** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<leader_normal>>
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
-     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
-** Evil iBuffer Bindings
+**** Evil Ivy Bindings
+   Generate binding using table from [[#evil-ivy-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=evil_ivy_keys)>>
+   #+END_SRC
+
+**** End
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+*** Evil iBuffer Bindings
    Generate binding using table from [[#evil-ibuffer-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="normalmap", mvar="ibuffer-mode-map", tname=evil_ibuffer_keys)>>
    #+END_SRC
 
-** Evil Projectile Bindings
+*** Evil Projectile Bindings
    Generate binding using table from [[#evil-projectile-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -5825,14 +5942,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-** Evil CC Mode Bindings
+*** Evil CC Mode Bindings
    Generate binding using table from [[#evil-cc-mode-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=cc_mode_keys)>>
    #+END_SRC
 
-** Evil Ag Bindings
+*** Evil Ag Bindings
    Generate binding using table from [[#evil-ag-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -5841,7 +5958,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos="))\n")>>
    #+END_SRC
 
-** Evil Dired Bindings
+*** Evil Dired Bindings
    Generate binding using table from [[#evil-dired-binding][here]]
 
     #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -5851,11 +5968,16 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos="))\n")>>
     #+END_SRC
 
-** Evil Org Bindings
+*** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
+   #+END_SRC
+
+*** End
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 ** Ivy Map Bindings
