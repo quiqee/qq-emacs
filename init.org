@@ -112,7 +112,7 @@
                                              ;(depends-on "csv-nav")
                swift-mode
 
-               emojify
+               ;emojify
 
                fasd
                (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
@@ -134,7 +134,7 @@
                company-irony
                company-irony-c-headers
                company-sourcekit
-               company-emoji
+               ;company-emoji
                company-math
                company-quickhelp
                company-flx
@@ -148,11 +148,23 @@
                dired-subtree
                all-the-icons-dired
 
+               general
+
                ibuffer-vc
+               ivy
+               ivy-rich
+               counsel
+               counsel-projectile
+               all-the-icons-ivy
+               ivy-hydra
+               (ivy-posframe :fetcher git :url "https://github.com/tumashu/ivy-posframe.git")
+
+               swiper
 
                lsp-mode
                company-lsp
                lsp-ui
+               lsp-treemacs
                ccls
                                              ;lsp-sourcekit
                vlf
@@ -218,18 +230,6 @@
                which-key
 
                                              ;(depends-on "help-fns+")              ; better help functions
-
-               helm
-               helm-ag
-               helm-dash
-               helm-cmd-t
-               helm-orgcard
-               helm-pydoc
-               helm-themes
-               helm-swoop
-               helm-gtags
-               helm-projectile
-               helm-descbinds
 
                hungry-delete
                idle-highlight-mode           ; sets an idle timer that highlights all
@@ -767,10 +767,8 @@ required from *emacs*.
      (dolist (feature
               '(
                 auto-compile          ; auto-compile .el files
-                git-timemachine   ; walkthrough git revisions of a file
-                region-state
+                region-state          ; Show the number of chars/lines or rows/columns in the region
                 saveplace
-                spaceline-config
                 ))
        (require feature))
    #+END_SRC
@@ -962,9 +960,6 @@ required from *emacs*.
 
      projectile-cache-file
         (concat  qq/cache-directory "projectile.cache" )
-
-     helm-dash-docsets-path
-        (concat  qq/cache-directory "docsets" )
 
      persp-save-dir
         (concat  qq/cache-directory "persp-conf/")
@@ -1221,7 +1216,10 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (if qq/fullscreen-max
          (toggle-frame-fullscreen)
-       (setq default-frame-alist '((left . 0) (width . 487) (fullscreen . fullheight))))
+       (setq default-frame-alist '((left . 0) (width . 427) (fullscreen . fullheight))))
+
+       ; settings for ultrawide screen (3440x1440)
+       ;(setq default-frame-alist '((left . 0) (width . 487) (fullscreen . fullheight))))
    #+end_src
 
 *** Trailing whitespace
@@ -1474,7 +1472,7 @@ required from *emacs*.
      (--set-emoji-font nil)
      ;; Hook for when a frame is created with emacsclient
      ;; see https://www.gnu.org/software/emacs/manual/html_node/elisp/Creating-Frames.html
-     (add-hook 'after-make-frame-functions '--set-emoji-font)
+     ;(add-hook 'after-make-frame-functions '--set-emoji-font)
    #+END_SRC
 
 *** Fix italics
@@ -1726,8 +1724,6 @@ required from *emacs*.
                      show-paren-mode            ; Highlight matching parentheses.
 
                      xterm-mouse-mode
-                     which-function-mode        ; show function where cursor reside
-                                                ; in mode line
 
                      global-auto-revert-mode
 
@@ -1740,7 +1736,7 @@ required from *emacs*.
                      region-state-mode          ; A global minor-mode that shows the number of
                                                 ; chars/lines or rows/columns in the region (aka. selection)
 
-                     global-emojify-mode
+                     ;global-emojify-mode
 
                      ;; mess up with pdf-tools, so turn on locally per major mode
                      ))
@@ -1797,7 +1793,7 @@ required from *emacs*.
    #+END_SRC
 
 *** Column mode editing
-   Provde ways to ways to insert sequence of numbers easily.
+   Provide ways to ways to insert sequence of numbers easily.
    One reason I enable this mode.
 
    #+BEGIN_SRC emacs-lisp
@@ -1854,7 +1850,7 @@ required from *emacs*.
    Ignore whitespace changes:
 
    #+BEGIN_SRC emacs-lisp
-     (setq ediff-diff-options "-w")
+    ; (setq ediff-diff-options "-w")
    #+END_SRC
 
    Only ever use one set of windows in one frame:
@@ -2091,22 +2087,22 @@ required from *emacs*.
         (kbd "C-x 5 RET") 'ibuffer-visit-buffer-other-frame
 
    #+TBLNAME: evil_ibuffer_keys
-      | Combo       | Description | Command                               |
-      | SPC SPC     |             | 'helm-M-x                             |
-      | v           |             | 'ibuffer-toggle-marks                 |
-      | l           |             | 'ibuffer-visit-buffer                 |
-      | J           |             | 'ibuffer-jump-to-buffer               |
-      | M-s a C-o   |             | 'ibuffer-do-occur                     |
-      | * *         |             | 'ibuffer-unmark-all                   |
-      | * s         |             | 'ibuffer-mark-special-buffers         |
-      | * r         |             | 'ibuffer-mark-read-only-buffers       |
-      | * /         |             | 'ibuffer-mark-dired-buffers           |
-      | * e         |             | 'ibuffer-mark-dissociated-buffers     |
-      | * h         |             | 'ibuffer-mark-help-buffers            |
-      | * z         |             | 'ibuffer-mark-compressed-file-buffers |
-      | d           |             | 'ibuffer-mark-for-delete              |
-      | C-d         |             | 'ibuffer-mark-for-delete-backwards    |
-      | x           |             | 'ibuffer-do-kill-on-deletion-marks    |
+      | Combo     | Description | Command                               |
+      | SPC SPC   |             | 'counsel-M-x                          |
+      | v         |             | 'ibuffer-toggle-marks                 |
+      | l         |             | 'ibuffer-visit-buffer                 |
+      | J         |             | 'ibuffer-jump-to-buffer               |
+      | M-s a C-o |             | 'ibuffer-do-occur                     |
+      | * *       |             | 'ibuffer-unmark-all                   |
+      | * s       |             | 'ibuffer-mark-special-buffers         |
+      | * r       |             | 'ibuffer-mark-read-only-buffers       |
+      | * /       |             | 'ibuffer-mark-dired-buffers           |
+      | * e       |             | 'ibuffer-mark-dissociated-buffers     |
+      | * h       |             | 'ibuffer-mark-help-buffers            |
+      | * z       |             | 'ibuffer-mark-compressed-file-buffers |
+      | d         |             | 'ibuffer-mark-for-delete              |
+      | C-d       |             | 'ibuffer-mark-for-delete-backwards    |
+      | x         |             | 'ibuffer-do-kill-on-deletion-marks    |
 
 *** Minibuffer
 **** Enable paredit in lisp related minibuffer
@@ -2246,18 +2242,19 @@ required from *emacs*.
 
 *** =which-function-mode=
    This mode will show current function name. the code below will show it in HeaderLine
+   (cause problem with evil-scroll-down)
 
    #+BEGIN_SRC emacs-lisp
      (which-function-mode)
 
-     (setq mode-line-format (delete (assoc 'which-func-mode
-                                           mode-line-format) mode-line-format)
-           which-func-header-line-format '(which-func-mode ("" which-func-format)))
-     (defadvice which-func-ff-hook (after header-line activate)
-       (when which-func-mode
-         (setq mode-line-format (delete (assoc 'which-func-mode
-                                               mode-line-format) mode-line-format)
-               header-line-format which-func-header-line-format)))
+     ;(setq mode-line-format (delete (assoc 'which-func-mode
+     ;                                      mode-line-format) mode-line-format)
+     ;      which-func-header-line-format '(which-func-mode ("" which-func-format)))
+     ;(defadvice which-func-ff-hook (after header-line activate)
+     ;  (when which-func-mode
+     ;    (setq mode-line-format (delete (assoc 'which-func-mode
+     ;                                          mode-line-format) mode-line-format)
+     ;          header-line-format which-func-header-line-format)))
    #+END_SRC
 
 ** Keybindings
@@ -2591,20 +2588,6 @@ required from *emacs*.
      (evil-exchange-install)
    #+END_SRC
 
-**** bind-map
-   An evil-leader replacement
-
-[[https://github.com/justbur/emacs-bind-map][GitHub - justbur/emacs-bind-map: Bind personal keymaps in multiple locations]]
-   +https://github.com/noctuid/general.el+
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'bind-map)
-     (bind-map qq/base-leader-map
-       :keys ("M-m")
-       :evil-keys ("SPC")
-       :evil-states (normal motion visual))
-   #+END_SRC
-
 *** Common Settings
    Set the cursor color for different evil mode:
 
@@ -2641,15 +2624,6 @@ required from *emacs*.
            evil-jumper-auto-center t
            evil-jumper-file (concat qq/cache-directory "evil-jumps")
            evil-jumper-auto-save-interval 3600)
-   #+END_SRC
-
-*** Git-Timemachine
-   Gives all bindings of =git-timemachine= higher priority than any =Evil= binding (but only in normal state).
-   Refer [[https://bitbucket.org/lyro/evil/issues/511/let-certain-minor-modes-key-bindings][here]]
-
-   #+BEGIN_SRC emacs-lisp
-      (evil-make-overriding-map git-timemachine-mode-map 'normal)
-      (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)
    #+END_SRC
 
 *** Command =*= and =#=
@@ -2894,255 +2868,384 @@ required from *emacs*.
       | l     | bs-mode-map | normal    |             | 'evil-forwared-char |
       | RET   | bs-mode-map | normal    |             | 'bs-select          |
 
-**** Evil-Leader Binding
-    :PROPERTIES:
-    :CUSTOM_ID: evil-leader-binding
-    :END:
-   Using The table below as the source for generating [[Evil Leader Bindings][Evil Leader Bindings]]
-
-   #+TBLNAME: evil_leader_keys
-      | Combo | Description                     | Command                                          |
-      |-------+---------------------------------+--------------------------------------------------|
-      | %     |                                 | 'ctl-x-5-prefix                                  |
-      | \\     |                                 | 'evil-execute-in-emacs-state                     |
-      | 0     |                                 | 'select-window-0                                 |
-      | 1     |                                 | 'select-window-1                                 |
-      | 2     |                                 | 'select-window-2                                 |
-      | 3     |                                 | 'select-window-3                                 |
-      | 4     |                                 | 'select-window-4                                 |
-      | 5     |                                 | 'select-window-5                                 |
-      | 6     |                                 | 'select-window-6                                 |
-      | 7     |                                 | 'select-window-7                                 |
-      | 8     |                                 | 'select-window-8                                 |
-      | 9     |                                 | 'select-window-9                                 |
-      | b b   |                                 | 'switch-to-buffer                                |
-      | b k   | Kill current buffer             | 'ido-kill-buffer                                 |
-      | b S   |                                 | 'bs-show                                         |
-      | b d   |                                 | 'kill-this-buffer                                |
-      | b e   |                                 | 'evil-buffer                                     |
-      | b i   |                                 | 'ibuffer                                         |
-      | b q   |                                 | 'kill-buffer-and-window                          |
-      | b f   |                                 | 'ido-find-file                                   |
-      | b x   |                                 | 'ido-switch-buffer                               |
-      | C     |                                 | 'customize-group                                 |
-      | c i   |                                 | 'evilnc-comment-or-uncomment-lines               |
-      | c l   |                                 | 'evilnc-comment-or-uncomment-to-the-line         |
-      | c c   |                                 | 'evilnc-copy-and-comment-lines                   |
-      | c p   |                                 | 'evilnc-comment-or-uncomment-paragraphs          |
-      | d     |                                 | 'dired-jump                                      |
-      | e l   |                                 | 'eval-last-sexp                                  |
-      | e b   |                                 | 'eval-buffer                                     |
-      | e e   |                                 | 'eval-expression                                 |
-      | e d   |                                 | 'eval-defun                                      |
-      | j c   |                                 | 'evil-ace-jump-char-mode                         |
-      | j l   |                                 | 'evil-ace-jump-line-mode                         |
-      | j w   |                                 | 'evil-ace-jump-word-mode                         |
-      | h     |                                 | help-map                                         |
-      | h x   | Describe character under cursor | 'describe-char                                   |
-      | h h   |                                 | 'help-for-help-internal                          |
-      | h j   |                                 | 'helm-dash-at-point                              |
-      | h e   |                                 | 'emojify-describe-emoji-at-point                 |
-      | i     |                                 | 'swiper                                          |
-      | q     |                                 | 'evil-window-delete                              |
-      | P     |                                 | 'package-list-packages                           |
-      | r 1   |                                 | 'qq/serial-term-1                                |
-      | r 2   |                                 | 'qq/serial-term-2                                |
-      | s     |                                 | 'save-buffer                                     |
-      | t SPC |                                 | 'whitespace-mode                                 |
-      | t TAB |                                 | 'c-toggle-syntactic-indentation                  |
-      | t w   |                                 | 'toggle-truncate-lines                           |
-      | t d   |                                 | 'toggle-debug-on-error                           |
-      | t i   | toggle indent guide             | 'highlight-indent-guides-mode                    |
-      | t s   |                                 | 'qq/toggle-evil-search                           |
-      | t f   |                                 | 'toggle-frame-fullscreen                         |
-      | t m   |                                 | 'toggle-frame-maximized                          |
-      | t l   |                                 | 'qq/toggle-line-numbers                          |
-      | t g   |                                 | 'gdb-many-windows                                |
-      | u u   |                                 | 'undo-tree-visualize                             |
-      | u s   |                                 | 'undo-tree-save-state-to-register ; C-x r u      |
-      | u r   |                                 | 'undo-tree-restore-state-from-register ; C-x r U |
-      | V     |                                 | (bind (term "vim"))                              |
-      | v d   |                                 | 'gdb                                             |
-      | v k   |                                 | 'gud-kill-yes                                    |
-      | v r   |                                 | 'gud-remove                                      |
-      | v b   |                                 | 'gud-break                                       |
-      | v u   |                                 | 'gud-run                                         |
-      | v p   |                                 | 'gud-print                                       |
-      | v e   |                                 | 'gud-cls                                         |
-      | v n   |                                 | 'gud-next                                        |
-      | v s   |                                 | 'gud-step                                        |
-      | v i   |                                 | 'gud-stepi                                       |
-      | v c   |                                 | 'gud-cont                                        |
-      | v f   |                                 | 'gud-finish                                      |
-      | x h   |                                 | 'mark-whole-buffer                               |
-      | x x   |                                 | 'smex                                            |
-      | x n n |                                 | 'narrow-or-widen-dwim                            |
-      | x n w |                                 | 'widen                                           |
-      | x n d |                                 | 'narrow-to-defun                                 |
-      | x n r |                                 | 'narrow-to-region                                |
-      | x z   |                                 | 'suspend-frame                                   |
-      | y h   |                                 | 'cliphist-paste-item                             |
-      | y u   |                                 | 'cliphist-select-item                            |
-
-** Helm
-   =Helm= is incremental completion and selection narrowing framework for Emacs.
-   It will help steer in the right direction when looking for stuff in Emacs
-   (like buffers, files etc)
-   Set helm command prefix key, otherwise helm use default prefix "C-x c",
-   which is inconvenient because you can accidentially pressed "C-x C-c". Must
-   set before helm-config,
-
-   https://github.com/emacs-helm/helm
-   http://amitp.blogspot.com/2012/10/emacs-helm-for-finding-files.html
-
-   temporary note:
-   if helm is exited uncleanly and starts complaining "Error: Trying to run helm
-   within a running helm session," try:
-   M-C-c, C-], C-u M-x helm-resume, or (setq helm-alive-p nil)
-   https://github.com/emacs-helm/helm/issues/208
-
-*** Init
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'helm)
-
-     ;; must set before helm-config,  otherwise helm use default
-     ;; prefix "C-x c", which is inconvenient because you can
-     ;; accidentially pressed "C-x C-c"
-     (setq helm-command-prefix-key "C-c h")
-
-     (require 'helm-config)
-     (require 'helm-eshell)
-     (require 'helm-files)
-     (require 'helm-grep)
-     (require 'helm-dash)
-   #+END_SRC
+** Ivy/Counsel
+   Ivy documentation: [[https://oremacs.com/swiper/][oremacs.com/swiper]]
 
 *** Settings
-   Preferred initial settings for Helm
-
    #+BEGIN_SRC emacs-lisp
-
-     (setq helm-net-prefer-curl t
-           helm-bookmark-show-location t          ; display bookmark location
-           helm-scroll-amount 4                         ; scroll 4 lines other window using M-<next>/M-<prior>
-           helm-quick-update t                   ; do not display invisible candidates
-           helm-idle-delay 0.01                  ; be idle for this many seconds, before updating in delayed sources.
-           helm-input-idle-delay 0.01            ; be idle for this many seconds, before updating candidate buffer
-           helm-ff-search-library-in-sexp t      ; search for library in `require' and `declare-function' sexp.
-
-           helm-display-header-line nil          ;
-
-           helm-split-window-default-side 'other ; open helm buffer in another window
-           helm-split-window-in-side-p t         ; open helm buffer inside current window, not occupy whole other window
-           helm-buffers-favorite-modes (append helm-buffers-favorite-modes
-                                               '(picture-mode artist-mode))
-           helm-candidate-number-limit 200       ; limit the number of displayed canidates
-           helm-M-x-requires-pattern 0           ; show all candidates when set to 0
-           helm-boring-file-regexp-list          ; do not show these files in helm buffer
-           '("\\.git$" "\\.hg$" "\\.svn$" "\\.CVS$" "\\._darcs$" "\\.la$" "\\.o$" "\\.i$")
-           helm-ff-file-name-history-use-recentf t
-           helm-move-to-line-cycle-in-source t   ; move to end or beginning of source
-                                             ; when reaching top or bottom of source.
-           ido-use-virtual-buffers t             ; Needed in helm-buffers-list
-           helm-buffers-fuzzy-matching t         ; fuzzy matching buffer names when non--nil
-                                             ; useful in helm-mini that lists buffers
-           helm-dash-browser-func 'eww
-           helm-dash-common-docsets '("Boost" "C++" "C")
-           )
-     (custom-set-variables
-      '(helm-never-delay-on-input t)  ;; must be t on Mac OS X
-      '(helm-yank-symbol-first t)
-      '(helm-quick-update t)
-      '(helm-full-frame nil)
-      '(helm-locate-command "locate %s '%s'")
-      '(helm-ff-auto-update-initial-value nil)
-      ;; multi3 instead of strict so i can use multiple regexps separated by spaces.
-      '(helm-mp-matching-method 'multi3)
-      '(helm-buffer-max-length 20)
-      ;; use file-name-history, not recentf
-      ;;'(helm-ff-file-name-history-use-recentf nil)
-      ;; don't use helm for tab completion in shell buffers
-      ;; https://groups.google.com/d/msg/emacs-helm/jmiTit83VhE/ZgTkuf83lQEJ
-      '(helm-mode-handle-completion-in-region nil)
-      )
-
+     (require 'ivy)
+     (ivy-mode 1)
+     (counsel-mode)
    #+END_SRC
 
-     Save current position to mark ring when jumping to a different place and
-     enable helm-mode.
-
+   Allow commands in minibuffers
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
-     (helm-mode 1)
-   #+END_SRC
-*** helm-descbinds configuration
-
-   #+BEGIN_SRC emacs-lisp
-     (setq helm-descbinds-window-style 'split-window)
-     (helm-descbinds-mode +1)
+     (setq enable-recursive-minibuffers t)
    #+END_SRC
 
-*** helm-M-x configuration
-
+   Allow commands in minibuffers
    #+BEGIN_SRC emacs-lisp
-     (global-set-key (kbd "M-x") 'helm-M-x)
+     (setq ivy-use-selectable-prompt t
+           ivy-use-virtual-buffers t    ; Enable bookmarks and recentf
+           ivy-height 10
+           ivy-count-format "(%d/%d) "
+           ivy-on-del-error-function nil
+           ivy-initial-inputs-alist nil)
+
+     (setq swiper-action-recenter t)
+
+     (setq counsel-find-file-at-point t
+           counsel-yank-pop-separator "\n────────\n")
    #+END_SRC
 
-*** Enter search pattern in the header line
-   Via: [[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reddit post]]
-
+   Keybinding
+   Ivy-based interface to standard commands
    #+BEGIN_SRC emacs-lisp
-     (setq helm-echo-input-in-header-line t)
-     (defun helm-hide-minibuffer-maybe ()
-       (when (with-helm-buffer helm-echo-input-in-header-line)
-         (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-           (overlay-put ov 'window (selected-window))
-           (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
-                                   `(:background ,bg-color :foreground ,bg-color)))
-           (setq-local cursor-type nil))))
-     (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+                                                ;
+
+        (global-set-key (kbd "C-s") 'swiper)
+        (global-set-key (kbd "M-x") 'counsel-M-x)
+        (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+        (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+        (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+        (global-set-key (kbd "<f1> l") 'counsel-find-library)
+        (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+        (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
    #+END_SRC
 
-*** Keybindings
+   Ivy-based interface to shell and system tools
+   #+BEGIN_SRC emacs-lisp
+        (global-set-key (kbd "C-c x") 'counsel-M-x)
+        (global-set-key (kbd "C-c c") 'counsel-compile)
+        (global-set-key (kbd "C-c g") 'counsel-git)
+        (global-set-key (kbd "C-c j") 'counsel-git-grep)
+        (global-set-key (kbd "C-c k") 'counsel-ag)
+        (global-set-key (kbd "C-x l") 'counsel-locate)
+        (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+
+                                                ;Ivy-resume and other commands
+
+                                                ;
+   #+END_SRC
+
+   =ivy-resume= resumes the last Ivy-based completion.
+   #+BEGIN_SRC emacs-lisp
+
+        (global-set-key (kbd "C-c C-r") 'ivy-resume)
+   #+END_SRC
+*** Ivy-postframe
+   Link: [[https://github.com/tumashu/ivy-posframe][ivy-postframe]]
+   #+BEGIN_SRC emacs-lisp
+     (require 'ivy-posframe)
+     (setq ivy-posframe-width (frame-width))
+     (setq ivy-posframe-hide-minibuffer t)
+     (setq ivy-posframe-display-functions-alist
+           '((swiper          . nil)
+             (complete-symbol . ivy-posframe-display-at-point)
+             (counsel-M-x     . ivy-posframe-display-at-frame-center)
+             (t               . ivy-posframe-display-at-frame-center)))
+     (ivy-posframe-mode 1)
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+     (unless (display-graphic-p)
+       (diff-hl-margin-mode))
+   #+END_SRC
+
+*** Ivy-rich
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'ivy-rich)
+   #+END_SRC
+
+   utility functions for =ivy-rich=
+   #+BEGIN_SRC emacs-lisp
+     (defun ivy-rich-bookmark-name (candidate)
+       (car (assoc candidate bookmark-alist)))
+
+     (defun ivy-rich-buffer-icon (candidate)
+       "Display buffer icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (let* ((buffer (get-buffer candidate))
+                (buffer-file-name (buffer-file-name buffer))
+                (major-mode (buffer-local-value 'major-mode buffer))
+                (icon (if (and buffer-file-name
+                               (all-the-icons-auto-mode-match?))
+                          (all-the-icons-icon-for-file (file-name-nondirectory buffer-file-name) :v-adjust -0.05)
+                        (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+           (if (symbolp icon)
+               (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
+             icon))))
+
+     (defun ivy-rich-file-icon (candidate)
+       "Display file icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (let* ((path (file-local-name (concat ivy--directory candidate)))
+                (file (file-name-nondirectory path))
+                (icon (cond
+                       ((file-directory-p path)
+                        (cond
+                         ((and (fboundp 'tramp-tramp-file-p)
+                               (tramp-tramp-file-p default-directory))
+                          (all-the-icons-octicon "file-directory" :height 1.0 :v-adjust 0.01))
+                         ((file-symlink-p path)
+                          (all-the-icons-octicon "file-symlink-directory" :height 1.0 :v-adjust 0.01))
+                         ((all-the-icons-dir-is-submodule path)
+                          (all-the-icons-octicon "file-submodule" :height 1.0 :v-adjust 0.01))
+                         ((file-exists-p (format "%s/.git" path))
+                          (all-the-icons-octicon "repo" :height 1.1 :v-adjust 0.01))
+                         (t (let ((matcher (all-the-icons-match-to-alist path all-the-icons-dir-icon-alist)))
+                              (apply (car matcher) (list (cadr matcher) :v-adjust 0.01))))))
+                       ((string-match "^/.*:$" path)
+                        (all-the-icons-material "settings_remote" :height 1.0 :v-adjust -0.2))
+                       ((not (string-empty-p file))
+                        (all-the-icons-icon-for-file file :v-adjust -0.05)))))
+           (if (symbolp icon)
+               (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
+             icon))))
+
+     (defun ivy-rich-dir-icon (candidate)
+       "Display directory icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-octicon "file-directory" :height 1.0 :v-adjust 0.01)))
+
+     (defun ivy-rich-function-icon (_candidate)
+       "Display function icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-faicon "cube" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-purple)))
+
+     (defun ivy-rich-variable-icon (_candidate)
+       "Display variable icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-faicon "tag" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-lblue)))
+
+     (defun ivy-rich-symbol-icon (_candidate)
+       "Display symbol icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-octicon "gear" :height 0.9 :v-adjust -0.05)))
+
+     (defun ivy-rich-theme-icon (_candidate)
+       "Display theme icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-material "palette" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue)))
+
+     (defun ivy-rich-keybinding-icon (_candidate)
+       "Display keybindings icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-material "keyboard" :height 1.0 :v-adjust -0.2)))
+
+     (defun ivy-rich-library-icon (_candidate)
+       "Display library icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-material "view_module" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue)))
+
+     (defun ivy-rich-package-icon (_candidate)
+       "Display package icons in `ivy-rich'."
+       (when (display-graphic-p)
+         (all-the-icons-faicon "archive" :height 0.9 :v-adjust 0.0 :face 'all-the-icons-silver)))
+
+     (when (display-graphic-p)
+       (defun ivy-rich-bookmark-type-plus (candidate)
+         (let ((filename (file-local-name (ivy-rich-bookmark-filename candidate))))
+           (cond ((null filename)
+                  (all-the-icons-material "block" :v-adjust -0.2 :face 'warning))  ; fixed #38
+                 ((file-remote-p filename)
+                  (all-the-icons-material "wifi_tethering" :v-adjust -0.2 :face 'mode-line-buffer-id))
+                 ((not (file-exists-p filename))
+                  (all-the-icons-material "block" :v-adjust -0.2 :face 'error))
+                 ((file-directory-p filename)
+                  (all-the-icons-octicon "file-directory" :height 0.9 :v-adjust -0.05))
+                 (t (all-the-icons-icon-for-file (file-name-nondirectory filename) :height 0.9 :v-adjust -0.05)))))
+       (advice-add #'ivy-rich-bookmark-type :override #'ivy-rich-bookmark-type-plus))
+   #+END_SRC
+
+   Initialization
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'ivy-mode-hook #'ivy-rich-mode)
+     (add-hook 'ivy-rich-mode-hook
+               (lambda ()
+                 (setq ivy-virtual-abbreviate
+                       (or (and ivy-rich-mode 'abbreviate) 'name))))
+
+     (add-hook 'text-mode-hook #'ace-jump-mode)
+     (ivy-rich-mode 1)
+   #+END_SRC
+
+   For better performance
+   #+BEGIN_SRC emacs-lisp
+  (setq ivy-rich-parse-remote-buffer nil)
+   #+END_SRC
+
+   Setting tab size to 1, to insert tabs as delimiters
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'minibuffer-setup-hook
+               (lambda ()
+                 (setq tab-width 1)))
+   #+END_SRC
+
+   Display configuration
+   #+BEGIN_SRC emacs-lisp
+     (setq ivy-rich-display-transformers-list
+           '(ivy-switch-buffer
+             (:columns ((ivy-rich-buffer-icon)
+                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-switch-buffer-size (:width 7))
+                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+                        (ivy-rich-switch-buffer-project (:width 15 :face success))
+                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+                       :predicate (lambda (cand) (get-buffer cand))
+                       :delimiter "\t")
+             ivy-switch-buffer-other-window
+             (:columns ((ivy-rich-buffer-icon)
+                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-switch-buffer-size (:width 7))
+                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+                        (ivy-rich-switch-buffer-project (:width 15 :face success))
+                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+                       :predicate (lambda (cand) (get-buffer cand))
+                       :delimiter "\t")
+             counsel-switch-buffer
+             (:columns ((ivy-rich-buffer-icon)
+                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-switch-buffer-size (:width 7))
+                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+                        (ivy-rich-switch-buffer-project (:width 15 :face success))
+                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+                       :predicate (lambda (cand) (get-buffer cand))
+                       :delimiter "\t")
+             counsel-switch-buffer-other-window
+             (:columns ((ivy-rich-buffer-icon)
+                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-switch-buffer-size (:width 7))
+                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+                        (ivy-rich-switch-buffer-project (:width 15 :face success))
+                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+                       :predicate (lambda (cand) (get-buffer cand))
+                       :delimiter "\t")
+             persp-switch-to-buffer
+             (:columns ((ivy-rich-buffer-icon)
+                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-switch-buffer-size (:width 7))
+                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+                        (ivy-rich-switch-buffer-project (:width 15 :face success))
+                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+                       :predicate (lambda (cand) (get-buffer cand))
+                       :delimiter "\t")
+             counsel-M-x
+             (:columns ((ivy-rich-function-icon)
+                        (counsel-M-x-transformer (:width 50))
+                        (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
+             counsel-describe-function
+             (:columns ((ivy-rich-function-icon)
+                        (counsel-describe-function-transformer (:width 50))
+                        (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
+             counsel-describe-variable
+             (:columns ((ivy-rich-variable-icon)
+                        (counsel-describe-variable-transformer (:width 50))
+                        (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face))))
+             counsel-apropos
+             (:columns ((ivy-rich-symbol-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-info-lookup-symbol
+             (:columns ((ivy-rich-symbol-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-descbinds
+             (:columns ((ivy-rich-keybinding-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-find-file
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-read-file-transformer))
+                       :delimiter "\t")
+             counsel-file-jump
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-dired
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-read-file-transformer))
+                       :delimiter "\t")
+             counsel-dired-jump
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-fzf
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-git
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-recentf
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate (:width 0.8))
+                        (ivy-rich-file-last-modified-time (:face font-lock-comment-face)))
+                       :delimiter "\t")
+             counsel-bookmark
+             (:columns ((ivy-rich-bookmark-type)
+                        (ivy-rich-bookmark-name (:width 40))
+                        (ivy-rich-bookmark-info))
+                       :delimiter "\t")
+             counsel-package
+             (:columns ((ivy-rich-package-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-find-library
+             (:columns ((ivy-rich-library-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-load-library
+             (:columns ((ivy-rich-library-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-load-theme
+             (:columns ((ivy-rich-theme-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-projectile-switch-project
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")
+             counsel-projectile-find-file
+             (:columns ((ivy-rich-file-icon)
+                        (counsel-projectile-find-file-transformer))
+                       :delimiter "\t")
+             counsel-projectile-find-dir
+             (:columns ((ivy-rich-dir-icon)
+                        (counsel-projectile-find-dir-transformer))
+                       :delimiter "\t")
+             treemacs-projectile
+             (:columns ((ivy-rich-file-icon)
+                        (ivy-rich-candidate))
+                       :delimiter "\t")))
+   #+END_SRC
+
+*** Evil Binding
     :PROPERTIES:
-    :CUSTOM_ID: helm-key-binding
+    :CUSTOM_ID: ivy-map-binding
     :END:
+   Using The table below as the source for generating [[Ivy Map Bindings][Ivy Map Bindings]]
 
-   The code generated from this table is [[Helm%20Bindings][here]].
-   #+TBLNAME: helm_combo
-      | Combo    | Mode               | Description                        | Command                                    |
-      |----------+--------------------+------------------------------------+--------------------------------------------|
-      | <tab>    | helm-map           | Rebind tab to do persistent action | 'helm-execute-persistent-action            |
-      | C-i      | helm-map           | Make TAB works in terminal         | 'helm-execute-persistent-action            |
-      | C-z      | helm-map           | List actions using C-z             | 'helm-select-action                        |
-      | C-j      | helm-map           | navigation down key in helm buffer | 'helm-next-line                            |
-      | C-k      | helm-map           | navigation up key in helm buffer   | 'helm-previous-line                        |
-      | C-l      | helm-map           | change helm source                 | 'helm-previous-source                      |
-      | <return> | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window          |
-      | n        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-forward  |
-      | p        | helm-grep-mode-map |                                    | 'helm-grep-mode-jump-other-window-backward |
-
-*** Keybindings with Evil Leader
-    :PROPERTIES:
-    :CUSTOM_ID: helm-evil-key-binding
-    :END:
-
-   Check for =evil-mode= and =helm-autoloads= before keybindings. Refer to this code
-   #+TBLNAME: helm-evil-combo
-      | Combo with Evil Leader | Description | Command                 |
-      | b s                    |             | 'helm-mini              |
-      | "."                    |             | 'helm-find-files        |
-      | o                      |             | 'helm-imenu             |
-      | r t                    |             | 'helm-etags-select      |
-      | y s                    |             | 'helm-show-kill-ring    |
-      | m                      |             | 'helm-bookmarks         |
-      | r r                    |             | 'helm-register          |
-      | SPC                    |             | 'helm-M-x               |
-      | a                      |             | 'helm-all-mark-rings    |
-      | h w                    |             | 'helm-wikipedia-suggest |
-      | l                      |             | 'helm-swoop             |
-      | L                      |             | 'helm-multi-swoop       |
+   #+name: ivy_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :keymaps 'ivy-minibuffer-map
+   #+end_src
+   #+TBLNAME: ivy_map_keys
+      | Combo | Description | Command            |
+      | C-h   |             | (kbd "DEL")        |
+      | C-j   | navigation  | 'ivy-next-line     |
+      | C-k   | refresh     | 'ivy-previous-line |
+      | C-l   |             | 'ivy-alt-done      |
 
 ** Dired
    #+begin_src emacs-lisp
@@ -3451,6 +3554,21 @@ required from *emacs*.
          (counsel-git-grep-or-find-api fn cmd "file" nil)))
    #+END_SRC
 
+*** git-timemachine
+   Walkthrough git revisions of a file
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'git-timemachine)
+   #+END_SRC
+
+   Gives all bindings of =git-timemachine= higher priority than any =Evil= binding (but only in normal state).
+   Refer [[https://bitbucket.org/lyro/evil/issues/511/let-certain-minor-modes-key-bindings][here]]
+
+   #+BEGIN_SRC emacs-lisp
+      (evil-make-overriding-map git-timemachine-mode-map 'normal)
+      (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)
+   #+END_SRC
+
 *** git-blame-line
    This function runs git blame on the line the cursor is on. It prints the
    short commit id, author, and commit date into the =minibuffer=. It also
@@ -3544,6 +3662,29 @@ required from *emacs*.
      (keyfreq-mode 1)
      (keyfreq-autosave-mode 1)
    #+end_src
+
+** Lsp-mode
+   Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'lsp-mode)
+     (add-hook 'prog-mode-hook #'lsp)
+   #+END_SRC
+
+*** Ccls
+   A C/C++/Objective-C language server supporting multi-million line C++ code-bases, powered by libclang.
+   [[https://github.com/MaskRay/emacs-ccls][emacs-ccls]]
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'ccls)
+     (setq ccls-executable "/home/fikri/Documents/git/ccls/Release/ccls")
+   #+END_SRC
+
+*** Company-lsp
+   #+BEGIN_SRC emacs-lisp
+     (require 'company-lsp)
+     (push 'company-lsp company-backends)
+   #+END_SRC
 
 ** Org
    =org-mode= is a plain text system for organising information and notes.
@@ -4375,8 +4516,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      (projectile-global-mode)
      (setq projectile-tags-command "gtags")
      (setq projectile-enable-caching t)
-     (setq projectile-completion-system 'helm)
-     (helm-projectile-on)
      ;; global ignores
      (add-to-list 'projectile-globally-ignored-files ".tern-port")
      (add-to-list 'projectile-globally-ignored-files "GTAGS")
@@ -4771,41 +4910,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
                  (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
    #+END_SRC
 
-** Smartparens
-   Minor mode that deals with parens pairs.
-
-   [[https://github.com/Fuco1/smartparens]]
-
-*** Settings
-   #+BEGIN_SRC emacs-lisp
-     (require 'smartparens-config)
-     (smartparens-global-mode t)
-     ;(add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
-
-     (show-smartparens-global-mode t)
-   #+END_SRC
-
-*** Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: smartparens-binding
-    :END:
-   Using The table below as the source for generating [[Smartparens Bindings][Smartparens Bindings]]
-
-   #+TBLNAME: smartparens_keys
-      | Combo | Description                             | Command          |
-      |-------+-----------------------------------------+------------------|
-      | C-'   | Jump after the next balance expressions | 'sp-forward-sexp |
-
-** Swiper
-   Visual regex search.
-
-   [[https://github.com/abo-abo/swiper]]
-
-   #+BEGIN_SRC emacs-lisp
-       (require 'ivy)
-       (require 'swiper)
-   #+END_SRC
-
 ** Highlight-indent-guides
    Add highlight column guides on indentation
 
@@ -4899,29 +5003,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      (window-numbering-mode)
    #+END_SRC
 
-** Yasnippet
-   A template system for Emacs
-
-   [[https://github.com/capitaomorte/yasnippet]]
-
-   #+BEGIN_SRC emacs-lisp
-     (yas-global-mode 1)
-   #+END_SRC
-
-*** Company integration
- #+begin_src emacs-lisp
-   ;; Add yasnippet support for all company backends
-   ;; https://github.com/syl20bnr/spacemacs/pull/179
-   (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
-
-   (defun company-mode/backend-with-yas (backend)
-     (if (or (not company-mode/enable-yas) (and (listp backend)    (member 'company-yasnippet backend)))
-     backend
-   (append (if (consp backend) backend (list backend))
-           '(:with company-yasnippet))))
-
-   (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
- #+end_src
 * Languages
 ** General
 Some general settings that should apply to all programming mode. Highlight
@@ -5642,6 +5723,21 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
 * Bindings
    Generate all the bindings here.
+** Setup
+   #+BEGIN_SRC emacs-lisp
+     (require 'general)
+   #+END_SRC
+*** Leader key
+   #+BEGIN_SRC emacs-lisp
+     (general-create-definer qq-leader-def
+       :prefix "SPC")
+   #+END_SRC
+*** Macros
+   #+name: leader_normal
+   #+begin_src emacs-lisp :tangle no
+     (qq-leader-def
+     :keymaps 'normal
+   #+end_src
 
 ** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
@@ -5695,33 +5791,22 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-** Evil Leader Bindings
-Generate binding using table from [[#evil-leader-binding][here]]
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="bind-map-set-keys qq/base-leader-map")>>
-     <<gen-keys(moda="lead", tname=evil_leader_keys)>>
-   #+END_SRC
-
 ** Evil Whichkey Bindings
    Generate binding using table from [[#evil-whichkey-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<leader_normal>>
      <<gen-keys(moda="lead", tname=evil_whichkey_keys)>>
-   #+END_SRC
-
-** Helm with Evil Bindings
-   Binding code generation for [[#helm-evil-key-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-keys(moda="lead", tname=helm-evil-combo)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 ** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<leader_normal>>
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
-     <<gen-fix(pos=")\n")>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Evil iBuffer Bindings
@@ -5759,18 +5844,27 @@ Generate binding using table from [[#evil-leader-binding][here]]
 ** Evil Dired Bindings
    Generate binding using table from [[#evil-dired-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="add-hook 'dired-mode-hook\n(lambda()")>>
      <<gen-keys(moda="evil", tname=evil_dired_keys)>>
      <<gen-keys(mmap="t", tname=dired-keys)>>
      <<gen-fix(pos="))\n")>>
-   #+END_SRC
+    #+END_SRC
 
 ** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
+   #+END_SRC
+
+** Ivy Map Bindings
+   Generate binding using table from [[#ivy-map-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<ivy_map>>
+     <<gen-keys(moda="lead", tname=ivy_map_keys)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 ** PDFTools Bindings
@@ -5780,14 +5874,7 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pre="add-hook 'pdf-view-mode-hook\n(lambda()")>>
      <<gen-keys(moda="evil", tname=pdftools-evil-keys)>>
      <<gen-keys(mmap="t", tname=pdftools-keys)>>
-     <<gen-fix(pos=")))\n")>>
-   #+END_SRC
-
-** Helm Bindings
-   Binding code generation for [[#helm-key-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-keys(mmap="t", tname=helm_combo)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 ** Persp-mode Bindings
@@ -5826,13 +5913,3 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(mmap="mvar", mvar="undo-tree-visualizer-mode-map", tname=undo_tree_keys)>>
      <<gen-fix(pos="))\n")>>
    #+END_SRC
-
-** Smartparens Bindings
-   Binding code generation for [[#smartparens-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-keys(mmap="mvar", mvar="smartparens-mode-map", tname=smartparens_keys)>>
-   #+END_SRC
-
-   #+RESULTS:
-   : sp-forward-sexp
