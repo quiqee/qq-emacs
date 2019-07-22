@@ -106,6 +106,7 @@
                spaceline
                window-numbering
                persp-mode
+               amx
 
                ;; Modes
                                              ;(depends-on "crontab-mode")
@@ -155,8 +156,12 @@
                ivy-rich
                counsel
                counsel-projectile
+               counsel-tramp
+               counsel-world-clock
                all-the-icons-ivy
                ivy-hydra
+               flyspell-correct-ivy
+
                (ivy-posframe :fetcher git :url "https://github.com/tumashu/ivy-posframe.git")
 
                swiper
@@ -1223,13 +1228,31 @@ required from *emacs*.
    #+end_src
 
 *** Trailing whitespace
-   I don’t want to leave trailing whitespace in files I touch, so set up a hook
-   that automatically deletes trailing whitespace after every line when saving a
-   file:
+   Ideally, I don’t want to leave trailing whitespace in files I touch, But sometimes,
+   when working on shared files, I prefer to leave the file as-is and only changed what
+   I explicitly do
+
+   So I created a simple mode to toggle a hook that enable/disable deleting trailing
+   whitespace after every line when saving a file:
 
    #+begin_src emacs-lisp
-     (add-hook 'write-file-hooks 'delete-trailing-whitespace)
-   #+end_src
+     (defvar qq/delete-trailing-whitespace t
+       "Non-nil will enable deleting trailing whitespace during file save operation.")
+
+     (add-hook 'write-file-functions 'delete-trailing-whitespace)
+     (defun qq/toggle-delete-trailing-whitespace ()
+       "Enable/disable deleting of trailing whitespace on saving a file"
+       (interactive)
+       (if qq/delete-trailing-whitespace
+           (progn
+             (setq qq/delete-trailing-whitespace nil)
+             (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
+             (message "Trailing whitespace will be ignored on file save"))
+         (progn
+           (setq qq/delete-trailing-whitespace t)
+           (add-hook 'write-file-functions 'delete-trailing-whitespace)
+           (message "Trailing whitespace will be deleted on file save"))))
+              #+end_src
 
 ** Visual
 *** Theme
@@ -2960,11 +2983,136 @@ required from *emacs*.
 ** Ivy/Counsel
    Ivy documentation: [[https://oremacs.com/swiper/][oremacs.com/swiper]]
 
+  :bind (("C-s" . swiper-isearch)
+         ("s-f" . swiper)
+         ("C-S-s" . swiper-all)
+
+         ("C-c C-r" . ivy-resume)
+         ("C-c v p" . ivy-push-view)
+         ("C-c v o" . ivy-pop-view)
+         ("C-c v ." . ivy-switch-view)
+
+         :map counsel-mode-map
+         ([remap swiper] . counsel-grep-or-swiper)
+         ([remap dired] . counsel-dired)
+         ("C-x C-r" . counsel-recentf)
+         ("C-x j" . counsel-mark-ring)
+         ("C-h F" . counsel-describe-face)
+
+         ("C-c L" . counsel-load-library)
+         ("C-c P" . counsel-package)
+         ("C-c f" . counsel-find-library)
+         ("C-c g" . counsel-grep)
+         ("C-c h" . counsel-command-history)
+         ("C-c i" . counsel-git)
+         ("C-c j" . counsel-git-grep)
+         ("C-c l" . counsel-locate)
+         ("C-c r" . counsel-rg)
+         ("C-c z" . counsel-fzf)
+
+         ("C-c c F" . counsel-faces)
+         ("C-c c L" . counsel-load-library)
+         ("C-c c P" . counsel-package)
+         ("C-c c a" . counsel-apropos)
+         ("C-c c e" . counsel-colors-emacs)
+         ("C-c c f" . counsel-find-library)
+         ("C-c c g" . counsel-grep)
+         ("C-c c h" . counsel-command-history)
+         ("C-c c i" . counsel-git)
+         ("C-c c j" . counsel-git-grep)
+         ("C-c c l" . counsel-locate)
+         ("C-c c m" . counsel-minibuffer-history)
+         ("C-c c o" . counsel-outline)
+         ("C-c c p" . counsel-pt)
+         ("C-c c r" . counsel-rg)
+         ("C-c c s" . counsel-ag)
+         ("C-c c t" . counsel-load-theme)
+         ("C-c c u" . counsel-unicode-char)
+         ("C-c c w" . counsel-colors-web)
+         ("C-c c z" . counsel-fzf)
+
+         :map ivy-minibuffer-map
+         ("C-w" . ivy-yank-word)
+
+         :map counsel-find-file-map
+         ("C-h" . counsel-up-directory)
+
+         :map swiper-map
+         ("M-s" . swiper-isearch-toggle)
+         ("M-%" . swiper-query-replace)
+
+         :map isearch-mode-map
+         ("M-s" . swiper-isearch-toggle))
+
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (require 'ivy)
      (ivy-mode 1)
      (counsel-mode)
+
+     (add-to-list 'ivy-format-functions-alist '(counsel-describe-face . counsel--faces-format-function))
+
+     ;; Use faster search tools: ripgrep or the silver search
+     (let ((cmd (cond ((executable-find "rg")
+                       "rg -S --no-heading --line-number --color never '%s' %s")
+                      ((executable-find "ag")
+                       "ag -S --noheading --nocolor --nofilename --numbers '%s' %s")
+                      (t counsel-grep-base-command))))
+       (setq counsel-grep-base-command cmd))
+
+     ;; Pre-fill search keywords
+     ;; @see https://www.reddit.com/r/emacs/comments/b7g1px/withemacs_execute_commands_like_marty_mcfly/
+     (defvar my-ivy-fly-commands '(query-replace-regexp
+                                   flush-lines
+                                   keep-lines
+                                   ivy-read
+                                   swiper
+                                   swiper-all
+                                   swiper-isearch
+                                   counsel-grep-or-swiper
+                                   counsel-grep
+                                   counsel-ack
+                                   counsel-ag
+                                   counsel-rg
+                                   counsel-pt))
+
+     (defun my-ivy-fly-back-to-present ()
+       ;; (remove-hook 'pre-command-hook 'my-ivy-fly-back-to-present t)
+       (cond ((and (memq last-command my-ivy-fly-commands)
+                   (equal (this-command-keys-vector) (kbd "M-p")))
+              ;; repeat one time to get straight to the first history item
+              (setq unread-command-events
+                    (append unread-command-events
+                            (listify-key-sequence (kbd "M-p")))))
+             ((or (memq this-command '(self-insert-command
+                                       yank
+                                       ivy-yank-word
+                                       counsel-yank-pop))
+                  (equal (this-command-keys-vector) (kbd "M-n")))
+              (delete-region (point)
+                             (point-max)))))
+
+     (defun my-ivy-fly-time-travel ()
+       (when (memq this-command my-ivy-fly-commands)
+         (let* ((kbd (kbd "M-n"))
+                (cmd (key-binding kbd))
+                (future (and cmd
+                             (with-temp-buffer
+                               (when (ignore-errors
+                                       (call-interactively cmd) t)
+                                 (buffer-string))))))
+           (when future
+             (save-excursion
+               (insert (propertize (replace-regexp-in-string
+                                    "\\\\_<" ""
+                                    (replace-regexp-in-string
+                                     "\\\\_>" ""
+                                     future))
+                                   'face 'shadow)))
+             (add-hook 'pre-command-hook 'my-ivy-fly-back-to-present nil t)))))
+
+     (add-hook 'minibuffer-setup-hook #'my-ivy-fly-time-travel)
+
    #+END_SRC
 
    Allow commands in minibuffers
@@ -2976,7 +3124,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (setq ivy-use-selectable-prompt t
            ivy-use-virtual-buffers t    ; Enable bookmarks and recentf
-           ivy-height 10
+           ivy-height 20
            ivy-count-format "(%d/%d) "
            ivy-on-del-error-function nil
            ivy-initial-inputs-alist nil)
@@ -2990,8 +3138,6 @@ required from *emacs*.
    Keybinding
    Ivy-based interface to standard commands
    #+BEGIN_SRC emacs-lisp
-                                                ;
-
         (global-set-key (kbd "C-s") 'swiper)
         (global-set-key (kbd "M-x") 'counsel-M-x)
         (global-set-key (kbd "C-c x") 'counsel-M-x)
@@ -3009,7 +3155,78 @@ required from *emacs*.
    =ivy-resume= resumes the last Ivy-based completion.
    #+BEGIN_SRC emacs-lisp
 
-        (global-set-key (kbd "C-c C-r") 'ivy-resume)
+     (global-set-key (kbd "C-c C-r") 'ivy-resume)
+   #+END_SRC
+
+*** Integration with `magit'
+   #+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'magit
+    (setq magit-completing-read-function 'ivy-completing-read))
+
+   #+END_SRC
+
+*** Enhance M-x
+   #+BEGIN_SRC emacs-lisp
+     (require 'amx)
+     (setq amx-history-length 20)
+   #+END_SRC
+
+*** Enhance fuzzy matching
+   #+BEGIN_SRC emacs-lisp
+     (setq ivy-re-builders-alist
+           '((swiper . ivy--regex-plus)
+             (swiper-all . ivy--regex-plus)
+             (swiper-isearch . ivy--regex-plus)
+             (counsel-ag . ivy--regex-plus)
+             (counsel-rg . ivy--regex-plus)
+             (counsel-pt . ivy--regex-plus)
+             (counsel-ack . ivy--regex-plus)
+             (counsel-grep . ivy--regex-plus)
+             (t . ivy--regex-fuzzy)))
+
+   #+END_SRC
+
+*** Ivy-hydra
+Additional key bindings for Ivy
+   #+BEGIN_SRC emacs-lisp
+  ;(use-package ivy-hydra
+  ;  :bind (:map ivy-minibuffer-map
+  ;         ("M-o" . ivy-dispatching-done-hydra)))
+
+   #+END_SRC
+
+*** Projectile
+   #+BEGIN_SRC emacs-lisp
+     (require 'counsel-projectile)
+     (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
+     (counsel-projectile-mode 1)
+     (with-eval-after-load 'projectile
+       (setq projectile-completion-system 'ivy))
+
+   #+END_SRC
+
+*** Correcting words with flyspell via Ivy
+   #+BEGIN_SRC emacs-lisp
+  (require 'flyspell-correct-ivy)
+    ;;:after flyspell
+    ;;:bind (:map flyspell-mode-map
+    ;;       ([remap flyspell-correct-word-before-point] . flyspell-correct-previous-word-generic)))
+
+   #+END_SRC
+
+*** Display world clock using Ivy
+   #+BEGIN_SRC emacs-lisp
+  (require 'counsel-world-clock)
+    ;;:bind (:map counsel-mode-map
+    ;;       ("C-c c k" . counsel-world-clock)))
+
+   #+END_SRC
+
+*** Tramp ivy interface
+   #+BEGIN_SRC emacs-lisp
+  (require 'counsel-tramp)
+    ;;:bind (:map counsel-mode-map
+    ;;       ("C-c c v" . counsel-tramp)))
    #+END_SRC
 *** Ivy-postframe
    Link: [[https://github.com/tumashu/ivy-posframe][ivy-postframe]]
@@ -3307,13 +3524,13 @@ required from *emacs*.
                        :delimiter "\t")))
    #+END_SRC
 
-*** Keybinding
+*** Normal Keybinding
     :PROPERTIES:
-    :CUSTOM_ID: evil-ivy-binding
+    :CUSTOM_ID: normal-ivy-binding
     :END:
-   Using The table below as the source for generating [[Evil Ivy Bindings][Evil Ivy Bindings]]
+   Using The table below as the source for generating [[Normal Ivy Bindings][Normal Ivy Bindings]]
 
-   #+TBLNAME: evil_ivy_keys
+   #+TBLNAME: normal_ivy_keys
       | Evil Leader Combo | Description | Command                     |
       |-------------------+-------------+-----------------------------|
       | SPC               |             | 'counsel-M-x                |
@@ -3330,6 +3547,17 @@ required from *emacs*.
       | "/"               |             | 'counsel-ag                 |
       | l                 |             | 'counsel-locate             |
       | r                 |             | 'ivy-resume                 |
+
+*** Visual Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: visual-ivy-binding
+    :END:
+   Using The table below as the source for generating [[Visual Ivy Bindings][Visual Ivy Bindings]]
+
+   #+TBLNAME: visual_ivy_keys
+      | Evil Leader Combo | Description | Command                     |
+      |-------------------+-------------+-----------------------------|
+      | SPC               |             | 'counsel-M-x                |
 
 *** Ivy Map Binding
     :PROPERTIES:
@@ -5840,6 +6068,12 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      :keymaps 'normal
    #+end_src
 
+   #+name: leader_visual
+   #+begin_src emacs-lisp :tangle no
+     (qq-leader-def
+     :keymaps 'visual
+   #+end_src
+
 ** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
@@ -5896,7 +6130,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-*** Leader Bindings
+*** Normal Leader Bindings
 **** Start
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<leader_normal>>
@@ -5914,11 +6148,29 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
    #+END_SRC
 
-**** Evil Ivy Bindings
-   Generate binding using table from [[#evil-ivy-binding][here]]
+**** Normal Ivy Bindings
+   Generate binding using table from [[#normal-ivy-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(moda="lead", tname=evil_ivy_keys)>>
+     <<gen-keys(moda="lead", tname=normal_ivy_keys)>>
+   #+END_SRC
+
+**** End
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+*** Visual Leader Bindings
+**** Start
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<leader_normal>>
+   #+END_SRC
+
+**** Visual Ivy Bindings
+   Generate binding using table from [[#visual-ivy-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=visual_ivy_keys)>>
    #+END_SRC
 
 **** End
