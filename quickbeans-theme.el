@@ -79,6 +79,8 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-grey-5     (if (display-graphic-p) "#444444" "#444444"))
       (quickbeans-grey-6     (if (display-graphic-p) "#7f7f7f" "#7f7f7f"))
       (quickbeans-grey-7     (if (display-graphic-p) "#888888" "#888888"))
+      (quickbeans-grey-8     (if (display-graphic-p) "#EBDBB2" "color-223"))
+
       (quickbeans-emphasis   (if (display-graphic-p) "#f8f8f0" "#f8f8f0"))
       (quickbeans-purple-0   (if (display-graphic-p) "#ff73fd" "#ff73fd"))
       (quickbeans-purple-1   (if (display-graphic-p) "#cd00cd" "#cd00cd"))
@@ -100,6 +102,7 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-green-5    (if (display-graphic-p) "#99ad6a" "#99ad6a"))
       (quickbeans-green-6    (if (display-graphic-p) "#a8ff60" "#a8ff60"))
       (quickbeans-green-7    (if (display-graphic-p) "#29fd2f" "#29fd2f"))
+      (quickbeans-green-8    (if (display-graphic-p) "#B8BB26" "#AFAF00"))
       (quickbeans-yellow-0   (if (display-graphic-p) "#ffffcc" "#ffffcc"))
       (quickbeans-yellow-1   (if (display-graphic-p) "#ffff00" "#ffff00"))
       (quickbeans-yellow-2   (if (display-graphic-p) "#eddb87" "#eddb87"))
@@ -117,6 +120,7 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-red-7      (if (display-graphic-p) "#663333" "#663333"))
       (quickbeans-red-8      (if (display-graphic-p) "#fc0d1b" "#fc0d1b"))
       (quickbeans-red-9      (if (display-graphic-p) "#ffdddd" "#ffdddd"))
+      (quickbeans-red-10     (if (display-graphic-p) "#FB4934" "#D75F5F"))
       )
 
       (custom-theme-set-variables
@@ -147,6 +151,17 @@ The theme has to be reloaded after changing anything in this group."
        `(compilation-mode-line-exit          ((,class (:foreground ,quickbeans-green-5))))
        `(compilation-mode-line-fail          ((,class (:foreground ,quickbeans-red-1))))
        `(compilation-mode-line-run           ((,class (:foreground ,quickbeans-yellow-3))))
+;;;;; Diffs
+       `(diff-changed                        ((,class (:foreground ,quickbeans-grey-8 :background nil))))
+       `(diff-added                          ((,class (:foreground ,quickbeans-green-8 :background nil))))
+       `(diff-removed                        ((,class (:foreground ,quickbeans-red-10 :background nil))))
+       `(diff-indicator-changed              ((,class (:inherit diff-changed))))
+       `(diff-refine-changed                 ((,class (:inherit diff-removed))))
+       `(diff-indicator-added                ((,class (:inherit diff-added))))
+       `(diff-refine-added                   ((,class (:inherit diff-added))))
+       `(diff-indicator-removed              ((,class (:inherit diff-removed))))
+       `(diff-refine-removed                 ((,class (:inherit diff-removed))))
+
 ;;;;; Dired
        `(diredp-compressed-file-name         ((,class (:foreground ,quickbeans-red-7))))
        `(diredp-compressed-file-suffix       ((,class (:foreground ,quickbeans-fg))))
@@ -321,8 +336,8 @@ The theme has to be reloaded after changing anything in this group."
        `(magit-branch-remote                 ((,class (:foreground ,quickbeans-green-5))))
        `(magit-cherry-equivalent             ((,class (:foreground ,quickbeans-purple-1))))
        `(magit-cherry-unmatched              ((,class (:foreground ,quickbeans-blue-5))))
-       `(magit-diff-added                    ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-green-0))))
-       `(magit-diff-added-highlight          ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-green-0))))
+       `(magit-diff-added                    ((,class (:inherit diff-added))))
+       `(magit-diff-added-highlight          ((,class (:inherit diff-added))))
        `(magit-diff-base                     ((,class (:background ,quickbeans-green-3 :foreground ,quickbeans-yellow-0))))
        `(magit-diff-base-highlight           ((,class (:background ,quickbeans-green-3 :foreground ,quickbeans-yellow-0))))
        `(magit-diff-conflict-heading         ((,class (:inherit magit-diff-hunk-heading))))
