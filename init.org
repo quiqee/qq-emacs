@@ -3577,6 +3577,19 @@ Additional key bindings for Ivy
       | C-k   | refresh     | 'ivy-previous-line |
       | C-l   |             | 'ivy-alt-done      |
 
+   #+name: ivy_buffer_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :keymaps 'ivy-switch-buffer-map
+   #+end_src
+   #+TBLNAME: ivy_buffer_keys
+      | Combo | Description | Command                 |
+      | C-h   |             | (kbd "DEL")             |
+      | C-j   | navigation  | 'ivy-next-line          |
+      | C-k   | refresh     | 'ivy-previous-line      |
+      | C-l   |             | 'ivy-alt-done           |
+      | C-r   | kill buffer | 'ivy-switch-buffer-kill |
+
 ** Dired
    #+begin_src emacs-lisp
      (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
@@ -6238,6 +6251,12 @@ Generate binding using table from [[#evil-leader-binding][here]]
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<ivy_map>>
      <<gen-keys(moda="lead", tname=ivy_map_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<ivy_buffer_map>>
+     <<gen-keys(moda="lead", tname=ivy_buffer_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
