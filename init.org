@@ -155,6 +155,7 @@
                ivy
                ivy-rich
                counsel
+               counsel-etags
                counsel-projectile
                counsel-tramp
                counsel-world-clock
@@ -3141,6 +3142,7 @@ required from *emacs*.
         (global-set-key (kbd "C-s") 'swiper)
         (global-set-key (kbd "M-x") 'counsel-M-x)
         (global-set-key (kbd "C-c x") 'counsel-M-x)
+        (global-set-key (kbd "C-]") 'counsel-etags-find-tag-at-point)
    #+END_SRC
 
    Ivy-based interface to shell and system tools
