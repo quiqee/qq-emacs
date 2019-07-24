@@ -155,6 +155,7 @@
                ivy
                ivy-rich
                counsel
+               counsel-etags
                counsel-projectile
                counsel-tramp
                counsel-world-clock
