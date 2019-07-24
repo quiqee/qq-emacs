@@ -3228,6 +3228,19 @@ Additional key bindings for Ivy
     ;;:bind (:map counsel-mode-map
     ;;       ("C-c c v" . counsel-tramp)))
    #+END_SRC
+*** All-the-icons-ivy
+
+   #+BEGIN_SRC emacs-lisp
+     (all-the-icons-ivy-setup)
+
+     (setq all-the-icons-ivy-file-commands
+           '(counsel-find-file
+             counsel-file-jump
+             counsel-recentf
+             counsel-projectile-find-file
+             counsel-projectile-find-dir))
+   #+END_SRC
+
 *** Ivy-postframe
    Link: [[https://github.com/tumashu/ivy-posframe][ivy-postframe]]
    #+BEGIN_SRC emacs-lisp
@@ -3249,10 +3262,24 @@ Additional key bindings for Ivy
        (diff-hl-margin-mode))
    #+END_SRC
 
-*** Ivy-rich
-
+*** WAITING Ivy-rich
+**** Initialization
    #+BEGIN_SRC emacs-lisp
      (require 'ivy-rich)
+     (add-hook 'ivy-mode-hook #'ivy-rich-mode)
+     (add-hook 'ivy-rich-mode-hook
+               (lambda ()
+                 (setq ivy-virtual-abbreviate
+                       (or (and ivy-rich-mode 'abbreviate) 'name))))
+
+     (add-hook 'text-mode-hook #'ace-jump-mode)
+     (ivy-rich-mode 1)
+   #+END_SRC
+
+**** Customization
+   For better performance
+   #+BEGIN_SRC emacs-lisp
+  (setq ivy-rich-parse-remote-buffer nil)
    #+END_SRC
 
    utility functions for =ivy-rich=
@@ -3356,28 +3383,12 @@ Additional key bindings for Ivy
        (advice-add #'ivy-rich-bookmark-type :override #'ivy-rich-bookmark-type-plus))
    #+END_SRC
 
-   Initialization
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'ivy-mode-hook #'ivy-rich-mode)
-     (add-hook 'ivy-rich-mode-hook
-               (lambda ()
-                 (setq ivy-virtual-abbreviate
-                       (or (and ivy-rich-mode 'abbreviate) 'name))))
-
-     (add-hook 'text-mode-hook #'ace-jump-mode)
-     (ivy-rich-mode 1)
-   #+END_SRC
-
-   For better performance
-   #+BEGIN_SRC emacs-lisp
-  (setq ivy-rich-parse-remote-buffer nil)
-   #+END_SRC
 
    Setting tab size to 1, to insert tabs as delimiters
    #+BEGIN_SRC emacs-lisp
      (add-hook 'minibuffer-setup-hook
                (lambda ()
-                 (setq tab-width 1)))
+                 (setq tab-width 2)))
    #+END_SRC
 
    Display configuration
@@ -3385,7 +3396,7 @@ Additional key bindings for Ivy
      (setq ivy-rich-display-transformers-list
            '(ivy-switch-buffer
              (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3395,7 +3406,7 @@ Additional key bindings for Ivy
                        :delimiter "\t")
              ivy-switch-buffer-other-window
              (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3405,7 +3416,7 @@ Additional key bindings for Ivy
                        :delimiter "\t")
              counsel-switch-buffer
              (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3415,7 +3426,7 @@ Additional key bindings for Ivy
                        :delimiter "\t")
              counsel-switch-buffer-other-window
              (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 30))
+                        (ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
