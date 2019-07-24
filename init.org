@@ -2817,6 +2817,7 @@ required from *emacs*.
       |-------+--------------------------------------------+------------------------------------------------------|
       | C-b   | Scroll one page up                         | 'evil-scroll-up                                      |
       | C-f   | Scroll one page down                       | 'evil-scroll-down                                    |
+      | C-]   | Better replacement for evil-jump-to-tags   | 'counsel-etags-find-tag-at-point                     |
       | [ SPC | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
       | ] SPC | Insert empty line below current line       | (bind (evil-insert-newline-below) (forward-line -1)) |
       | [ e   | Move current line up one line              | (kbd "ddkP")                                         |
@@ -3142,7 +3143,6 @@ required from *emacs*.
         (global-set-key (kbd "C-s") 'swiper)
         (global-set-key (kbd "M-x") 'counsel-M-x)
         (global-set-key (kbd "C-c x") 'counsel-M-x)
-        (global-set-key (kbd "C-]") 'counsel-etags-find-tag-at-point)
    #+END_SRC
 
    Ivy-based interface to shell and system tools
