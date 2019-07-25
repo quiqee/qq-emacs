@@ -3230,6 +3230,16 @@ Additional key bindings for Ivy
     ;;:bind (:map counsel-mode-map
     ;;       ("C-c c v" . counsel-tramp)))
    #+END_SRC
+*** Counsel-compile
+Add command to prompt user for directory before compile
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/counsel-compile-dir ()
+       "Prompt user to enter a dir path, with path completion and input history support, before compile"
+       (interactive)
+       (counsel-compile (read-directory-name "Directory:")))
+
+   #+END_SRC
+
 *** All-the-icons-ivy
 
    #+BEGIN_SRC emacs-lisp
@@ -3554,13 +3564,14 @@ Additional key bindings for Ivy
       | h l               |             | 'counsel-find-library       |
       | i y               |             | 'counsel-info-lookup-symbol |
       | i u               |             | 'counsel-unicode-char       |
-      | c                 |             | 'counsel-compile            |
+      | c c               |             | 'counsel-compile            |
+      | c d               |             | 'qq/counsel-compile-dir     |
       | g c               |             | 'counsel-git                |
       | g f               |             | 'counsel-git-find-file      |
       | g g               |             | 'counsel-git-grep           |
       | "/"               |             | 'counsel-ag                 |
       | l                 |             | 'counsel-locate             |
-      | r                 |             | 'ivy-resume                 |
+      | r r               |             | 'ivy-resume                 |
 
 *** Visual Keybinding
     :PROPERTIES:
