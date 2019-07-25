@@ -3021,7 +3021,6 @@ required from *emacs*.
          ([remap dired] . counsel-dired)
          ("C-x C-r" . counsel-recentf)
          ("C-x j" . counsel-mark-ring)
-         ("C-h F" . counsel-describe-face)
 
          ("C-c L" . counsel-load-library)
          ("C-c P" . counsel-package)
@@ -3582,6 +3581,7 @@ Add command to prompt user for directory before compile
       | SPC               |             | 'counsel-M-x                |
       | "."               |             | 'counsel-find-file          |
       | h f               |             | 'counsel-describe-function  |
+      | h F               |             | 'counsel-describe-face      |
       | h v               |             | 'counsel-describe-variable  |
       | h l               |             | 'counsel-find-library       |
       | i y               |             | 'counsel-info-lookup-symbol |
@@ -6134,6 +6134,11 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      :keymaps 'visual
    #+end_src
 
+   #+name: gen_normal
+   #+begin_src emacs-lisp :tangle no
+    (general-def 'normal
+   #+end_src
+
 ** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
@@ -6157,7 +6162,9 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    Generate binding using table from [[#evil-normal-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(mmap="ev-nor", tname=evil_std_keys)>>
+     <<gen_normal>>
+     <<gen-keys(moda="lead", tname=evil_std_keys)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 *** Evil Motion Bindings
