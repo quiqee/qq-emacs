@@ -3588,6 +3588,7 @@ Add command to prompt user for directory before compile
       | i u               |             | 'counsel-unicode-char       |
       | c c               |             | 'counsel-compile            |
       | c d               |             | 'qq/counsel-compile-dir     |
+      | c r               |             | 'recompile                  |
       | g c               |             | 'counsel-git                |
       | g f               |             | 'counsel-git-find-file      |
       | g g               |             | 'counsel-git-grep           |
