@@ -580,9 +580,9 @@ required from *emacs*.
        "Change font in current window to a variable-width font."
        (interactive)
        (face-remap-add-relative 'default '(:family "Baskerville" :height 200)))
-     (setq qq/preferred-font "PragmataPro-14")
+     (setq qq/preferred-font "PragmataPro-18")
      (set-face-attribute 'default nil :font "PragmataPro-18")
-     (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
+     (set-face-attribute 'fixed-pitch nil :family "PragmataPro-18")
      (set-face-attribute 'variable-pitch nil :family "Baskerville")
    #+end_src
 
@@ -5831,6 +5831,32 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
            (while (search-forward-regexp "\>[ \\t]*\<" nil t)
              (backward-char) (insert "\n"))
            (indent-region begin end)))
+   #+END_SRC
+
+*** Where am I?
+   To show current xpath in echo area, use the following function:
+
+   #+BEGIN_SRC emacs-lisp
+     (defun nxml-where ()
+       "Display the hierarchy of XML elements the point is on as a
+     path. from http://www.emacswiki.org/emacs/NxmlMode"
+       (interactive)
+       (let ((path nil))
+         (save-excursion
+           (save-restriction
+             (widen)
+             (while
+                 (and (< (point-min) (point)) ;; Doesn't error if point is at
+                      ;; beginning of buffer
+                      (condition-case nil
+                          (progn
+                            (nxml-backward-up-element) ; always returns nil
+                            t)
+                        (error nil)))
+               (setq path (cons (xmltok-start-tag-local-name) path)))
+             (if (called-interactively-p t)
+                 (message "/%s" (mapconcat 'identity path "/"))
+               (format "/%s" (mapconcat 'identity path "/")))))))
    #+END_SRC
 
 *** Folding with HideShow
