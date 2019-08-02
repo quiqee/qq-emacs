@@ -3181,6 +3181,15 @@ required from *emacs*.
      (global-set-key (kbd "C-c C-r") 'ivy-resume)
    #+END_SRC
 
+   On my setting I uses variable-pitch as my org-level heading. Below setting
+   will use back fixed-width face for org files
+   #+BEGIN_SRC emacs-lisp
+     (setq ivy-switch-buffer-faces-alist
+           '((emacs-lisp-mode . swiper-match-face-1)
+             (dired-mode . ivy-subdir)
+             (org-mode . org-date)))
+   #+END_SRC
+
 *** Integration with `magit'
    #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'magit
@@ -3287,6 +3296,9 @@ Add command to prompt user for directory before compile
              (swiper-isearch  . nil)
              (t               . ivy-posframe-display-at-frame-center)))
      (ivy-posframe-mode 1)
+     (set-face-attribute 'internal-border nil :background "#ff79c6")
+
+     (setq ivy-posframe-border-width 2)
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
