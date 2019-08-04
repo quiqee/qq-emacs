@@ -2208,7 +2208,7 @@ required from *emacs*.
    #+TBLNAME: std_keys
       | Combo    | Description                                                                | Command                  |
       |----------+----------------------------------------------------------------------------+--------------------------|
-      | C-s      | Do incremental search forward for regular expression                       | 'isearch-forward-regexp  |
+      | C-s      | Do incremental search forward for regular expression                       | 'counsel-isearch         |
       | C-M-s    | Do incremental search forward                                              | 'isearch-forward         |
       | C-r      | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
       | C-M-r    | Do incremental search backward                                             | 'isearch-backward        |
@@ -4619,7 +4619,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 
    #+TBLNAME: evil_org_keys
       | Combo  | Mode             | Evil Mode | Description | Command                                                       |
-      | z c    | org-mode-map     | normal    |             | 'hide-subtree                                                 |
+      | z c    | org-mode-map     | normal    |             | 'outline-hide-subtree                                         |
       | \\ TAB | org-mode-map     | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
       | RET    | org-mode-map     | normal    |             | 'org-open-at-point                                            |
       | s-v    | org-mode-map     | insert    |             | 'org-cliplink                                                 |
@@ -6084,7 +6084,9 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    Generate binding using table from [[#default-key-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(tname=std_keys)>>
+     <<gen_emacs>>
+     <<gen-keys(moda="lead", tname=std_keys)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 ** Evil Bindings
 *** Start
