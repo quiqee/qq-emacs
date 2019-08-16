@@ -2206,19 +2206,19 @@ required from *emacs*.
    Using The table below as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
-      | Combo    | Description                                                                | Command                  |
-      |----------+----------------------------------------------------------------------------+--------------------------|
-      | C-s      | Do incremental search forward for regular expression                       | 'counsel-isearch         |
-      | C-M-s    | Do incremental search forward                                              | 'isearch-forward         |
-      | C-r      | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
-      | C-M-r    | Do incremental search backward                                             | 'isearch-backward        |
-      | C-c s    | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer  |
-      | C-x C-b  | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
-      | C-x C-k  | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
-      | C-c e    |                                                                            | 'qq/eval-and-replace     |
-      | C-(      | In selected window switch to previous buffer                               | 'previous-buffer         |
-      | C-)      | In selected window switch to next buffer                                   | 'next-buffer             |
-      | [escape] | Work as C-g in cases where it does something, and as C-x 1 in other cases  | 'keyboard-escape-quit    |
+      | Combo   | Description                                                                | Command                  |
+      |---------+----------------------------------------------------------------------------+--------------------------|
+      | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch         |
+      | C-M-s   | Do incremental search forward                                              | 'isearch-forward         |
+      | C-r     | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
+      | C-M-r   | Do incremental search backward                                             | 'isearch-backward        |
+      | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer  |
+      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
+      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
+      | C-c e   |                                                                            | 'qq/eval-and-replace     |
+      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer         |
+      | C-)     | In selected window switch to next buffer                                   | 'next-buffer             |
+      | ESC     | Work as C-g in cases where it does something, and as C-x 1 in other cases  | 'keyboard-escape-quit    |
 
 * Third parties
 ** Company
@@ -4632,6 +4632,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | C->    | org-mode-map     | normal    |             | 'org-demote-subtree                                           |
       | C-<    | org-mode-map     | normal    |             | 'org-promote-subtree                                          |
       | SPC k  | org-mode-map     | normal    |             | 'outline-up-heading                                           |
+      | 0      | org-mode-map     | normal    |             | 'evil-digit-argument-or-evil-beginning-of-line                |
 
 ** PDFTools
    [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
