@@ -6081,6 +6081,16 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
     (general-def 'normal
    #+end_src
 
+   #+name: gen_motion
+   #+begin_src emacs-lisp :tangle no
+    (general-def 'motion
+   #+end_src
+
+   #+name: gen_visual
+   #+begin_src emacs-lisp :tangle no
+    (general-def 'visual
+   #+end_src
+
 ** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
@@ -6117,14 +6127,18 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    Generate binding using table from [[#evil-motion-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(mmap="ev-mot", tname=evil_motion_keys)>>
+     <<gen_motion>>
+     <<gen-keys(moda="lead", tname=evil_motion_keys)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 *** Evil Visual Bindings
    Generate binding using table from [[#evil-visual-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(mmap="ev-vis", tname=evil_visual_keys)>>
+     <<gen_visual>>
+     <<gen-keys(moda="lead", tname=evil_visual_keys)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 *** Evil Ex Bindings
