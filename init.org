@@ -2855,6 +2855,7 @@ required from *emacs*.
       | j l    |                                 | 'evil-ace-jump-line-mode                         |
       | j w    |                                 | 'evil-ace-jump-word-mode                         |
       | h x    | Describe character under cursor | 'describe-char                                   |
+      | h k    | Describe keybinding             | 'describe-key                                    |
       | h h    |                                 | 'help-for-help-internal                          |
       | h j    |                                 | 'helm-dash-at-point                              |
       | h e    |                                 | 'emojify-describe-emoji-at-point                 |
@@ -2902,7 +2903,6 @@ required from *emacs*.
 ** Ivy/Counsel
    Ivy documentation: [[https://oremacs.com/swiper/][oremacs.com/swiper]]
 
-  :bind (("C-s" . swiper-isearch)
          ("s-f" . swiper)
          ("C-S-s" . swiper-all)
 
@@ -2910,12 +2910,6 @@ required from *emacs*.
          ("C-c v p" . ivy-push-view)
          ("C-c v o" . ivy-pop-view)
          ("C-c v ." . ivy-switch-view)
-
-         :map counsel-mode-map
-         ([remap swiper] . counsel-grep-or-swiper)
-         ([remap dired] . counsel-dired)
-         ("C-x C-r" . counsel-recentf)
-         ("C-x j" . counsel-mark-ring)
 
          ("C-c L" . counsel-load-library)
          ("C-c P" . counsel-package)
@@ -2949,9 +2943,6 @@ required from *emacs*.
          ("C-c c w" . counsel-colors-web)
          ("C-c c z" . counsel-fzf)
 
-         :map ivy-minibuffer-map
-         ("C-w" . ivy-yank-word)
-
          :map counsel-find-file-map
          ("C-h" . counsel-up-directory)
 
@@ -2961,6 +2952,13 @@ required from *emacs*.
 
          :map isearch-mode-map
          ("M-s" . swiper-isearch-toggle))
+
+         :map counsel-mode-map
+         ([remap swiper] . counsel-grep-or-swiper)
+         ([remap dired] . counsel-dired)
+         ("C-x C-r" . counsel-recentf)
+         ("C-x j" . counsel-mark-ring)
+
 
 *** Settings
    #+BEGIN_SRC emacs-lisp
@@ -3053,27 +3051,9 @@ required from *emacs*.
            counsel-yank-pop-separator "\n────────\n")
    #+END_SRC
 
-   Keybinding
-   Ivy-based interface to standard commands
-   #+BEGIN_SRC emacs-lisp
-        (global-set-key (kbd "C-s") 'swiper)
-        (global-set-key (kbd "M-x") 'counsel-M-x)
-        (global-set-key (kbd "C-c x") 'counsel-M-x)
-   #+END_SRC
-
    Ivy-based interface to shell and system tools
    #+BEGIN_SRC emacs-lisp
         (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-
-                                                ;Ivy-resume and other commands
-
-                                                ;
-   #+END_SRC
-
-   =ivy-resume= resumes the last Ivy-based completion.
-   #+BEGIN_SRC emacs-lisp
-
-     (global-set-key (kbd "C-c C-r") 'ivy-resume)
    #+END_SRC
 
    On my setting I uses variable-pitch as my org-level heading. Below setting
@@ -3476,6 +3456,19 @@ Add command to prompt user for directory before compile
                        :delimiter "\t")))
    #+END_SRC
 
+*** Emacs Keybindings
+    :PROPERTIES:
+    :CUSTOM_ID: ivy-emacs-key-binding
+    :END:
+   Using The table below as the source for generating [[Basic Bindings]]
+
+   #+TBLNAME: emacs_ivy_keys
+      | Combo | Description                                          | Command      |
+      |-------+------------------------------------------------------+--------------|
+      | C-s   | Do incremental search forward for regular expression | 'swiper      |
+      | M-x   |                                                      | 'counsel-M-x |
+      | C-c x |                                                      | 'counsel-M-x |
+
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-ivy-binding
@@ -3531,6 +3524,7 @@ Add command to prompt user for directory before compile
       | C-j   | navigation  | 'ivy-next-line     |
       | C-k   | refresh     | 'ivy-previous-line |
       | C-l   |             | 'ivy-alt-done      |
+      | C-w   |             | 'ivy-yank-word     |
 
    #+name: ivy_buffer_map
    #+begin_src emacs-lisp :tangle no
@@ -4831,18 +4825,18 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
     :PROPERTIES:
     :CUSTOM_ID: evil-projectile-binding
     :END:
-   Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]]
+   Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]] with leader-key bindings
 
-      | SPC / | Search using ag within projectile project | 'helm-projectile-ag |
+      | SPC / | Search using ag within projectile project | 'helm-projectile-ag             |
+      | g f   | Open file at point within active project  | 'helm-projectile-find-file-dwim |
 
    #+TBLNAME: evil_projectile_keys
-      | Combo   | Description                               | Command                                                                    |
-      |---------+-------------------------------------------+----------------------------------------------------------------------------|
-      | SPC f a |                                           | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
-      | SPC p s |                                           | 'helm-projectile-switch-project                                            |
-      | SPC p e |                                           | 'helm-projectile                                                           |
-      | SPC ,   |                                           | 'helm-projectile-find-file                                                 |
-      | g f     | Open file at point within active project  | 'helm-projectile-find-file-dwim                                            |
+      | Combo | Description | Command                                                                    |
+      |-------+-------------+----------------------------------------------------------------------------|
+      | f a   |             | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
+      | p s   |             | 'helm-projectile-switch-project                                            |
+      | p e   |             | 'helm-projectile                                                           |
+      | ,     |             | 'helm-projectile-find-file                                                 |
 
 ** Persp-mode
 *** Keymap prefix
@@ -6092,11 +6086,12 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+end_src
 
 ** Basic Bindings
-   Generate binding using table from [[#default-key-binding][here]]
+   Generate binding using table from [[#default-key-binding][here]] and [[#ivy-emacs-key-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_emacs>>
      <<gen-keys(moda="lead", tname=std_keys)>>
+     <<gen-keys(moda="lead", tname=emacs_ivy_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 ** Evil Bindings
@@ -6219,8 +6214,9 @@ Generate binding using table from [[#evil-leader-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after 'projectile")>>
-     <<gen-keys(mmap="ev-nor", tname=evil_projectile_keys)>>
-     <<gen-fix(pos=")\n")>>
+     <<leader_normal>>
+     <<gen-keys(moda="lead", tname=evil_projectile_keys)>>
+     <<gen-fix(pos="))\n")>>
    #+END_SRC
 
 *** Evil CC Mode Bindings
