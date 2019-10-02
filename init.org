@@ -258,6 +258,7 @@
                org-bullets                   ; show org bullet as Unicode character
                org-cliplink
                org-pdfview
+               org-sidebar
                paredit                       ; minor mode for editing parentheses
                popwin                        ; popup window manager
                                              ;(depends-on "pretty-lambdada")
@@ -1239,7 +1240,7 @@ required from *emacs*.
      (defvar qq/delete-trailing-whitespace t
        "Non-nil will enable deleting trailing whitespace during file save operation.")
 
-     (add-hook 'write-file-functions 'delete-trailing-whitespace)
+     ;(add-hook 'write-file-functions 'delete-trailing-whitespace)
      (defun qq/toggle-delete-trailing-whitespace ()
        "Enable/disable deleting of trailing whitespace on saving a file"
        (interactive)
