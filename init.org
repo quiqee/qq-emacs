@@ -579,10 +579,10 @@ required from *emacs*.
      (defun qq/set-font-to-variable-width ()
        "Change font in current window to a variable-width font."
        (interactive)
-       (face-remap-add-relative 'default '(:family "Baskerville" :height 200)))
-     (setq qq/preferred-font "PragmataPro-18")
-     (set-face-attribute 'default nil :font "PragmataPro-18")
-     (set-face-attribute 'fixed-pitch nil :family "PragmataPro-18")
+       (face-remap-add-relative 'default '(:family "Baskerville" :height 140)))
+     (setq qq/preferred-font "PragmataPro-14")
+     (set-face-attribute 'default nil :font "PragmataPro-14")
+     (set-face-attribute 'fixed-pitch nil :family "PragmataPro-14")
      (set-face-attribute 'variable-pitch nil :family "Baskerville")
    #+end_src
 
@@ -1222,8 +1222,10 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (if qq/fullscreen-max
          (toggle-frame-fullscreen)
-       (setq default-frame-alist '((left . 0) (width . 424) (fullscreen . fullheight))))
+       ;(setq default-frame-alist '((left . 0) (width . 424) (fullscreen . fullheight))))
 
+       ; settings for ultrawide screen (5120x1440)
+       (setq default-frame-alist '((left . 0) (width . 650) (fullscreen . fullheight))))
        ; settings for ultrawide screen (3440x1440)
        ;(setq default-frame-alist '((left . 0) (width . 487) (fullscreen . fullheight))))
    #+end_src
@@ -2869,6 +2871,7 @@ required from *emacs*.
       | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
       | t w    |                                 | 'toggle-truncate-lines                           |
       | t d    |                                 | 'toggle-debug-on-error                           |
+      | t h    | toggle highlight current line   | 'global-hl-line-mode                             |
       | t i    | toggle indent guide             | 'highlight-indent-guides-mode                    |
       | t s    |                                 | 'qq/toggle-evil-search                           |
       | t f    |                                 | 'toggle-frame-fullscreen                         |
