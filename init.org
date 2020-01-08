@@ -3142,6 +3142,8 @@ Additional key bindings for Ivy
 *** Counsel-etags
 Add configuration to ignore directory and files
    #+BEGIN_SRC emacs-lisp
+(eval-after-load 'counsel-etags
+  '(progn
      ;; counsel-etags-ignore-directories does NOT support wildcast
      (push "dl" counsel-etags-ignore-directories)
      (push "config" counsel-etags-ignore-directories)
@@ -3151,7 +3153,7 @@ Add configuration to ignore directory and files
      (push "TAGS" counsel-etags-ignore-filenames)
      (push "*.json" counsel-etags-ignore-filenames)
      (push "*.js" counsel-etags-ignore-filenames)
-     (push "*.html" counsel-etags-ignore-filenames)
+     (push "*.html" counsel-etags-ignore-filenames)))
    #+END_SRC
 
 *** Counsel-compile
