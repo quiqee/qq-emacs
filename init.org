@@ -1242,7 +1242,7 @@ required from *emacs*.
      (defvar qq/delete-trailing-whitespace t
        "Non-nil will enable deleting trailing whitespace during file save operation.")
 
-     ;(add-hook 'write-file-functions 'delete-trailing-whitespace)
+     (add-hook 'write-file-functions 'delete-trailing-whitespace)
      (defun qq/toggle-delete-trailing-whitespace ()
        "Enable/disable deleting of trailing whitespace on saving a file"
        (interactive)
@@ -3139,6 +3139,21 @@ Additional key bindings for Ivy
     ;;:bind (:map counsel-mode-map
     ;;       ("C-c c v" . counsel-tramp)))
    #+END_SRC
+*** Counsel-etags
+Add configuration to ignore directory and files
+   #+BEGIN_SRC emacs-lisp
+     ;; counsel-etags-ignore-directories does NOT support wildcast
+     (push "dl" counsel-etags-ignore-directories)
+     (push "config" counsel-etags-ignore-directories)
+     (push "patches" counsel-etags-ignore-directories)
+     (push "staging_dir" counsel-etags-ignore-directories)
+     ;; counsel-etags-ignore-filenames supports wildcast
+     (push "TAGS" counsel-etags-ignore-filenames)
+     (push "*.json" counsel-etags-ignore-filenames)
+     (push "*.js" counsel-etags-ignore-filenames)
+     (push "*.html" counsel-etags-ignore-filenames)
+   #+END_SRC
+
 *** Counsel-compile
 Add command to prompt user for directory before compile
    #+BEGIN_SRC emacs-lisp
@@ -4047,8 +4062,14 @@ Add command to prompt user for directory before compile
    large, it displays the whole thing. Let’s restrict it from doing that.
 
    #+BEGIN_SRC emacs-lisp
-     org-image-actual-width '(300)
+     org-image-actual-width '(500)
    #+END_SRC
+
+   set inline image to auto display
+   #+BEGIN_SRC emacs-lisp
+     org-startup-with-inline-images t
+   #+END_SRC
+
 ***** Editing code block
      Pressing =E= will cause a new popup window and hide current window layout.
      Reuse current window instead of popup a new one
