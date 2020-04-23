@@ -103,7 +103,7 @@
 
                ;; UI Enhancement
                                              ;(depends-on "info+")
-               spaceline
+               ;spaceline
                window-numbering
                persp-mode
                amx
@@ -148,6 +148,7 @@
                dired-narrow
                dired-subtree
                all-the-icons-dired
+               docker-tramp
 
                general
 
@@ -255,7 +256,7 @@
                markdown-mode
                move-text                     ; Move current line or region with M-up or M-down
                multiple-cursors              ; Multiple cursors for Emacs.
-               org-bullets                   ; show org bullet as Unicode character
+               org-superstar                 ; show org bullet as Unicode character
                org-cliplink
                org-pdfview
                org-sidebar
@@ -591,12 +592,6 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (setq qq/swift-toolchain-path "/Library/Developer/Toolchains/swift-latest.xctoolchain")
      (setq qq/swift-lsp-executable "~/Documents/Projects/sourcekit-lsp/.build/debug/sourcekit-lsp")
-   #+END_SRC
-
-**** Fix Powerline color issue
-
-   #+BEGIN_SRC emacs-lisp
-     (setq ns-use-srgb-colorspace nil)
    #+END_SRC
 
 **** Fulscreen setting
@@ -1225,7 +1220,7 @@ required from *emacs*.
        ;(setq default-frame-alist '((left . 0) (width . 424) (fullscreen . fullheight))))
 
        ; settings for ultrawide screen (5120x1440)
-       (setq default-frame-alist '((left . 0) (width . 650) (fullscreen . fullheight))))
+       (setq default-frame-alist '((left . 0) (width . 729) (fullscreen . fullheight))))
        ; settings for ultrawide screen (3440x1440)
        ;(setq default-frame-alist '((left . 0) (width . 487) (fullscreen . fullheight))))
    #+end_src
@@ -1425,7 +1420,7 @@ required from *emacs*.
    Highlight current line mode
 
    #+BEGIN_SRC emacs-lisp
-     ;(global-hl-line-mode)
+     (global-hl-line-mode)
    #+END_SRC
 
 *** Fixed/Variable Width Faces
@@ -1455,7 +1450,7 @@ required from *emacs*.
        (let ((list (if (not (listp list-or-symbol))
                        (list list-or-symbol)
                      list-or-symbol)))
-         (require 'cl-lib)
+         ;(require 'cl-lib)
          (cl-adjoin element list)))
 
      (eval-after-load "org"
@@ -2866,6 +2861,7 @@ required from *emacs*.
       | P      |                                 | 'package-list-packages                           |
       | r 1    |                                 | 'qq/serial-term-1                                |
       | r 2    |                                 | 'qq/serial-term-2                                |
+      | r r    |                                 | 'serial-term                                     |
       | s      |                                 | 'save-buffer                                     |
       | t SPC  |                                 | 'whitespace-mode                                 |
       | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
@@ -3183,7 +3179,10 @@ Add command to prompt user for directory before compile
    Link: [[https://github.com/tumashu/ivy-posframe][ivy-postframe]]
    #+BEGIN_SRC emacs-lisp
      (require 'ivy-posframe)
-     (setq ivy-posframe-width (frame-width))
+(setq ivy-posframe-parameters
+      '((left-fringe . 10)
+        (right-fringe . 10)))
+     (setq ivy-posframe-width 200)
      (setq ivy-posframe-hide-minibuffer t)
      (setq ivy-posframe-display-functions-alist
            '((swiper          . nil)
@@ -3192,10 +3191,9 @@ Add command to prompt user for directory before compile
              (counsel-M-x     . ivy-posframe-display-at-frame-center)
              (swiper-isearch  . nil)
              (t               . ivy-posframe-display-at-frame-center)))
+     (set-face-attribute 'internal-border nil :background "#aa79c6")
+     (setq ivy-posframe-border-width 1)
      (ivy-posframe-mode 1)
-     (set-face-attribute 'internal-border nil :background "#ff79c6")
-
-     (setq ivy-posframe-border-width 2)
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -3517,7 +3515,7 @@ Add command to prompt user for directory before compile
       | g g               |             | 'counsel-git-grep           |
       | "/"               |             | 'counsel-ag                 |
       | l                 |             | 'counsel-locate             |
-      | r r               |             | 'ivy-resume                 |
+      | r s               |             | 'ivy-resume                 |
 
 *** Visual Keybinding
     :PROPERTIES:
@@ -4008,8 +4006,8 @@ Add command to prompt user for directory before compile
 **** Enable =org-mode=
    #+BEGIN_SRC emacs-lisp
      (require 'org)
-     (require 'org-bullets)
      (require 'org-eldoc)
+     (require 'org-superstar)
    #+END_SRC
 
 **** =setq=
@@ -4433,8 +4431,8 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 ***** Enable bulleted lists
 
    #+BEGIN_SRC emacs-lisp
-     (org-bullets-mode 1)
-   #+END_SRC
+     (org-superstar-mode 1)
+     #+END_SRC
 ***** Enable =writegood-mode=
 
    #+BEGIN_SRC emacs-lisp
@@ -5121,7 +5119,9 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    #+BEGIN_SRC emacs-lisp
      (defun qq/serial-term-1 ()
        (interactive)
-       (serial-term "/dev/ttyUSB0" 115200)
+       (if (string-equal system-type "darwin")
+           (serial-term "/dev/cu.usbserial-FTXKVR0Q" 115200)
+         (serial-term "/dev/ttyUSB0" 115200))
        (term-send-string (get-buffer-process (current-buffer))
                          "export TERM=eterm-color\nclear\n"))
      (defun qq/serial-term-2 ()

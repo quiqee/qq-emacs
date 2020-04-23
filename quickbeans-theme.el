@@ -130,6 +130,7 @@ The theme has to be reloaded after changing anything in this group."
       (custom-theme-set-faces
        'quickbeans
        `(default                             ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
+       `(internal-border                     ((,class (:foreground ,quickbeans-fg :background nil))))
 ;;;;; ACE/Avy
        `(aw-leading-char-face                ((,class (:foreground ,quickbeans-red-3 :height 1.2))))
 ;;;;; Alchemist
@@ -265,6 +266,10 @@ The theme has to be reloaded after changing anything in this group."
        `(ivy-minibuffer-match-face-4         ((,class (:foreground ,quickbeans-purple-1))))
        `(ivy-subdir                          ((,class (:foreground ,quickbeans-green-4))))
        `(ivy-modified-buffer                 ((,class (:foreground ,quickbeans-red-2))))
+;;;;; Ivy-postframe
+       `(ivy-posframe                         ((,class (:background ,quickbeans-grey-0))))
+       `(ivy-posframe-border                  ((,class (:background "#abff00"))))
+       `(ivy-posframe-cursor                  ((,class (:background "#00ff00"))))
 ;;;;; Jabber
        `(jabber-activity-personal-face       ((,class (:foreground ,quickbeans-green-6 :weight bold))))
        `(jabber-activity-face                ((,class (:foreground ,quickbeans-red-3 :weight bold))))
