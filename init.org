@@ -269,6 +269,7 @@
                smart-tabs-mode               ; provide semantic way of using tab in source code
                smex                          ; M-x interface with Ido-style fuzzy matching.
 
+               vterm
                sr-speedbar
                volatile-highlights
                wgrep-ag
@@ -2207,16 +2208,14 @@ required from *emacs*.
       | Combo   | Description                                                                | Command                  |
       |---------+----------------------------------------------------------------------------+--------------------------|
       | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch         |
-      | C-M-s   | Do incremental search forward                                              | 'isearch-forward         |
-      | C-r     | Do incremental search backward for regular expression                      | 'isearch-backward-regexp |
-      | C-M-r   | Do incremental search backward                                             | 'isearch-backward        |
       | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer  |
       | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
       | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
       | C-c e   |                                                                            | 'qq/eval-and-replace     |
       | C-(     | In selected window switch to previous buffer                               | 'previous-buffer         |
       | C-)     | In selected window switch to next buffer                                   | 'next-buffer             |
-      | ESC     | Work as C-g in cases where it does something, and as C-x 1 in other cases  | 'keyboard-escape-quit    |
+      | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left           |
+      | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right          |
 
 * Third parties
 ** Company
@@ -2590,6 +2589,7 @@ required from *emacs*.
                 (grep-mode . emacs)
                 (Info-mode . emacs)
                 (term-mode . insert)
+                (vterm-mode . emacs)
                 (refine-mode . emacs)
                 ;(anaconda-nav-mode . emacs)
                 (log-edit-mode . emacs)
@@ -2854,6 +2854,7 @@ required from *emacs*.
       | j w    |                                 | 'evil-ace-jump-word-mode                         |
       | h x    | Describe character under cursor | 'describe-char                                   |
       | h k    | Describe keybinding             | 'describe-key                                    |
+      | h m    | Describe keybinding             | 'describe-mode                                   |
       | h h    |                                 | 'help-for-help-internal                          |
       | h j    |                                 | 'helm-dash-at-point                              |
       | h e    |                                 | 'emojify-describe-emoji-at-point                 |
@@ -2862,9 +2863,11 @@ required from *emacs*.
       | r 1    |                                 | 'qq/serial-term-1                                |
       | r 2    |                                 | 'qq/serial-term-2                                |
       | r r    |                                 | 'serial-term                                     |
+      | r v    |                                 | 'vterm                                           |
       | s      |                                 | 'save-buffer                                     |
       | t SPC  |                                 | 'whitespace-mode                                 |
       | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
+      | t b    |                                 | 'sr-speedbar-toggle                              |
       | t w    |                                 | 'toggle-truncate-lines                           |
       | t d    |                                 | 'toggle-debug-on-error                           |
       | t h    | toggle highlight current line   | 'global-hl-line-mode                             |
@@ -2872,6 +2875,7 @@ required from *emacs*.
       | t s    |                                 | 'qq/toggle-evil-search                           |
       | t f    |                                 | 'toggle-frame-fullscreen                         |
       | t m    |                                 | 'toggle-frame-maximized                          |
+      | t t    |                                 | 'treemacs                                        |
       | t l    |                                 | 'qq/toggle-line-numbers                          |
       | t g    |                                 | 'gdb-many-windows                                |
       | u u    |                                 | 'undo-tree-visualize                             |
@@ -2903,7 +2907,6 @@ required from *emacs*.
 ** Ivy/Counsel
    Ivy documentation: [[https://oremacs.com/swiper/][oremacs.com/swiper]]
 
-         ("s-f" . swiper)
          ("C-S-s" . swiper-all)
 
          ("C-c C-r" . ivy-resume)
@@ -3482,11 +3485,10 @@ Add command to prompt user for directory before compile
     :END:
    Using The table below as the source for generating [[Basic Bindings]]
 
-      | M-x   |                                                      | 'counsel-M-x |
-
    #+TBLNAME: emacs_ivy_keys
       | Combo | Description                                          | Command      |
       |-------+------------------------------------------------------+--------------|
+      | M-x   |                                                      | 'counsel-M-x |
       | C-s   | Do incremental search forward for regular expression | 'swiper      |
       | C-c x |                                                      | 'counsel-M-x |
 
@@ -3513,7 +3515,9 @@ Add command to prompt user for directory before compile
       | g c               |             | 'counsel-git                |
       | g f               |             | 'counsel-git-find-file      |
       | g g               |             | 'counsel-git-grep           |
-      | "/"               |             | 'counsel-ag                 |
+      | / /               |             | 'counsel-ag                 |
+      | / i               |             | 'counsel-imenu              |
+      | / s               |             | 'swiper                     |
       | l                 |             | 'counsel-locate             |
       | r s               |             | 'ivy-resume                 |
 
@@ -3736,15 +3740,8 @@ Add command to prompt user for directory before compile
      (setq magit-diff-options '("--histogram"))
      (setq magit-push-always-verify nil)
      (setq magit-stage-all-confirm nil)
-     (defadvice magit-status (around qq/magit-fullscreen activate)
-         (window-configuration-to-register :magit-fullscreen)
-         ad-do-it
-         (delete-other-windows))
-     (defun qq/magit-quit-session ()
-       (interactive)
-       (kill-buffer)
-       (jump-to-register :magit-fullscreen))
-   #+END_SRC
+     (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)
+     #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
@@ -4866,11 +4863,38 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | ,     |             | 'helm-projectile-find-file                                                 |
 
 ** Persp-mode
-*** Keymap prefix
-
+*** Settings
    #+begin_src emacs-lisp
-       (setq persp-keymap-prefix (kbd "C-c o"))
+     (setq wg-morph-on nil ;; switch off animation
+           persp-autokill-buffer-on-remove 'kill-weak
+           persp-auto-save-opt 0
+           persp-auto-resume-time -1
+           persp-keymap-prefix (kbd "C-c o")
+           persp-nil-hidden t
+           persp-add-buffer-on-find-file t
+           persp-add-buffer-on-after-change-major-mode t
+           persp-hook-up-emacs-buffer-completion t)
    #+end_src
+*** Make ivy play nice
+   #+begin_src emacs-lisp
+  (with-eval-after-load "ivy"
+    (add-hook 'ivy-ignore-buffers
+              #'(lambda (b)
+                  (when persp-mode
+                    (let ((persp (get-current-persp)))
+                      (if persp
+                          (not (persp-contain-buffer-p b persp))
+                        nil)))))
+    (setq ivy-sort-functions-alist
+          (append ivy-sort-functions-alist
+                  '((persp-kill-buffer   . nil)
+                    (persp-remove-buffer . nil)
+                    (persp-add-buffer    . nil)
+                    (persp-switch        . nil)
+                    (persp-window-switch . nil)
+                    (persp-frame-switch . nil)))))
+   #+end_src
+
 *** Rename main perspective
 
    #+begin_src emacs-lisp
@@ -5189,6 +5213,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
        (set-process-window-size (get-buffer-process (current-buffer))
                                 (window-height)
                                 (window-width))
+       (toggle-truncate-lines 1)
        ;; this is sad but we can't actually do this:
        ;;     (signal-process (get-buffer-process (current-buffer)) 'winch)
        ;; See Info node `(elisp)Serial Ports':
@@ -5427,6 +5452,8 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-init ()
+       (push '(?( . ("(" . ")")) evil-surround-pairs-alist)
+       (push '(?{ . ("{" . "}")) evil-surround-pairs-alist)
        (local-set-key (kbd "C-c C-c") 'compile)
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
        ;; the entire buffer, and then runs the indent-region command).
@@ -6085,6 +6112,7 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+name: gen_emacs
    #+begin_src emacs-lisp :tangle no
      (general-define-key
+      :keymaps 'override
    #+end_src
 
    #+name: leader_normal
