@@ -108,6 +108,10 @@
                persp-mode
                amx
 
+               flx
+
+               calibredb
+
                ;; Modes
                                              ;(depends-on "crontab-mode")
                                              ;(depends-on "csv-nav")
@@ -155,6 +159,7 @@
                ibuffer-vc
                ivy
                ivy-rich
+               all-the-icons-ivy-rich
                counsel
                counsel-etags
                counsel-projectile
@@ -177,6 +182,8 @@
                vlf
                git-timemachine
                ggtags
+
+               nyan-mode
 
                swift-mode
                xcode-mode
@@ -207,7 +214,6 @@
                speed-type
 
                region-state
-               keyfreq
 
                doom-modeline
 
@@ -253,6 +259,8 @@
                git-gutter-fringe
                git-messenger
 
+               smerge-mode
+
                markdown-mode
                move-text                     ; Move current line or region with M-up or M-down
                multiple-cursors              ; Multiple cursors for Emacs.
@@ -269,7 +277,10 @@
                smart-tabs-mode               ; provide semantic way of using tab in source code
                smex                          ; M-x interface with Ido-style fuzzy matching.
 
+               (explain-pause-mode :fetcher git :url "https://github.com/lastquestion/explain-pause-mode.git")
+
                vterm
+               multi-vterm
                sr-speedbar
                volatile-highlights
                wgrep-ag
@@ -513,10 +524,14 @@ required from *emacs*.
    #+end_src
 
 **** System Environment
-   Tells emacs to use path from shell
-
+   Don't warn about the location of environment variable settings
    #+begin_src emacs-lisp
-      (exec-path-from-shell-initialize)
+     (setq exec-path-from-shell-check-startup-files nil)
+   #+end_src
+
+   Tells emacs to use path from shell
+   #+begin_src emacs-lisp
+     (exec-path-from-shell-initialize)
    #+end_src
 
 **** Fulscreen setting
@@ -598,7 +613,7 @@ required from *emacs*.
 **** Fulscreen setting
 
    #+begin_src emacs-lisp
-     (setq qq/fullscreen-max nil)
+     (setq qq/fullscreen-max t)
    #+end_src
 
 **** Company-Sourcekit
@@ -810,6 +825,13 @@ required from *emacs*.
            kept-new-versions 2
            kept-old-versions 2
    #+END_SRC
+
+**** Set backup location for TRAMP
+   #+BEGIN_SRC emacs-lisp
+           backup-directory-alist `(("." . ,(concat qq/cache-directory "backups")))
+           tramp-backup-directory-alist backup-directory-alist
+           vc-cvs-stay-local nil
+#+END_SRC
 
 **** Finally, use version numbers in the filenames:
 
@@ -2863,7 +2885,7 @@ required from *emacs*.
       | r 1    |                                 | 'qq/serial-term-1                                |
       | r 2    |                                 | 'qq/serial-term-2                                |
       | r r    |                                 | 'serial-term                                     |
-      | r v    |                                 | 'vterm                                           |
+      | r v    |                                 | 'multi-vterm                                     |
       | s      |                                 | 'save-buffer                                     |
       | t SPC  |                                 | 'whitespace-mode                                 |
       | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
@@ -3054,11 +3076,6 @@ required from *emacs*.
            counsel-yank-pop-separator "\n────────\n")
    #+END_SRC
 
-   Ivy-based interface to shell and system tools
-   #+BEGIN_SRC emacs-lisp
-        (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-   #+END_SRC
-
    On my setting I uses variable-pitch as my org-level heading. Below setting
    will use back fixed-width face for org files
    #+BEGIN_SRC emacs-lisp
@@ -3083,6 +3100,7 @@ required from *emacs*.
 
 *** Enhance fuzzy matching
    #+BEGIN_SRC emacs-lisp
+     (require 'flx)
      (setq ivy-re-builders-alist
            '((swiper . ivy--regex-plus)
              (swiper-all . ivy--regex-plus)
@@ -3182,13 +3200,13 @@ Add command to prompt user for directory before compile
    Link: [[https://github.com/tumashu/ivy-posframe][ivy-postframe]]
    #+BEGIN_SRC emacs-lisp
      (require 'ivy-posframe)
-(setq ivy-posframe-parameters
-      '((left-fringe . 10)
-        (right-fringe . 10)))
+     (setq ivy-posframe-parameters
+           '((left-fringe . 10)
+             (right-fringe . 10)))
      (setq ivy-posframe-width 200)
      (setq ivy-posframe-hide-minibuffer t)
      (setq ivy-posframe-display-functions-alist
-           '((swiper          . nil)
+           '((swiper          . ivy-posframe-display-at-frame-bottom-window-center)
              (counsel-ag      . nil)
              (complete-symbol . ivy-posframe-display-at-point)
              (counsel-M-x     . ivy-posframe-display-at-frame-center)
@@ -3205,111 +3223,35 @@ Add command to prompt user for directory before compile
        (diff-hl-margin-mode))
    #+END_SRC
 
-*** WAITING Ivy-rich
+*** Ivy-rich
 **** Initialization
    #+BEGIN_SRC emacs-lisp
      (require 'ivy-rich)
-     (add-hook 'ivy-mode-hook #'ivy-rich-mode)
-     (add-hook 'ivy-rich-mode-hook
-               (lambda ()
-                 (setq ivy-virtual-abbreviate
-                       (or (and ivy-rich-mode 'abbreviate) 'name))))
-
-     (add-hook 'text-mode-hook #'ace-jump-mode)
+     (require 'all-the-icons-ivy-rich)
+;     (add-hook 'ivy-mode-hook #'ivy-rich-mode)
+;     (add-hook 'ivy-rich-mode-hook
+;               (lambda ()
+;                 (setq ivy-virtual-abbreviate
+;                       (or (and ivy-rich-mode 'abbreviate) 'name))))
+;
+;     (add-hook 'text-mode-hook #'ace-jump-mode)
+     (all-the-icons-ivy-rich-mode 1)
      (ivy-rich-mode 1)
    #+END_SRC
 
 **** Customization
    For better performance
    #+BEGIN_SRC emacs-lisp
-  (setq ivy-rich-parse-remote-buffer nil)
+     (setq ivy-rich-parse-remote-buffer nil)
+     (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+     (setq ivy-rich-path-style 'abbrev)
+     (setq all-the-icons-ivy-rich-icon-size 0.8)
    #+END_SRC
 
    utility functions for =ivy-rich=
    #+BEGIN_SRC emacs-lisp
      (defun ivy-rich-bookmark-name (candidate)
        (car (assoc candidate bookmark-alist)))
-
-     (defun ivy-rich-buffer-icon (candidate)
-       "Display buffer icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (let* ((buffer (get-buffer candidate))
-                (buffer-file-name (buffer-file-name buffer))
-                (major-mode (buffer-local-value 'major-mode buffer))
-                (icon (if (and buffer-file-name
-                               (all-the-icons-auto-mode-match?))
-                          (all-the-icons-icon-for-file (file-name-nondirectory buffer-file-name) :v-adjust -0.05)
-                        (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
-           (if (symbolp icon)
-               (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
-             icon))))
-
-     (defun ivy-rich-file-icon (candidate)
-       "Display file icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (let* ((path (file-local-name (concat ivy--directory candidate)))
-                (file (file-name-nondirectory path))
-                (icon (cond
-                       ((file-directory-p path)
-                        (cond
-                         ((and (fboundp 'tramp-tramp-file-p)
-                               (tramp-tramp-file-p default-directory))
-                          (all-the-icons-octicon "file-directory" :height 1.0 :v-adjust 0.01))
-                         ((file-symlink-p path)
-                          (all-the-icons-octicon "file-symlink-directory" :height 1.0 :v-adjust 0.01))
-                         ((all-the-icons-dir-is-submodule path)
-                          (all-the-icons-octicon "file-submodule" :height 1.0 :v-adjust 0.01))
-                         ((file-exists-p (format "%s/.git" path))
-                          (all-the-icons-octicon "repo" :height 1.1 :v-adjust 0.01))
-                         (t (let ((matcher (all-the-icons-match-to-alist path all-the-icons-dir-icon-alist)))
-                              (apply (car matcher) (list (cadr matcher) :v-adjust 0.01))))))
-                       ((string-match "^/.*:$" path)
-                        (all-the-icons-material "settings_remote" :height 1.0 :v-adjust -0.2))
-                       ((not (string-empty-p file))
-                        (all-the-icons-icon-for-file file :v-adjust -0.05)))))
-           (if (symbolp icon)
-               (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0)
-             icon))))
-
-     (defun ivy-rich-dir-icon (candidate)
-       "Display directory icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-octicon "file-directory" :height 1.0 :v-adjust 0.01)))
-
-     (defun ivy-rich-function-icon (_candidate)
-       "Display function icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-faicon "cube" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-purple)))
-
-     (defun ivy-rich-variable-icon (_candidate)
-       "Display variable icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-faicon "tag" :height 0.9 :v-adjust -0.05 :face 'all-the-icons-lblue)))
-
-     (defun ivy-rich-symbol-icon (_candidate)
-       "Display symbol icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-octicon "gear" :height 0.9 :v-adjust -0.05)))
-
-     (defun ivy-rich-theme-icon (_candidate)
-       "Display theme icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-material "palette" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue)))
-
-     (defun ivy-rich-keybinding-icon (_candidate)
-       "Display keybindings icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-material "keyboard" :height 1.0 :v-adjust -0.2)))
-
-     (defun ivy-rich-library-icon (_candidate)
-       "Display library icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-material "view_module" :height 1.0 :v-adjust -0.2 :face 'all-the-icons-lblue)))
-
-     (defun ivy-rich-package-icon (_candidate)
-       "Display package icons in `ivy-rich'."
-       (when (display-graphic-p)
-         (all-the-icons-faicon "archive" :height 0.9 :v-adjust 0.0 :face 'all-the-icons-silver)))
 
      (when (display-graphic-p)
        (defun ivy-rich-bookmark-type-plus (candidate)
@@ -3338,8 +3280,7 @@ Add command to prompt user for directory before compile
    #+BEGIN_SRC emacs-lisp
      (setq ivy-rich-display-transformers-list
            '(ivy-switch-buffer
-             (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 48))
+             (:columns ((ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3348,8 +3289,7 @@ Add command to prompt user for directory before compile
                        :predicate (lambda (cand) (get-buffer cand))
                        :delimiter "\t")
              ivy-switch-buffer-other-window
-             (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 48))
+             (:columns ((ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3358,8 +3298,7 @@ Add command to prompt user for directory before compile
                        :predicate (lambda (cand) (get-buffer cand))
                        :delimiter "\t")
              counsel-switch-buffer
-             (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 48))
+             (:columns ((ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3368,8 +3307,7 @@ Add command to prompt user for directory before compile
                        :predicate (lambda (cand) (get-buffer cand))
                        :delimiter "\t")
              counsel-switch-buffer-other-window
-             (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 48))
+             (:columns ((ivy-rich-candidate (:width 48))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3378,8 +3316,7 @@ Add command to prompt user for directory before compile
                        :predicate (lambda (cand) (get-buffer cand))
                        :delimiter "\t")
              persp-switch-to-buffer
-             (:columns ((ivy-rich-buffer-icon)
-                        (ivy-rich-candidate (:width 30))
+             (:columns ((ivy-rich-candidate (:width 30))
                         (ivy-rich-switch-buffer-size (:width 7))
                         (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                         (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
@@ -3388,56 +3325,43 @@ Add command to prompt user for directory before compile
                        :predicate (lambda (cand) (get-buffer cand))
                        :delimiter "\t")
              counsel-M-x
-             (:columns ((ivy-rich-function-icon)
-                        (counsel-M-x-transformer (:width 50))
+             (:columns ((counsel-M-x-transformer (:width 50))
                         (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
              counsel-describe-function
-             (:columns ((ivy-rich-function-icon)
-                        (counsel-describe-function-transformer (:width 50))
+             (:columns ((counsel-describe-function-transformer (:width 50))
                         (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
              counsel-describe-variable
-             (:columns ((ivy-rich-variable-icon)
-                        (counsel-describe-variable-transformer (:width 50))
+             (:columns ((counsel-describe-variable-transformer (:width 50))
                         (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face))))
              counsel-apropos
-             (:columns ((ivy-rich-symbol-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-info-lookup-symbol
-             (:columns ((ivy-rich-symbol-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-descbinds
-             (:columns ((ivy-rich-keybinding-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-find-file
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-read-file-transformer))
+             (:columns ((ivy-read-file-transformer))
                        :delimiter "\t")
              counsel-file-jump
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-dired
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-read-file-transformer))
+             (:columns ((ivy-read-file-transformer))
                        :delimiter "\t")
              counsel-dired-jump
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-fzf
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-git
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-recentf
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate (:width 0.8))
+             (:columns ((ivy-rich-candidate (:width 0.8))
                         (ivy-rich-file-last-modified-time (:face font-lock-comment-face)))
                        :delimiter "\t")
              counsel-bookmark
@@ -3446,36 +3370,28 @@ Add command to prompt user for directory before compile
                         (ivy-rich-bookmark-info))
                        :delimiter "\t")
              counsel-package
-             (:columns ((ivy-rich-package-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-find-library
-             (:columns ((ivy-rich-library-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-load-library
-             (:columns ((ivy-rich-library-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-load-theme
-             (:columns ((ivy-rich-theme-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-projectile-switch-project
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")
              counsel-projectile-find-file
-             (:columns ((ivy-rich-file-icon)
-                        (counsel-projectile-find-file-transformer))
+             (:columns ((counsel-projectile-find-file-transformer))
                        :delimiter "\t")
              counsel-projectile-find-dir
-             (:columns ((ivy-rich-dir-icon)
-                        (counsel-projectile-find-dir-transformer))
+             (:columns ((counsel-projectile-find-dir-transformer))
                        :delimiter "\t")
              treemacs-projectile
-             (:columns ((ivy-rich-file-icon)
-                        (ivy-rich-candidate))
+             (:columns ((ivy-rich-candidate))
                        :delimiter "\t")))
    #+END_SRC
 
@@ -3961,14 +3877,28 @@ Add command to prompt user for directory before compile
       | g x               |             | 'vc-next-action                                           |
       | g v               |             | 'git-gutter:set-start-revision                            |
 
-** Keyfreq
-   Track Emacs commands frequency, github [[https://github.com/dacap/keyfreq][here]].
-   Use keyfreq-show to see how many times you used a command.
+** CalibreDB
 
    #+begin_src emacs-lisp
-     (require 'keyfreq)
-     (keyfreq-mode 1)
-     (keyfreq-autosave-mode 1)
+     (require 'calibredb)
+     (setq sql-sqlite-program "/usr/bin/sqlite3")
+     (setq calibredb-root-dir "/Volumes/WDC 2/Calibre Library")
+     (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+     (setq calibredb-program "/Applications/calibre.app/Contents/MacOS/calibredb")
+     (setq calibredb-library-alist '(("/Volumes/WDC 2/Calibre Library")
+                                     ))
+   #+end_src
+
+** Explain Pause Mode
+
+   #+begin_src emacs-lisp
+     (explain-pause-mode t)
+   #+end_src
+
+** Nyan Cat
+
+   #+begin_src emacs-lisp
+     (nyan-mode 1)
    #+end_src
 
 ** Lsp-mode
@@ -4868,31 +4798,40 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      (setq wg-morph-on nil ;; switch off animation
            persp-autokill-buffer-on-remove 'kill-weak
            persp-auto-save-opt 0
-           persp-auto-resume-time -1
+           persp-auto-resume-time 0
+           persp-set-last-persp-for-new-frames nil
            persp-keymap-prefix (kbd "C-c o")
+           persp-nil-name "Default"
            persp-nil-hidden t
            persp-add-buffer-on-find-file t
            persp-add-buffer-on-after-change-major-mode t
            persp-hook-up-emacs-buffer-completion t)
    #+end_src
+*** Ignore temporary buffers
+   #+begin_src emacs-lisp
+     (add-hook 'persp-common-buffer-filter-functions
+               (lambda (b) (or (string-prefix-p "*" (buffer-name b))
+                               (string-prefix-p "magit" (buffer-name b)))))
+   #+end_src
 *** Make ivy play nice
    #+begin_src emacs-lisp
-  (with-eval-after-load "ivy"
-    (add-hook 'ivy-ignore-buffers
-              #'(lambda (b)
-                  (when persp-mode
-                    (let ((persp (get-current-persp)))
-                      (if persp
-                          (not (persp-contain-buffer-p b persp))
-                        nil)))))
-    (setq ivy-sort-functions-alist
-          (append ivy-sort-functions-alist
-                  '((persp-kill-buffer   . nil)
-                    (persp-remove-buffer . nil)
-                    (persp-add-buffer    . nil)
-                    (persp-switch        . nil)
-                    (persp-window-switch . nil)
-                    (persp-frame-switch . nil)))))
+     (with-eval-after-load "ivy"
+       (add-hook 'ivy-ignore-buffers
+                 #'(lambda (b)
+                     (when persp-mode
+                       (let ((persp (get-current-persp)))
+                         (if persp
+                             (not (persp-contain-buffer-p b persp))
+                           nil)))))
+
+       (setq ivy-sort-functions-alist
+             (append ivy-sort-functions-alist
+                     '((persp-kill-buffer   . nil)
+                       (persp-remove-buffer . nil)
+                       (persp-add-buffer    . nil)
+                       (persp-switch        . nil)
+                       (persp-window-switch . nil)
+                       (persp-frame-switch  . nil)))))
    #+end_src
 
 *** Rename main perspective
@@ -5257,6 +5196,23 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
                  (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode)
                  (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
    #+END_SRC
+
+** VTerm
+*** Evil Binding
+    :PROPERTIES:
+    :CUSTOM_ID: global-vterm-binding
+    :END:
+   Using The table below as the source for generating [[Vterm Bindings][Vterm Bindings]]
+
+   #+name: vterm_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :keymaps 'vterm-mode-map
+   #+end_src
+   #+TBLNAME: vterm_mode_keys
+      | Combo | Description | Command           |
+      | C-n   |             | 'multi-vterm-next |
+      | C-p   |             | 'multi-vterm-prev |
 
 ** Highlight-indent-guides
    Add highlight column guides on indentation
@@ -6149,6 +6105,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
      <<gen_emacs>>
      <<gen-keys(moda="lead", tname=std_keys)>>
      <<gen-keys(moda="lead", tname=emacs_ivy_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+** Vterm Bindings
+   Generate binding using table from [[#global-vterm-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<vterm_map>>
+     <<gen-keys(moda="lead", tname=vterm_mode_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 ** Evil Bindings

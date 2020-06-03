@@ -271,9 +271,9 @@ The theme has to be reloaded after changing anything in this group."
        `(ivy-subdir                          ((,class (:foreground ,quickbeans-green-4))))
        `(ivy-modified-buffer                 ((,class (:foreground ,quickbeans-red-2))))
 ;;;;; Ivy-postframe
-       `(ivy-posframe                         ((,class (:background ,quickbeans-grey-0))))
-       `(ivy-posframe-border                  ((,class (:background "#abff00"))))
-       `(ivy-posframe-cursor                  ((,class (:background "#00ff00"))))
+       `(ivy-posframe                         ((,class (:background ,quickbeans-grey-1))))
+       `(ivy-posframe-border                  ((,class (:background "#6272a4"))))
+       `(ivy-posframe-cursor                  ((,class (:background "#61bfff"))))
 ;;;;; Jabber
        `(jabber-activity-personal-face       ((,class (:foreground ,quickbeans-green-6 :weight bold))))
        `(jabber-activity-face                ((,class (:foreground ,quickbeans-red-3 :weight bold))))
@@ -352,11 +352,11 @@ The theme has to be reloaded after changing anything in this group."
        `(magit-diff-conflict-heading         ((,class (:inherit magit-diff-hunk-heading))))
        `(magit-diff-context                  ((,class (:background ,quickbeans-bg :foreground ,quickbeans-fg))))
        `(magit-diff-context-highlight        ((,class (:background ,quickbeans-bg :foreground ,quickbeans-fg))))
-       `(magit-diff-file-heading             ((,class (:foreground ,quickbeans-blue-0 :weight bold))))
-       `(magit-diff-file-heading-highlight   ((,class (:foreground ,quickbeans-blue-0 :weight normal))))
+       `(magit-diff-file-heading             ((,class (:foreground ,quickbeans-blue-5 :weight bold))))
+       `(magit-diff-file-heading-highlight   ((,class (:foreground ,quickbeans-blue-5 :weight normal))))
        `(magit-diff-file-heading-selection   ((,class (:background ,quickbeans-bg :foreground ,quickbeans-fg))))
-       `(magit-diff-hunk-heading             ((,class (:background ,quickbeans-grey-3 :box ,quickbeans-grey-3  :foreground ,quickbeans-fg :weight bold))))
-       `(magit-diff-hunk-heading-highlight   ((,class (:background ,quickbeans-grey-3 :box ,quickbeans-grey-7 :weight bold :foreground ,quickbeans-fg))))
+       `(magit-diff-hunk-heading             ((,class (:background ,quickbeans-grey-2 :box ,quickbeans-grey-1  :foreground ,quickbeans-fg :weight bold))))
+       `(magit-diff-hunk-heading-highlight   ((,class (:background ,quickbeans-grey-2 :box ,quickbeans-grey-3 :weight bold :foreground ,quickbeans-fg))))
        `(magit-diff-hunk-heading-selection   ((,class (:inherit magit-diff-hunk-heading-highlight :foreground ,quickbeans-red-0))))
        `(magit-diff-lines-boundary           ((,class (:inherit magit-diff-lines-heading))))
        `(magit-diff-lines-heading            ((,class (:inherit magit-diff-hunk-heading-highlight :background ,quickbeans-red-6 :foreground ,quickbeans-fg))))
@@ -442,7 +442,7 @@ The theme has to be reloaded after changing anything in this group."
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
 ;;;;; Region
-       `(region                              ((,class (:background ,quickbeans-grey-1))))
+       `(region                              ((,class (:background ,quickbeans-grey-2 :box (:line-width (-1 . -1) :color ,quickbeans-blue-1 style: nil)))))
 ;;;;; SHM
        `(shm-current-face                    ((,class (:background ,quickbeans-grey-4))))
        `(shm-quarantine-face                 ((,class (:background ,quickbeans-red-4))))
