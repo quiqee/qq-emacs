@@ -13,6 +13,7 @@
    this is by practicing on file I'm often work with. When I saw an Emacs
    configuration done in =org-mode=, I knew this is what I wanted to do.
 
+
    ☯
 
 ** How does it work?
@@ -60,16 +61,16 @@
 
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/bin/packages.el
      (setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
-        package-user-dir (concat user-emacs-directory ".cache/elpa/"))
+           package-user-dir (concat user-emacs-directory ".cache/elpa/"))
 
      (package-initialize)
 
      (let ((inhibit-message t))
-       (if (require 'quelpa nil t)
-           (quelpa-self-upgrade)
+       (unless (package-installed-p 'quelpa)
          (with-temp-buffer
-           (url-insert-file-contents "https://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
-           (eval-buffer))))
+           (url-insert-file-contents "https://github.com/quelpa/quelpa/raw/master/quelpa.el")
+           (eval-buffer)
+           (quelpa-self-upgrade))))
 
      ; find package information from following archives
      (setq package-archives (quote (("gnu" . "http://elpa.gnu.org/packages/")
@@ -79,7 +80,7 @@
      (list-packages)
 
      (mapcar (lambda (package)
-               ; install package if not already installed
+                                             ; install package if not already installed
                (let* ((ret (car-safe package)) (meth (plist-get package ret)))
                  (unless (package-installed-p (or ret package))
                    (if (and ret (eq meth 'builtin))
@@ -100,10 +101,36 @@
                cliphist
                multi-term
                restart-emacs
+               smerge-mode
+
+               beacon
+
+               markdown-mode
+               move-text                     ; Move current line or region with M-up or M-down
+               multiple-cursors              ; Multiple cursors for Emacs.
+               org-superstar                 ; show org bullet as Unicode character
+               org-cliplink
+               ;org-pdfview
+               ;org-sidebar
+               ;paredit                       ; minor mode for editing parentheses
+               popwin                        ; popup window manager
+                                             ;(depends-on "pretty-lambdada")
+               rainbow-delimiters
+               ;smart-mode-line
+               smartparens                   ; Minor mode for Emacs that deals with parens pairs
+               smart-tabs-mode               ; provide semantic way of using tab in source code
+               smex                          ; M-x interface with Ido-style fuzzy matching.
+
+               vterm
+               multi-vterm
+               sr-speedbar
+               volatile-highlights
+               wgrep-ag
+               writegood-mode
+               xcscope
+               yasnippet                     ; snippet tools for emacs
 
                ;; UI Enhancement
-                                             ;(depends-on "info+")
-               ;spaceline
                window-numbering
                persp-mode
                amx
@@ -113,8 +140,6 @@
                calibredb
 
                ;; Modes
-                                             ;(depends-on "crontab-mode")
-                                             ;(depends-on "csv-nav")
                swift-mode
 
                ;emojify
@@ -148,7 +173,6 @@
                irony-eldoc
                flycheck-irony
 
-                                             ;(depends-on "icicles")
                dired-narrow
                dired-subtree
                all-the-icons-dired
@@ -178,7 +202,7 @@
                lsp-ui
                lsp-treemacs
                ccls
-                                             ;lsp-sourcekit
+               ;lsp-sourcekit
                vlf
                git-timemachine
                ggtags
@@ -190,7 +214,6 @@
 
                function-args
                clean-aindent-mode
-                                             ;(depends-on "dtrt-indent")
                ws-butler
                projectile
                ace-jump-mode                 ; quick cursor location minor mode
@@ -199,7 +222,6 @@
                auto-compile                  ; automatically compile Emacs Lisp libraries
                bind-key                      ; a simple way to manage personal keybindings
                color-identifiers-mode        ; gives colors to unique variables passed into functions
-                                             ;(depends-on "crosshairs")              ; Highlight current line & current column
 
                diff-hl
                                              ;(depends-on "dired+")
@@ -234,14 +256,11 @@
                evil-quickscope
                evil-mc
                general
-                                             ;(depends-on "evil-smartparens")
-
 
                flycheck                      ; on-the-fly syntax checking
                ggtags
                which-key
-
-                                             ;(depends-on "help-fns+")              ; better help functions
+               which-key-posframe
 
                hungry-delete
                idle-highlight-mode           ; sets an idle timer that highlights all
@@ -259,34 +278,6 @@
                git-gutter-fringe
                git-messenger
 
-               smerge-mode
-
-               markdown-mode
-               move-text                     ; Move current line or region with M-up or M-down
-               multiple-cursors              ; Multiple cursors for Emacs.
-               org-superstar                 ; show org bullet as Unicode character
-               org-cliplink
-               org-pdfview
-               org-sidebar
-               paredit                       ; minor mode for editing parentheses
-               popwin                        ; popup window manager
-                                             ;(depends-on "pretty-lambdada")
-               rainbow-delimiters
-               smart-mode-line
-               smartparens                   ; Minor mode for Emacs that deals with parens pairs
-               smart-tabs-mode               ; provide semantic way of using tab in source code
-               smex                          ; M-x interface with Ido-style fuzzy matching.
-
-               (explain-pause-mode :fetcher git :url "https://github.com/lastquestion/explain-pause-mode.git")
-
-               vterm
-               multi-vterm
-               sr-speedbar
-               volatile-highlights
-               wgrep-ag
-               writegood-mode
-               xcscope
-               yasnippet                     ; snippet tools for emacs
                ))
    #+END_SRC
 
@@ -3889,16 +3880,16 @@ Add command to prompt user for directory before compile
                                      ))
    #+end_src
 
-** Explain Pause Mode
-
-   #+begin_src emacs-lisp
-     (explain-pause-mode t)
-   #+end_src
-
 ** Nyan Cat
 
    #+begin_src emacs-lisp
      (nyan-mode 1)
+   #+end_src
+
+** Beacon
+
+   #+begin_src emacs-lisp
+     (beacon-mode 1)
    #+end_src
 
 ** Lsp-mode
@@ -5213,6 +5204,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | Combo | Description | Command           |
       | C-n   |             | 'multi-vterm-next |
       | C-p   |             | 'multi-vterm-prev |
+      | C-y   |             | 'vterm-yank       |
 
 ** Highlight-indent-guides
    Add highlight column guides on indentation
