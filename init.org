@@ -161,17 +161,12 @@
                company
                ;company-box
                (company-posframe :fetcher git :url "https://github.com/tumashu/company-posframe.git")
-               company-irony
-               company-irony-c-headers
                company-sourcekit
                ;company-emoji
                company-math
                company-quickhelp
                company-flx
                company-statistics
-               irony
-               irony-eldoc
-               flycheck-irony
 
                dired-narrow
                dired-subtree
@@ -260,7 +255,6 @@
                flycheck                      ; on-the-fly syntax checking
                ggtags
                which-key
-               which-key-posframe
 
                hungry-delete
                idle-highlight-mode           ; sets an idle timer that highlights all
@@ -493,11 +487,11 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (set-face-attribute 'default nil :font "PragmataPro-10")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
-     (set-face-attribute 'variable-pitch nil :family "Baskerville")
+     (set-face-attribute 'variable-pitch nil :family "Fira Code Light")
      (defun qq/set-font-to-variable-width ()
        "Change font in current window to a variable-width font."
        (interactive)
-       (face-remap-add-relative 'default '(:family "Baskerville" :height 120)))
+       (face-remap-add-relative 'default '(:family "Fira Code Light" :height 140)))
      (setq qq/preferred-font "PragmataPro-12")
    #+end_src
 
@@ -587,11 +581,11 @@ required from *emacs*.
      (defun qq/set-font-to-variable-width ()
        "Change font in current window to a variable-width font."
        (interactive)
-       (face-remap-add-relative 'default '(:family "Baskerville" :height 140)))
+       (face-remap-add-relative 'default '(:family "Fira Code Light" :height 140)))
      (setq qq/preferred-font "PragmataPro-14")
      (set-face-attribute 'default nil :font "PragmataPro-14")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro-14")
-     (set-face-attribute 'variable-pitch nil :family "Baskerville")
+     (set-face-attribute 'variable-pitch nil :family "Fira Code Light")
    #+end_src
 
 **** Swift =sourcekit-lsp=
@@ -2922,14 +2916,11 @@ required from *emacs*.
 
          ("C-S-s" . swiper-all)
 
-         ("C-c C-r" . ivy-resume)
          ("C-c v p" . ivy-push-view)
          ("C-c v o" . ivy-pop-view)
          ("C-c v ." . ivy-switch-view)
 
-         ("C-c L" . counsel-load-library)
          ("C-c P" . counsel-package)
-         ("C-c f" . counsel-find-library)
          ("C-c g" . counsel-grep)
          ("C-c h" . counsel-command-history)
          ("C-c i" . counsel-git)
@@ -2939,11 +2930,8 @@ required from *emacs*.
          ("C-c z" . counsel-fzf)
 
          ("C-c c F" . counsel-faces)
-         ("C-c c L" . counsel-load-library)
          ("C-c c P" . counsel-package)
          ("C-c c a" . counsel-apropos)
-         ("C-c c e" . counsel-colors-emacs)
-         ("C-c c f" . counsel-find-library)
          ("C-c c g" . counsel-grep)
          ("C-c c h" . counsel-command-history)
          ("C-c c i" . counsel-git)
@@ -2956,7 +2944,6 @@ required from *emacs*.
          ("C-c c s" . counsel-ag)
          ("C-c c t" . counsel-load-theme)
          ("C-c c u" . counsel-unicode-char)
-         ("C-c c w" . counsel-colors-web)
          ("C-c c z" . counsel-fzf)
 
          :map counsel-find-file-map
@@ -3087,6 +3074,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (require 'amx)
      (setq amx-history-length 20)
+     (setq amx-save-file (concat qq/cache-directory "amx-items"))
    #+END_SRC
 
 *** Enhance fuzzy matching
@@ -3406,27 +3394,36 @@ Add command to prompt user for directory before compile
    Using The table below as the source for generating [[Normal Ivy Bindings][Normal Ivy Bindings]]
 
    #+TBLNAME: normal_ivy_keys
-      | Evil Leader Combo | Description | Command                     |
-      |-------------------+-------------+-----------------------------|
-      | SPC               |             | 'counsel-M-x                |
-      | "."               |             | 'counsel-find-file          |
-      | h f               |             | 'counsel-describe-function  |
-      | h F               |             | 'counsel-describe-face      |
-      | h v               |             | 'counsel-describe-variable  |
-      | h l               |             | 'counsel-find-library       |
-      | i y               |             | 'counsel-info-lookup-symbol |
-      | i u               |             | 'counsel-unicode-char       |
-      | c c               |             | 'counsel-compile            |
-      | c d               |             | 'qq/counsel-compile-dir     |
-      | c r               |             | 'recompile                  |
-      | g c               |             | 'counsel-git                |
-      | g f               |             | 'counsel-git-find-file      |
-      | g g               |             | 'counsel-git-grep           |
-      | / /               |             | 'counsel-ag                 |
-      | / i               |             | 'counsel-imenu              |
-      | / s               |             | 'swiper                     |
-      | l                 |             | 'counsel-locate             |
-      | r s               |             | 'ivy-resume                 |
+      | Evil Leader Combo | Description                                       | Command                            |
+      |-------------------+---------------------------------------------------+------------------------------------|
+      | SPC               | Ivy M-x version                                   | 'counsel-M-x                       |
+      | "."               | Forward to 'find file'                            | 'counsel-find-file                 |
+      | h f               | Display full doc on a function                    | 'counsel-describe-function         |
+      | h F               | Display properties of a face                      | 'counsel-describe-face             |
+      | h v               | Display full doc of a variable                    | 'counsel-describe-variable         |
+      | h l               | Find Emacs Lisp source of a library               | 'counsel-find-library              |
+      | i e               | Show list of supported colors in a frame          | 'counsel-colors-emacs              |
+      | i f               | Lists of faces with preview                       | 'counsel-faces                     |
+      | i l               | Load selected Emacs Lisp Library                  | 'counsel-load-library              |
+      | i y               | Display definition of a symbol                    | 'counsel-info-lookup-symbol        |
+      | i u               | Insert COUNT copy of unicode char at point        | 'counsel-unicode-char              |
+      | i w               | Show W3C Web color list for use in CSS            | 'counsel-colors-web                |
+      | c c               | Call 'compile' completing with smart suggestion   | 'counsel-compile                   |
+      | c d               |                                                   | 'qq/counsel-compile-dir            |
+      | c r               |                                                   | 'recompile                         |
+      | g c               |                                                   | 'counsel-git                       |
+      | g f               |                                                   | 'counsel-git-find-file             |
+      | g g               |                                                   | 'counsel-git-grep                  |
+      | / /               |                                                   | 'counsel-ag                        |
+      | / i               |                                                   | 'counsel-imenu                     |
+      | / s               |                                                   | 'swiper                            |
+      | l                 | Run 'locate' putting thre result in Locate buffer | 'counsel-locate                    |
+      | r s               | Resume last completion session                    | 'ivy-resume                        |
+      | ","               |                                                   | 'counsel-projectile-find-file      |
+      | p /               |                                                   | 'counsel-projectile-ag             |
+      | p f               |                                                   | 'counsel-projectile-find-file-dwim |
+      | p d               |                                                   | 'counsel-projectile-find-dir       |
+      | p s               |                                                   | 'counsel-projectile-switch-project |
 
 *** Visual Keybinding
     :PROPERTIES:
@@ -3451,12 +3448,15 @@ Add command to prompt user for directory before compile
       :keymaps 'ivy-minibuffer-map
    #+end_src
    #+TBLNAME: ivy_map_keys
-      | Combo | Description | Command            |
-      | C-h   |             | (kbd "DEL")        |
-      | C-j   | navigation  | 'ivy-next-line     |
-      | C-k   | refresh     | 'ivy-previous-line |
-      | C-l   |             | 'ivy-alt-done      |
-      | C-w   |             | 'ivy-yank-word     |
+      | Combo | Description                      | Command                  |
+      | C-h   |                                  | (kbd "DEL")              |
+      | C-j   | selects the next candidate       | 'ivy-next-line           |
+      | C-k   | selects the previous candidate   | 'ivy-previous-line       |
+      | C-a   | selects the first candidate      | 'ivy-beginning-of-buffer |
+      | C-e   | selects the last candidate       | 'ivy-end-of-buffer       |
+      | C-b   | scrolls down by ivy-height lines | 'ivy-scroll-down-command |
+      | C-f   | scrolls up by ivy-height lines   | 'ivy-scroll-up-command   |
+      | C-w   |                                  | 'ivy-yank-word           |
 
    #+name: ivy_buffer_map
    #+begin_src emacs-lisp :tangle no
@@ -3464,12 +3464,16 @@ Add command to prompt user for directory before compile
       :keymaps 'ivy-switch-buffer-map
    #+end_src
    #+TBLNAME: ivy_buffer_keys
-      | Combo | Description | Command                 |
-      | C-h   |             | (kbd "DEL")             |
-      | C-j   | navigation  | 'ivy-next-line          |
-      | C-k   | refresh     | 'ivy-previous-line      |
-      | C-l   |             | 'ivy-alt-done           |
-      | C-r   | kill buffer | 'ivy-switch-buffer-kill |
+      | Combo | Description                      | Command                  |
+      | C-h   |                                  | (kbd "DEL")              |
+      | C-j   | navigation                       | 'ivy-next-line           |
+      | C-k   | refresh                          | 'ivy-previous-line       |
+      | C-a   | selects the first candidate      | 'ivy-beginning-of-buffer |
+      | C-e   | selects the last candidate       | 'ivy-end-of-buffer       |
+      | C-b   | scrolls down by ivy-height lines | 'ivy-scroll-down-command |
+      | C-f   | scrolls up by ivy-height lines   | 'ivy-scroll-up-command   |
+      | C-l   |                                  | 'ivy-alt-done            |
+      | C-r   | kill buffer                      | 'ivy-switch-buffer-kill  |
 
 ** Dired
    #+begin_src emacs-lisp
@@ -3944,11 +3948,32 @@ Add command to prompt user for directory before compile
      org-directory "~/Dropbox/org"
    #+END_SRC
 ***** Elipsis appearance
+my collection of org-ellipsis candidate symbols
+
+    right arrows
+
+    “↝” “⇉” “⇝” “⇢” “⇨” “⇰” “➔” “➙” “➛” “➜” “➝” “➞”
+
+    “➟” “➠” “➡” “➥” “➦” “➧” “➨”
+
+    “➩” “➪” “➮” “➯” “➱” “➲”
+
+    “➳” “➵” “➸” “➺” “➻” “➼” “➽”
+    arrow heads
+
+    “➢” “➣” “➤” “≪”, “≫”, “«”, “»”
+    other arrows
+
+    “↞” “↠” “↟” “↡” “↺” “↻”
+    lightening
+
+    “⚡”
+    other symbols
+
+    …, ▼, ↴, , ∞, ⬎, ⤷, ⤵
 
    #+BEGIN_SRC emacs-lisp
-     ;org-ellipsis "▼"
-     ;org-ellipsis "⤵"
-     org-ellipsis " ⚡"
+     org-ellipsis "»"
      org-columns-ellipses "…"
    #+END_SRC
 
@@ -4772,16 +4797,10 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
     :END:
    Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]] with leader-key bindings
 
-      | SPC / | Search using ag within projectile project | 'helm-projectile-ag             |
-      | g f   | Open file at point within active project  | 'helm-projectile-find-file-dwim |
-
    #+TBLNAME: evil_projectile_keys
       | Combo | Description | Command                                                                    |
       |-------+-------------+----------------------------------------------------------------------------|
       | f a   |             | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
-      | p s   |             | 'helm-projectile-switch-project                                            |
-      | p e   |             | 'helm-projectile                                                           |
-      | ,     |             | 'helm-projectile-find-file                                                 |
 
 ** Persp-mode
 *** Settings
@@ -5189,6 +5208,11 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    #+END_SRC
 
 ** VTerm
+*** Settings
+   #+BEGIN_SRC emacs-lisp
+     (setq vterm-kill-buffer-on-exit t)
+   #+END_SRC
+
 *** Evil Binding
     :PROPERTIES:
     :CUSTOM_ID: global-vterm-binding
@@ -5205,6 +5229,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | C-n   |             | 'multi-vterm-next |
       | C-p   |             | 'multi-vterm-prev |
       | C-y   |             | 'vterm-yank       |
+      | s-v   |             | 'vterm-yank       |
 
 ** Highlight-indent-guides
    Add highlight column guides on indentation
@@ -5225,12 +5250,35 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    #+BEGIN_SRC emacs-lisp
      (require 'which-key)
      (which-key-mode)
-     (which-key-setup-side-window-right-bottom)
+     ;(which-key-setup-side-window-right-bottom)
      ;(which-key-setup-minibuffer)
 
      (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
 
      (setq which-key-special-keys nil)
+     (setq which-key-popup-type 'side-window)
+   #+END_SRC
+
+   location of which-key window. valid values: top, bottom, left, right,
+   or a list of any of the two. If it's a list, which-key will always try
+   the first location first. It will go to the second location if there is
+   not enough room to display any keys in the first location
+   #+BEGIN_SRC emacs-lisp
+     (setq which-key-side-window-location 'left)
+   #+END_SRC
+
+   max width of which-key window, when displayed at left or right.
+   valid values: number of columns (integer), or percentage out of current
+   frame's width (float larger than 0 and smaller than 1)
+   #+BEGIN_SRC emacs-lisp
+     (setq which-key-side-window-max-width 0.20)
+   #+END_SRC
+
+   max height of which-key window, when displayed at top or bottom.
+   valid values: number of lines (integer), or percentage out of current
+   frame's height (float larger than 0 and smaller than 1)
+   #+BEGIN_SRC emacs-lisp
+     (setq which-key-side-window-max-height 0.75)
    #+END_SRC
 
 *** Replacements for how KEY is replaced when which-key displays

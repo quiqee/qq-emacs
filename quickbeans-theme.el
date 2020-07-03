@@ -268,11 +268,11 @@ The theme has to be reloaded after changing anything in this group."
        `(ivy-minibuffer-match-face-2         ((,class (:foreground ,quickbeans-orange-0))))
        `(ivy-minibuffer-match-face-3         ((,class (:foreground ,quickbeans-blue-1))))
        `(ivy-minibuffer-match-face-4         ((,class (:foreground ,quickbeans-purple-1))))
-       `(ivy-subdir                          ((,class (:foreground ,quickbeans-green-4))))
+       `(ivy-subdir                          ((,class (:foreground ,quickbeans-green-5))))
        `(ivy-modified-buffer                 ((,class (:foreground ,quickbeans-red-2))))
 ;;;;; Ivy-postframe
        `(ivy-posframe                         ((,class (:background ,quickbeans-grey-1))))
-       `(ivy-posframe-border                  ((,class (:background "#6272a4"))))
+       `(ivy-posframe-border                  ((,class (:background "White"))))
        `(ivy-posframe-cursor                  ((,class (:background "#61bfff"))))
 ;;;;; Jabber
        `(jabber-activity-personal-face       ((,class (:foreground ,quickbeans-green-6 :weight bold))))
