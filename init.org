@@ -809,14 +809,8 @@ required from *emacs*.
      (setq delete-old-versions t
            kept-new-versions 2
            kept-old-versions 2
-   #+END_SRC
-
-**** Set backup location for TRAMP
-   #+BEGIN_SRC emacs-lisp
-           backup-directory-alist `(("." . ,(concat qq/cache-directory "backups")))
-           tramp-backup-directory-alist backup-directory-alist
            vc-cvs-stay-local nil
-#+END_SRC
+   #+END_SRC
 
 **** Finally, use version numbers in the filenames:
 
@@ -1139,6 +1133,14 @@ required from *emacs*.
                      (progn
                        (setq server-name "server-nw")
                        (server-start))))))
+   #+end_src
+
+*** Local =compile-command=
+   The variable compile-command is not buffer local by default, thus you can not
+   set it per buffer. Command below is to change it to buffer local
+
+   #+begin_src emacs-lisp
+     (make-variable-buffer-local 'compile-command)
    #+end_src
 
 *** Bells
@@ -1916,8 +1918,23 @@ required from *emacs*.
    default protocol is =ssh=.
 
    #+BEGIN_SRC emacs-lisp
-     (setq tramp-default-method "ssh"
-           tramp-backup-directory-alist backup-directory-alist)
+;; Backup remote files locally to stop autosave pain
+(setq tramp-backup-directory (concat qq/cache-directory "backups"))
+(unless (file-directory-p tramp-backup-directory)
+  (make-directory tramp-backup-directory))
+(if (file-accessible-directory-p tramp-backup-directory)
+    (setq tramp-auto-save-directory tramp-backup-directory)
+  (error "Cannot write to ~/.emacs-backup"))
+;; Don't backup su and sudo files
+(setq backup-enable-predicate
+      (lambda (name)
+        (and (normal-backup-enable-predicate name)
+             (not
+              (let ((method (file-remote-p name 'method)))
+                (when (stringp method)
+                  (member method '("su" "sudo"))))))))
+     (setq tramp-default-method "sshx"
+           enable-remote-dir-locals t)
    #+END_SRC
 *** Ibuffer customization
 **** Use human readable size column (from [[http://www.emacswiki.org/emacs/IbufferMode#toc12][coldnew]])
@@ -4895,11 +4912,12 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 
    The code generated from this table is [[Persp-mode Bindings][here]].
    #+TBLNAME: persp_combo
-      | Combo | Description | Command        |
-      |-------+-------------+----------------|
-      | s-2   |             | 'persp-next    |
-      | s-1   |             | 'persp-prev    |
-      | s-e   |             | 'persp-add-new |
+      | Combo | Description | Command                     |
+      |-------+-------------+-----------------------------|
+      | s-2   |             | 'persp-next                 |
+      | s-1   |             | 'persp-prev                 |
+      | s-e   |             | 'persp-add-new              |
+      | s-b   |             | 'persp-load-state-from-file |
 
 ** Shell/Term/Fasd
    Launch shell/term within emacs
@@ -5255,8 +5273,21 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 
      (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
 
-     (setq which-key-special-keys nil)
+     ;(setq which-key-special-keys nil)
      (setq which-key-popup-type 'side-window)
+     ;(setq which-key-popup-type 'frame)
+     (setq which-key-popup-type 'minibuffer)
+     (setq which-key-max-display-columns 5)
+     ; max width of which-key frame: number of columns (an integer)
+     ;(setq which-key-frame-max-width 140)
+     ; max height of which-key frame: number of lines (an integer)
+     ;(setq which-key-frame-max-height 120)
+     ;this is supposed to improve speed with custom fonts
+     (setq which-key-allow-imprecise-window-fit t)
+     (setq which-key-sort-order 'which-key-local-then-key-order)
+     ;just so you can read your hyrda function titles in C-m m
+     ;(setq-default which-key-show-docstrings nil)
+     (setq-default which-key-max-description-length 50)
    #+END_SRC
 
    location of which-key window. valid values: top, bottom, left, right,
@@ -5264,21 +5295,21 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    the first location first. It will go to the second location if there is
    not enough room to display any keys in the first location
    #+BEGIN_SRC emacs-lisp
-     (setq which-key-side-window-location 'left)
+     (setq which-key-side-window-location 'bottom)
    #+END_SRC
 
    max width of which-key window, when displayed at left or right.
    valid values: number of columns (integer), or percentage out of current
    frame's width (float larger than 0 and smaller than 1)
    #+BEGIN_SRC emacs-lisp
-     (setq which-key-side-window-max-width 0.20)
+     (setq which-key-side-window-max-width 0.33)
    #+END_SRC
 
    max height of which-key window, when displayed at top or bottom.
    valid values: number of lines (integer), or percentage out of current
    frame's height (float larger than 0 and smaller than 1)
    #+BEGIN_SRC emacs-lisp
-     (setq which-key-side-window-max-height 0.75)
+     (setq which-key-side-window-max-height 0.33)
    #+END_SRC
 
 *** Replacements for how KEY is replaced when which-key displays
@@ -5311,11 +5342,13 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      (which-key-add-key-based-replacements
        "SPC g"   "git/magit"
        "SPC b"   "buffer related"
+       "SPC c"   "compile related"
        "SPC e"   "eval related"
        "SPC j"   "evil ace-jump"
        "SPC p"   "projectile related"
        "SPC r"   "serial commands"
        "SPC h"   "help related"
+       "SPC i"   "counsel related"
        "SPC t"   "toggling thing"
        "SPC v"   "GUD related"
        "C-x 8"   "unicode"
