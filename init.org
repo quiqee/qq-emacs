@@ -8,13 +8,7 @@
 #+AUTHOR: QuiQee
 
 * About
-   This is an Emacs configuration file written in =org-mode=. There are a few
-   reasons why I wanted to do this. I wanted to learn =org-mode=, one way to do
-   this is by practicing on file I'm often work with. When I saw an Emacs
-   configuration done in =org-mode=, I knew this is what I wanted to do.
-
-
-   ☯
+   An Emacs configuration file written in =org-mode=.
 
 ** How does it work?
    =org-mode= support code block exports through a process called =tangle=. This
@@ -54,6 +48,25 @@
 
    #+BEGIN_SRC emacs-lisp
      (add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
+   #+END_SRC
+
+*** Emacs JIT
+
+   #+BEGIN_SRC emacs-lisp
+     (setq comp-speed 2)
+   #+END_SRC
+
+   Add a cache-directory root folder for compiled .eln files
+   #+BEGIN_SRC emacs-lisp
+     (when (boundp 'comp-eln-load-path)
+       (let ((eln-cache-dir (expand-file-name "eln-cache/" qq/cache-directory))
+             (find-exec (executable-find "find")))
+         (setcar comp-eln-load-path eln-cache-dir)
+         ;; Quitting emacs while native compilation in progress can leave zero byte
+         ;; sized *.eln files behind. Hence delete such files during startup.
+         (when find-exec
+           (call-process find-exec nil nil nil eln-cache-dir
+                         "-name" "*.eln" "-size" "0" "-delete"))))
    #+END_SRC
 
 *** Packages
@@ -131,7 +144,7 @@
                yasnippet                     ; snippet tools for emacs
 
                ;; UI Enhancement
-               window-numbering
+               ;window-numbering
                persp-mode
                amx
 
@@ -193,7 +206,6 @@
                swiper
 
                lsp-mode
-               company-lsp
                lsp-ui
                lsp-treemacs
                ccls
@@ -525,12 +537,12 @@ required from *emacs*.
      (setq qq/fullscreen-max t)
    #+end_src
 
-*** Work Build Server
+*** Ubuntu@WSL2
 
    #+BEGIN_SRC emacs-lisp
      (defvar qq/system-name system-name)
      (cond
-      ((string-equal qq/system-name "firmware-OptiPlex-7010") ; Greenwave Build Server
+      ((string-equal qq/system-name "DESKTOP-H6SU6I7") ; Greenwave Build Server
        (progn
    #+END_SRC
 
@@ -540,6 +552,12 @@ required from *emacs*.
      (set-face-attribute 'default nil :font "PragmataPro-10")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
      (set-face-attribute 'variable-pitch nil :family "Caldera")
+   #+end_src
+
+**** Serial Ports
+
+   #+begin_src emacs-lisp
+     (defvar qq/serial-port1 "/dev/ttyS3")
    #+end_src
 
 **** C-Headers path
@@ -586,6 +604,12 @@ required from *emacs*.
      (set-face-attribute 'default nil :font "PragmataPro-14")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro-14")
      (set-face-attribute 'variable-pitch nil :family "Fira Code Light")
+   #+end_src
+
+**** Serial Ports
+
+   #+begin_src emacs-lisp
+     (defvar qq/serial-port1 "/dev/cu.usbserial-FTXKVR0Q")
    #+end_src
 
 **** Swift =sourcekit-lsp=
@@ -726,6 +750,12 @@ required from *emacs*.
      (set-face-attribute 'default nil :font "PragmataPro-10")
    #+end_src
 
+**** Serial Ports
+
+   #+begin_src emacs-lisp
+     (defvar qq/serial-port1 "/dev/ttyUSB0")
+   #+end_src
+
 **** =alert= notifier
 
    #+BEGIN_SRC emacs-lisp
@@ -750,6 +780,12 @@ required from *emacs*.
        (progn
          (message "Linux")
    #+END_SRC
+
+**** Serial Ports
+
+   #+begin_src emacs-lisp
+     (defvar qq/serial-port1 "/dev/ttyUSB0")
+   #+end_src
 
 **** End
    #+BEGIN_SRC emacs-lisp
@@ -3919,6 +3955,11 @@ Add command to prompt user for directory before compile
    #+BEGIN_SRC emacs-lisp
      (require 'lsp-mode)
      (add-hook 'prog-mode-hook #'lsp)
+     (lsp-register-client
+      (make-lsp-client :new-connection (lsp-tramp-connection "/usr/bin/clangd")
+                       :major-modes '(c-mode c++-mode)
+                       :remote? t
+                       :server-id 'clangd-lsp-remote))
    #+END_SRC
 
 *** Ccls
@@ -3928,12 +3969,6 @@ Add command to prompt user for directory before compile
    #+BEGIN_SRC emacs-lisp
      (require 'ccls)
      (setq ccls-executable "/home/fikri/Documents/git/ccls/Release/ccls")
-   #+END_SRC
-
-*** Company-lsp
-   #+BEGIN_SRC emacs-lisp
-     (require 'company-lsp)
-     (push 'company-lsp company-backends)
    #+END_SRC
 
 ** Org
@@ -4914,10 +4949,10 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    #+TBLNAME: persp_combo
       | Combo | Description | Command                     |
       |-------+-------------+-----------------------------|
-      | s-2   |             | 'persp-next                 |
-      | s-1   |             | 'persp-prev                 |
-      | s-e   |             | 'persp-add-new              |
-      | s-b   |             | 'persp-load-state-from-file |
+      | M-2   |             | 'persp-next                 |
+      | M-1   |             | 'persp-prev                 |
+      | M-e   |             | 'persp-add-new              |
+      | M-b   |             | 'persp-load-state-from-file |
 
 ** Shell/Term/Fasd
    Launch shell/term within emacs
@@ -5110,9 +5145,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    #+BEGIN_SRC emacs-lisp
      (defun qq/serial-term-1 ()
        (interactive)
-       (if (string-equal system-type "darwin")
-           (serial-term "/dev/cu.usbserial-FTXKVR0Q" 115200)
-         (serial-term "/dev/ttyUSB0" 115200))
+       (serial-term qq/serial-port1 115200)
        (term-send-string (get-buffer-process (current-buffer))
                          "export TERM=eterm-color\nclear\n"))
      (defun qq/serial-term-2 ()
@@ -5377,7 +5410,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    [[https://github.com/nschum/window-numbering.el]]
 
    #+BEGIN_SRC emacs-lisp
-     (window-numbering-mode)
+;     (window-numbering-mode)
    #+END_SRC
 
 * Languages
