@@ -24,7 +24,7 @@ cd build-emacs-for-macos/
 ./install-patched-gcc
 ./build-emacs-for-macos feature/native-comp
 brew install coreutils diffutils findutils gawk gnu-getopt gnu-tar grep wget quilt xz autoconf texinfo gnutls htop
-brew install cmake gcc@7
+brew install cmake gcc@7 ripgrep
 echo 'export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"' >> ~/.profile
 export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
 git clone "ssh://fpribadi@gerrit-01.greenwavereality.com:29418/ugw" && scp -p -P 29418 fpribadi@gerrit-01.greenwavereality.com:hooks/commit-msg "ugw/.git/hooks/"

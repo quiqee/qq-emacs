@@ -61581,7 +61581,7 @@
 	<key>NSWindow Frame NSNavPanelAutosaveName</key>
 	<string>2205 726 799 448 0 0 5120 1417 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>1835 270 1450 1148 0 0 5120 1417 </string>
+	<string>1835 1417 1450 1148 0 0 5120 1417 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>724 181 1225 1147 0 0 5120 1417 </string>
 	<key>New Bookmarks</key>
@@ -62909,7 +62909,7 @@
 	<key>NoSyncInstallationId</key>
 	<string>0EE91B45-769D-43AB-BD6E-C45D89952BF5</string>
 	<key>NoSyncLaunchExperienceControllerRunCount</key>
-	<integer>11</integer>
+	<integer>13</integer>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile</key>
 	<true/>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile_selection</key>
@@ -63687,6 +63687,8 @@
 	<false/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>
+	<key>findMode_iTerm</key>
+	<integer>0</integer>
 	<key>iTerm Version</key>
 	<string>3.3.12</string>
 </dict>
