@@ -507,6 +507,12 @@ required from *emacs*.
      (setq qq/preferred-font "PragmataPro-12")
    #+end_src
 
+**** Ccls Executables
+
+   #+begin_src emacs-lisp
+     (defvar qq/ccls-binary "/usr/bin/ccls")
+   #+end_src
+
 **** Swift =sourcekit-lsp=
 
    #+begin_src emacs-lisp
@@ -552,6 +558,12 @@ required from *emacs*.
      (set-face-attribute 'default nil :font "PragmataPro-10")
      (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
      (set-face-attribute 'variable-pitch nil :family "Caldera")
+   #+end_src
+
+**** Ccls Executables
+
+   #+begin_src emacs-lisp
+     (defvar qq/ccls-binary "/usr/local/bin/ccls")
    #+end_src
 
 **** Serial Ports
@@ -734,6 +746,51 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      ))
    #+END_SRC
+*** GwsEmb
+
+   #+BEGIN_SRC emacs-lisp
+      ((string-equal qq/system-name "fikri-OptiPlex-5040") ; Mac OS X
+       (progn
+         (message "GWS Embbeded")
+   #+END_SRC
+
+**** Fonts
+
+   #+begin_src emacs-lisp
+     (setq qq/preferred-font "PragmataPro-10")
+     (set-face-attribute 'default nil :font "PragmataPro-10")
+   #+end_src
+
+**** Ccls Executables
+
+   #+begin_src emacs-lisp
+     (setq qq/ccls-binary "/usr/local/bin/ccls")
+   #+end_src
+
+**** Serial Ports
+
+   #+begin_src emacs-lisp
+     (defvar qq/serial-port1 "/dev/ttyUSB0")
+   #+end_src
+
+**** =alert= notifier
+
+   #+BEGIN_SRC emacs-lisp
+     (setq alert-default-style 'libnotify)
+   #+END_SRC
+
+**** Gerrit Identitiy
+    Used by =company-c-headers=
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar qq/gerrit-creds "fpribadi@gitgerrit-02.greenwavereality.eu")
+   #+END_SRC
+
+**** End
+   #+BEGIN_SRC emacs-lisp
+     ))
+   #+END_SRC
+
 *** Work Laptop
 
    #+BEGIN_SRC emacs-lisp
@@ -2675,10 +2732,11 @@ required from *emacs*.
                 ;(js2-error-buffer-mode . emacs)
                 (speedbar-mode . emacs)
                 (messages-buffer-mode . normal)
-                (magit-commit-mode . insert)
+                (magit-commit-mode . normal)
                 (magit-diff-mode . normal)
                 (browse-kill-ring-mode . normal)
                 (etags-select-mode . normal)
+                (xref--xref-buffer-mode . emacs)
                 )
               do (evil-set-initial-state mode state))
    #+END_SRC
@@ -3967,8 +4025,21 @@ Add command to prompt user for directory before compile
    [[https://github.com/MaskRay/emacs-ccls][emacs-ccls]]
 
    #+BEGIN_SRC emacs-lisp
-     (require 'ccls)
-     (setq ccls-executable "/home/fikri/Documents/git/ccls/Release/ccls")
+     ;(require 'ccls)
+     ;(setq ccls-executable qq/ccls-binary)
+   #+END_SRC
+
+*** Clangd
+   #+BEGIN_SRC emacs-lisp
+     (setq lsp-clients-clangd-executable "/usr/bin/clangd")
+     (setq lsp-clients-clangd-args
+           '("-j=2"
+             "--background-index"
+             ;;"--clang-tidy"
+             "--completion-style=bundled"
+             "--pch-storage=memory"
+             "--header-insertion=never"
+             "--header-insertion-decorators=0"))
    #+END_SRC
 
 ** Org

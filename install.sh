@@ -3,6 +3,7 @@
 # Portion is taken from: https://github.com/randomphrase/dotfiles/blob/master/bootstrap.sh
 
 shopt -s nocasematch nullglob # using Bash
+EMACS=emacs
 
 dotfiles=${0%/*}
 dotfiles_abs=$(cd $dotfiles && pwd -L)
@@ -137,10 +138,10 @@ cat > ~/.emacs.d/bin/compile.el <<- EOM
 EOM
 cat > ~/.emacs.d/bin/tangle <<- EOM
 #!/bin/bash
-emacs --script ~/.emacs.d/bin/compile.el >> /dev/null 2>&1 && mv $(pwd)/init.el ~/.emacs.d/
+$EMACS --script ~/.emacs.d/bin/compile.el >> /dev/null 2>&1 && mv $(pwd)/init.el ~/.emacs.d/
 EOM
 chmod +x ~/.emacs.d/bin/tangle
-emacs --batch --eval="(require 'org-install)" \
+$EMACS --batch --eval="(require 'org-install)" \
     --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
     --eval='(org-babel-tangle-file "init.org")' >> /dev/null 2>&1
@@ -149,13 +150,13 @@ echo " ... done"
 
 echo "** Installing Emacs' packages"
 (
-emacs -q --script ~/.emacs.d/bin/packages.el
+$EMACS -q --script ~/.emacs.d/bin/packages.el
 ) || exit 1
 echo " "
 
 echo -n "** Compiling init.el"
 (
 mv init.el ~/.emacs.d/
-emacs --batch --eval='(progn (package-initialize) (byte-compile-file "~/.emacs.d/init.el"))' >> /dev/null 2>&1
+$EMACS --batch --eval='(progn (package-initialize) (byte-compile-file "~/.emacs.d/init.el"))' >> /dev/null 2>&1
 ) || exit 1
 echo " ... done"
