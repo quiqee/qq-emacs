@@ -471,17 +471,6 @@ required from *emacs*.
              tname)
    #+END_SRC
 
-   Another function for generating key for Guide-Key
-
-   #+NAME: gen-guide-keys
-   #+BEGIN_SRC emacs-lisp :var keys=guide_keys :results output :tangle no :exports none :colnames yes
-     (princ "(setq guide-key/guide-key-sequence '(" )
-     (mapcar (lambda (l)
-                (princ (format "\"%s\" " (car l))))
-             keys)
-     (princ "))\n" )
-   #+END_SRC
-
    Utility function for keys generation, this portion will add pre/post code
 
    #+NAME: gen-fix
@@ -4688,7 +4677,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
     :PROPERTIES:
     :CUSTOM_ID: orgmode-key-binding
     :END:
-   The table below will be generated as key-bindings [[Org%20Mode%20Bindings][here]].
+   The table below will be generated as key-bindings [[Org Mode Bindings][here]].
 
    #+TBLNAME: org_keys
       | Combo | Description                                                  | Command         |
@@ -5467,7 +5456,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
     :PROPERTIES:
     :CUSTOM_ID: evil-whichkey-binding
     :END:
-   Using The table below as the source for generating [[Evil%20Whichkey%20Bindings][Evil Whichkey Bindings]]
+   Using The table below as the source for generating [[Evil Whichkey Bindings][Evil Whichkey Bindings]]
 
    #+TBLNAME: evil_whichkey_keys
       | Evil Leader Combo | Description | Command                   |
@@ -6442,6 +6431,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(mmap="t", tname=dired-keys)>>
      <<gen-fix(pos="))\n")>>
     #+END_SRC
+
+*** Evil Whichkey Bindings
+   Generate binding using table from [[#evil-whichkey-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(mmap="ev-nor", tname=evil_whichkey_keys)>>
+   #+END_SRC
 
 *** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]

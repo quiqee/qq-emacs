@@ -139,11 +139,14 @@ stty -ixon    # allow forward search in BASH
 export CLICOLOR=1
 export LSCOLORS=GxFxCxDxBxegedabagaced
 
-hdiutil attach ~/Documents/OpenWrt.sparseimage
-export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-getopt/bin:$PATH"
+hdiutil attach ~/Documents/UGW.sparseimage
+export PATH="/usr/local/opt/bison/bin:/usr/local/opt/make/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-getopt/bin:$PATH"
 
 if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
   __GIT_PROMPT_DIR=$(brew --prefix)/opt/bash-git-prompt/share
   GIT_PROMPT_ONLY_IN_REPO=1
   source "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
 fi
+
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/openssl/lib/pkgconfig
+#export YACC=/usr/local/opt/bison/bin/bison
