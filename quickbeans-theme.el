@@ -79,7 +79,8 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-grey-5     (if (display-graphic-p) "#444444" "#444444"))
       (quickbeans-grey-6     (if (display-graphic-p) "#7f7f7f" "#7f7f7f"))
       (quickbeans-grey-7     (if (display-graphic-p) "#888888" "#888888"))
-      (quickbeans-grey-8     (if (display-graphic-p) "#EBDBB2" "color-223"))
+      ;(quickbeans-grey-8     (if (display-graphic-p) "#EBDBB2" "color-223"))
+      (quickbeans-grey-8     (if (display-graphic-p) "#AAAAAA" "color-223"))
 
       (quickbeans-emphasis   (if (display-graphic-p) "#f8f8f0" "#f8f8f0"))
       (quickbeans-purple-0   (if (display-graphic-p) "#ff73fd" "#ff73fd"))
@@ -130,7 +131,7 @@ The theme has to be reloaded after changing anything in this group."
       (custom-theme-set-faces
        'quickbeans
        `(default                             ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
-       `(internal-border                     ((,class (:foreground ,quickbeans-fg :background nil))))
+       `(internal-border                     ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-7))))
 ;;;;; ACE/Avy
        `(aw-leading-char-face                ((,class (:foreground ,quickbeans-red-3 :height 1.2))))
 ;;;;; Alchemist
@@ -459,6 +460,11 @@ The theme has to be reloaded after changing anything in this group."
        `(spaceline-evil-visual               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-grey-5))))
        `(spaceline-evil-replace              ((,class (:foreground ,quickbeans-bg :background ,quickbeans-red-1))))
        `(spaceline-evil-emacs                ((,class (:foreground ,quickbeans-bg :background ,quickbeans-blue-5))))
+;;;;; Selectrum
+       `(selectrum-current-candidate         ((,class (:background ,quickbeans-grey-0 :weight bold :foreground ,quickbeans-yellow-0))))
+       `(selectrum-primary-highlight         ((,class (:foreground ,quickbeans-yellow-1))))
+       `(selectrum-secondary-highlight       ((,class (:foreground "#98be65"))))
+
 ;;;;; Spacemacs
        `(spacemacs-normal-face               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-orange-2))))
        `(spacemacs-motion-face               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-purple-2))))

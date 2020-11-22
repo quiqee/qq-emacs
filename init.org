@@ -24,6 +24,11 @@
 
 * Basic
 ** Meta
+*** Enable =lexical-binding=
+   #+BEGIN_SRC emacs-lisp
+;; -*- lexical-binding: t -*-
+   #+END_SRC
+
 *** Personal Custom group
    Create a custom group to group any custom variable so it will not
    polute built in variable space
@@ -119,7 +124,10 @@
 
                beacon
 
-               markdown-mode
+               async
+               auto-dim-other-buffers
+               crux
+
                move-text                     ; Move current line or region with M-up or M-down
                multiple-cursors              ; Multiple cursors for Emacs.
                org-superstar                 ; show org bullet as Unicode character
@@ -140,20 +148,25 @@
                sr-speedbar
                volatile-highlights
                wgrep-ag
-               writegood-mode
                xcscope
                yasnippet                     ; snippet tools for emacs
 
                ;; UI Enhancement
                ;window-numbering
-               persp-mode
                amx
 
                flx
 
                calibredb
+               mode-line-bell
 
                ;; Modes
+               writegood-mode
+               persp-mode
+
+               ;; Languages major modes
+               markdown-mode
+               json-mode
                swift-mode
 
                ;emojify
@@ -174,7 +187,7 @@
 
                company
                ;company-box
-               (company-posframe :fetcher git :url "https://github.com/tumashu/company-posframe.git")
+               company-posframe
                company-sourcekit
                ;company-emoji
                company-math
@@ -190,21 +203,11 @@
                general
 
                ibuffer-vc
-               ivy
-               ivy-rich
-               all-the-icons-ivy-rich
-               counsel
-               counsel-etags
-               counsel-projectile
-               counsel-tramp
-               counsel-world-clock
-               all-the-icons-ivy
-               ivy-hydra
-               flyspell-correct-ivy
 
-               (ivy-posframe :fetcher git :url "https://github.com/tumashu/ivy-posframe.git")
+               selectrum
+               orderless
+               mini-frame
 
-               swiper
                yaml-mode
 
                lsp-mode
@@ -218,7 +221,6 @@
 
                nyan-mode
 
-               swift-mode
                xcode-mode
 
                function-args
@@ -251,7 +253,10 @@
                pdf-tools
                tablist
 
+               (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
+
                expand-region
+
                ;; vim emulator
                evil
                evil-exchange
@@ -324,6 +329,11 @@ Convenient macro to allow processing after checking existing pre-condition
                       (symbol-name ,feature)
                       (error-message-string err))
               :error)))))
+
+
+     (defmacro csetq (sym val)
+       `(funcall (or (get ',sym 'custom-set) 'set-default) ',sym ,val))
+
    #+END_SRC
 
 *** Tangling Function
@@ -1219,7 +1229,7 @@ required from *emacs*.
                        (server-start))))))
    #+end_src
 
-*** Local =compile-command=
+j*** Local =compile-command=
    The variable compile-command is not buffer local by default, thus you can not
    set it per buffer. Command below is to change it to buffer local
 
@@ -2516,12 +2526,188 @@ required from *emacs*.
       | C-k   | move cursor to the previous entry | 'company-select-previous                  |
       | TAB   |                                   | 'company-complete-common-or-complete-full |
 
+** Selectrum
+   #+begin_src emacs-lisp
+     (require 'selectrum)
+     (selectrum-mode +1)
+   #+end_src
+
+*** Switch to buffer or recent file
+Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, to files with "f " prefix and to buffers with "b " prefix. (See https://github.com/raxod502/selectrum/issues/9#issuecomment-631325725)
+
+   #+begin_src emacs-lisp
+     (defun selectrum-switch-buffer+ ()
+       (interactive)
+       (let* ((selectrum-should-sort-p nil)
+              (candidates
+               (let* ((cb (window-buffer
+                           (minibuffer-selected-window)))
+                      (bf (or (buffer-file-name cb) "")))
+                 (lambda (input)
+                   (let* ((buffers (mapcar #'buffer-name
+                                           (cl-delete-if
+                                            (lambda (buf)
+                                              (eq buf cb))
+                                            (buffer-list))))
+                          (files (cl-delete-if (lambda (f) (string= f bf))
+                                               (copy-sequence recentf-list)))
+                          (candidates ()))
+                     (cond ((string-prefix-p " " input)
+                            (setq input (substring input 1))
+                            (setq candidates
+                                  (cl-delete-if-not
+                                   (lambda (name)
+                                     (string-prefix-p " " name))
+                                   buffers)))
+                           ((string-prefix-p "b " input)
+                            (setq input (substring input 2))
+                            (setq candidates
+                                  (cl-delete-if
+                                   (lambda (name)
+                                     (string-prefix-p " " name))
+                                   buffers)))
+                           ((string-prefix-p "f " input)
+                            (setq input (substring input 2))
+                            (setq candidates files))
+                           (t
+                            (setq candidates
+                                  (append
+                                   (cl-delete-if
+                                    (lambda (name)
+                                      (string-prefix-p " " name))
+                                    buffers)
+                                   files))))
+                     `((candidates . ,candidates)
+                       (input . ,input))))))
+              (cand (selectrum-read "Switch to: " candidates)))
+         (cond ((member cand recentf-list)
+                (find-file cand))
+               (t
+                (switch-to-buffer cand)))))
+   #+end_src
+*** Normal Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: normal-selectrum-binding
+    :END:
+   Using The table below as the source for generating [[Normal Selectrum Bindings][Normal Selectrum Bindings]]
+
+   #+TBLNAME: normal_selectrum_keys
+      | Evil Leader Combo | Description                         | Command                   |
+      |-------------------+-------------------------------------+---------------------------|
+      | SPC               | Selectrum M-x version               | 'execute-extended-command |
+      | "."               | Forward to 'find file'              | 'find-file                |
+      | b b               |                                     | 'selectrum-switch-buffer+ |
+      | h f               | Display full doc on a function      | 'describe-function        |
+      | h F               | Display properties of a face        | 'describe-face            |
+      | h v               | Display full doc of a variable      | 'describe-variable        |
+      | h l               | Find Emacs Lisp source of a library | 'find-library             |
+
+      | i e               | Show list of supported colors in a frame          | 'counsel-colors-emacs              |
+      | i f               | Lists of faces with preview                       | 'counsel-faces                     |
+      | i l               | Load selected Emacs Lisp Library                  | 'counsel-load-library              |
+      | i y               | Display definition of a symbol                    | 'counsel-info-lookup-symbol        |
+      | i u               | Insert COUNT copy of unicode char at point        | 'counsel-unicode-char              |
+      | i w               | Show W3C Web color list for use in CSS            | 'counsel-colors-web                |
+      | c c               | Call 'compile' completing with smart suggestion   | 'counsel-compile                   |
+      | c d               |                                                   | 'qq/counsel-compile-dir            |
+      | c r               |                                                   | 'recompile                         |
+      | g c               |                                                   | 'counsel-git                       |
+      | g f               |                                                   | 'counsel-git-find-file             |
+      | g g               |                                                   | 'counsel-git-grep                  |
+      | / /               |                                                   | 'counsel-ag                        |
+      | / i               |                                                   | 'counsel-imenu                     |
+      | / s               |                                                   | 'swiper                            |
+      | l                 | Run 'locate' putting thre result in Locate buffer | 'counsel-locate                    |
+      | r s               | Resume last completion session                    | 'ivy-resume                        |
+      | ","               |                                                   | 'counsel-projectile-find-file      |
+      | p /               |                                                   | 'counsel-projectile-ag             |
+      | p f               |                                                   | 'counsel-projectile-find-file-dwim |
+      | p d               |                                                   | 'counsel-projectile-find-dir       |
+      | p s               |                                                   | 'counsel-projectile-switch-project |
+
+** Orderless
+   To make sorting and filtering more intelligent for =selectrum=
+
+   #+begin_src emacs-lisp
+     (require 'orderless)
+     (setq completion-styles '(orderless))
+     (icomplete-mode) ; optional but recommended!
+   #+end_src
+*** Selectrum Integration
+   #+begin_src emacs-lisp
+     (setq selectrum-refine-candidates-function #'orderless-filter)
+     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
+   #+end_src
+
+** Mini-Frame
+   #+begin_src emacs-lisp
+     (after 'mini-frame
+       (csetq mini-frame-show-parameters '((top . 0.2) (width . 0.3) (left . 0.5))))
+     (mini-frame-mode)
+   #+end_src
+
+** Mode-line-bell
+   #+begin_src emacs-lisp
+     (require 'mode-line-bell)
+     (mode-line-bell-mode)
+   #+end_src
+
+** Tempbuf
+kill unused buffers in the background
+
+   #+begin_src emacs-lisp
+     (require 'tempbuf)
+     (defun mode-symbol (sym)
+       "Append \"-mode\" to SYM unless it already ends in it."
+       (let ((symname (symbol-name sym)))
+         (intern
+          (concat symname
+                  (unless (s-suffix? "-mode" symname)
+                    "-mode")))))
+
+     (defun tempbuf-protect ()
+       "Prevent tempbuf from killing visible or unsaved buffers."
+       (when (or (get-buffer-window)
+                 (buffer-modified-p))
+         (throw 'tempbuf-skip-kill nil)))
+     (add-hook 'tempbuf-kill-hook 'tempbuf-protect)
+
+     (defun tempbuf-major-mode-hook ()
+       "Turn on `tempbuf-mode' in current buffer if buffer's `major-mode' is in `tempbuf-temporary-major-modes'.
+
+     Else turn off `tempbuf-mode'."
+       (if (apply #'derived-mode-p tempbuf-temporary-major-modes)
+           (turn-on-tempbuf-mode)
+         (turn-off-tempbuf-mode)))
+
+     (defun tempbuf-setup-temporary-major-modes (symbol newval)
+       (set-default symbol (mapcar 'mode-symbol newval))
+       ;; Set tempbuf-mode correctly in existing buffers.
+       (mapc (lambda (buf)
+               (with-current-buffer buf
+                 (tempbuf-major-mode-hook)))
+             (buffer-list)))
+
+     (defcustom tempbuf-temporary-major-modes nil
+       "Major modes in which `tempbuf-mode' should be activated.
+
+     This will cause buffers of these modes to be automatically killed
+     if they are inactive for a short while."
+       :group 'tempbuf
+       :set 'tempbuf-setup-temporary-major-modes
+       :type '(repeat (symbol :tag "Mode")))
+
+     (add-hook 'after-change-major-mode-hook 'tempbuf-major-mode-hook)
+   #+end_src
+
+** auto-dim-other-buffers
+   #+begin_src emacs-lisp
+     (add-hook 'after-init-hook (lambda ()
+                                  (when (fboundp 'auto-dim-other-buffers-mode)
+                                    (auto-dim-other-buffers-mode t))))
+   #+end_src
+
 ** Evil
-   As a long time Vim user, =evil-mode= is essential tools in order for Emacs
-   to be my default text editor.
-
-   [[https://bitbucket.org/lyro/evil/wiki/Home]]
-
 *** Init
 
    #+BEGIN_SRC emacs-lisp
@@ -2939,7 +3125,6 @@ required from *emacs*.
       | 7      |                                 | 'select-window-7                                 |
       | 8      |                                 | 'select-window-8                                 |
       | 9      |                                 | 'select-window-9                                 |
-      | b b    |                                 | 'switch-to-buffer                                |
       | b k    | Kill current buffer             | 'ido-kill-buffer                                 |
       | b S    |                                 | 'bs-show                                         |
       | b d    |                                 | 'kill-this-buffer                                |
@@ -3014,570 +3199,6 @@ required from *emacs*.
       | x z    |                                 | 'suspend-frame                                   |
       | y h    |                                 | 'cliphist-paste-item                             |
       | y u    |                                 | 'cliphist-select-item                            |
-
-** Ivy/Counsel
-   Ivy documentation: [[https://oremacs.com/swiper/][oremacs.com/swiper]]
-
-         ("C-S-s" . swiper-all)
-
-         ("C-c v p" . ivy-push-view)
-         ("C-c v o" . ivy-pop-view)
-         ("C-c v ." . ivy-switch-view)
-
-         ("C-c P" . counsel-package)
-         ("C-c g" . counsel-grep)
-         ("C-c h" . counsel-command-history)
-         ("C-c i" . counsel-git)
-         ("C-c j" . counsel-git-grep)
-         ("C-c l" . counsel-locate)
-         ("C-c r" . counsel-rg)
-         ("C-c z" . counsel-fzf)
-
-         ("C-c c F" . counsel-faces)
-         ("C-c c P" . counsel-package)
-         ("C-c c a" . counsel-apropos)
-         ("C-c c g" . counsel-grep)
-         ("C-c c h" . counsel-command-history)
-         ("C-c c i" . counsel-git)
-         ("C-c c j" . counsel-git-grep)
-         ("C-c c l" . counsel-locate)
-         ("C-c c m" . counsel-minibuffer-history)
-         ("C-c c o" . counsel-outline)
-         ("C-c c p" . counsel-pt)
-         ("C-c c r" . counsel-rg)
-         ("C-c c s" . counsel-ag)
-         ("C-c c t" . counsel-load-theme)
-         ("C-c c u" . counsel-unicode-char)
-         ("C-c c z" . counsel-fzf)
-
-         :map counsel-find-file-map
-         ("C-h" . counsel-up-directory)
-
-         :map swiper-map
-         ("M-s" . swiper-isearch-toggle)
-         ("M-%" . swiper-query-replace)
-
-         :map isearch-mode-map
-         ("M-s" . swiper-isearch-toggle))
-
-         :map counsel-mode-map
-         ([remap swiper] . counsel-grep-or-swiper)
-         ([remap dired] . counsel-dired)
-         ("C-x C-r" . counsel-recentf)
-         ("C-x j" . counsel-mark-ring)
-
-
-*** Settings
-   #+BEGIN_SRC emacs-lisp
-     (require 'ivy)
-     (ivy-mode 1)
-     (counsel-mode)
-
-     (add-to-list 'ivy-format-functions-alist '(counsel-describe-face . counsel--faces-format-function))
-
-     ;; Use faster search tools: ripgrep or the silver search
-     (let ((cmd (cond ((executable-find "rg")
-                       "rg -S --no-heading --line-number --color never '%s' %s")
-                      ((executable-find "ag")
-                       "ag -S --noheading --nocolor --nofilename --numbers '%s' %s")
-                      (t counsel-grep-base-command))))
-       (setq counsel-grep-base-command cmd))
-
-     ;; Pre-fill search keywords
-     ;; @see https://www.reddit.com/r/emacs/comments/b7g1px/withemacs_execute_commands_like_marty_mcfly/
-     (defvar my-ivy-fly-commands '(query-replace-regexp
-                                   flush-lines
-                                   keep-lines
-                                   ivy-read
-                                   swiper
-                                   swiper-all
-                                   swiper-isearch
-                                   counsel-grep-or-swiper
-                                   counsel-grep
-                                   counsel-ack
-                                   counsel-ag
-                                   counsel-rg
-                                   counsel-pt))
-
-     (defun my-ivy-fly-back-to-present ()
-       ;; (remove-hook 'pre-command-hook 'my-ivy-fly-back-to-present t)
-       (cond ((and (memq last-command my-ivy-fly-commands)
-                   (equal (this-command-keys-vector) (kbd "M-p")))
-              ;; repeat one time to get straight to the first history item
-              (setq unread-command-events
-                    (append unread-command-events
-                            (listify-key-sequence (kbd "M-p")))))
-             ((or (memq this-command '(self-insert-command
-                                       yank
-                                       ivy-yank-word
-                                       counsel-yank-pop))
-                  (equal (this-command-keys-vector) (kbd "M-n")))
-              (delete-region (point)
-                             (point-max)))))
-
-     (defun my-ivy-fly-time-travel ()
-       (when (memq this-command my-ivy-fly-commands)
-         (let* ((kbd (kbd "M-n"))
-                (cmd (key-binding kbd))
-                (future (and cmd
-                             (with-temp-buffer
-                               (when (ignore-errors
-                                       (call-interactively cmd) t)
-                                 (buffer-string))))))
-           (when future
-             (save-excursion
-               (insert (propertize (replace-regexp-in-string
-                                    "\\\\_<" ""
-                                    (replace-regexp-in-string
-                                     "\\\\_>" ""
-                                     future))
-                                   'face 'shadow)))
-             (add-hook 'pre-command-hook 'my-ivy-fly-back-to-present nil t)))))
-
-     (add-hook 'minibuffer-setup-hook #'my-ivy-fly-time-travel)
-
-   #+END_SRC
-
-   Allow commands in minibuffers
-   #+BEGIN_SRC emacs-lisp
-     (setq enable-recursive-minibuffers t)
-   #+END_SRC
-
-   Allow commands in minibuffers
-   #+BEGIN_SRC emacs-lisp
-     (setq ivy-use-selectable-prompt t
-           ivy-use-virtual-buffers t    ; Enable bookmarks and recentf
-           ivy-height 20
-           ivy-count-format "(%d/%d) "
-           ivy-on-del-error-function nil
-           ivy-initial-inputs-alist nil)
-
-     (setq swiper-action-recenter t)
-
-     (setq counsel-find-file-at-point t
-           counsel-yank-pop-separator "\n────────\n")
-   #+END_SRC
-
-   On my setting I uses variable-pitch as my org-level heading. Below setting
-   will use back fixed-width face for org files
-   #+BEGIN_SRC emacs-lisp
-     (setq ivy-switch-buffer-faces-alist
-           '((emacs-lisp-mode . swiper-match-face-1)
-             (dired-mode . ivy-subdir)
-             (org-mode . org-date)))
-   #+END_SRC
-
-*** Integration with `magit'
-   #+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'magit
-    (setq magit-completing-read-function 'ivy-completing-read))
-
-   #+END_SRC
-
-*** Enhance M-x
-   #+BEGIN_SRC emacs-lisp
-     (require 'amx)
-     (setq amx-history-length 20)
-     (setq amx-save-file (concat qq/cache-directory "amx-items"))
-   #+END_SRC
-
-*** Enhance fuzzy matching
-   #+BEGIN_SRC emacs-lisp
-     (require 'flx)
-     (setq ivy-re-builders-alist
-           '((swiper . ivy--regex-plus)
-             (swiper-all . ivy--regex-plus)
-             (swiper-isearch . ivy--regex-plus)
-             (counsel-ag . ivy--regex-plus)
-             (counsel-rg . ivy--regex-plus)
-             (counsel-pt . ivy--regex-plus)
-             (counsel-ack . ivy--regex-plus)
-             (counsel-grep . ivy--regex-plus)
-             (t . ivy--regex-fuzzy)))
-
-   #+END_SRC
-
-*** Ivy-hydra
-Additional key bindings for Ivy
-   #+BEGIN_SRC emacs-lisp
-  ;(use-package ivy-hydra
-  ;  :bind (:map ivy-minibuffer-map
-  ;         ("M-o" . ivy-dispatching-done-hydra)))
-
-   #+END_SRC
-
-*** Projectile
-   #+BEGIN_SRC emacs-lisp
-     (require 'counsel-projectile)
-     (setq counsel-projectile-grep-initial-input '(ivy-thing-at-point))
-     (counsel-projectile-mode 1)
-     (with-eval-after-load 'projectile
-       (setq projectile-completion-system 'ivy))
-
-   #+END_SRC
-
-*** Correcting words with flyspell via Ivy
-   #+BEGIN_SRC emacs-lisp
-  (require 'flyspell-correct-ivy)
-    ;;:after flyspell
-    ;;:bind (:map flyspell-mode-map
-    ;;       ([remap flyspell-correct-word-before-point] . flyspell-correct-previous-word-generic)))
-
-   #+END_SRC
-
-*** Display world clock using Ivy
-   #+BEGIN_SRC emacs-lisp
-  (require 'counsel-world-clock)
-    ;;:bind (:map counsel-mode-map
-    ;;       ("C-c c k" . counsel-world-clock)))
-
-   #+END_SRC
-
-*** Tramp ivy interface
-   #+BEGIN_SRC emacs-lisp
-  (require 'counsel-tramp)
-    ;;:bind (:map counsel-mode-map
-    ;;       ("C-c c v" . counsel-tramp)))
-   #+END_SRC
-*** Counsel-etags
-Add configuration to ignore directory and files
-   #+BEGIN_SRC emacs-lisp
-(eval-after-load 'counsel-etags
-  '(progn
-     ;; counsel-etags-ignore-directories does NOT support wildcast
-     (push "dl" counsel-etags-ignore-directories)
-     (push "config" counsel-etags-ignore-directories)
-     (push "patches" counsel-etags-ignore-directories)
-     (push "staging_dir" counsel-etags-ignore-directories)
-     ;; counsel-etags-ignore-filenames supports wildcast
-     (push "TAGS" counsel-etags-ignore-filenames)
-     (push "*.json" counsel-etags-ignore-filenames)
-     (push "*.js" counsel-etags-ignore-filenames)
-     (push "*.html" counsel-etags-ignore-filenames)))
-   #+END_SRC
-
-*** Counsel-compile
-Add command to prompt user for directory before compile
-   #+BEGIN_SRC emacs-lisp
-     (defun qq/counsel-compile-dir ()
-       "Prompt user to enter a dir path, with path completion and input history support, before compile"
-       (interactive)
-       (counsel-compile (read-directory-name "Directory:")))
-
-   #+END_SRC
-
-*** All-the-icons-ivy
-
-   #+BEGIN_SRC emacs-lisp
-     (all-the-icons-ivy-setup)
-
-     (setq all-the-icons-ivy-file-commands
-           '(counsel-find-file
-             counsel-file-jump
-             counsel-recentf
-             counsel-projectile-find-file
-             counsel-projectile-find-dir))
-   #+END_SRC
-
-*** Ivy-postframe
-   Link: [[https://github.com/tumashu/ivy-posframe][ivy-postframe]]
-   #+BEGIN_SRC emacs-lisp
-     (require 'ivy-posframe)
-     (setq ivy-posframe-parameters
-           '((left-fringe . 10)
-             (right-fringe . 10)))
-     (setq ivy-posframe-width 200)
-     (setq ivy-posframe-hide-minibuffer t)
-     (setq ivy-posframe-display-functions-alist
-           '((swiper          . ivy-posframe-display-at-frame-bottom-window-center)
-             (counsel-ag      . nil)
-             (complete-symbol . ivy-posframe-display-at-point)
-             (counsel-M-x     . ivy-posframe-display-at-frame-center)
-             (swiper-isearch  . nil)
-             (t               . ivy-posframe-display-at-frame-center)))
-     (set-face-attribute 'internal-border nil :background "#aa79c6")
-     (setq ivy-posframe-border-width 1)
-     (ivy-posframe-mode 1)
-   #+END_SRC
-
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
-     (unless (display-graphic-p)
-       (diff-hl-margin-mode))
-   #+END_SRC
-
-*** Ivy-rich
-**** Initialization
-   #+BEGIN_SRC emacs-lisp
-     (require 'ivy-rich)
-     (require 'all-the-icons-ivy-rich)
-;     (add-hook 'ivy-mode-hook #'ivy-rich-mode)
-;     (add-hook 'ivy-rich-mode-hook
-;               (lambda ()
-;                 (setq ivy-virtual-abbreviate
-;                       (or (and ivy-rich-mode 'abbreviate) 'name))))
-;
-;     (add-hook 'text-mode-hook #'ace-jump-mode)
-     (all-the-icons-ivy-rich-mode 1)
-     (ivy-rich-mode 1)
-   #+END_SRC
-
-**** Customization
-   For better performance
-   #+BEGIN_SRC emacs-lisp
-     (setq ivy-rich-parse-remote-buffer nil)
-     (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
-     (setq ivy-rich-path-style 'abbrev)
-     (setq all-the-icons-ivy-rich-icon-size 0.8)
-   #+END_SRC
-
-   utility functions for =ivy-rich=
-   #+BEGIN_SRC emacs-lisp
-     (defun ivy-rich-bookmark-name (candidate)
-       (car (assoc candidate bookmark-alist)))
-
-     (when (display-graphic-p)
-       (defun ivy-rich-bookmark-type-plus (candidate)
-         (let ((filename (file-local-name (ivy-rich-bookmark-filename candidate))))
-           (cond ((null filename)
-                  (all-the-icons-material "block" :v-adjust -0.2 :face 'warning))  ; fixed #38
-                 ((file-remote-p filename)
-                  (all-the-icons-material "wifi_tethering" :v-adjust -0.2 :face 'mode-line-buffer-id))
-                 ((not (file-exists-p filename))
-                  (all-the-icons-material "block" :v-adjust -0.2 :face 'error))
-                 ((file-directory-p filename)
-                  (all-the-icons-octicon "file-directory" :height 0.9 :v-adjust -0.05))
-                 (t (all-the-icons-icon-for-file (file-name-nondirectory filename) :height 0.9 :v-adjust -0.05)))))
-       (advice-add #'ivy-rich-bookmark-type :override #'ivy-rich-bookmark-type-plus))
-   #+END_SRC
-
-
-   Setting tab size to 1, to insert tabs as delimiters
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'minibuffer-setup-hook
-               (lambda ()
-                 (setq tab-width 2)))
-   #+END_SRC
-
-   Display configuration
-   #+BEGIN_SRC emacs-lisp
-     (setq ivy-rich-display-transformers-list
-           '(ivy-switch-buffer
-             (:columns ((ivy-rich-candidate (:width 48))
-                        (ivy-rich-switch-buffer-size (:width 7))
-                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-                        (ivy-rich-switch-buffer-project (:width 15 :face success))
-                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-                       :predicate (lambda (cand) (get-buffer cand))
-                       :delimiter "\t")
-             ivy-switch-buffer-other-window
-             (:columns ((ivy-rich-candidate (:width 48))
-                        (ivy-rich-switch-buffer-size (:width 7))
-                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-                        (ivy-rich-switch-buffer-project (:width 15 :face success))
-                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-                       :predicate (lambda (cand) (get-buffer cand))
-                       :delimiter "\t")
-             counsel-switch-buffer
-             (:columns ((ivy-rich-candidate (:width 48))
-                        (ivy-rich-switch-buffer-size (:width 7))
-                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-                        (ivy-rich-switch-buffer-project (:width 15 :face success))
-                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-                       :predicate (lambda (cand) (get-buffer cand))
-                       :delimiter "\t")
-             counsel-switch-buffer-other-window
-             (:columns ((ivy-rich-candidate (:width 48))
-                        (ivy-rich-switch-buffer-size (:width 7))
-                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-                        (ivy-rich-switch-buffer-project (:width 15 :face success))
-                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-                       :predicate (lambda (cand) (get-buffer cand))
-                       :delimiter "\t")
-             persp-switch-to-buffer
-             (:columns ((ivy-rich-candidate (:width 30))
-                        (ivy-rich-switch-buffer-size (:width 7))
-                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-                        (ivy-rich-switch-buffer-project (:width 15 :face success))
-                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-                       :predicate (lambda (cand) (get-buffer cand))
-                       :delimiter "\t")
-             counsel-M-x
-             (:columns ((counsel-M-x-transformer (:width 50))
-                        (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
-             counsel-describe-function
-             (:columns ((counsel-describe-function-transformer (:width 50))
-                        (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
-             counsel-describe-variable
-             (:columns ((counsel-describe-variable-transformer (:width 50))
-                        (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face))))
-             counsel-apropos
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-info-lookup-symbol
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-descbinds
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-find-file
-             (:columns ((ivy-read-file-transformer))
-                       :delimiter "\t")
-             counsel-file-jump
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-dired
-             (:columns ((ivy-read-file-transformer))
-                       :delimiter "\t")
-             counsel-dired-jump
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-fzf
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-git
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-recentf
-             (:columns ((ivy-rich-candidate (:width 0.8))
-                        (ivy-rich-file-last-modified-time (:face font-lock-comment-face)))
-                       :delimiter "\t")
-             counsel-bookmark
-             (:columns ((ivy-rich-bookmark-type)
-                        (ivy-rich-bookmark-name (:width 40))
-                        (ivy-rich-bookmark-info))
-                       :delimiter "\t")
-             counsel-package
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-find-library
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-load-library
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-load-theme
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-projectile-switch-project
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")
-             counsel-projectile-find-file
-             (:columns ((counsel-projectile-find-file-transformer))
-                       :delimiter "\t")
-             counsel-projectile-find-dir
-             (:columns ((counsel-projectile-find-dir-transformer))
-                       :delimiter "\t")
-             treemacs-projectile
-             (:columns ((ivy-rich-candidate))
-                       :delimiter "\t")))
-   #+END_SRC
-
-*** Emacs Keybindings
-    :PROPERTIES:
-    :CUSTOM_ID: ivy-emacs-key-binding
-    :END:
-   Using The table below as the source for generating [[Basic Bindings]]
-
-   #+TBLNAME: emacs_ivy_keys
-      | Combo | Description                                          | Command      |
-      |-------+------------------------------------------------------+--------------|
-      | M-x   |                                                      | 'counsel-M-x |
-      | C-s   | Do incremental search forward for regular expression | 'swiper      |
-      | C-c x |                                                      | 'counsel-M-x |
-
-*** Normal Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: normal-ivy-binding
-    :END:
-   Using The table below as the source for generating [[Normal Ivy Bindings][Normal Ivy Bindings]]
-
-   #+TBLNAME: normal_ivy_keys
-      | Evil Leader Combo | Description                                       | Command                            |
-      |-------------------+---------------------------------------------------+------------------------------------|
-      | SPC               | Ivy M-x version                                   | 'counsel-M-x                       |
-      | "."               | Forward to 'find file'                            | 'counsel-find-file                 |
-      | h f               | Display full doc on a function                    | 'counsel-describe-function         |
-      | h F               | Display properties of a face                      | 'counsel-describe-face             |
-      | h v               | Display full doc of a variable                    | 'counsel-describe-variable         |
-      | h l               | Find Emacs Lisp source of a library               | 'counsel-find-library              |
-      | i e               | Show list of supported colors in a frame          | 'counsel-colors-emacs              |
-      | i f               | Lists of faces with preview                       | 'counsel-faces                     |
-      | i l               | Load selected Emacs Lisp Library                  | 'counsel-load-library              |
-      | i y               | Display definition of a symbol                    | 'counsel-info-lookup-symbol        |
-      | i u               | Insert COUNT copy of unicode char at point        | 'counsel-unicode-char              |
-      | i w               | Show W3C Web color list for use in CSS            | 'counsel-colors-web                |
-      | c c               | Call 'compile' completing with smart suggestion   | 'counsel-compile                   |
-      | c d               |                                                   | 'qq/counsel-compile-dir            |
-      | c r               |                                                   | 'recompile                         |
-      | g c               |                                                   | 'counsel-git                       |
-      | g f               |                                                   | 'counsel-git-find-file             |
-      | g g               |                                                   | 'counsel-git-grep                  |
-      | / /               |                                                   | 'counsel-ag                        |
-      | / i               |                                                   | 'counsel-imenu                     |
-      | / s               |                                                   | 'swiper                            |
-      | l                 | Run 'locate' putting thre result in Locate buffer | 'counsel-locate                    |
-      | r s               | Resume last completion session                    | 'ivy-resume                        |
-      | ","               |                                                   | 'counsel-projectile-find-file      |
-      | p /               |                                                   | 'counsel-projectile-ag             |
-      | p f               |                                                   | 'counsel-projectile-find-file-dwim |
-      | p d               |                                                   | 'counsel-projectile-find-dir       |
-      | p s               |                                                   | 'counsel-projectile-switch-project |
-
-*** Visual Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: visual-ivy-binding
-    :END:
-   Using The table below as the source for generating [[Visual Ivy Bindings][Visual Ivy Bindings]]
-
-   #+TBLNAME: visual_ivy_keys
-      | Evil Leader Combo | Description | Command                     |
-      |-------------------+-------------+-----------------------------|
-      | SPC               |             | 'counsel-M-x                |
-
-*** Ivy Map Binding
-    :PROPERTIES:
-    :CUSTOM_ID: ivy-map-binding
-    :END:
-   Using The table below as the source for generating [[Ivy Map Bindings][Ivy Map Bindings]]
-
-   #+name: ivy_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :keymaps 'ivy-minibuffer-map
-   #+end_src
-   #+TBLNAME: ivy_map_keys
-      | Combo | Description                      | Command                  |
-      | C-h   |                                  | (kbd "DEL")              |
-      | C-j   | selects the next candidate       | 'ivy-next-line           |
-      | C-k   | selects the previous candidate   | 'ivy-previous-line       |
-      | C-a   | selects the first candidate      | 'ivy-beginning-of-buffer |
-      | C-e   | selects the last candidate       | 'ivy-end-of-buffer       |
-      | C-b   | scrolls down by ivy-height lines | 'ivy-scroll-down-command |
-      | C-f   | scrolls up by ivy-height lines   | 'ivy-scroll-up-command   |
-      | C-w   |                                  | 'ivy-yank-word           |
-
-   #+name: ivy_buffer_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :keymaps 'ivy-switch-buffer-map
-   #+end_src
-   #+TBLNAME: ivy_buffer_keys
-      | Combo | Description                      | Command                  |
-      | C-h   |                                  | (kbd "DEL")              |
-      | C-j   | navigation                       | 'ivy-next-line           |
-      | C-k   | refresh                          | 'ivy-previous-line       |
-      | C-a   | selects the first candidate      | 'ivy-beginning-of-buffer |
-      | C-e   | selects the last candidate       | 'ivy-end-of-buffer       |
-      | C-b   | scrolls down by ivy-height lines | 'ivy-scroll-down-command |
-      | C-f   | scrolls up by ivy-height lines   | 'ivy-scroll-up-command   |
-      | C-l   |                                  | 'ivy-alt-done            |
-      | C-r   | kill buffer                      | 'ivy-switch-buffer-kill  |
 
 ** Dired
    #+begin_src emacs-lisp
@@ -5465,6 +5086,26 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 ;     (window-numbering-mode)
    #+END_SRC
 
+*** Selectrum Map Binding
+    :PROPERTIES:
+    :CUSTOM_ID: selectrum-map-binding
+    :END:
+   Using The table below as the source for generating [[Selectrum Map Bindings][Selectrum Map Bindings]]
+
+   #+name: selectrum_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :keymaps 'selectrum-minibuffer-map
+   #+end_src
+   #+TBLNAME: selectrum_map_keys
+      | Combo | Description                      | Command              |
+      | C-j   | selects the next candidate       | 'next-line           |
+      | C-k   | selects the previous candidate   | 'previous-line       |
+      | C-a   | selects the first candidate      | 'beginning-of-buffer |
+      | C-e   | selects the last candidate       | 'end-of-buffer       |
+      | C-b   | scrolls down by ivy-height lines | 'scroll-down-command |
+      | C-f   | scrolls up by ivy-height lines   | 'scroll-up-command   |
+      | C-w   |                                  | 'yank-word           |
 * Languages
 ** General
 Some general settings that should apply to all programming mode. Highlight
@@ -6269,7 +5910,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_emacs>>
      <<gen-keys(moda="lead", tname=std_keys)>>
-     <<gen-keys(moda="lead", tname=emacs_ivy_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 ** Vterm Bindings
@@ -6356,29 +5996,11 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
    #+END_SRC
 
-**** Normal Ivy Bindings
-   Generate binding using table from [[#normal-ivy-binding][here]]
+**** Normal Selectrum Bindings
+   Generate binding using table from [[#normal-selectrum-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(moda="lead", tname=normal_ivy_keys)>>
-   #+END_SRC
-
-**** End
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pos=")\n")>>
-   #+END_SRC
-
-*** Visual Leader Bindings
-**** Start
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<leader_visual>>
-   #+END_SRC
-
-**** Visual Ivy Bindings
-   Generate binding using table from [[#visual-ivy-binding][here]]
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(moda="lead", tname=visual_ivy_keys)>>
+     <<gen-keys(moda="lead", tname=normal_selectrum_keys)>>
    #+END_SRC
 
 **** End
@@ -6443,18 +6065,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-** Ivy Map Bindings
-   Generate binding using table from [[#ivy-map-binding][here]]
+
+** Selectrum Map Bindings
+   Generate binding using table from [[#selectrum-map-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<ivy_map>>
-     <<gen-keys(moda="lead", tname=ivy_map_keys)>>
-     <<gen-fix(pos=")\n")>>
-   #+END_SRC
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<ivy_buffer_map>>
-     <<gen-keys(moda="lead", tname=ivy_buffer_keys)>>
+     <<selectrum_map>>
+     <<gen-keys(moda="lead", tname=selectrum_map_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
