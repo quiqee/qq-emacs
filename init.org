@@ -253,6 +253,7 @@
                region-state
 
                doom-modeline
+               mini-modeline
 
                pdf-tools
                tablist
@@ -1422,8 +1423,8 @@ j*** Local =compile-command=
    #+BEGIN_SRC emacs-lisp
      (require 'doom-modeline)
      (doom-modeline-def-modeline 'qq-simple-line
-       '(bar persp-name matches buffer-info remote-host buffer-position parrot selection-info)
-       '(input-method buffer-encoding process vcs checker))
+       '(modals workspace-name window-number matches buffer-info remote-host)
+       '(buffer-position word-count selection-info misc-info major-mode process vcs lsp checker))
      (defun setup-custom-doom-modeline ()
        (doom-modeline-set-modeline 'qq-simple-line 'default))
 
@@ -1450,62 +1451,7 @@ j*** Local =compile-command=
    with tramp, please try `file-name' style.
    Please refer to https://github.com/bbatsov/projectile/issues/657.
    #+BEGIN_SRC emacs-lisp
-     (setq doom-modeline-buffer-file-name-style 'truncate-except-project)
-   #+END_SRC
-
-**** Clean Modeline
-
-   #+BEGIN_SRC emacs-lisp
-     (defvar mode-line-cleaner-alist
-       `((auto-complete-mode . " α")
-         (yas-minor-mode . " γ")
-         (paredit-mode . " Φ")
-         (eldoc-mode . "")
-         (abbrev-mode . "")
-         ;;(undo-tree-mode . " τ")
-         (wrap-region-mode . "")
-         ;;(volatile-highlights-mode . " υ")
-         (elisp-slime-nav-mode . " δ")
-         (nrepl-interaction-mode . " ηζ")
-         (auto-fill-function . " φ")
-         (autopair-mode . "")
-         (lambda-mode . "")
-         (projectile-mode . "")
-         (kibit-mode . " κ")
-         ;; Major modes
-         (nrepl-mode . "ηζ")
-         (clojure-mode . "λ")
-         (hi-lock-mode . "")
-         (python-mode . "Py")
-         (emacs-lisp-mode . "ε")
-         (markdown-mode . "md")
-         (org-mode . "Ο")
-         (processing-mode . "P5"))
-       "Alist for `clean-mode-line'.
-     When you add a new element to the alist, keep in mind that you
-     must pass the correct minor/major mode symbol and a string you
-     want to use in the modeline *in lieu of* the original.")
-
-
-     (defun clean-mode-line ()
-       (interactive)
-       (cl-loop for cleaner in mode-line-cleaner-alist
-             do (let* ((mode (car cleaner))
-                      (mode-str (cdr cleaner))
-                      (old-mode-str (cdr (assq mode minor-mode-alist))))
-                  (when old-mode-str
-                      (setcar old-mode-str mode-str))
-                    ;; major mode
-                  (when (eq mode major-mode)
-                    (setq mode-name mode-str)))))
-
-
-     (add-hook 'after-change-major-mode-hook 'clean-mode-line)
-
-
-     ;;; Greek letters - C-u C-\ greek ;; C-\ to revert to default
-     ;;; α β ψ δ ε φ γ η ι ξ κ λ μ ν ο π ρ σ τ θ ω ς χ υ ζ
-     ;;; Α Β Ψ Δ Ε Φ Γ Η Ι Ξ Κ Λ Μ Ν Ο Π Ρ Σ Τ Θ Ω Σ Χ Υ Ζ
+     (setq doom-modeline-buffer-file-name-style 'relative-from-project)
    #+END_SRC
 
 *** Highlight
@@ -1902,14 +1848,11 @@ j*** Local =compile-command=
    #+END_SRC
 
 *** =ediff=
-
-[[https://www.gnu.org/software/emacs/manual/html_mono/ediff.html][   =ediff=]] is a full-featured visual diff and merge tool, built into Emacs.
-
+[[https://www.gnu.org/software/emacs/manual/html_mono/ediff.html][   ediff]] is a full-featured visual diff and merge tool, built into Emacs.
    Make sure that the window split is always side-by-side:
 
    #+BEGIN_SRC emacs-lisp
-     (setq ediff-window-setup-function 'ediff-setup-windows-plain
-           ediff-split-window-function 'split-window-horizontally)
+     (csetq ediff-split-window-function 'split-window-horizontally)
    #+END_SRC
 
    Ignore whitespace changes:
@@ -1921,9 +1864,22 @@ j*** Local =compile-command=
    Only ever use one set of windows in one frame:
 
    #+BEGIN_SRC emacs-lisp
-     (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+     (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
    #+END_SRC
+**** Changing some =Ediff= key bindings
+   #+BEGIN_SRC emacs-lisp
+     (defun qq/ediff-hook ()
+       (ediff-setup-keymap)
+       (define-key ediff-mode-map "j" 'ediff-next-difference)
+       (define-key ediff-mode-map "k" 'ediff-previous-difference))
 
+     (add-hook 'ediff-mode-hook 'qq/ediff-hook)
+   #+END_SRC
+**** Restoring the windows after =Ediff= quits
+   #+BEGIN_SRC emacs-lisp
+     (winner-mode)
+     (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
+   #+END_SRC
 *** =tramp=
    [[https://www.emacswiki.org/emacs/TrampMode][=tramp=]] lets you edit files remotely from your local Emacs which is useful
    because it lets you have all the default configuration. Let’s make sure the
@@ -3582,12 +3538,6 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (setq calibredb-program "/Applications/calibre.app/Contents/MacOS/calibredb")
      (setq calibredb-library-alist '(("/Volumes/WDC 2/Calibre Library")
                                      ))
-   #+end_src
-
-** Nyan Cat
-
-   #+begin_src emacs-lisp
-     (nyan-mode 1)
    #+end_src
 
 ** Beacon
