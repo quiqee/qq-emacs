@@ -2010,25 +2010,37 @@ j*** Local =compile-command=
    [[https://www.emacswiki.org/emacs/TrampMode][=tramp=]] lets you edit files remotely from your local Emacs which is useful
    because it lets you have all the default configuration. Let’s make sure the
    default protocol is =ssh=.
-
    #+BEGIN_SRC emacs-lisp
-;; Backup remote files locally to stop autosave pain
-(setq tramp-backup-directory (concat qq/cache-directory "backups"))
-(unless (file-directory-p tramp-backup-directory)
-  (make-directory tramp-backup-directory))
-(if (file-accessible-directory-p tramp-backup-directory)
-    (setq tramp-auto-save-directory tramp-backup-directory)
-  (error "Cannot write to ~/.emacs-backup"))
-;; Don't backup su and sudo files
-(setq backup-enable-predicate
-      (lambda (name)
-        (and (normal-backup-enable-predicate name)
-             (not
-              (let ((method (file-remote-p name 'method)))
-                (when (stringp method)
-                  (member method '("su" "sudo"))))))))
      (setq tramp-default-method "sshx"
            enable-remote-dir-locals t)
+   #+END_SRC
+**** Backup remote files locally to stop autosave pain
+   #+BEGIN_SRC emacs-lisp
+     (setq tramp-backup-directory (concat qq/cache-directory "backups"))
+     (unless (file-directory-p tramp-backup-directory)
+       (make-directory tramp-backup-directory))
+     (if (file-accessible-directory-p tramp-backup-directory)
+         (setq tramp-auto-save-directory tramp-backup-directory)
+       (error "Cannot write to ~/.emacs-backup"))
+   #+END_SRC
+**** Tramp remote sudo
+This allows TRAMP to use sudo on remote hosts.
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'tramp-default-proxies-alist
+                  '(nil "\\`root\\'" "/ssh:%h:"))
+     (add-to-list 'tramp-default-proxies-alist
+                  (list (regexp-quote (system-name)) nil nil))
+   #+END_SRC
+
+Don't backup su and sudo files
+   #+BEGIN_SRC emacs-lisp
+     (setq backup-enable-predicate
+           (lambda (name)
+             (and (normal-backup-enable-predicate name)
+                  (not
+                   (let ((method (file-remote-p name 'method)))
+                     (when (stringp method)
+                       (member method '("su" "sudo"))))))))
    #+END_SRC
 *** Ibuffer customization
 **** Use human readable size column (from [[http://www.emacswiki.org/emacs/IbufferMode#toc12][coldnew]])
@@ -2201,6 +2213,20 @@ j*** Local =compile-command=
      (add-hook 'minibuffer-exit-hook #'qq/minibuffer-exit-hook)
    #+end_src
 
+*** =conf-mode=
+   Use conf-mode for .gitignore files
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'auto-mode-alist '("\\.gitignore\\'" . conf-mode))
+   #+END_SRC
+
+Use conf-mode for git config files
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'auto-mode-alist
+                  '("\\.gitconfig\\'" . conf-mode))
+     (add-to-list 'auto-mode-alist
+                  (cons (concat (regexp-quote (f-join ".git" "config")) "\\'")
+                        'conf-mode))
+   #+END_SRC
 *** PDF-Tools
 
    #+BEGIN_SRC emacs-lisp
@@ -3558,6 +3584,16 @@ kill unused buffers in the background
      (global-git-gutter-mode +1)
 
      (add-hook 'git-gutter:update-hooks 'magit-revert-buffer-hook)
+   #+END_SRC
+
+Git-gutter doesn’t play nice with TRAMP remotes
+   #+BEGIN_SRC emacs-lisp
+     (defun git-gutter-find-file-hook ()
+       (git-gutter-mode
+        (if (file-remote-p (buffer-file-name))
+            0
+          1)))
+     (add-hook 'find-file-hook #'git-gutter-find-file-hook)
    #+END_SRC
 *** git-messenger
 
@@ -5499,8 +5535,68 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+     (add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
    #+END_SRC
 
+** Markdown
+*** Turn off =electric-indent-mode= in markdown buffers
+=electric-indent-mode= has a bad interaction with =markdown-mode=, so we disable it in markdown buffers only.
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'markdown-mode-hook
+               (apply-partially #'electric-indent-local-mode 0))
+   #+END_SRC
+
+** Python
+*** Make electric-indent-mode and python-mode play nice
+   #+BEGIN_SRC emacs-lisp
+     (defun python-newline-and-indent ()
+       "Custom python indentation function.
+
+       This works like normal, except that if point is in the
+       indentation of the current line, the newly created line will
+       not be indented any further than the current line. This fixes
+       the annoying tendency of python-mode to always indent to the
+       maximum possible indentation level on every new line."
+       (interactive)
+       (let* ((starting-column (current-column))
+              (starting-indentation (current-indentation))
+              (started-in-indentation (<= starting-column starting-indentation)))
+         (newline-and-indent)
+         (when (and started-in-indentation
+                    (> (current-indentation) starting-indentation))
+           (save-excursion
+             (back-to-indentation)
+             (delete-region (point) (progn (forward-line 0) (point)))
+             (indent-to-column starting-indentation))
+           (back-to-indentation))))
+     (define-key python-mode-map (kbd "RET") #'python-newline-and-indent)
+     (defun turn-off-electric-indent-local-mode ()
+       (electric-indent-local-mode 0))
+     (add-hook 'python-mode-hook #'turn-off-electric-indent-local-mode)
+   #+END_SRC
+** Sh-Mode
+*** Make scripts executable on save
+If a file begins with a shebang (i.e. “#!”), make it executable after saving it.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'after-save-hook
+               'executable-make-buffer-file-executable-if-script-p)
+   #+END_SRC
+*** Associate .zsh files with zshell in =sh-mode=
+   Emacs sh-mode doesn’t automatically associate *.zsh with zsh. This enables that. It also enables it for a few other zsh-related files.
+
+   #+BEGIN_SRC emacs-lisp
+     ;; Files ending in .zsh
+     (add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
+     ;; zsh startup files
+     (add-to-list 'auto-mode-alist '("\\.\\(zshrc\\|zshenv\\|zprofile\\|zlogin\\|zlogout\\)\\>" . sh-mode))
+     ;; Ensure that sh-mode uses zsh as shell for these files
+     (defun sh-mode-set-zsh-by-file-name ()
+       (when (and buffer-file-name
+                  (string-match-p "\\.zsh\\(rc\\|env\\|\\'\\)" buffer-file-name))
+         (sh-set-shell "zsh")))
+     (add-hook 'sh-mode-hook 'sh-mode-set-zsh-by-file-name)
+   #+END_SRC
 ** NXML
 *** To have files automatically loaded with nxml-mode with various file extensions
 
@@ -5655,6 +5751,20 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+END_SRC
 
 * Recipes
+** Add =sort-words= command
+Emacs has a command to sort lines, but not to sort words in a region.
+   #+BEGIN_SRC emacs-lisp
+     (defun sort-words (reverse beg end)
+       "Sort words in region alphabetically, in REVERSE if negative.
+     Prefixed with negative \\[universal-argument], sorts in reverse.
+
+     The variable `sort-fold-case' determines whether alphabetic case
+     affects the sort order.
+
+     See `sort-regexp-fields'."
+       (interactive "*P\nr")
+       (sort-regexp-fields reverse "\\w+" "\\&" beg end))
+  #+END_SRC
 ** Switch to Editing a File with SUDO
    Taken from [[http://irreal.org/blog/?p=4883][here]]
 
