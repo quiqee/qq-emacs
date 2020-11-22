@@ -208,6 +208,7 @@
 
                selectrum
                prescient
+               selectrum-prescient
                orderless
                mini-frame
 
@@ -2477,7 +2478,6 @@ Use conf-mode for git config files
 
    To make sorting and filtering more intelligent
    #+begin_src emacs-lisp
-     (require 'prescient)
      (selectrum-prescient-mode +1)
    #+end_src
 
