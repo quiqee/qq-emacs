@@ -2,6 +2,7 @@
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
 #+PROPERTY: header-args :output-dir ~/.emacs.d/ :tangle yes
+#+STARTUP: fold
 #+DATE:  <2016-01-25 Mon>
 
 #+TITLE: Emacs configuration file
@@ -204,6 +205,7 @@
                (ivy-posframe :fetcher git :url "https://github.com/tumashu/ivy-posframe.git")
 
                swiper
+               yaml-mode
 
                lsp-mode
                lsp-ui
@@ -2965,6 +2967,8 @@ required from *emacs*.
       | h h    |                                 | 'help-for-help-internal                          |
       | h j    |                                 | 'helm-dash-at-point                              |
       | h e    |                                 | 'emojify-describe-emoji-at-point                 |
+      | M      |                                 | 'which-key-show-keymap                           |
+      | ?      |                                 | 'which-key-show-top-level                        |
       | q      |                                 | 'evil-window-delete                              |
       | P      |                                 | 'package-list-packages                           |
       | r 1    |                                 | 'qq/serial-term-1                                |
@@ -5452,18 +5456,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
        "C-x 8 0" "ZWS")
    #+END_SRC
 
-*** Evil Leader Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: evil-whichkey-binding
-    :END:
-   Using The table below as the source for generating [[Evil Whichkey Bindings][Evil Whichkey Bindings]]
-
-   #+TBLNAME: evil_whichkey_keys
-      | Evil Leader Combo | Description | Command                   |
-      |-------------------+-------------+---------------------------|
-      | M                 |             | 'which-key-show-keymap    |
-      | ?                 |             | 'which-key-show-top-level |
-
 ** Window numbering mode
    Number window shortcuts for emacs
 
@@ -5751,6 +5743,13 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
+#+END_SRC
+
+*** Yaml
+Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 #+END_SRC
 
 *** Keybinding
@@ -6431,13 +6430,6 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(mmap="t", tname=dired-keys)>>
      <<gen-fix(pos="))\n")>>
     #+END_SRC
-
-*** Evil Whichkey Bindings
-   Generate binding using table from [[#evil-whichkey-binding][here]]
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(mmap="ev-nor", tname=evil_whichkey_keys)>>
-   #+END_SRC
 
 *** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]

@@ -4,6 +4,8 @@
 <dict>
 	<key>AllowClipboardAccess</key>
 	<true/>
+	<key>AlternateMouseScroll</key>
+	<true/>
 	<key>AppleAntiAliasingThreshold</key>
 	<integer>1</integer>
 	<key>ApplePressAndHoldEnabled</key>
@@ -61583,7 +61585,7 @@
 	<key>NSWindow Frame NSNavPanelAutosaveName</key>
 	<string>2205 726 799 448 0 0 5120 1417 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>1835 270 1450 1148 0 0 5120 1417 </string>
+	<string>1835 294 1450 1124 0 0 5120 1417 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>724 181 1225 1147 0 0 5120 1417 </string>
 	<key>New Bookmarks</key>
@@ -62417,7 +62419,7 @@
 			<key>Close Sessions On End</key>
 			<true/>
 			<key>Columns</key>
-			<integer>240</integer>
+			<integer>300</integer>
 			<key>Command</key>
 			<string></string>
 			<key>Cursor Color</key>
@@ -62911,15 +62913,17 @@
 	<key>NoSyncInstallationId</key>
 	<string>0EE91B45-769D-43AB-BD6E-C45D89952BF5</string>
 	<key>NoSyncLaunchExperienceControllerRunCount</key>
-	<integer>14</integer>
+	<integer>101</integer>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile</key>
 	<true/>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile_selection</key>
 	<integer>0</integer>
 	<key>NoSyncNextAnnoyanceTime</key>
-	<real>622595349.87489998</real>
+	<real>622730268.62897897</real>
 	<key>NoSyncOnboardingWindowHasBeenShown</key>
 	<true/>
+	<key>NoSyncPermissionToShowTip</key>
+	<false/>
 	<key>NoSyncRecordedVariables</key>
 	<dict>
 		<key>0</key>
@@ -63688,7 +63692,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2020-09-21T23:51:24Z</date>
+	<date>2020-10-21T07:33:00Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>ShowFullScreenTabBar</key>
