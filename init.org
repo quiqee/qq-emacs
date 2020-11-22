@@ -128,6 +128,8 @@
                auto-dim-other-buffers
                crux
 
+               mixed-pitch
+
                move-text                     ; Move current line or region with M-up or M-down
                multiple-cursors              ; Multiple cursors for Emacs.
                org-superstar                 ; show org bullet as Unicode character
@@ -205,6 +207,7 @@
                ibuffer-vc
 
                selectrum
+               prescient
                orderless
                mini-frame
 
@@ -498,14 +501,20 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (set-face-attribute 'default nil :font "PragmataPro-10")
-     (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
-     (set-face-attribute 'variable-pitch nil :family "Fira Code Light")
-     (defun qq/set-font-to-variable-width ()
-       "Change font in current window to a variable-width font."
-       (interactive)
-       (face-remap-add-relative 'default '(:family "Fira Code Light" :height 140)))
-     (setq qq/preferred-font "PragmataPro-12")
+     (custom-theme-set-faces
+      'user
+      '(variable-pitch ((t (:family "iA Writer Mono V"))))
+      '(fixed-pitch ((t ( :family "PragmataPro"
+                          :slant normal
+                          :weight normal
+                          :height 1.1
+                          :width normal)))))
+
+     ;; Setting the default general font
+     (set-face-attribute 'default nil
+                         :family "PragmataPro"
+                         :height 130
+                         )
    #+end_src
 
 **** Ccls Executables
@@ -556,9 +565,6 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (set-face-attribute 'default nil :font "PragmataPro-10")
-     (set-face-attribute 'fixed-pitch nil :family "PragmataPro")
-     (set-face-attribute 'variable-pitch nil :family "Caldera")
    #+end_src
 
 **** Ccls Executables
@@ -609,14 +615,6 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (defun qq/set-font-to-variable-width ()
-       "Change font in current window to a variable-width font."
-       (interactive)
-       (face-remap-add-relative 'default '(:family "Fira Code Light" :height 140)))
-     (setq qq/preferred-font "PragmataPro-14")
-     (set-face-attribute 'default nil :font "PragmataPro-14")
-     (set-face-attribute 'fixed-pitch nil :family "PragmataPro-14")
-     (set-face-attribute 'variable-pitch nil :family "Fira Code Light")
    #+end_src
 
 **** Serial Ports
@@ -758,8 +756,6 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-font "PragmataPro-10")
-     (set-face-attribute 'default nil :font "PragmataPro-10")
    #+end_src
 
 **** Ccls Executables
@@ -804,8 +800,6 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
-     (setq qq/preferred-font "PragmataPro-10")
-     (set-face-attribute 'default nil :font "PragmataPro-10")
    #+end_src
 
 **** Serial Ports
@@ -1526,83 +1520,6 @@ j*** Local =compile-command=
    #+BEGIN_SRC emacs-lisp
      (global-hl-line-mode)
    #+END_SRC
-
-*** Fixed/Variable Width Faces
-   I love monospaced fonts (I used =PragmataPro= extensively), but they can be
-   harder to read when it comes to documentation or simple conversation.
-
-   So, let's make Emacs use different fonts (monospaced and variable) depending
-   on the mode we're in (eg: Info and ERC should not be monospaced)
-
-   #+begin_src emacs-lisp
-     (defun qq/set-font-to-fixed-width ()
-       "Change font in current window to a variable-width font."
-       (interactive)
-       (face-remap-add-relative 'default '(:font qq/preferred-font)))
-
-     (add-hook 'org-mode-hook 'qq/set-font-to-variable-width)
-     (add-hook 'erc-mode-hook 'qq/set-font-to-variable-width)
-     (add-hook 'Info-mode-hook 'qq/set-font-to-variable-width)
-   #+end_src
-
-   For =org-mode= we'll be using monospace font for formula, meta-line, tables
-   and code blocks, while still using =variable-pitch-mode= in the rest of
-   =org-mode= buffers
-
-   #+BEGIN_SRC emacs-lisp
-     (defun qq/adjoin-to-list-or-symbol (element list-or-symbol)
-       (let ((list (if (not (listp list-or-symbol))
-                       (list list-or-symbol)
-                     list-or-symbol)))
-         ;(require 'cl-lib)
-         (cl-adjoin element list)))
-
-     (eval-after-load "org"
-       '(mapc
-         (lambda (face)
-             (set-face-attribute face nil :font qq/preferred-font
-                                 :inherit (qq/adjoin-to-list-or-symbol
-                                           'fixed-pitch
-                                           (face-attribute face :inherit)))
-           )
-         (list 'org-meta-line 'org-code 'org-formula 'org-block
-               'org-block-begin-line 'org-block-end-line 'org-verbatim
-               'org-table)))
-   #+END_SRC
-
-   Same settings applied for =Info buffers= as well. Code examples will be using
-   monospace font
-
-   #+begin_src emacs-lisp
-     (defvar qq/rx-info-code (rx bol "     " (* not-newline) eol))
-     (add-hook 'Info-mode-hook 'qq/Info-font-lock)
-     (defun qq/Info-font-lock ()
-       (interactive)
-       (require 'org)
-       (font-lock-add-keywords
-        nil
-        `((,qq/rx-info-code
-           .
-           ;; let's just use org-block
-           (quote org-block)
-           ))))
-   #+end_src
-
-   Display source code blocks or pre blocks in monospace for =markdown-mode=
-   buffers
-
-   #+begin_src emacs-lisp
-     (eval-after-load "markdown-mode"
-       '(mapc
-         (lambda (face)
-           (set-face-attribute
-            face nil
-            :inherit
-            (qq/adjoin-to-list-or-symbol
-             'fixed-pitch
-             (face-attribute face :inherit))))
-         (list 'markdown-pre-face 'markdown-inline-code-face)))
-   #+end_src
 
 *** Emoji font support
 
@@ -2558,6 +2475,17 @@ Use conf-mode for git config files
      (selectrum-mode +1)
    #+end_src
 
+   To make sorting and filtering more intelligent
+   #+begin_src emacs-lisp
+     (require 'prescient)
+     (selectrum-prescient-mode +1)
+   #+end_src
+
+   To save your command history on disk, so the sorting gets more intelligent over time
+   #+begin_src emacs-lisp
+     (prescient-persist-mode +1)
+   #+end_src
+
 *** Switch to buffer or recent file
 Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, to files with "f " prefix and to buffers with "b " prefix. (See https://github.com/raxod502/selectrum/issues/9#issuecomment-631325725)
 
@@ -3230,6 +3158,12 @@ kill unused buffers in the background
       | x z    |                                 | 'suspend-frame                                   |
       | y h    |                                 | 'cliphist-paste-item                             |
       | y u    |                                 | 'cliphist-select-item                            |
+
+** Mixed-pitch
+
+   #+begin_src emacs-lisp
+     (add-hook 'text-mode-hook 'mixed-pitch-mode)
+   #+end_src
 
 ** Dired
    #+begin_src emacs-lisp
