@@ -2535,6 +2535,17 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
       | p d               |                                                   | 'counsel-projectile-find-dir       |
       | p s               |                                                   | 'counsel-projectile-switch-project |
 
+*** Visual Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: visual-selectrum-binding
+    :END:
+   Using The table below as the source for generating [[Visual Selectrum Bindings][Visual Selectrum Bindings]]
+
+   #+TBLNAME: visual_selectrum_keys
+      | Evil Leader Combo | Description           | Command                   |
+      |-------------------+-----------------------+---------------------------|
+      | SPC               | Selectrum M-x version | 'execute-extended-command |
+
 ** Orderless
    To make sorting and filtering more intelligent for =selectrum=
 
@@ -2608,13 +2619,6 @@ kill unused buffers in the background
        :type '(repeat (symbol :tag "Mode")))
 
      (add-hook 'after-change-major-mode-hook 'tempbuf-major-mode-hook)
-   #+end_src
-
-** auto-dim-other-buffers
-   #+begin_src emacs-lisp
-     (add-hook 'after-init-hook (lambda ()
-                                  (when (fboundp 'auto-dim-other-buffers-mode)
-                                    (auto-dim-other-buffers-mode t))))
    #+end_src
 
 ** Evil
@@ -3086,6 +3090,7 @@ kill unused buffers in the background
       | t s    |                                 | 'qq/toggle-evil-search                           |
       | t f    |                                 | 'toggle-frame-fullscreen                         |
       | t m    |                                 | 'toggle-frame-maximized                          |
+      | t o    |                                 | 'auto-dim-other-buffers-mode                     |
       | t t    |                                 | 'treemacs                                        |
       | t l    |                                 | 'qq/toggle-line-numbers                          |
       | t g    |                                 | 'gdb-many-windows                                |
@@ -6002,6 +6007,22 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="lead", tname=normal_selectrum_keys)>>
    #+END_SRC
 
+**** End
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
+*** Visual Leader Bindings
+**** Start
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<leader_visual>>
+   #+END_SRC
+
+**** Visual Selectrum Bindings
+   Generate binding using table from [[#visual-selectrum-binding][here]]
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=visual_selectrum_keys)>>
+   #+END_SRC
 **** End
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>

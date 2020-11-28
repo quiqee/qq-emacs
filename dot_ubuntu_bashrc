@@ -78,6 +78,10 @@ unset color_prompt force_color_prompt
 #POWERLINE_BASH_SELECT=1
 #. /home/fikri/.local/lib/python3.5/site-packages/powerline/bindings/bash/powerline.sh
 
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -119,6 +123,10 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+add-sshkey() {
+  cat ~/.ssh/id_rsa.pub | ssh $1 'cat >> ~/.ssh/authorized_keys'
+}
 
 set -o vi
 
