@@ -115,9 +115,7 @@
              '(
                ;; Tools
                exec-path-from-shell
-               swiper
                ranger
-               cliphist
                multi-term
                restart-emacs
                smerge-mode
@@ -207,8 +205,12 @@
                ibuffer-vc
 
                selectrum
+               marginalia
                prescient
                selectrum-prescient
+               consult
+               consult-flycheck
+               consult-selectrum
                orderless
                mini-frame
 
@@ -227,7 +229,6 @@
 
                xcode-mode
 
-               function-args
                clean-aindent-mode
                ws-butler
                projectile
@@ -2087,6 +2088,12 @@ Don't backup su and sudo files
      (add-hook 'minibuffer-exit-hook #'qq/minibuffer-exit-hook)
    #+end_src
 
+**** file-name-shadow-properties
+   #+begin_src emacs-lisp
+     (setq file-name-shadow-properties
+           '(invisible t))
+   #+end_src
+
 *** =conf-mode=
    Use conf-mode for .gitignore files
    #+BEGIN_SRC emacs-lisp
@@ -2442,6 +2449,31 @@ Use conf-mode for git config files
      (prescient-persist-mode +1)
    #+end_src
 
+
+*** Marginalia
+Must be in the :init section of use-package such that the mode gets enabled
+right away. Note that this forces loading the package.
+   #+begin_src emacs-lisp
+(marginalia-mode)
+   #+end_src
+
+Prefer richer, more heavy, annotations over the lighter default variant. E.g.
+M-x will show the documentation string additional to the keybinding. By
+default only the keybinding is shown as annotation. Note that there is the
+command `marginalia-cycle-annotators` to switch between the annotators.
+   #+begin_src emacs-lisp
+  (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
+   #+end_src
+*** Consult
+   Replace functions (consult-multi-occur is a drop-in replacement)
+   #+begin_src emacs-lisp
+     (fset 'multi-occur #'consult-multi-occur)
+   #+end_src
+
+   Enable previews
+   #+begin_src emacs-lisp
+     (consult-preview-mode)
+   #+end_src
 *** Switch to buffer or recent file
 Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, to files with "f " prefix and to buffers with "b " prefix. (See https://github.com/raxod502/selectrum/issues/9#issuecomment-631325725)
 
@@ -2495,6 +2527,34 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
                (t
                 (switch-to-buffer cand)))))
    #+end_src
+*** Orderless
+   To make sorting and filtering more intelligent for =selectrum=
+
+   #+begin_src emacs-lisp
+     (require 'orderless)
+     (setq completion-styles '(orderless))
+     (icomplete-mode) ; optional but recommended!
+   #+end_src
+   Selectrum Integration
+   #+begin_src emacs-lisp
+     (setq selectrum-refine-candidates-function #'orderless-filter)
+     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
+   #+end_src
+*** Filtering advice
+   If you also =orderless= configured as the `completion-styles`, use the
+   following advice Orderless isn't well suited for initial gathering of
+   candidates by completion in region.
+   #+begin_src emacs-lisp
+     (advice-add #'completion--category-override :filter-return
+                 (defun completion-in-region-style-setup+ (res)
+                   "Fallback to default styles for region completions with orderless."
+                   (or res
+                       ;; Don't use orderless for initial candidate gathering.
+                       (and completion-in-region-mode-predicate
+                            (not (minibufferp))
+                            (equal '(orderless) completion-styles)
+                            '(basic partial-completion emacs22)))))
+   #+end_src
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-selectrum-binding
@@ -2502,38 +2562,29 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
    Using The table below as the source for generating [[Normal Selectrum Bindings][Normal Selectrum Bindings]]
 
    #+TBLNAME: normal_selectrum_keys
-      | Evil Leader Combo | Description                         | Command                   |
-      |-------------------+-------------------------------------+---------------------------|
-      | SPC               | Selectrum M-x version               | 'execute-extended-command |
-      | "."               | Forward to 'find file'              | 'find-file                |
-      | b b               |                                     | 'selectrum-switch-buffer+ |
-      | h f               | Display full doc on a function      | 'describe-function        |
-      | h F               | Display properties of a face        | 'describe-face            |
-      | h v               | Display full doc of a variable      | 'describe-variable        |
-      | h l               | Find Emacs Lisp source of a library | 'find-library             |
-
-      | i e               | Show list of supported colors in a frame          | 'counsel-colors-emacs              |
-      | i f               | Lists of faces with preview                       | 'counsel-faces                     |
-      | i l               | Load selected Emacs Lisp Library                  | 'counsel-load-library              |
-      | i y               | Display definition of a symbol                    | 'counsel-info-lookup-symbol        |
-      | i u               | Insert COUNT copy of unicode char at point        | 'counsel-unicode-char              |
-      | i w               | Show W3C Web color list for use in CSS            | 'counsel-colors-web                |
-      | c c               | Call 'compile' completing with smart suggestion   | 'counsel-compile                   |
-      | c d               |                                                   | 'qq/counsel-compile-dir            |
-      | c r               |                                                   | 'recompile                         |
-      | g c               |                                                   | 'counsel-git                       |
-      | g f               |                                                   | 'counsel-git-find-file             |
-      | g g               |                                                   | 'counsel-git-grep                  |
-      | / /               |                                                   | 'counsel-ag                        |
-      | / i               |                                                   | 'counsel-imenu                     |
-      | / s               |                                                   | 'swiper                            |
-      | l                 | Run 'locate' putting thre result in Locate buffer | 'counsel-locate                    |
-      | r s               | Resume last completion session                    | 'ivy-resume                        |
-      | ","               |                                                   | 'counsel-projectile-find-file      |
-      | p /               |                                                   | 'counsel-projectile-ag             |
-      | p f               |                                                   | 'counsel-projectile-find-file-dwim |
-      | p d               |                                                   | 'counsel-projectile-find-dir       |
-      | p s               |                                                   | 'counsel-projectile-switch-project |
+      | Evil Leader Combo | Description                              | Command                   |
+      |-------------------+------------------------------------------+---------------------------|
+      | SPC               | Selectrum M-x version                    | 'execute-extended-command |
+      | "."               | Forward to 'find file'                   | 'find-file                |
+      | b c               |                                          | 'selectrum-switch-buffer+ |
+      | h a               |                                          | 'consult-apropos          |
+      | h f               | Display full doc on a function           | 'describe-function        |
+      | h F               | Display properties of a face             | 'describe-face            |
+      | h v               | Display full doc of a variable           | 'describe-variable        |
+      | h l               | Find Emacs Lisp source of a library      | 'find-library             |
+      | b b               | Show list of supported colors in a frame | 'consult-buffer           |
+      | b o               | Display definition of a symbol           | 'consult-other-window     |
+      | b F               | Display definition of a symbol           | 'consult-other-frame      |
+      | i o               | Lists of faces with preview              | 'consult-outline          |
+      | i h               | Load selected Emacs Lisp Library         | 'consult-history          |
+      | i r               |                                          | 'consult-register         |
+      | i b               |                                          | 'consult-bookmark         |
+      | i m               |                                          | 'consult-mark             |
+      | i l               |                                          | 'consult-line             |
+      | i i               |                                          | 'consult-imenu            |
+      | i e               |                                          | 'consult-error            |
+      | i c               |                                          | 'consult-multi-occur      |
+      | p                 |                                          | 'consult-yank-pop         |
 
 *** Visual Keybinding
     :PROPERTIES:
@@ -2545,20 +2596,6 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
       | Evil Leader Combo | Description           | Command                   |
       |-------------------+-----------------------+---------------------------|
       | SPC               | Selectrum M-x version | 'execute-extended-command |
-
-** Orderless
-   To make sorting and filtering more intelligent for =selectrum=
-
-   #+begin_src emacs-lisp
-     (require 'orderless)
-     (setq completion-styles '(orderless))
-     (icomplete-mode) ; optional but recommended!
-   #+end_src
-*** Selectrum Integration
-   #+begin_src emacs-lisp
-     (setq selectrum-refine-candidates-function #'orderless-filter)
-     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
-   #+end_src
 
 ** Mini-Frame
    #+begin_src emacs-lisp
@@ -3094,6 +3131,7 @@ kill unused buffers in the background
       | t t    |                                 | 'treemacs                                        |
       | t l    |                                 | 'qq/toggle-line-numbers                          |
       | t g    |                                 | 'gdb-many-windows                                |
+      | t w    |                                 | 'other-frame                                     |
       | u u    |                                 | 'undo-tree-visualize                             |
       | u s    |                                 | 'undo-tree-save-state-to-register ; C-x r u      |
       | u r    |                                 | 'undo-tree-restore-state-from-register ; C-x r U |
@@ -4468,6 +4506,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | Combo | Description | Command                                                                    |
       |-------+-------------+----------------------------------------------------------------------------|
       | f a   |             | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
+      | ,     |             | 'projectile-find-file                                                      |
 
 ** Persp-mode
 *** Settings
