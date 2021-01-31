@@ -210,7 +210,6 @@
                selectrum-prescient
                consult
                consult-flycheck
-               consult-selectrum
                orderless
                mini-frame
 
@@ -265,6 +264,7 @@
 
                ;; vim emulator
                evil
+               evil-collection
                evil-exchange
                evil-indent-textobject
                                              ;(depends-on "evil-jumper")
@@ -292,7 +292,6 @@
 
                magic-latex-buffer
 
-               evil-magit
                magit
                git-gutter-fringe
                git-messenger
@@ -1284,8 +1283,7 @@ j*** Local =compile-command=
      (add-hook 'find-file-hook (lambda ()
                                  (qq/find-file-check-large-file)
                                  (visual-line-mode)
-                                 (unless (eq major-mode 'org-mode)
-                                   (setq show-trailing-whitespace t))))
+                                 (setq show-trailing-whitespace t)))
    #+END_SRC
 
 *** Leave scratch buffers alone
@@ -1338,20 +1336,22 @@ j*** Local =compile-command=
      (defvar qq/delete-trailing-whitespace t
        "Non-nil will enable deleting trailing whitespace during file save operation.")
 
-     (add-hook 'write-file-functions 'delete-trailing-whitespace)
+     (defun qq/trailing-whitespace-behavior () ;; try &rest with apply if you need args
+       (unless qq/delete-trailing-whitespace
+         (delete-trailing-whitespace)))
+
+     (add-hook 'write-file-functions 'qq/trailing-whitespace-behavior)
      (defun qq/toggle-delete-trailing-whitespace ()
        "Enable/disable deleting of trailing whitespace on saving a file"
        (interactive)
        (if qq/delete-trailing-whitespace
            (progn
              (setq qq/delete-trailing-whitespace nil)
-             (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
              (message "Trailing whitespace will be ignored on file save"))
          (progn
            (setq qq/delete-trailing-whitespace t)
-           (add-hook 'write-file-functions 'delete-trailing-whitespace)
            (message "Trailing whitespace will be deleted on file save"))))
-              #+end_src
+   #+end_src
 
 ** Visual
 *** Theme
@@ -1899,14 +1899,6 @@ j*** Local =compile-command=
        (error "Cannot write to ~/.emacs-backup"))
    #+END_SRC
 **** Tramp remote sudo
-This allows TRAMP to use sudo on remote hosts.
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'tramp-default-proxies-alist
-                  '(nil "\\`root\\'" "/ssh:%h:"))
-     (add-to-list 'tramp-default-proxies-alist
-                  (list (regexp-quote (system-name)) nil nil))
-   #+END_SRC
-
 Don't backup su and sudo files
    #+BEGIN_SRC emacs-lisp
      (setq backup-enable-predicate
@@ -2467,12 +2459,12 @@ command `marginalia-cycle-annotators` to switch between the annotators.
 *** Consult
    Replace functions (consult-multi-occur is a drop-in replacement)
    #+begin_src emacs-lisp
-     (fset 'multi-occur #'consult-multi-occur)
+     ;  (fset 'multi-occur #'consult-multi-occur)
    #+end_src
 
    Enable previews
    #+begin_src emacs-lisp
-     (consult-preview-mode)
+     ;(consult-preview-mode)
    #+end_src
 *** Switch to buffer or recent file
 Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, to files with "f " prefix and to buffers with "b " prefix. (See https://github.com/raxod502/selectrum/issues/9#issuecomment-631325725)
@@ -2662,10 +2654,14 @@ kill unused buffers in the background
 *** Init
 
    #+BEGIN_SRC emacs-lisp
+     (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+     (setq evil-want-keybinding nil)
      (dolist (feature
               '(evil evil-indent-textobject
-                ))
+                     ))
        (require feature))
+     (when (require 'evil-collection nil t)
+       (evil-collection-init 'magit))
    #+END_SRC
 
 *** Enable Evil
@@ -3120,7 +3116,7 @@ kill unused buffers in the background
       | t SPC  |                                 | 'whitespace-mode                                 |
       | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
       | t b    |                                 | 'sr-speedbar-toggle                              |
-      | t w    |                                 | 'toggle-truncate-lines                           |
+      | t r    |                                 | 'toggle-truncate-lines                           |
       | t d    |                                 | 'toggle-debug-on-error                           |
       | t h    | toggle highlight current line   | 'global-hl-line-mode                             |
       | t i    | toggle indent guide             | 'highlight-indent-guides-mode                    |
@@ -3130,6 +3126,7 @@ kill unused buffers in the background
       | t o    |                                 | 'auto-dim-other-buffers-mode                     |
       | t t    |                                 | 'treemacs                                        |
       | t l    |                                 | 'qq/toggle-line-numbers                          |
+      | t e    |                                 | 'qq/trailing-whitespace-behavior                 |
       | t g    |                                 | 'gdb-many-windows                                |
       | t w    |                                 | 'other-frame                                     |
       | u u    |                                 | 'undo-tree-visualize                             |
@@ -3336,7 +3333,6 @@ kill unused buffers in the background
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (require 'magit)
-     (require 'evil-magit)
      (setq magit-diff-options '("--histogram"))
      (setq magit-push-always-verify nil)
      (setq magit-stage-all-confirm nil)

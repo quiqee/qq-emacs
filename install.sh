@@ -47,12 +47,15 @@ git_config() {
 }
 #git_config
 
-#if [ "$(uname)" == "Darwin" ]; then
-#    echo "Install bashrc file"
-#elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-#    echo "Install bashrc file"
-#    ln -sf $(pwd)/dot_ubuntu_bashrc $HOME/.bashrc
-#fi
+if [ "$(uname)" == "Darwin" ]; then
+    echo "Install bashrc file"
+    ln -sf $(pwd)/dot_mac_bashrc $HOME/.profile
+    ln -sf $HOME/.profile $HOME/.bashrc
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo "Install bashrc file"
+    ln -sf $(pwd)/dot_ubuntu_bashrc $HOME/.bashrc
+fi
+ln -sf $(pwd)/Xresources $HOME/.Xresources
 
 mkdir -p ~/.emacs.d/elisp
 #mkdir -p ~/.emacs.d/extern

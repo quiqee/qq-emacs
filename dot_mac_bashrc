@@ -156,3 +156,4 @@ fi
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/openssl/lib/pkgconfig
 #export YACC=/usr/local/opt/bison/bin/bison
+export PATH="/usr/local/opt/llvm/bin:$PATH"
