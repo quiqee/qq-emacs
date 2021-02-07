@@ -288,7 +288,7 @@ The theme has to be reloaded after changing anything in this group."
 ;;;;; Linum
        `(linum                               ((,class (:foreground ,quickbeans-grey-3 :background ,quickbeans-grey-0))))
 ;;;;; Display line numbers
-       `(line-number                         ((,class (:foreground ,quickbeans-grey-5 :background ,quickbeans-grey-0))))
+       `(line-number                         ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-grey-0))))
        `(line-number-current-line            ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
 ;;;;; Ediff
        `(ediff-even-diff-A                   ((,class (:background ,quickbeans-grey-2 :foreground ,quickbeans-fg))))
@@ -437,9 +437,9 @@ The theme has to be reloaded after changing anything in this group."
        `(org-level-8                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-blue-0))))
        `(org-link                            ((,class (:foreground ,quickbeans-blue-1))))
        `(org-special-keyword                 ((,class (:foreground ,quickbeans-blue-0))))
-       `(org-table                           ((,class (:foreground ,quickbeans-orange-0))))
+       `(org-table                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-orange-0))))
        `(org-todo                            ((,class (:foreground ,quickbeans-red-1))))
-       `(org-block                           ((,class (:foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
+       `(org-block                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
 ;;;;; Region

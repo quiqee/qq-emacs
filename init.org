@@ -154,6 +154,7 @@
                ;; UI Enhancement
                ;window-numbering
                amx
+               default-text-scale
 
                flx
 
@@ -257,7 +258,7 @@
                region-state
 
                doom-modeline
-               minions-mode
+               minions
                mini-modeline
 
                pdf-tools
@@ -506,11 +507,10 @@ required from *emacs*.
 ** Site-Specific
 *** Common
 **** Fonts
-
    #+begin_src emacs-lisp
      (custom-theme-set-faces
       'user
-      '(variable-pitch ((t (:family "iA Writer Mono V"))))
+      '(variable-pitch ((t (:family "Cantarell"))))
       '(fixed-pitch ((t ( :family "PragmataPro"
                           :slant normal
                           :weight normal
@@ -1033,7 +1033,7 @@ required from *emacs*.
 **** Read Process Output
   Increase the amount of data which Emacs reads from the process. Again the
   emacs default is too low 4k considering that the some of the language server
-  responses are in 800k - 3M range. 
+  responses are in 800k - 3M range.
 
    #+BEGIN_SRC emacs-lisp
      read-process-output-max (* 1024 1024) ;; 1mb
@@ -1355,16 +1355,17 @@ j*** Local =compile-command=
          (delete-trailing-whitespace)))
 
      (add-hook 'write-file-functions 'qq/trailing-whitespace-behavior)
+
      (defun qq/toggle-delete-trailing-whitespace ()
        "Enable/disable deleting of trailing whitespace on saving a file"
        (interactive)
        (if qq/delete-trailing-whitespace
            (progn
              (setq qq/delete-trailing-whitespace nil)
-             (message "Trailing whitespace will be ignored on file save"))
+             (message "Trailing whitespace will be DELETED on file save"))
          (progn
            (setq qq/delete-trailing-whitespace t)
-           (message "Trailing whitespace will be deleted on file save"))))
+           (message "Trailing whitespace will be IGNORED on file save"))))
    #+end_src
 
 ** Visual
@@ -1703,6 +1704,13 @@ j*** Local =compile-command=
                prog-mode-hook))
        (global-prettify-symbols-mode +1)
    #+END_SRC
+
+*** Frame Scaling / Zooming
+  The keybindings for this are C+M+- and C+M+=.
+   #+begin_src emacs-lisp
+     (require 'default-text-scale)
+     (default-text-scale-mode)
+   #+end_src
 
 ** Advice
    An advice can be given to a function to make it behave differently. This
@@ -2246,18 +2254,21 @@ Use conf-mode for git config files
    Using The table below as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
-      | Combo   | Description                                                                | Command                   |
-      |---------+----------------------------------------------------------------------------+---------------------------|
-      | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch          |
-      | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer   |
-      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                  |
-      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer         |
-      | C-c e   |                                                                            | 'qq/eval-and-replace      |
-      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer          |
-      | C-)     | In selected window switch to next buffer                                   | 'next-buffer              |
-      | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left            |
-      | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right           |
-      | C-S-d   | Display minions-mode menu that shows current mini modes in modeline        | 'minions-minor-modes-menu |
+      | Combo   | Description                                                                | Command                      |
+      |---------+----------------------------------------------------------------------------+------------------------------|
+      | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch             |
+      | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer      |
+      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                     |
+      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer            |
+      | C-c e   |                                                                            | 'qq/eval-and-replace         |
+      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer             |
+      | C-)     | In selected window switch to next buffer                                   | 'next-buffer                 |
+      | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left               |
+      | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right              |
+      | C-S-d   | Display minions-mode menu that shows current mini modes in modeline        | 'minions-minor-modes-menu    |
+      | C-S-=   | Increase text scale                                                        | 'default-text-scale-increase |
+      | C-S--   | Decrease text scale                                                        | 'default-text-scale-decrease |
+      | C-S-0   | Reset text scale                                                           | 'default-text-scale-reset    |
 
 * Third parties
 ** Company
@@ -2572,6 +2583,26 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
                             (equal '(orderless) completion-styles)
                             '(basic partial-completion emacs22)))))
    #+end_src
+*** Selectrum Map Binding
+    :PROPERTIES:
+    :CUSTOM_ID: selectrum-map-binding
+    :END:
+   Using The table below as the source for generating [[Selectrum Map Bindings][Selectrum Map Bindings]]
+
+   #+name: selectrum_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :keymaps 'selectrum-minibuffer-map
+   #+end_src
+   #+TBLNAME: selectrum_map_keys
+      | Combo | Description                    | Command              |
+      | C-j   | selects the next candidate     | 'next-line           |
+      | C-k   | selects the previous candidate | 'previous-line       |
+      | C-a   | selects the first candidate    | 'beginning-of-buffer |
+      | C-e   | selects the last candidate     | 'end-of-buffer       |
+      | C-b   | scrolls down                   | 'scroll-down-command |
+      | C-f   | scrolls up                     | 'scroll-up-command   |
+      | C-w   |                                | 'yank-word           |
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-selectrum-binding
@@ -2751,17 +2782,18 @@ kill unused buffers in the background
 ;     (require 'evil-mc)
 ;     (global-evil-mc-mode 1)
    #+END_SRC
-**** evil-matchit
-
-   #+BEGIN_SRC emacs-lisp
-     (global-evil-matchit-mode t)
-   #+END_SRC
 **** evil-nerdcommenter
    [[https://github.com/redguardtoo/evil-nerd-commenter]]
 
    #+BEGIN_SRC emacs-lisp
      (require 'evil-nerd-commenter)
      (evilnc-default-hotkeys)
+   #+END_SRC
+**** evil-matchit
+
+   #+BEGIN_SRC emacs-lisp
+     (global-evil-matchit-mode t)
+     (evilmi-load-plugin-rules '(mhtml-mode) '(template simple html))
    #+END_SRC
 **** evil-exchange
    Easy text exchange operator for Evil [[https://github.com/Dewdrops/evil-exchange]]
@@ -3049,9 +3081,10 @@ kill unused buffers in the background
    Using The table below as the source for generating [[Evil Visual Bindings][Evil Visual Bindings]]
 
    #+TBLNAME: evil_visual_keys
-      | Combo | Description                      | Command      |
-      |-------+----------------------------------+--------------|
-      | , e   | Execute selected lisp expression | 'eval-region |
+      | Combo | Description                      | Command                      |
+      |-------+----------------------------------+------------------------------|
+      | , e   | Execute selected lisp expression | 'eval-region                 |
+      | , l   | Add/Remove comments              | 'comment-or-uncomment-region |
 
 **** Ex Mode Binding
     :PROPERTIES:
@@ -3130,6 +3163,7 @@ kill unused buffers in the background
       | h j    |                                 | 'helm-dash-at-point                              |
       | h e    |                                 | 'emojify-describe-emoji-at-point                 |
       | M      |                                 | 'which-key-show-keymap                           |
+      | e c    |                                 | 'evilnc-comment-or-uncomment-lines               |
       | ?      |                                 | 'which-key-show-top-level                        |
       | q      |                                 | 'evil-window-delete                              |
       | P      |                                 | 'package-list-packages                           |
@@ -3151,7 +3185,7 @@ kill unused buffers in the background
       | t o    |                                 | 'auto-dim-other-buffers-mode                     |
       | t t    |                                 | 'treemacs                                        |
       | t l    |                                 | 'qq/toggle-line-numbers                          |
-      | t e    |                                 | 'qq/trailing-whitespace-behavior                 |
+      | t e    |                                 | 'qq/toggle-delete-trailing-whitespace            |
       | t g    |                                 | 'gdb-many-windows                                |
       | t w    |                                 | 'other-frame                                     |
       | u u    |                                 | 'undo-tree-visualize                             |
@@ -3606,7 +3640,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
    #+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
-  session, for example. It can cause a great performance hit.  
+  session, for example. It can cause a great performance hit.
 
    #+BEGIN_SRC emacs-lisp
     (setq lsp-log-io nil) ; if set to true can cause a performance hit
@@ -3623,16 +3657,43 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 *** Clangd
    #+BEGIN_SRC emacs-lisp
-;     (setq lsp-clients-clangd-executable "/usr/bin/clangd")
-;     (setq lsp-clients-clangd-args
-;           '("-j=2"
-;             "--background-index"
-;             ;;"--clang-tidy"
-;             "--completion-style=bundled"
-;             "--pch-storage=memory"
-;             "--header-insertion=never"
-;             "--header-insertion-decorators=0"))
+     (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
+     (setq lsp-clients-clangd-args
+           '("-j=8"
+             "--background-index"
+             ;;"--clang-tidy"
+             "--completion-style=bundled"
+             "--pch-storage=memory"
+             "--header-insertion=never"
+             "--header-insertion-decorators=0"))
    #+END_SRC
+
+*** Lsp-UI
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+     (after 'lsp-ui-mode
+       (setq lsp-ui-sideline-enable t)
+       (setq lsp-ui-sideline-show-hover nil)
+       (setq lsp-ui-doc-position 'bottom)
+       (lsp-ui-doc-show))
+   #+END_SRC
+*** Normal Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: normal-lsp-binding
+    :END:
+   Using The table below as the source for generating [[Normal LSP Bindings][Normal LSP Bindings]]
+
+   #+TBLNAME: normal_lsp_keys
+      | Evil Leader Combo | Description | Command                       |
+      |-------------------+-------------+-------------------------------|
+      | l                 |             | '(:ignore t :which-key "lsp") |
+      | ld                |             | 'xref-find-definitions        |
+      | lr                |             | 'xref-find-references         |
+      | ln                |             | 'lsp-ui-find-next-reference   |
+      | lp                |             | 'lsp-ui-find-prev-reference   |
+      | le                |             | 'lsp-ui-flycheck-list         |
+      | lS                |             | 'lsp-ui-sideline-mode         |
+      | lX                |             | 'lsp-execute-code-action      |
 
 ** Org
    =org-mode= is a plain text system for organising information and notes.
@@ -3644,6 +3705,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
    #+BEGIN_SRC emacs-lisp
      (require 'org)
      (require 'org-eldoc)
+     (require 'org-indent)
      (require 'org-superstar)
    #+END_SRC
 
@@ -3741,6 +3803,7 @@ my collection of org-ellipsis candidate symbols
 
    #+BEGIN_SRC emacs-lisp
      org-src-fontify-natively t
+     org-edit-src-content-indentation 2
    #+END_SRC
 
 ***** Default note file
@@ -3769,34 +3832,6 @@ my collection of org-ellipsis candidate symbols
      org-indent-indentation-per-level 3
      org-src-tab-acts-natively t
    #+END_SRC
-
-***** Nice bulleted lists.
-   my candidate symbol lists
-
-   hexagrams
-       “✡” “⎈” “✽” “✲” “✱” “✻” “✼” “✽” “✾” “✿” “❀” “❁” “❂” “❃” “❄” “❅” “❆” “❇”
-
-   circles
-       “○” “☉” “◎” “◉” “○” “◌” “◎” “●” “◦” “◯” “⚪” “⚫” “⚬” “❍” “￮” “⊙” “⊚” “⊛” “∙” “∘”
-
-   special circles
-       “◐” “◑” “◒” “◓” “◴” “◵” “◶” “◷” “⚆” “⚇” “⚈” “⚉” “♁” “⊖” “⊗” “⊘”
-
-   crosses
-       “✙” “♱” “♰” “☥” “✞” “✟” “✝” “†” “✠” “✚” “✜” “✛” “✢” “✣” “✤” “✥”
-
-   poker sybmols
-       “♠” “♣” “♥” “♦” “♤” “♧” “♡” “♢”
-
-   yinyang
-       “☯” “☰” “☱” “☲” “☳” “☴” “☵” “☶” “☷”
-
-   special symbols
-       “☀” “♼” “☼” “☾” “☽” “☣” “§” “¶” “‡” “※” “✕” “△” “◇” “▶” “◀” “◈”
-
-   #+begin_src emacs-lisp
-     org-bullets-bullet-list '("✛" "✢" "✣" "✤" "✥" "✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜")
-   #+end_src
 
 ***** Enable logging when tasks are complete.
    This puts a time-stamp on the completed task. Since I usually am doing quite
@@ -4080,6 +4115,32 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
        (make-directory org-directory))
    #+END_SRC
 
+**** Font Settings
+;; Increase the size of various headings
+   #+BEGIN_SRC emacs-lisp
+     (set-face-attribute 'org-document-title nil :font "Cantarell" :weight 'bold :height 1.6)
+     (dolist (face '((org-level-1 . 1.5)
+                     (org-level-2 . 1.4)
+                     (org-level-3 . 1.3)
+                     (org-level-4 . 1.2)
+                     (org-level-5 . 1.2)
+                     (org-level-6 . 1.2)
+                     (org-level-7 . 1.2)
+                     (org-level-8 . 1.2)))
+       (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+   #+END_SRC
+Ensure that anything that should be fixed-pitch in Org files appears that way
+   #+BEGIN_SRC emacs-lisp
+     (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+     (set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
+     (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+     (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+     (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
+     (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+   #+END_SRC
 **** Hooks
 
    #+BEGIN_SRC emacs-lisp
@@ -4090,6 +4151,8 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 
    #+BEGIN_SRC emacs-lisp
      (org-superstar-mode 1)
+     (org-superstar-remove-leading-stars t)
+     (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
      #+END_SRC
 ***** Enable =writegood-mode=
 
@@ -4101,6 +4164,12 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 
    #+BEGIN_SRC emacs-lisp
      (abbrev-mode 1)
+   #+END_SRC
+
+***** Enable =org-indent-mode=
+
+   #+BEGIN_SRC emacs-lisp
+     (org-indent-mode)
    #+END_SRC
 
 ***** Enable flyspell and rainbow-mode
@@ -4122,6 +4191,24 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    #+BEGIN_SRC emacs-lisp
        (after 'evil
          (add-hook 'org-capture-mode-hook 'evil-insert-state))
+   #+END_SRC
+
+**** Block Templates
+  These templates enable you to type things like <el and then hit Tab to expand
+  the template. More documentation can be found at the Org Mode Easy Templates
+  documentation page.
+
+   #+BEGIN_SRC emacs-lisp
+     ;; This is needed as of Org 9.2
+     (require 'org-tempo)
+
+     (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
+     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+     (add-to-list 'org-structure-template-alist '("sc" . "src scheme"))
+     (add-to-list 'org-structure-template-alist '("ts" . "src typescript"))
+     (add-to-list 'org-structure-template-alist '("py" . "src python"))
+     (add-to-list 'org-structure-template-alist '("yaml" . "src yaml"))
+     (add-to-list 'org-structure-template-alist '("json" . "src json"))
    #+END_SRC
 
 **** Enable =markdown= export
@@ -4290,28 +4377,30 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       | C-c l | Correctly insert links into org files                        | 'org-store-link |
       | C-c b | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
 
-*** Evil Binding
     :PROPERTIES:
+*** Evil Binding
     :CUSTOM_ID: evil-org-binding
     :END:
    Using The table below as the source for generating [[Evil Org Bindings][Evil Org Bindings]]
 
    #+TBLNAME: evil_org_keys
-      | Combo  | Mode             | Evil Mode | Description | Command                                                       |
-      | z c    | org-mode-map     | normal    |             | 'outline-hide-subtree                                         |
-      | \\ TAB | org-mode-map     | normal    |             | '(lambda () (interactive)(org-shiftmetadown) (evil-insert 0)) |
-      | RET    | org-mode-map     | normal    |             | 'org-open-at-point                                            |
-      | s-v    | org-mode-map     | insert    |             | 'org-cliplink                                                 |
-      | -      | org-mode-map     | normal    |             | 'org-cycle-list-bullet                                        |
-      | C-c .  | org-mode-map     | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t))        |
-      | C-e    | org-mode-map     | normal    |             | 'org-edit-src-code                                            |
-      | Q      | org-src-mode-map | normal    |             | 'org-edit-src-exit                                            |
-      | >      | org-mode-map     | normal    |             | 'org-metaright                                                |
-      | <      | org-mode-map     | normal    |             | 'org-metaleft                                                 |
-      | C->    | org-mode-map     | normal    |             | 'org-demote-subtree                                           |
-      | C-<    | org-mode-map     | normal    |             | 'org-promote-subtree                                          |
-      | SPC k  | org-mode-map     | normal    |             | 'outline-up-heading                                           |
-      | 0      | org-mode-map     | normal    |             | 'evil-digit-argument-or-evil-beginning-of-line                |
+      | Combo   | Mode             | Evil Mode | Description | Command                                                |
+      | z c     | org-mode-map     | normal    |             | 'outline-hide-subtree                                  |
+      | RET     | org-mode-map     | normal    |             | 'org-open-at-point                                     |
+      | s-v     | org-mode-map     | insert    |             | 'org-cliplink                                          |
+      | -       | org-mode-map     | normal    |             | 'org-cycle-list-bullet                                 |
+      | C-c .   | org-mode-map     | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t)) |
+      | C-e     | org-mode-map     | normal    |             | 'org-edit-src-code                                     |
+      | Q       | org-src-mode-map | normal    |             | 'org-edit-src-exit                                     |
+      | >       | org-mode-map     | normal    |             | 'org-metaright                                         |
+      | <       | org-mode-map     | normal    |             | 'org-metaleft                                          |
+      | C->     | org-mode-map     | normal    |             | 'org-demote-subtree                                    |
+      | C-<     | org-mode-map     | normal    |             | 'org-promote-subtree                                   |
+      | SPC k   | org-mode-map     | normal    |             | 'outline-up-heading                                    |
+      | SPC j j | org-mode-map     | normal    |             | 'outline-next-heading                                  |
+      | 0       | org-mode-map     | normal    |             | 'evil-digit-argument-or-evil-beginning-of-line         |
+      | M-k     | org-mode-map     | normal    |             | 'org-metaup                                            |
+      | M-j     | org-mode-map     | normal    |             | 'org-metadown                                          |
 
 ** PDFTools
    [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
@@ -5044,26 +5133,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 ;     (window-numbering-mode)
    #+END_SRC
 
-*** Selectrum Map Binding
-    :PROPERTIES:
-    :CUSTOM_ID: selectrum-map-binding
-    :END:
-   Using The table below as the source for generating [[Selectrum Map Bindings][Selectrum Map Bindings]]
-
-   #+name: selectrum_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :keymaps 'selectrum-minibuffer-map
-   #+end_src
-   #+TBLNAME: selectrum_map_keys
-      | Combo | Description                    | Command              |
-      | C-j   | selects the next candidate     | 'next-line           |
-      | C-k   | selects the previous candidate | 'previous-line       |
-      | C-a   | selects the first candidate    | 'beginning-of-buffer |
-      | C-e   | selects the last candidate     | 'end-of-buffer       |
-      | C-b   | scrolls down                   | 'scroll-down-command |
-      | C-f   | scrolls up                     | 'scroll-up-command   |
-      | C-w   |                                | 'yank-word           |
 * Languages
 ** General
 Some general settings that should apply to all programming mode. Highlight
@@ -5905,7 +5974,6 @@ Emacs has a command to sort lines, but not to sort words in a region.
 *** Leader key
    #+BEGIN_SRC emacs-lisp
      (general-create-definer qq-leader-def
-       :keymaps '(normal insert visual emacs)
        :prefix "SPC"
        :global-prefix "C-SPC")
    #+END_SRC
@@ -6042,6 +6110,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="lead", tname=normal_selectrum_keys)>>
    #+END_SRC
 
+**** Normal LSP Bindings
+   Generate binding using table from [[#normal-lsp-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=normal_lsp_keys)>>
+   #+END_SRC
+
 **** End
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
@@ -6119,7 +6194,6 @@ Generate binding using table from [[#evil-leader-binding][here]]
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
    #+END_SRC
-
 
 ** Selectrum Map Bindings
    Generate binding using table from [[#selectrum-map-binding][here]]
