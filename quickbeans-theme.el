@@ -210,7 +210,7 @@ The theme has to be reloaded after changing anything in this group."
 ;;;;; Fonts
        `(font-lock-builtin-face              ((,class (:foreground ,quickbeans-blue-1))))
        `(font-lock-comment-face              ((,class (:slant italic :foreground ,quickbeans-grey-7))))
-       `(font-lock-constant-face             ((,class (:foreground ,quickbeans-blue-3))))
+       `(font-lock-constant-face             ((,class (:foreground ,quickbeans-blue-5))))
        `(font-lock-doc-face                  ((,class (:foreground ,quickbeans-green-5))))
        `(font-lock-function-name-face        ((,class (:foreground ,quickbeans-yellow-3))))
        `(font-lock-keyword-face              ((,class (:foreground ,quickbeans-blue-0))))

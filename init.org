@@ -185,8 +185,12 @@
 
                clang-format
 
+               cmake-mode
+               cmake-font-lock
+               eldoc-cmake
+
                company
-               ;company-box
+               company-box
                company-posframe
                company-sourcekit
                ;company-emoji
@@ -253,6 +257,7 @@
                region-state
 
                doom-modeline
+               minions-mode
                mini-modeline
 
                pdf-tools
@@ -1025,6 +1030,15 @@ required from *emacs*.
            save-place-forget-unreadable-files nil
    #+END_SRC
 
+**** Read Process Output
+  Increase the amount of data which Emacs reads from the process. Again the
+  emacs default is too low 4k considering that the some of the language server
+  responses are in 800k - 3M range. 
+
+   #+BEGIN_SRC emacs-lisp
+     read-process-output-max (* 1024 1024) ;; 1mb
+   #+END_SRC
+
 **** Other Temporary files
    To avoid file system clutter we put all auto saved files in a single
    directory
@@ -1424,13 +1438,23 @@ j*** Local =compile-command=
    #+BEGIN_SRC emacs-lisp
      (require 'doom-modeline)
      (doom-modeline-def-modeline 'qq-simple-line
-       '(modals workspace-name window-number matches buffer-info remote-host)
+       '(modals workspace-name window-number matches buffer-info remote-host minor-modes)
        '(buffer-position word-count selection-info misc-info major-mode process vcs lsp checker))
      (defun setup-custom-doom-modeline ()
        (doom-modeline-set-modeline 'qq-simple-line 'default))
 
+     (setq doom-modeline-minor-modes t)
      (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
      (doom-modeline-mode 1)
+
+   #+END_SRC
+
+**** Minions Mode
+   #+BEGIN_SRC emacs-lisp
+     (require 'minions)
+     (minions-mode 1)
+     (after minions-mode
+       (minions-mode-line-lighter ""))
    #+END_SRC
 
 **** Filename display mode
@@ -2222,17 +2246,18 @@ Use conf-mode for git config files
    Using The table below as the source for generating [[Basic Bindings]]
 
    #+TBLNAME: std_keys
-      | Combo   | Description                                                                | Command                  |
-      |---------+----------------------------------------------------------------------------+--------------------------|
-      | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch         |
-      | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer  |
-      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                 |
-      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer        |
-      | C-c e   |                                                                            | 'qq/eval-and-replace     |
-      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer         |
-      | C-)     | In selected window switch to next buffer                                   | 'next-buffer             |
-      | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left           |
-      | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right          |
+      | Combo   | Description                                                                | Command                   |
+      |---------+----------------------------------------------------------------------------+---------------------------|
+      | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch          |
+      | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer   |
+      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                  |
+      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer         |
+      | C-c e   |                                                                            | 'qq/eval-and-replace      |
+      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer          |
+      | C-)     | In selected window switch to next buffer                                   | 'next-buffer              |
+      | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left            |
+      | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right           |
+      | C-S-d   | Display minions-mode menu that shows current mini modes in modeline        | 'minions-minor-modes-menu |
 
 * Third parties
 ** Company
@@ -3368,25 +3393,6 @@ kill unused buffers in the background
    [[https://github.com/redguardtoo/emacs.d/blob/master/lisp/init-ivy.el]]
 
    #+BEGIN_SRC emacs-lisp
-     (defun counsel-git-grep-or-find-api (fn git-cmd hint open-another-window)
-       "Apply FN on the output lines of GIT-CMD.  HINT is hint when user input.
-     IF OPEN-ANOTHER-WINDOW is true, open the file in another window."
-       (let ((default-directory (locate-dominating-file
-                                 default-directory ".git"))
-             (keyword (if (region-active-p)
-                          (buffer-substring-no-properties (region-beginning) (region-end))
-                        (read-string (concat "Enter " hint " pattern:" ))))
-             collection val lst)
-
-         (setq collection (split-string (shell-command-to-string (format git-cmd keyword))
-                                        "\n"
-                                        t))
-
-         (when (and collection (> (length collection) 0))
-           (setq val (if (= 1 (length collection)) (car collection)
-                         (ivy-read (format " matching \"%s\":" keyword) collection)))
-           (funcall fn open-another-window val))))
-
      (defun counsel-git-grep (&optional open-another-window)
        "Grep in the current git repository.
      If OPEN-ANOTHER-WINDOW is not nil, results are displayed in new window."
@@ -3587,15 +3593,23 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 ** Lsp-mode
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
-
    #+BEGIN_SRC emacs-lisp
      (require 'lsp-mode)
      (add-hook 'prog-mode-hook #'lsp)
+     (setq lsp-completion-provider :capf)
+
      (lsp-register-client
-      (make-lsp-client :new-connection (lsp-tramp-connection "/usr/bin/clangd")
+      (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
                        :major-modes '(c-mode c++-mode)
                        :remote? t
                        :server-id 'clangd-lsp-remote))
+   #+END_SRC
+*** Logging
+  Make sure lsp-log-io is nil. You might have forgotten it after a debugging
+  session, for example. It can cause a great performance hit.  
+
+   #+BEGIN_SRC emacs-lisp
+    (setq lsp-log-io nil) ; if set to true can cause a performance hit
    #+END_SRC
 
 *** Ccls
@@ -3609,15 +3623,15 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 *** Clangd
    #+BEGIN_SRC emacs-lisp
-     (setq lsp-clients-clangd-executable "/usr/bin/clangd")
-     (setq lsp-clients-clangd-args
-           '("-j=2"
-             "--background-index"
-             ;;"--clang-tidy"
-             "--completion-style=bundled"
-             "--pch-storage=memory"
-             "--header-insertion=never"
-             "--header-insertion-decorators=0"))
+;     (setq lsp-clients-clangd-executable "/usr/bin/clangd")
+;     (setq lsp-clients-clangd-args
+;           '("-j=2"
+;             "--background-index"
+;             ;;"--clang-tidy"
+;             "--completion-style=bundled"
+;             "--pch-storage=memory"
+;             "--header-insertion=never"
+;             "--header-insertion-decorators=0"))
    #+END_SRC
 
 ** Org
@@ -4525,27 +4539,6 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
                (lambda (b) (or (string-prefix-p "*" (buffer-name b))
                                (string-prefix-p "magit" (buffer-name b)))))
    #+end_src
-*** Make ivy play nice
-   #+begin_src emacs-lisp
-     (with-eval-after-load "ivy"
-       (add-hook 'ivy-ignore-buffers
-                 #'(lambda (b)
-                     (when persp-mode
-                       (let ((persp (get-current-persp)))
-                         (if persp
-                             (not (persp-contain-buffer-p b persp))
-                           nil)))))
-
-       (setq ivy-sort-functions-alist
-             (append ivy-sort-functions-alist
-                     '((persp-kill-buffer   . nil)
-                       (persp-remove-buffer . nil)
-                       (persp-add-buffer    . nil)
-                       (persp-switch        . nil)
-                       (persp-window-switch . nil)
-                       (persp-frame-switch  . nil)))))
-   #+end_src
-
 *** Rename main perspective
 
    #+begin_src emacs-lisp
@@ -5063,14 +5056,14 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
       :keymaps 'selectrum-minibuffer-map
    #+end_src
    #+TBLNAME: selectrum_map_keys
-      | Combo | Description                      | Command              |
-      | C-j   | selects the next candidate       | 'next-line           |
-      | C-k   | selects the previous candidate   | 'previous-line       |
-      | C-a   | selects the first candidate      | 'beginning-of-buffer |
-      | C-e   | selects the last candidate       | 'end-of-buffer       |
-      | C-b   | scrolls down by ivy-height lines | 'scroll-down-command |
-      | C-f   | scrolls up by ivy-height lines   | 'scroll-up-command   |
-      | C-w   |                                  | 'yank-word           |
+      | Combo | Description                    | Command              |
+      | C-j   | selects the next candidate     | 'next-line           |
+      | C-k   | selects the previous candidate | 'previous-line       |
+      | C-a   | selects the first candidate    | 'beginning-of-buffer |
+      | C-e   | selects the last candidate     | 'end-of-buffer       |
+      | C-b   | scrolls down                   | 'scroll-down-command |
+      | C-f   | scrolls up                     | 'scroll-up-command   |
+      | C-w   |                                | 'yank-word           |
 * Languages
 ** General
 Some general settings that should apply to all programming mode. Highlight
@@ -5091,6 +5084,10 @@ Some general settings that should apply to all programming mode. Highlight
                  (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
                  (smart-tabs-insinuate 'c++ 'c 'javascript)
                  (color-identifiers-mode t)))   ; WARNING: if scrolling is slow, turn this off
+#+end_src
+
+#+begin_src emacs-lisp
+     (add-hook 'cmake-mode-hook 'eldoc-cmake-enable)
 #+end_src
 
 ** Compilation
@@ -5903,11 +5900,14 @@ Emacs has a command to sort lines, but not to sort words in a region.
 ** Setup
    #+BEGIN_SRC emacs-lisp
      (require 'general)
+     (general-evil-setup t)
    #+END_SRC
 *** Leader key
    #+BEGIN_SRC emacs-lisp
      (general-create-definer qq-leader-def
-       :prefix "SPC")
+       :keymaps '(normal insert visual emacs)
+       :prefix "SPC"
+       :global-prefix "C-SPC")
    #+END_SRC
 *** Macros
    #+name: gen_emacs
@@ -5944,7 +5944,7 @@ Emacs has a command to sort lines, but not to sort words in a region.
    #+end_src
 
 ** Basic Bindings
-   Generate binding using table from [[#default-key-binding][here]] and [[#ivy-emacs-key-binding][here]]
+   Generate binding using table from [[#default-key-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_emacs>>
