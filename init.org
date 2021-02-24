@@ -29,11 +29,22 @@
 ;; -*- lexical-binding: t -*-
    #+END_SRC
 
-*** Personal Custom group
+*** Early Init
+   Emacs27 introduces =early-init.el=, which is run before =init.el=, before package and UI initialization happens.
+**** Garbage collection threshold
+Increase the garbage collection threshold to 500 MB to ease startup
+
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+     ;; -*- lexical-binding: t -*-
+
+     (setq gc-cons-threshold (* 500 1024 1024))
+   #+END_SRC
+
+**** Personal Custom group
    Create a custom group to group any custom variable so it will not
    polute built in variable space
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (defgroup qq nil
        "Personal Custom configuration."
        ;:type '(string)
@@ -42,7 +53,7 @@
 
    Add a cache-directory root folder custom variable
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (defcustom qq/cache-directory
        (concat user-emacs-directory ".cache/")
        "The storage location for various persistent files."
@@ -52,18 +63,18 @@
 
    Add a custom theme folder under cache-directory
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
    #+END_SRC
 
-*** Emacs JIT
+**** Emacs JIT
 
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (setq comp-speed 2)
    #+END_SRC
 
    Add a cache-directory root folder for compiled .eln files
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (when (boundp 'comp-eln-load-path)
        (let ((eln-cache-dir (expand-file-name "eln-cache/" qq/cache-directory))
              (find-exec (executable-find "find")))
@@ -75,6 +86,42 @@
                          "-name" "*.eln" "-size" "0" "-delete"))))
    #+END_SRC
 
+**** Disable package-enable-at-startup
+   Package initialize occurs automatically, before user-init-file is loaded, but
+   after early-init-file. We handle package initialization, so we must prevent
+   Emacs from doing it early!
+
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+     (setq package-enable-at-startup nil)
+   #+END_SRC
+
+**** Unset file-name-handler-alist
+Every file opened and loaded by Emacs will run through this list to check for a proper handler for the file, but during startup, it won’t need any of them.
+
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+     (defvar file-name-handler-alist-original file-name-handler-alist)
+     (setq file-name-handler-alist nil)
+   #+END_SRC
+
+**** Disable site-run-file
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+  (setq site-run-file nil)
+   #+END_SRC
+
+**** Disable Unnecessary Interface
+It will be faster to disable them here before they've been initialized.
+
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+     (menu-bar-mode -1)
+     (unless (and (display-graphic-p) (eq system-type 'darwin))
+       (push '(menu-bar-lines . 0) default-frame-alist))
+     (push '(tool-bar-lines . 0) default-frame-alist)
+     (push '(vertical-scroll-bars) default-frame-alist)
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+     (provide 'early-init)
+   #+END_SRC
 *** Packages
    List of packages used through out this configuration.
 
@@ -132,6 +179,7 @@
                multiple-cursors              ; Multiple cursors for Emacs.
                org-superstar                 ; show org bullet as Unicode character
                org-cliplink
+               ob-napkin
                ;org-pdfview
                ;org-sidebar
                ;paredit                       ; minor mode for editing parentheses
@@ -164,11 +212,13 @@
                ;; Modes
                writegood-mode
                persp-mode
+               plantuml-mode
 
                ;; Languages major modes
                markdown-mode
                json-mode
                swift-mode
+               modern-cpp-font-lock
 
                ;emojify
 
@@ -220,6 +270,7 @@
 
                yaml-mode
 
+               dap-mode
                lsp-mode
                lsp-ui
                lsp-treemacs
@@ -311,17 +362,7 @@
      (package-initialize)
    #+END_SRC
 
-   Cask packages configuration for Mac OS X: [[file:Cask-mac][Cask]]
-   For Linux: [[file:Cask-linux][Cask]]
-
 *** Init utilites
-**** Garbage collection threshold
-Increase the garbage collection threshold to 500 MB to ease startup
-
-   #+BEGIN_SRC emacs-lisp
-     (setq gc-cons-threshold (* 500 1024 1024))
-   #+END_SRC
-
 **** Evaluate after
 Convenient macro to allow processing after checking existing pre-condition
 
@@ -510,17 +551,19 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (custom-theme-set-faces
       'user
-      '(variable-pitch ((t (:family "Cantarell"))))
+
+      '(variable-pitch ((t (:family "Cantarell"
+                                    :height 1.3))))
       '(fixed-pitch ((t ( :family "PragmataPro"
                           :slant normal
                           :weight normal
-                          :height 1.1
+                          :height 1.3
                           :width normal)))))
 
      ;; Setting the default general font
      (set-face-attribute 'default nil
                          :family "PragmataPro"
-                         :height 130
+                         :height 140
                          )
    #+end_src
 
@@ -699,7 +742,8 @@ required from *emacs*.
 **** Shell environment
 
    #+begin_src emacs-lisp
-     (setq qq/shell-prog "/usr/local/bin/fish")
+     (setq qq/shell-prog "/usr/local/bin/bash")
+     (setenv "LIBRARY_PATH" "/usr/local/opt/gcc/lib/gcc/10/:/usr/local/opt/libgccjit/lib/gcc/10:/usr/local/opt/gcc/lib/gcc/10/gcc/x86_64-apple-darwin20/10.2.0")
      (exec-path-from-shell-copy-env "PKG_CONFIG_PATH")
    #+end_src
 
@@ -926,6 +970,36 @@ required from *emacs*.
      (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
    #+end_src
 
+*** Trailing whitespace
+   Ideally, I don’t want to leave trailing whitespace in files I touch, But sometimes,
+   when working on shared files, I prefer to leave the file as-is and only changed what
+   I explicitly do
+
+   So I created a simple mode to toggle a hook that enable/disable deleting trailing
+   whitespace after every line when saving a file:
+
+   #+begin_src emacs-lisp
+     (defvar qq/delete-trailing-whitespace t
+       "Non-nil will enable deleting trailing whitespace during file save operation.")
+
+     (defun qq/trailing-whitespace-behavior () ;; try &rest with apply if you need args
+       (unless qq/delete-trailing-whitespace
+         (delete-trailing-whitespace)))
+
+     (add-hook 'write-file-functions 'qq/trailing-whitespace-behavior)
+
+     (defun qq/toggle-delete-trailing-whitespace ()
+       "Enable/disable deleting of trailing whitespace on saving a file"
+       (interactive)
+       (if qq/delete-trailing-whitespace
+           (progn
+             (setq qq/delete-trailing-whitespace nil)
+             (message "Trailing whitespace will be DELETED on file save"))
+         (progn
+           (setq qq/delete-trailing-whitespace t)
+           (message "Trailing whitespace will be IGNORED on file save"))))
+   #+end_src
+
 *** Setq
 
    #+BEGIN_SRC emacs-lisp
@@ -986,6 +1060,14 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
            make-pointer-invisible t
+   #+end_src
+
+**** Hide the mouse while typing
+   Turn off lockfiles. They cannot be moved to a different directory, and they
+   consistently screw up with file watchers and version control systems, so it’d
+   be just easier to turn this feature off.
+   #+begin_src emacs-lisp
+           create-lockfiles nil
    #+end_src
 
 **** Long Line movement
@@ -1051,7 +1133,7 @@ required from *emacs*.
      savehist-file
         (concat qq/cache-directory "savehist")    ; cache for minibuffer history
      savehist-additional-variables
-        '(search ring regexp-search-ring)
+        '(search ring regexp-search-ring qq/delete-trailing-whitespace)
      recentf-save-file
         (concat qq/cache-directory "recentf")     ; cache folder for recently open files
      recentf-max-saved-items 1000                 ; maximum saved items in recentf
@@ -1168,6 +1250,12 @@ required from *emacs*.
 
    #+BEGIN_SRC emacs-lisp
                    indent-tabs-mode nil
+   #+END_SRC
+
+**** Line Spacing (in pixels)
+
+   #+BEGIN_SRC emacs-lisp
+                   line-spacing nil
    #+END_SRC
 
 **** Default-tab
@@ -1316,12 +1404,17 @@ j*** Local =compile-command=
    Set =utf-8= as preferred coding system.
 
    #+BEGIN_SRC emacs-lisp
-     (set-terminal-coding-system 'utf-8)
-     (set-keyboard-coding-system 'utf-8)
      (set-selection-coding-system 'utf-8)
      (prefer-coding-system 'utf-8)
      (set-language-environment "UTF-8")
+     (set-default-coding-systems 'utf-8)
+     (set-terminal-coding-system 'utf-8)
+     (set-keyboard-coding-system 'utf-8)
+     (setq locale-coding-system 'utf-8)
+   #+END_SRC
 
+   Treat clipboard input as UTF-8 string first; compound text next, etc.
+   #+BEGIN_SRC emacs-lisp
      (when (display-graphic-p)
        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
    #+END_SRC
@@ -1336,36 +1429,6 @@ j*** Local =compile-command=
        (setq default-frame-alist '((left . 0) (width . 729) (fullscreen . fullheight))))
        ; settings for ultrawide screen (3440x1440)
        ;(setq default-frame-alist '((left . 0) (width . 487) (fullscreen . fullheight))))
-   #+end_src
-
-*** Trailing whitespace
-   Ideally, I don’t want to leave trailing whitespace in files I touch, But sometimes,
-   when working on shared files, I prefer to leave the file as-is and only changed what
-   I explicitly do
-
-   So I created a simple mode to toggle a hook that enable/disable deleting trailing
-   whitespace after every line when saving a file:
-
-   #+begin_src emacs-lisp
-     (defvar qq/delete-trailing-whitespace t
-       "Non-nil will enable deleting trailing whitespace during file save operation.")
-
-     (defun qq/trailing-whitespace-behavior () ;; try &rest with apply if you need args
-       (unless qq/delete-trailing-whitespace
-         (delete-trailing-whitespace)))
-
-     (add-hook 'write-file-functions 'qq/trailing-whitespace-behavior)
-
-     (defun qq/toggle-delete-trailing-whitespace ()
-       "Enable/disable deleting of trailing whitespace on saving a file"
-       (interactive)
-       (if qq/delete-trailing-whitespace
-           (progn
-             (setq qq/delete-trailing-whitespace nil)
-             (message "Trailing whitespace will be DELETED on file save"))
-         (progn
-           (setq qq/delete-trailing-whitespace t)
-           (message "Trailing whitespace will be IGNORED on file save"))))
    #+end_src
 
 ** Visual
@@ -1556,7 +1619,7 @@ j*** Local =compile-command=
                   ("&>"   . ?)
                   ("$>"   . ?)
                   ("~>"   . ?)
-                  ("***"  . ?) ; I prefer not to use this one
+                  ("***"  . ?)
                   ("*="   . ?)
                   ("*/"   . ?)
                   ("*>"   . ?)
@@ -1570,7 +1633,7 @@ j*** Local =compile-command=
                   ("-="   . ?)
                   ("->>"  . ?)
                   ("---"  . ?)
-                  ("-->"  . ?)
+                  ("-->"  . ?⟶)
                   (".."   . ?)
                   ("..."  . ?)
                   ("..<"  . ?)
@@ -1588,17 +1651,18 @@ j*** Local =compile-command=
                   (":="   . ?)
                   (":≡"   . ?)
                   (":>"   . ?)
-                  (":=>"  . ?)
+                  (":=>"  . ?⇰)
                   ("<$>"  . ?)
                   ("<*"   . ?)
                   ("<*>"  . ?)
                   ("<+>"  . ?)
-                  ;; ("<-"   . ?) ; I like different arrows (see below)
+                  ("<-"   . ?🡐)
+                  ("->"   . ?🠮)
                   ("<<"   . ?)
                   ("<<<"  . ?)
                   ("<<="  . ?)
                   ("<="   . ?)
-                  ;; ("<=>"  . ?) ; I like different arrows (see below)
+                  ("<=>"  . ?⟺)
                   ("<>"   . ?)
                   ("<|>"  . ?)
                   ("<<-"  . ?)
@@ -1635,14 +1699,14 @@ j*** Local =compile-command=
                   ("<\\"  . ?)
                   ("<\""  . ?)
                   ("<:"   . ?)
-                  ("<->"  . ?)
-                  ("<!--" . ?)
-                  ("<--"  . ?)
+                  ("<->"  . ?⟷)
+                  ("<!--" . ?↚)
+                  ("<--"  . ?⟵)
                   ("=<<"  . ?)
                   ("=="   . ?)
                   ("==="  . ?)
-                  ;; ("==>"  . ?) ; I like different arrows (see below)
-                  ;; ("=>"   . ?)  ; I like different arrows (see below)
+                  ("==>"  . ?⟹)
+                  ("=>"   . ?⇒)
                   ("=~"   . ?)
                   ("=>>"  . ?)
                   ("≡≡"   . ?)
@@ -1680,12 +1744,7 @@ j*** Local =compile-command=
                   ("~>>"  . ?)
 
                   ;; Personal preference: I like this set of arrows better than default
-                  ("<-"   . ?🡐)
-                  ("->"   . ?🡒)
-                  ("=>"   . ?⇒)
-                  ("<=>"  . ?⟺)
                   ("<==>" . ?⟺)
-                  ("==>"  . ?⟹)
                   ("<=="  . ?⟸)
                   ("|->"  . ?⟼)
                   ("<-|"  . ?⟻)
@@ -2057,22 +2116,22 @@ Don't backup su and sudo files
       :keymaps 'ibuffer-mode-map
    #+end_src
    #+TBLNAME: evil_ibuffer_keys
-      | Combo     | Description | Command                               |
-      | SPC SPC   |             | 'counsel-M-x                          |
-      | v         |             | 'ibuffer-toggle-marks                 |
-      | l         |             | 'ibuffer-visit-buffer                 |
-      | J         |             | 'ibuffer-jump-to-buffer               |
-      | M-s a C-o |             | 'ibuffer-do-occur                     |
-      | * *       |             | 'ibuffer-unmark-all                   |
-      | * s       |             | 'ibuffer-mark-special-buffers         |
-      | * r       |             | 'ibuffer-mark-read-only-buffers       |
-      | * /       |             | 'ibuffer-mark-dired-buffers           |
-      | * e       |             | 'ibuffer-mark-dissociated-buffers     |
-      | * h       |             | 'ibuffer-mark-help-buffers            |
-      | * z       |             | 'ibuffer-mark-compressed-file-buffers |
-      | d         |             | 'ibuffer-mark-for-delete              |
-      | C-d       |             | 'ibuffer-mark-for-delete-backwards    |
-      | x         |             | 'ibuffer-do-kill-on-deletion-marks    |
+      | Combo     | Description           | Command                               |
+      | SPC SPC   | Selectrum M-x version | 'execute-extended-command             |
+      | v         |                       | 'ibuffer-toggle-marks                 |
+      | l         |                       | 'ibuffer-visit-buffer                 |
+      | J         |                       | 'ibuffer-jump-to-buffer               |
+      | M-s a C-o |                       | 'ibuffer-do-occur                     |
+      | * *       |                       | 'ibuffer-unmark-all                   |
+      | * s       |                       | 'ibuffer-mark-special-buffers         |
+      | * r       |                       | 'ibuffer-mark-read-only-buffers       |
+      | * /       |                       | 'ibuffer-mark-dired-buffers           |
+      | * e       |                       | 'ibuffer-mark-dissociated-buffers     |
+      | * h       |                       | 'ibuffer-mark-help-buffers            |
+      | * z       |                       | 'ibuffer-mark-compressed-file-buffers |
+      | d         |                       | 'ibuffer-mark-for-delete              |
+      | C-d       |                       | 'ibuffer-mark-for-delete-backwards    |
+      | x         |                       | 'ibuffer-do-kill-on-deletion-marks    |
 
 *** Minibuffer
 **** Enable paredit in lisp related minibuffer
@@ -2256,7 +2315,7 @@ Use conf-mode for git config files
    #+TBLNAME: std_keys
       | Combo   | Description                                                                | Command                      |
       |---------+----------------------------------------------------------------------------+------------------------------|
-      | C-s     | Do incremental search forward for regular expression                       | 'counsel-isearch             |
+      | C-s     | Do incremental search forward for regular expression                       | 'consult-isearch             |
       | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer      |
       | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                     |
       | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer            |
@@ -2266,9 +2325,9 @@ Use conf-mode for git config files
       | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left               |
       | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right              |
       | C-S-d   | Display minions-mode menu that shows current mini modes in modeline        | 'minions-minor-modes-menu    |
-      | C-S-=   | Increase text scale                                                        | 'default-text-scale-increase |
-      | C-S--   | Decrease text scale                                                        | 'default-text-scale-decrease |
-      | C-S-0   | Reset text scale                                                           | 'default-text-scale-reset    |
+      | C-s-=   | Increase text scale                                                        | 'default-text-scale-increase |
+      | C-s--   | Decrease text scale                                                        | 'default-text-scale-decrease |
+      | C-s-0   | Reset text scale                                                           | 'default-text-scale-reset    |
 
 * Third parties
 ** Company
@@ -2474,23 +2533,29 @@ Use conf-mode for git config files
 
    To save your command history on disk, so the sorting gets more intelligent over time
    #+begin_src emacs-lisp
+     (setq prescient-save-file (concat qq/cache-directory "prescient-save.el"))
      (prescient-persist-mode +1)
    #+end_src
 
-
 *** Marginalia
-Must be in the :init section of use-package such that the mode gets enabled
-right away. Note that this forces loading the package.
+   Must be in the :init section of use-package such that the mode gets enabled
+   right away. Note that this forces loading the package.
    #+begin_src emacs-lisp
-(marginalia-mode)
+     (marginalia-mode)
    #+end_src
 
-Prefer richer, more heavy, annotations over the lighter default variant. E.g.
-M-x will show the documentation string additional to the keybinding. By
-default only the keybinding is shown as annotation. Note that there is the
-command `marginalia-cycle-annotators` to switch between the annotators.
+   Prefer richer, more heavy, annotations over the lighter default variant. E.g.
+   M-x will show the documentation string additional to the keybinding. By
+   default only the keybinding is shown as annotation. Note that there is the
+   command `marginalia-cycle-annotators` to switch between the annotators.
    #+begin_src emacs-lisp
-  (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
+     (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
+   #+end_src
+
+   When using Selectrum, ensure that Selectrum is refreshed when cycling annotations.
+   #+begin_src emacs-lisp
+     (advice-add #'marginalia-cycle :after
+                 (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
    #+end_src
 *** Consult
    Replace functions (consult-multi-occur is a drop-in replacement)
@@ -2592,17 +2657,22 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
    #+name: selectrum_map
    #+begin_src emacs-lisp :tangle no
      (general-define-key
+      :states 'insert
       :keymaps 'selectrum-minibuffer-map
    #+end_src
    #+TBLNAME: selectrum_map_keys
-      | Combo | Description                    | Command              |
-      | C-j   | selects the next candidate     | 'next-line           |
-      | C-k   | selects the previous candidate | 'previous-line       |
-      | C-a   | selects the first candidate    | 'beginning-of-buffer |
-      | C-e   | selects the last candidate     | 'end-of-buffer       |
-      | C-b   | scrolls down                   | 'scroll-down-command |
-      | C-f   | scrolls up                     | 'scroll-up-command   |
-      | C-w   |                                | 'yank-word           |
+      | Combo | Description                    | Command                        |
+      | C-j   | selects the next candidate     | 'selectrum-next-candidate      |
+      | C-k   | selects the previous candidate | 'selectrum-previous-candidate  |
+      | C-a   | selects the first candidate    | 'selectrum-goto-beginning      |
+      | C-e   | selects the last candidate     | 'selectrum-goto-end            |
+      | C-b   | scrolls down                   | 'selectrum-next-page           |
+      | C-f   | scrolls up                     | 'selectrum-previous-page       |
+      | C-w   |                                | 'selectrum-kill-ring-save      |
+      | C-r   | rotate visual information      | 'marginalia-cycle              |
+      | ESC   | cancel selecturm               | 'keyboard-quit                 |
+      | C-s   | use the input as is            | 'selectrum-submit-exact-input  |
+      | C-q   | cycle selectrum display style  | 'selectrum-cycle-display-style |
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-selectrum-binding
@@ -2623,6 +2693,7 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
       | b b               | Show list of supported colors in a frame | 'consult-buffer           |
       | b o               | Display definition of a symbol           | 'consult-other-window     |
       | b F               | Display definition of a symbol           | 'consult-other-frame      |
+      | g y               |                                          | 'consule-git-grep         |
       | i o               | Lists of faces with preview              | 'consult-outline          |
       | i h               | Load selected Emacs Lisp Library         | 'consult-history          |
       | i r               |                                          | 'consult-register         |
@@ -2717,6 +2788,15 @@ kill unused buffers in the background
                      ))
        (require feature))
      (when (require 'evil-collection nil t)
+       (evil-collection-init 'compile)
+       (evil-collection-init 'info)
+       (evil-collection-init 'help)
+       (evil-collection-init 'custom)
+       (evil-collection-init 'minibuffer)
+       (evil-collection-init 'flycheck)
+       (evil-collection-init 'package-menu)
+       (evil-collection-init 'xref)
+       (evil-collection-init 'which-key)
        (evil-collection-init 'magit))
    #+END_SRC
 
@@ -2890,7 +2970,7 @@ kill unused buffers in the background
                 (ag-mode . normal)
                 (ggtags-global-mode . emacs)
                 (grep-mode . emacs)
-                (Info-mode . emacs)
+                (Info-mode . normal)
                 (term-mode . insert)
                 (vterm-mode . emacs)
                 (refine-mode . emacs)
@@ -2917,6 +2997,7 @@ kill unused buffers in the background
                 ;(compilation-mode . emacs)
                 ;(js2-error-buffer-mode . emacs)
                 (speedbar-mode . emacs)
+                (package-menu-mode . normal)
                 (messages-buffer-mode . normal)
                 (magit-commit-mode . normal)
                 (magit-diff-mode . normal)
@@ -3037,7 +3118,6 @@ kill unused buffers in the background
       |-------+--------------------------------------------+------------------------------------------------------|
       | C-b   | Scroll one page up                         | 'evil-scroll-up                                      |
       | C-f   | Scroll one page down                       | 'evil-scroll-down                                    |
-      | C-]   | Better replacement for evil-jump-to-tags   | 'counsel-etags-find-tag-at-point                     |
       | [ SPC | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
       | ] SPC | Insert empty line below current line       | (bind (evil-insert-newline-below) (forward-line -1)) |
       | [ e   | Move current line up one line              | (kbd "ddkP")                                         |
@@ -3396,6 +3476,7 @@ kill unused buffers in the background
      (setq magit-push-always-verify nil)
      (setq magit-stage-all-confirm nil)
      (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)
+     (setq transient-history-file (concat qq/cache-directory "transient_hist.el"))
      #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -3420,84 +3501,6 @@ kill unused buffers in the background
       '(git-commit-overlong-summary ((t (:inherit nil))))
       '(git-commit-nonempty-second-line ((t (:inherit nil))))
       '(git-commit-summary ((t nil))))
-   #+END_SRC
-
-*** Miscellaneous git functions
-
-   [[https://github.com/redguardtoo/emacs.d/blob/master/lisp/init-ivy.el]]
-
-   #+BEGIN_SRC emacs-lisp
-     (defun counsel-git-grep (&optional open-another-window)
-       "Grep in the current git repository.
-     If OPEN-ANOTHER-WINDOW is not nil, results are displayed in new window."
-       (interactive "P")
-       (let (fn)
-         (setq fn (lambda (open-another-window val)
-                    (let ((lst (split-string val ":")))
-                      (funcall (if open-another-window 'find-file-other-window 'find-file)
-                               (car lst))
-                      (let ((linenum (string-to-number (cadr lst))))
-                        (when (and linenum (> linenum 0))
-                          (goto-char (point-min))
-                          (forward-line (1- linenum)))))))
-
-         (counsel-git-grep-or-find-api fn
-                                       "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
-                                       "grep"
-                                       open-another-window)))
-
-     (defun counsel-git-find-file (&optional open-another-window)
-       "Find file in the current git repository.
-     If OPEN-ANOTHER-WINDOW is not nil, results are displayed in new window."
-       (interactive "P")
-       (let (fn)
-         (setq fn (lambda (open-another-window val)
-                    (funcall (if open-another-window 'find-file-other-window 'find-file) val)))
-         (counsel-git-grep-or-find-api fn
-                                       "git ls-tree -r HEAD --name-status | grep \"%s\""
-                                       "file"
-                                       open-another-window)))
-
-     (defun counsel-git-grep-yank-line (&optional insert-line)
-       "Grep in the current git repository and yank the line.
-     If INSERT-LINE is not nil, insert the line grepped"
-       (interactive "P")
-       (let (fn)
-         (setq fn (lambda (unused-param val)
-                    (let ((lst (split-string val ":")) text-line)
-                      ;; the actual text line could contain ":"
-                      (setq text-line (replace-regexp-in-string (format "^%s:%s:" (car lst) (nth 1 lst)) "" val))
-                      ;; trim the text line
-                      (setq text-line (replace-regexp-in-string (rx (* (any " \t\n")) eos) "" text-line))
-                      (kill-new text-line)
-                      (if insert-line (insert text-line))
-                      (message "line from %s:%s => kill-ring" (car lst) (nth 1 lst)))))
-
-         (counsel-git-grep-or-find-api fn
-                                       "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
-                                       "grep"
-                                       nil)))
-
-     (defvar counsel-my-name-regex ""
-       "My name used by `counsel-git-find-my-file', support regex like '[Tt]om [Cc]hen'.")
-
-     (defun counsel-git-find-my-file (&optional num)
-       "Find my files in the current git repository.
-     If NUM is not nil, find files since NUM weeks ago.
-     Or else, find files since 24 weeks (6 months) ago."
-       (interactive "P")
-       (let (fn cmd)
-         (setq fn (lambda (open-another-window val)
-                    (find-file val)))
-         (unless (and num (> num 0))
-           (setq num 24))
-         (setq cmd (concat "git log --pretty=format: --name-only --since=\""
-                                               (number-to-string num)
-                                               " weeks ago\" --author=\""
-                                               counsel-my-name-regex
-                                               "\" | grep \"%s\" | sort | uniq"))
-         ;; (message "cmd=%s" cmd)
-         (counsel-git-grep-or-find-api fn cmd "file" nil)))
    #+END_SRC
 
 *** git-timemachine
@@ -3583,29 +3586,28 @@ Git-gutter doesn’t play nice with TRAMP remotes
     :CUSTOM_ID: evil-magit-binding
     :END:
    Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
-
    #+TBLNAME: evil_magit_keys
-      | Evil Leader Combo | Description | Command                                                   |
-      |-------------------+-------------+-----------------------------------------------------------|
-      | g =               |             | 'git-gutter:popup-hunk                                    |
-      | g a               |             | 'vc-annotate                                              |
-      | g b               |             | 'magit-blame                                              |
-      | g C               |             | 'magit-commit                                             |
-      | g i               |             | 'git-blame-line                                           |
-      | g j               |             | 'git-gutter:next-hunk                                     |
-      | g k               |             | 'git-gutter:previous-hunk                                 |
-      | g L               |             | 'vc-print-log                                             |
-      | g l               |             | 'magit-log                                                |
-      | g m               |             | 'git-messenger:popup-message                              |
-      | g n               |             | 'counsel-git-find-my-file                                 |
-      | g p               |             | 'git-gutter:stage-hunk                                    |
-      | g r               |             | 'git-gutter:revert-hunk                                   |
-      | g y               |             | 'counsel-git-grep-yank-line                               |
-      | g s               |             | 'magit-status                                             |
-      | g t               |             | 'git-timemachine                                          |
-      | g u               |             | 'git-gutter:toggle                                        |
-      | g x               |             | 'vc-next-action                                           |
-      | g v               |             | 'git-gutter:set-start-revision                            |
+      | Evil Leader Combo | Description | Command                        |
+      |-------------------+-------------+--------------------------------|
+      | g =               |             | 'git-gutter:popup-hunk         |
+      | g a               |             | 'vc-annotate                   |
+      | g b               |             | 'magit-blame-addition          |
+      | g C               |             | 'magit-commit                  |
+      | g d               |             | 'magit-diff-unstaged           |
+      | g f               |             | 'magit-file-dispatch           |
+      | g i               |             | 'git-blame-line                |
+      | g j               |             | 'git-gutter:next-hunk          |
+      | g k               |             | 'git-gutter:previous-hunk      |
+      | g L               |             | 'vc-print-log                  |
+      | g l               |             | 'magit-log-buffer-file         |
+      | g m               |             | 'git-messenger:popup-message   |
+      | g p               |             | 'git-gutter:stage-hunk         |
+      | g r               |             | 'git-gutter:revert-hunk        |
+      | g s               |             | 'magit-status                  |
+      | g t               |             | 'git-timemachine               |
+      | g u               |             | 'git-gutter:toggle             |
+      | g x               |             | 'vc-next-action                |
+      | g v               |             | 'git-gutter:set-start-revision |
 
 ** CalibreDB
 
@@ -3631,6 +3633,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (require 'lsp-mode)
      (add-hook 'prog-mode-hook #'lsp)
      (setq lsp-completion-provider :capf)
+     (setq lsp-session-file (concat qq/cache-directory "lsp-session-v1"))
 
      (lsp-register-client
       (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
@@ -3672,9 +3675,21 @@ Git-gutter doesn’t play nice with TRAMP remotes
    #+BEGIN_SRC emacs-lisp
      (add-hook 'lsp-mode-hook 'lsp-ui-mode)
      (after 'lsp-ui-mode
-       (setq lsp-ui-sideline-enable t)
-       (setq lsp-ui-sideline-show-hover nil)
-       (setq lsp-ui-doc-position 'bottom)
+
+       (setq lsp-ui-doc-enable t
+             lsp-ui-doc-use-childframe t
+             lsp-ui-doc-position 'top
+             lsp-ui-doc-include-signature t
+             lsp-ui-sideline-enable t
+             lsp-ui-flycheck-enable t
+             lsp-ui-flycheck-list-position 'right
+             lsp-ui-flycheck-live-reporting t
+             lsp-ui-peek-enable t
+             lsp-ui-peek-list-width 60
+             lsp-ui-peek-peek-height 25
+             lsp-ui-sideline-show-hover t)
+       ;(setq lsp-ui-sideline-enable t)
+       ;(setq lsp-ui-doc-position 'bottom)
        (lsp-ui-doc-show))
    #+END_SRC
 *** Normal Keybinding
@@ -3684,16 +3699,19 @@ Git-gutter doesn’t play nice with TRAMP remotes
    Using The table below as the source for generating [[Normal LSP Bindings][Normal LSP Bindings]]
 
    #+TBLNAME: normal_lsp_keys
-      | Evil Leader Combo | Description | Command                       |
-      |-------------------+-------------+-------------------------------|
-      | l                 |             | '(:ignore t :which-key "lsp") |
-      | ld                |             | 'xref-find-definitions        |
-      | lr                |             | 'xref-find-references         |
-      | ln                |             | 'lsp-ui-find-next-reference   |
-      | lp                |             | 'lsp-ui-find-prev-reference   |
-      | le                |             | 'lsp-ui-flycheck-list         |
-      | lS                |             | 'lsp-ui-sideline-mode         |
-      | lX                |             | 'lsp-execute-code-action      |
+      | Evil Leader Combo | Description         | Command                       |
+      |-------------------+---------------------+-------------------------------|
+      | C-]               | Jump to definitions | 'xref-find-definitions        |
+      | l]                | Peek to definitions | 'lsp-ui-peek-find-definitions |
+      | l[                | Jump to definitions | 'lsp-ui-peek-jump-backward    |
+      | l                 |                     | '(:ignore t :which-key "lsp") |
+      | ld                |                     | 'xref-find-definitions        |
+      | lr                |                     | 'xref-find-references         |
+      | ln                |                     | 'lsp-ui-find-next-reference   |
+      | lp                |                     | 'lsp-ui-find-prev-reference   |
+      | le                |                     | 'lsp-ui-flycheck-list         |
+      | lS                |                     | 'lsp-ui-sideline-mode         |
+      | lX                |                     | 'lsp-execute-code-action      |
 
 ** Org
    =org-mode= is a plain text system for organising information and notes.
@@ -3707,6 +3725,8 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (require 'org-eldoc)
      (require 'org-indent)
      (require 'org-superstar)
+     (require 'ob-napkin)
+     (add-to-list 'org-src-lang-modes '("napkin-puml" . plantuml))
    #+END_SRC
 
 **** =setq=
@@ -4119,14 +4139,14 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 ;; Increase the size of various headings
    #+BEGIN_SRC emacs-lisp
      (set-face-attribute 'org-document-title nil :font "Cantarell" :weight 'bold :height 1.6)
-     (dolist (face '((org-level-1 . 1.5)
-                     (org-level-2 . 1.4)
-                     (org-level-3 . 1.3)
-                     (org-level-4 . 1.2)
-                     (org-level-5 . 1.2)
-                     (org-level-6 . 1.2)
-                     (org-level-7 . 1.2)
-                     (org-level-8 . 1.2)))
+     (dolist (face '((org-level-1 . 1.4)
+                     (org-level-2 . 1.3)
+                     (org-level-3 . 1.2)
+                     (org-level-4 . 1.15)
+                     (org-level-5 . 1.15)
+                     (org-level-6 . 1.15)
+                     (org-level-7 . 1.15)
+                     (org-level-8 . 1.15)))
        (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
    #+END_SRC
 Ensure that anything that should be fixed-pitch in Org files appears that way
@@ -4377,8 +4397,8 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | C-c l | Correctly insert links into org files                        | 'org-store-link |
       | C-c b | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
 
-    :PROPERTIES:
 *** Evil Binding
+    :PROPERTIES:
     :CUSTOM_ID: evil-org-binding
     :END:
    Using The table below as the source for generating [[Evil Org Bindings][Evil Org Bindings]]
@@ -5283,6 +5303,23 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
    #+BEGIN_SRC emacs-lisp
      (eldoc-mode)
      (ggtags-mode 1)
+     (require 'dap-lldb)
+     (require 'dap-gdb-lldb)
+     (setq dap-auto-configure-features '(sessions locals controls tooltip))
+
+     (dap-mode 1)
+
+     ;; The modes below are optional
+
+     (dap-ui-mode 1)
+     ;; enables mouse hover support
+     (dap-tooltip-mode 1)
+     ;; use tooltips for mouse hover
+     ;; if it is not enabled `dap-mode' will use the minibuffer.
+     (tooltip-mode 1)
+     ;; displays floating panel with debug buttons
+     ;; requies emacs 26+
+     (dap-ui-controls-mode 1)
 
      ;; Highlights suspicious C and C++ constructions
      (global-cwarn-mode 1)
@@ -5328,7 +5365,7 @@ Here only o.getName() will get highlighted.
 
 #+begin_src emacs-lisp
   (defface font-lock-method-call-face
-    '((t . (:foreground "orangered" :bold t)))
+    '((t . (:foreground "NavajoWhite2")))
     "Face to display method calls in.")
   (font-lock-add-keywords 'c++-mode
                           `((,(concat
@@ -5346,7 +5383,8 @@ Here only o.getName() will get highlighted.
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-setup ()
-        (c-set-offset 'innamespace [0]))
+       (modern-c++-font-lock-global-mode t)
+       (c-set-offset 'innamespace [0]))
      (add-hook 'c++-mode-hook 'qq/c-setup)
    #+END_SRC
 
@@ -5537,6 +5575,11 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
    #+END_SRC
 
 ** Python
+*** Default Python interpreter
+   #+BEGIN_SRC emacs-lisp
+     (setq python-shell-interpreter "python3")
+   #+END_SRC
+
 *** Make electric-indent-mode and python-mode play nice
    #+BEGIN_SRC emacs-lisp
      (defun python-newline-and-indent ()

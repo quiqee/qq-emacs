@@ -105,9 +105,6 @@ add-sshkey() {
   cat ~/.ssh/id_rsa.pub | ssh $1 'cat >> ~/.ssh/authorized_keys'
 }
 
-# Added by ~/.emacs.d/install.sh
-#export PATH=$HOME/local/bin:$PATH
-
 eval "$(fasd --init auto)"
 
 fasd_cache="$HOME/.fasd-init-bash"
@@ -157,3 +154,6 @@ fi
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/openssl/lib/pkgconfig
 #export YACC=/usr/local/opt/bison/bin/bison
 export PATH="/usr/local/opt/llvm/bin:$PATH"
+
+# Added by ~/.emacs.d/install.sh
+export PATH=$HOME/.local/bin:$PATH

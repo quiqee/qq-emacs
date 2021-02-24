@@ -58,9 +58,11 @@ fi
 ln -sf $(pwd)/Xresources $HOME/.Xresources
 
 mkdir -p ~/.emacs.d/elisp
-#mkdir -p ~/.emacs.d/extern
+mkdir -p ~/.emacs.d/extern/org
 mkdir -p ~/.emacs.d/bin
 mkdir -p ~/.emacs.d/.cache/themes
+
+curl -L https://sourceforge.net/projects/plantuml/files/1.2021.1/plantuml.1.2021.1.jar/download > ~/.emacs.d/extern/org/platuml.jar
 
 ln -sf $(pwd)/init.org $HOME/.emacs.d/init.org
 ln -sf $(pwd)/quickbeans-theme.el $HOME/.emacs.d/.cache/themes/quickbeans-theme.el

@@ -70,8 +70,8 @@ The theme has to be reloaded after changing anything in this group."
 (let* ((class '((class color) (min-colors 89)))
       ;;                                            GUI       TER
       (quickbeans-fg         (if (display-graphic-p) "#cccccc" "#cccccc"))
-      (quickbeans-bg         (if (display-graphic-p) "#080808" "#080808"))
-      (quickbeans-grey-0     (if (display-graphic-p) "#0f0f0f" "#0f0f0f"))
+      (quickbeans-bg         (if (display-graphic-p) "#1c1c1c" "#1c1c1c"))
+      (quickbeans-grey-0     (if (display-graphic-p) "#1f1f1f" "#1f1f1f"))
       (quickbeans-grey-1     (if (display-graphic-p) "#112433" "#112433"))
       (quickbeans-grey-2     (if (display-graphic-p) "#222222" "#222222"))
       (quickbeans-grey-3     (if (display-graphic-p) "#333344" "#444455"))
@@ -121,7 +121,16 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-red-7      (if (display-graphic-p) "#663333" "#663333"))
       (quickbeans-red-8      (if (display-graphic-p) "#fc0d1b" "#fc0d1b"))
       (quickbeans-red-9      (if (display-graphic-p) "#ffdddd" "#ffdddd"))
-      (quickbeans-red-10     (if (display-graphic-p) "#FB4934" "#D75F5F"))
+      (quickbeans-red-10     (if (display-graphic-p) "#ffb6c1" "#ffb6c1"))
+      (quickbeans-white-1    (if (display-graphic-p) "#eeeee0" "#eeeee0"))
+      (quickbeans-white-2    (if (display-graphic-p) "#cdcdc1" "#cdcdc1"))
+      (quickbeans-white-3    (if (display-graphic-p) "#eee8cd" "#eee8cd"))
+      (quickbeans-white-4    (if (display-graphic-p) "#eee9bf" "#eee9bf"))
+      (quickbeans-white-5    (if (display-graphic-p) "#ffe4c4" "#ffe4c4"))
+      (quickbeans-white-6    (if (display-graphic-p) "#fffacd" "#fffacd"))
+      (quickbeans-white-7    (if (display-graphic-p) "#fffff0" "#fffff0"))
+      (quickbeans-white-8    (if (display-graphic-p) "#fff8dc" "#fff8dc"))
+      (quickbeans-white-9    (if (display-graphic-p) "#ffe4b5" "#ffe4b5"))
       )
 
       (custom-theme-set-variables
@@ -218,7 +227,7 @@ The theme has to be reloaded after changing anything in this group."
        `(font-lock-string-face               ((,class (:foreground ,quickbeans-green-5))))
        `(font-lock-type-face                 ((,class (:foreground ,quickbeans-orange-0))))
        `(font-lock-variable-name-face        ((,class (:foreground ,quickbeans-red-1))))
-       `(font-lock-warning-face              ((,class (:foreground ,quickbeans-red-4))))
+       `(font-lock-warning-face              ((,class (:foreground ,quickbeans-red-10 :bold t))))
        `(font-lock-regexp-grouping-construct ((,class (:foreground ,quickbeans-yellow-3 :bold t))))
        `(font-lock-regexp-grouping-backslash ((,class (:foreground ,quickbeans-red-1 :bold t))))
 ;;;;; Fringe
@@ -245,7 +254,7 @@ The theme has to be reloaded after changing anything in this group."
        `(helm-ff-executable                  ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; Highlight
        `(highlight                           ((,class (:background ,quickbeans-grey-3))))
-       `(hl-line                             ((,class (:background ,quickbeans-purple-5))))
+       `(hl-line                             ((,class (:underline ,quickbeans-purple-4))))
 ;;;;; hi-lock
        `(hi-blue                             ((,class (:background ,quickbeans-blue-4 :foreground ,quickbeans-grey-1))))
        `(hi-green                            ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-grey-1))))
@@ -442,6 +451,16 @@ The theme has to be reloaded after changing anything in this group."
        `(org-block                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
+;;;;; Rainbow Delimiter
+       `(rainbow-delimiters-depth-1-face     ((,class (:foreground ,quickbeans-white-1))))
+       `(rainbow-delimiters-depth-2-face     ((,class (:foreground ,quickbeans-white-2))))
+       `(rainbow-delimiters-depth-3-face     ((,class (:foreground ,quickbeans-white-3))))
+       `(rainbow-delimiters-depth-4-face     ((,class (:foreground ,quickbeans-white-4))))
+       `(rainbow-delimiters-depth-5-face     ((,class (:foreground ,quickbeans-white-5))))
+       `(rainbow-delimiters-depth-6-face     ((,class (:foreground ,quickbeans-white-6))))
+       `(rainbow-delimiters-depth-7-face     ((,class (:foreground ,quickbeans-white-7))))
+       `(rainbow-delimiters-depth-8-face     ((,class (:foreground ,quickbeans-white-8))))
+       `(rainbow-delimiters-depth-9-face     ((,class (:foreground ,quickbeans-white-9))))
 ;;;;; Region
        `(region                              ((,class (:background ,quickbeans-grey-2 :box (:line-width (-1 . -1) :color ,quickbeans-blue-1 style: nil)))))
 ;;;;; SHM
