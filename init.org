@@ -1656,8 +1656,8 @@ j*** Local =compile-command=
                   ("<*"   . ?)
                   ("<*>"  . ?)
                   ("<+>"  . ?)
-                  ("<-"   . ?🡐)
-                  ("->"   . ?🠮)
+                  ("<-"   . ?)
+                  ("->"   . ?)
                   ("<<"   . ?)
                   ("<<<"  . ?)
                   ("<<="  . ?)
@@ -2107,14 +2107,6 @@ Don't backup su and sudo files
     :PROPERTIES:
     :CUSTOM_ID: evil-ibuffer-binding
     :END:
-   Using The table below as the source for generating [[Evil iBuffer Bindings][Evil iBuffer Bindings]]
-
-   #+name: ibuffer_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :states 'normal
-      :keymaps 'ibuffer-mode-map
-   #+end_src
    #+TBLNAME: evil_ibuffer_keys
       | Combo     | Description           | Command                               |
       | SPC SPC   | Selectrum M-x version | 'execute-extended-command             |
@@ -2132,7 +2124,7 @@ Don't backup su and sudo files
       | d         |                       | 'ibuffer-mark-for-delete              |
       | C-d       |                       | 'ibuffer-mark-for-delete-backwards    |
       | x         |                       | 'ibuffer-do-kill-on-deletion-marks    |
-
+***** Links: [[Evil iBuffer Bindings][Evil iBuffer Bindings]]                           :ignore:
 *** Minibuffer
 **** Enable paredit in lisp related minibuffer
 
@@ -2258,8 +2250,6 @@ Use conf-mode for git config files
     :PROPERTIES:
     :CUSTOM_ID: undo-tree-binding
     :END:
-   Using The table below as the source for generating [[Undo-tree Bindings][Undo-tree Bindings]]
-
    #+TBLNAME: undo_tree_keys
       | Combo    | Description | Command                                  |
       |----------+-------------+------------------------------------------|
@@ -2270,7 +2260,7 @@ Use conf-mode for git config files
       | k        |             | 'undo-tree-visualize-undo                |
       | h        |             | 'undo-tree-visualize-switch-branch-left  |
       | l        |             | 'undo-tree-visualize-switch-branch-right |
-
+***** Links: [[Undo-tree Bindings][Undo-tree Bindings]]                              :ignore:
 **** Persistent undo-tree history across emacs sessions
 
    #+BEGIN_SRC emacs-lisp
@@ -2310,8 +2300,6 @@ Use conf-mode for git config files
     :PROPERTIES:
     :CUSTOM_ID: default-key-binding
     :END:
-   Using The table below as the source for generating [[Basic Bindings]]
-
    #+TBLNAME: std_keys
       | Combo   | Description                                                                | Command                      |
       |---------+----------------------------------------------------------------------------+------------------------------|
@@ -2328,7 +2316,7 @@ Use conf-mode for git config files
       | C-s-=   | Increase text scale                                                        | 'default-text-scale-increase |
       | C-s--   | Decrease text scale                                                        | 'default-text-scale-decrease |
       | C-s-0   | Reset text scale                                                           | 'default-text-scale-reset    |
-
+**** Links: [[Basic Bindings]]                                     :ignore:
 * Third parties
 ** Company
    A text completion framework for Emacs.
@@ -2482,7 +2470,6 @@ Use conf-mode for git config files
    #+END_SRC
 
 *** Disable company-mode for certain major modes.
-
    #+BEGIN_SRC emacs-lisp
      (setq company-global-modes
            '(not
@@ -2490,13 +2477,7 @@ Use conf-mode for git config files
              minibuffer-inactive-mode))
    #+END_SRC
 
-*** Keybinding
-    :PROPERTIES:
-    :CUSTOM_ID: company-binding
-    :END:
-
    Custom function used to trigger tab within active company-mode window
-
    #+BEGIN_SRC emacs-lisp
      (defun company-complete-common-or-complete-full ()
        (interactive)
@@ -2510,16 +2491,17 @@ Use conf-mode for git config files
                (call-interactively #'company-complete-selection)
                (call-interactively #'company-complete))))))
    #+END_SRC
-
-  Using The table below as the source for generating [[Company Bindings][Company Bindings]]
-
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: company-binding
+    :END:
    #+TBLNAME: company_keys
       | Combo | Description                       | Command                                   |
       |-------+-----------------------------------+-------------------------------------------|
       | C-j   | move cursor to the next entry     | 'company-select-next                      |
       | C-k   | move cursor to the previous entry | 'company-select-previous                  |
       | TAB   |                                   | 'company-complete-common-or-complete-full |
-
+**** Links: [[Company Bindings][Company Bindings]]                                     :ignore:
 ** Selectrum
    #+begin_src emacs-lisp
      (require 'selectrum)
@@ -2652,14 +2634,6 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
     :PROPERTIES:
     :CUSTOM_ID: selectrum-map-binding
     :END:
-   Using The table below as the source for generating [[Selectrum Map Bindings][Selectrum Map Bindings]]
-
-   #+name: selectrum_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :states 'insert
-      :keymaps 'selectrum-minibuffer-map
-   #+end_src
    #+TBLNAME: selectrum_map_keys
       | Combo | Description                    | Command                        |
       | C-j   | selects the next candidate     | 'selectrum-next-candidate      |
@@ -2673,12 +2647,11 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
       | ESC   | cancel selecturm               | 'keyboard-quit                 |
       | C-s   | use the input as is            | 'selectrum-submit-exact-input  |
       | C-q   | cycle selectrum display style  | 'selectrum-cycle-display-style |
+**** Links: [[Selectrum Map Bindings][Selectrum Map Bindings]]                                     :ignore:
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-selectrum-binding
     :END:
-   Using The table below as the source for generating [[Normal Selectrum Bindings][Normal Selectrum Bindings]]
-
    #+TBLNAME: normal_selectrum_keys
       | Evil Leader Combo | Description                              | Command                   |
       |-------------------+------------------------------------------+---------------------------|
@@ -2704,18 +2677,16 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
       | i e               |                                          | 'consult-error            |
       | i c               |                                          | 'consult-multi-occur      |
       | p                 |                                          | 'consult-yank-pop         |
-
+**** Links: [[Normal Selectrum Bindings][Normal Selectrum Bindings]]                                     :ignore:
 *** Visual Keybinding
     :PROPERTIES:
     :CUSTOM_ID: visual-selectrum-binding
     :END:
-   Using The table below as the source for generating [[Visual Selectrum Bindings][Visual Selectrum Bindings]]
-
    #+TBLNAME: visual_selectrum_keys
       | Evil Leader Combo | Description           | Command                   |
       |-------------------+-----------------------+---------------------------|
       | SPC               | Selectrum M-x version | 'execute-extended-command |
-
+**** Links: [[Visual Selectrum Bindings][Visual Selectrum Bindings]]                                     :ignore:
 ** Mini-Frame
    #+begin_src emacs-lisp
      (after 'mini-frame
@@ -3099,20 +3070,16 @@ kill unused buffers in the background
     :PROPERTIES:
     :CUSTOM_ID: evil-global-binding
     :END:
-   Using The table below as the source for generating [[Evil Global Bindings][Evil Global Bindings]]
-
    #+TBLNAME: evil_global_keys
       | Combo | Description                  | Command            |
       |-------+------------------------------+--------------------|
       | C-w   | Prefix for windows operation | 'evil-window-map   |
       | C-S-g | Show fie path in minibuffer  | 'qq/show-file-name |
-
+***** Links: [[Evil Global Bindings][Evil Global Bindings]]                                                 :ignore:
 **** Normal Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-normal-binding
     :END:
-   Using The table below as the source for generating [[Evil Normal Bindings][Evil Normal Bindings]]
-
    #+TBLNAME: evil_std_keys
       | Combo | Description                                | Command                                              |
       |-------+--------------------------------------------+------------------------------------------------------|
@@ -3137,13 +3104,11 @@ kill unused buffers in the background
       | g ]   |                                            | 'ggtags-find-definition                              |
       | g [   |                                            | 'ggtags-find-reference                               |
       | g p   |                                            | 'hydra-projectile/body                               |
-
+***** Links: [[Evil Normal Bindings][Evil Normal Bindings]]                            :ignore:
 **** Motion Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-motion-binding
     :END:
-   Using The table below as the source for generating [[Evil Motion Bindings][Evil Motion Bindings]]
-
    #+TBLNAME: evil_motion_keys
       | Combo | Description                                | Command                    |
       |-------+--------------------------------------------+----------------------------|
@@ -3153,38 +3118,33 @@ kill unused buffers in the background
       | C-l   | Navigate cursor to the window on the right | 'windmove-right            |
       | j     |                                            | 'evil-next-visual-line     |
       | k     |                                            | 'evil-previous-visual-line |
-
+***** Links: [[Evil Motion Bindings][Evil Motion Bindings]]                            :ignore:
 **** Visual Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-visual-binding
     :END:
-   Using The table below as the source for generating [[Evil Visual Bindings][Evil Visual Bindings]]
-
    #+TBLNAME: evil_visual_keys
       | Combo | Description                      | Command                      |
       |-------+----------------------------------+------------------------------|
       | , e   | Execute selected lisp expression | 'eval-region                 |
       | , l   | Add/Remove comments              | 'comment-or-uncomment-region |
-
+***** Links: [[Evil Visual Bindings][Evil Visual Bindings]]                            :ignore:
 **** Ex Mode Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-ex-binding
     :END:
-   Using The table below as the source for generating [[Evil Ex Bindings][Evil Ex Bindings]]
-
    #+TBLNAME: evil_ex_keys
       | Combo | Description   | Command        |
       |-------+---------------+----------------|
       | Q     | Butter finger | 'evil-quit     |
       | QA    | Butter finger | 'evil-quit-all |
       | Qa    | Butter finger | 'evil-quit-all |
-
+**** Links: [[Evil Ex Bindings][Evil Ex Bindings]]                                     :ignore:
+*** Keymap Bindings
 **** Buffer Selection Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-bs-binding
     :END:
-   Using The table below as the source for generating [[Evil BS Bindings][Evil BS Bindings]]
-
    #+TBLNAME: evil_bs_keys
       | Combo | Mode        | Evil Mode | Description | Command             |
       | h     | bs-mode-map | normal    |             | 'evil-backward-char |
@@ -3193,13 +3153,11 @@ kill unused buffers in the background
       | k     | bs-mode-map | normal    |             | 'bs-up              |
       | l     | bs-mode-map | normal    |             | 'evil-forwared-char |
       | RET   | bs-mode-map | normal    |             | 'bs-select          |
-
+***** Links: [[Evil BS Bindings][Evil BS Bindings]] :ignore:
 *** Evil-Leader Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-leader-binding
     :END:
-   Using The table below as the source for generating [[Evil Leader Bindings][Evil Leader Bindings]]
-
    #+TBLNAME: evil_leader_keys
       | Combo  | Description                     | Command                                          |
       |--------+---------------------------------+--------------------------------------------------|
@@ -3293,7 +3251,7 @@ kill unused buffers in the background
       | x z    |                                 | 'suspend-frame                                   |
       | y h    |                                 | 'cliphist-paste-item                             |
       | y u    |                                 | 'cliphist-select-item                            |
-
+**** Links: [[Evil Leader Bindings][Evil Leader Bindings]]                                     :ignore:
 ** Mixed-pitch
 
    #+begin_src emacs-lisp
@@ -3309,8 +3267,6 @@ kill unused buffers in the background
     :PROPERTIES:
     :CUSTOM_ID: evil-dired-binding
     :END:
-   Using The table below as the source for generating [[Evil Dired Bindings][Evil Dired Bindings]]
-
    #+TBLNAME: evil_dired_keys
       | Combo         | Mode           | Evil Mode       | Description                 | Command                                  |
       | <tab>         | dired-mode-map | (visual normal) |                             | 'dired-subtree-toggle                    |
@@ -3445,14 +3401,12 @@ kill unused buffers in the background
       | SPC   | dired-mode-map |             | nil     |
       | S-SPC | dired-mode-map |             | nil     |
       | n     | dired-mode-map |             | nil     |
-
+**** Links: [[Evil Dired Bindings][Evil Dired Bindings]]                                     :ignore:
 ** Ag
 *** Evil Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-ag-binding
     :END:
-   Using The table below as the source for generating [[Evil Ag Bindings][Evil Ag Bindings]]
-
    #+TBLNAME: evil_ag_keys
       | Combo | Mode        | Evil Mode       | Description | Command                     |
       | h     | ag-mode-map | (visual normal) |             | 'evil-backward-char         |
@@ -3467,7 +3421,7 @@ kill unused buffers in the background
       | "/"   | ag-mode-map | (visual normal) |             | 'qq/evil-search-forward     |
       | n     | ag-mode-map | (visual normal) |             | 'qq/evil-search-next        |
       | N     | ag-mode-map | (visual normal) |             | 'qq/evil-search-previous    |
-
+**** Links: [[Evil Ag Bindings][Evil Ag Bindings]]                                     :ignore:
 ** Git/Magit
 *** Settings
    #+BEGIN_SRC emacs-lisp
@@ -3585,7 +3539,6 @@ Git-gutter doesn’t play nice with TRAMP remotes
     :PROPERTIES:
     :CUSTOM_ID: evil-magit-binding
     :END:
-   Using The table below as the source for generating [[Evil Magit Bindings][Evil Magit Bindings]]
    #+TBLNAME: evil_magit_keys
       | Evil Leader Combo | Description | Command                        |
       |-------------------+-------------+--------------------------------|
@@ -3608,7 +3561,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
       | g u               |             | 'git-gutter:toggle             |
       | g x               |             | 'vc-next-action                |
       | g v               |             | 'git-gutter:set-start-revision |
-
+**** Links: [[Evil Magit Bindings][Evil Magit Bindings]]                                     :ignore:
 ** CalibreDB
 
    #+begin_src emacs-lisp
@@ -3696,8 +3649,6 @@ Git-gutter doesn’t play nice with TRAMP remotes
     :PROPERTIES:
     :CUSTOM_ID: normal-lsp-binding
     :END:
-   Using The table below as the source for generating [[Normal LSP Bindings][Normal LSP Bindings]]
-
    #+TBLNAME: normal_lsp_keys
       | Evil Leader Combo | Description         | Command                       |
       |-------------------+---------------------+-------------------------------|
@@ -3712,7 +3663,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
       | le                |                     | 'lsp-ui-flycheck-list         |
       | lS                |                     | 'lsp-ui-sideline-mode         |
       | lX                |                     | 'lsp-execute-code-action      |
-
+**** Links: [[Normal LSP Bindings][Normal LSP Bindings]]                                     :ignore:
 ** Org
    =org-mode= is a plain text system for organising information and notes.
    [[http://orgmode.org]]
@@ -3726,6 +3677,8 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (require 'org-indent)
      (require 'org-superstar)
      (require 'ob-napkin)
+     (require 'ox-extra)
+     (ox-extras-activate '(ignore-headlines))
      (add-to-list 'org-src-lang-modes '("napkin-puml" . plantuml))
    #+END_SRC
 
@@ -4387,8 +4340,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :PROPERTIES:
     :CUSTOM_ID: orgmode-key-binding
     :END:
-   The table below will be generated as key-bindings [[Org Mode Bindings][here]].
-
    #+TBLNAME: org_keys
       | Combo | Description                                                  | Command         |
       |-------+--------------------------------------------------------------+-----------------|
@@ -4396,13 +4347,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | C-c a | Display Org agenda                                           | 'org-agenda     |
       | C-c l | Correctly insert links into org files                        | 'org-store-link |
       | C-c b | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
-
+**** Links: [[Org Mode Bindings][here]].                                     :ignore:
 *** Evil Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-org-binding
     :END:
-   Using The table below as the source for generating [[Evil Org Bindings][Evil Org Bindings]]
-
    #+TBLNAME: evil_org_keys
       | Combo   | Mode             | Evil Mode | Description | Command                                                |
       | z c     | org-mode-map     | normal    |             | 'outline-hide-subtree                                  |
@@ -4421,7 +4370,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | 0       | org-mode-map     | normal    |             | 'evil-digit-argument-or-evil-beginning-of-line         |
       | M-k     | org-mode-map     | normal    |             | 'org-metaup                                            |
       | M-j     | org-mode-map     | normal    |             | 'org-metadown                                          |
-
+**** Links: [[Evil Org Bindings][Evil Org Bindings]]                                     :ignore:
 ** PDFTools
    [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
    It require certain setting to configure in the OS to make it work, so
@@ -4541,8 +4490,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :PROPERTIES:
     :CUSTOM_ID: pdftools-bindings
     :END:
-
-   The table below will be generated as key-bindings [[PDFTools Bindings][here]].
    #+TBLNAME: pdftools-evil-keys
       | Combo            | Mode              | Evil Mode | Description  | Command                                     |
       | h                | pdf-view-mode-map | normal    | Annotation   | 'pdf-annot-add-highlight-markup-annotation  |
@@ -4590,7 +4537,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | Combo | Mode              | Description | Command |
       | SPC   | pdf-view-mode-map |             | nil     |
       | S-SPC | pdf-view-mode-map |             | nil     |
-
+**** Links: [[PDFTools Bindings][here]].                                     :ignore:
 ** Projectile
    Project interaction module for Emacs.
 
@@ -4619,14 +4566,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :PROPERTIES:
     :CUSTOM_ID: evil-projectile-binding
     :END:
-   Using The table below as the source for generating [[Evil Projectile Bindings][Evil Projectile Bindings]] with leader-key bindings
-
    #+TBLNAME: evil_projectile_keys
       | Combo | Description | Command                                                                    |
       |-------+-------------+----------------------------------------------------------------------------|
       | f a   |             | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
       | ,     |             | 'projectile-find-file                                                      |
-
+**** Links: [[Evil Projectile Bindings][Evil Projectile Bindings]]                                      :ignore:
 ** Persp-mode
 *** Settings
    #+begin_src emacs-lisp
@@ -4696,8 +4641,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :PROPERTIES:
     :CUSTOM_ID: persp-key-binding
     :END:
-
-   The code generated from this table is [[Persp-mode Bindings][here]].
    #+TBLNAME: persp_combo
       | Combo | Description | Command                     |
       |-------+-------------+-----------------------------|
@@ -4705,7 +4648,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | M-1   |             | 'persp-prev                 |
       | M-e   |             | 'persp-add-new              |
       | M-b   |             | 'persp-load-state-from-file |
-
+**** Links: [[Persp-mode Bindings][here]]                                     :ignore:
 ** Shell/Term/Fasd
    Launch shell/term within emacs
 
@@ -5020,20 +4963,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :PROPERTIES:
     :CUSTOM_ID: global-vterm-binding
     :END:
-   Using The table below as the source for generating [[Vterm Bindings][Vterm Bindings]]
-
-   #+name: vterm_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :keymaps 'vterm-mode-map
-   #+end_src
    #+TBLNAME: vterm_mode_keys
       | Combo | Description | Command           |
       | C-n   |             | 'multi-vterm-next |
       | C-p   |             | 'multi-vterm-prev |
       | C-y   |             | 'vterm-yank       |
       | s-v   |             | 'vterm-yank       |
-
+**** Links: [[Vterm Bindings][Vterm Bindings]]                                     :ignore:
 ** Highlight-indent-guides
    Add highlight column guides on indentation
 
@@ -5466,13 +5402,11 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
     :PROPERTIES:
     :CUSTOM_ID: evil-cc-mode-binding
     :END:
-   Using The table below as the source for generating [[Evil CC Mode Bindings][Evil CC Mode Bindings]]
-
    #+TBLNAME: cc_mode_keys
       | Combo | Mode            | Evil Mode | Description | Command              |
       | RET   | c-mode-base-map | insert    |             | 'newline-and-indent  |
       | C-S-f | c-mode-base-map | visual    |             | 'clang-format-region |
-
+**** Links: [[Evil CC Mode Bindings][Evil CC Mode Bindings]]                                     :ignore:
 ** Swift
 *** =lsp-sourcekit=
 
@@ -6000,14 +5934,12 @@ Emacs has a command to sort lines, but not to sort words in a region.
     :PROPERTIES:
     :CUSTOM_ID: recipes-binding
     :END:
-   Using The table below as the source for generating [[Recipes Bindings][Recipes Bindings]]
-
    #+TBLNAME: recipes_keys
       | Combo   | Description                        | Command               |
       |---------+------------------------------------+-----------------------|
       | C-x C-v | Switch to Editing a File with SUDO | 'qq/find-file-as-sudo |
-
-* Bindings
+**** Links: [[Recipes Bindings][Recipes Bindings]]                                     :ignore:
+* Bindings :noexport:
    Generate all the bindings here.
 ** Setup
    #+BEGIN_SRC emacs-lisp
@@ -6021,6 +5953,26 @@ Emacs has a command to sort lines, but not to sort words in a region.
        :global-prefix "C-SPC")
    #+END_SRC
 *** Macros
+   #+name: ibuffer_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :states 'normal
+      :keymaps 'ibuffer-mode-map
+   #+end_src
+
+   #+name: selectrum_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :states 'insert
+      :keymaps 'selectrum-minibuffer-map
+   #+end_src
+
+   #+name: vterm_map
+   #+begin_src emacs-lisp :tangle no
+     (general-define-key
+      :keymaps 'vterm-mode-map
+   #+end_src
+
    #+name: gen_emacs
    #+begin_src emacs-lisp :tangle no
      (general-define-key

@@ -1,267 +1,238 @@
 
 # Table of Contents
 
-1.  [About](#org3dad557)
-    1.  [How does it work?](#org6a07d67)
-2.  [Basic](#org93b9478)
-    1.  [Meta](#orga75c125)
-        1.  [Enable `lexical-binding`](#org3ea7bc6)
-        2.  [Early Init](#orga994635)
-        3.  [Packages](#org7d95999)
-        4.  [Init utilites](#org4796e4f)
-        5.  [Tangling Function](#org1586a93)
-        6.  [Custom `load-path`](#orgb6a2ce4)
-        7.  [Custom Cache](#orgccc4e8d)
-        8.  [Keybinding Generation](#orga86a06e)
-    2.  [Site-Specific](#org6e1123a)
-        1.  [Common](#orga5e73e9)
-        2.  [Ubuntu@WSL2](#org2851292)
-        3.  [Mac @home](#org0dbcc65)
-        4.  [GwsEmb](#org360ddb3)
-        5.  [Work Laptop](#orgd5472e4)
-        6.  [Other Sites](#org3e735c5)
-    3.  [Settings](#org53a85b7)
-        1.  [Require](#org8d8ae2f)
-        2.  [Backups](#org5ed2c2d)
-        3.  [Custom variables](#orgefc94ce)
-        4.  [Emacs Garbage Collector](#org1a70e7a)
-        5.  [Trailing whitespace](#org00b6ec2)
-        6.  [Setq](#org6c24965)
-        7.  [Setq-Defaults](#orgd102f9d)
-        8.  [Remember cursor position](#orgddc130f)
-        9.  [Turn on auto-fill mode in text buffers](#orgf821fb4)
-        10. [Emacs Server](#org86e9259)
-        11. [Bells](#org413fb50)
-        12. [Yes or No](#org16aa23c)
-        13. [Automatically revert `doc-view` buffers when the file changes on disk.](#org80c151d)
-        14. [Hook for find-file](#orga08a663)
-        15. [Leave scratch buffers alone](#orgd22ae8e)
-        16. [UTF-8](#orgbe0797a)
-        17. [Start emacs @fullscreen](#orgc209447)
-    4.  [Visual](#org9c80440)
-        1.  [Theme](#org7eeb9b9)
-        2.  [Transparency](#org7506781)
-        3.  [Modeline](#orgd2a95aa)
-        4.  [Highlight](#orge35f6a6)
-        5.  [Emoji font support](#orgaf9352d)
-        6.  [Fix italics](#orgb13ac93)
-        7.  [PragmataPro Ligatures](#org16b5ca0)
-        8.  [Frame Scaling / Zooming](#orge78194f)
-    5.  [Advice](#orgd6a7a90)
-    6.  [Modes](#orged54757)
-        1.  [Disabled Modes](#orgda3354d)
-        2.  [Enabled Modes](#org601c68b)
-        3.  [`hungry-delete-mode`](#orgd98a5e1)
-        4.  [Recentf](#orgdca34f2)
-        5.  [Column mode editing](#org725b00a)
-        6.  [If you change buffer, or focus, disable the current buffer's mark:](#org35c5092)
-        7.  [Fringe](#orgff86ee9)
-        8.  [`ediff`](#org86f08ac)
-        9.  [`tramp`](#org28f6474)
-        10. [Ibuffer customization](#org8ff8d6f)
-        11. [Minibuffer](#org1706a58)
-        12. [`conf-mode`](#org65f79b2)
-        13. [PDF-Tools](#org47014a0)
-        14. [Whitespace-mode](#org9d4ecde)
-        15. [Display Line Numbers](#orga0d3151)
-        16. [GUD](#orge5070b4)
-        17. [Undo Tree](#org3d56cea)
-        18. [`which-function-mode`](#orga7596dd)
+1.  [About](#orgb12ecc6)
+    1.  [How does it work?](#org262f451)
+2.  [Basic](#orgea844f6)
+    1.  [Meta](#org1ef9c42)
+        1.  [Enable `lexical-binding`](#org661a65e)
+        2.  [Early Init](#org8cb760e)
+        3.  [Packages](#orgbab9e2f)
+        4.  [Init utilites](#orgb506013)
+        5.  [Tangling Function](#org24c3b84)
+        6.  [Custom `load-path`](#orgc91eb9b)
+        7.  [Custom Cache](#org9a868f2)
+        8.  [Keybinding Generation](#org4f94613)
+    2.  [Site-Specific](#org9fb014d)
+        1.  [Common](#orgf365619)
+        2.  [Ubuntu@WSL2](#org12defee)
+        3.  [Mac @home](#org80b97b8)
+        4.  [GwsEmb](#org2ad5ad4)
+        5.  [Work Laptop](#org24477e5)
+        6.  [Other Sites](#org7548d22)
+    3.  [Settings](#orgf0db12e)
+        1.  [Require](#org435d497)
+        2.  [Backups](#orgab8fc81)
+        3.  [Custom variables](#orgcc76a52)
+        4.  [Emacs Garbage Collector](#org6d8056c)
+        5.  [Trailing whitespace](#org4811d40)
+        6.  [Setq](#orgec7c6a8)
+        7.  [Setq-Defaults](#orgfef25dd)
+        8.  [Remember cursor position](#orge0c2dc5)
+        9.  [Turn on auto-fill mode in text buffers](#orga655773)
+        10. [Emacs Server](#org1a1ece7)
+        11. [Bells](#orgd61217c)
+        12. [Yes or No](#org4bdcc18)
+        13. [Automatically revert `doc-view` buffers when the file changes on disk.](#orge289e06)
+        14. [Hook for find-file](#org477bd4b)
+        15. [Leave scratch buffers alone](#orgaae0e0e)
+        16. [UTF-8](#org1a7688a)
+        17. [Start emacs @fullscreen](#org4e6146c)
+    4.  [Visual](#org785e2ff)
+        1.  [Theme](#org4edadf2)
+        2.  [Transparency](#org37d888a)
+        3.  [Modeline](#org52f92eb)
+        4.  [Highlight](#org441034d)
+        5.  [Emoji font support](#org7ccf248)
+        6.  [Fix italics](#org45dd495)
+        7.  [PragmataPro Ligatures](#org935adb9)
+        8.  [Frame Scaling / Zooming](#orgbe63caf)
+    5.  [Advice](#org0e983ed)
+    6.  [Modes](#org3e1191d)
+        1.  [Disabled Modes](#orge33e296)
+        2.  [Enabled Modes](#org18ab8ed)
+        3.  [`hungry-delete-mode`](#orge07ffd6)
+        4.  [Recentf](#orgd22021d)
+        5.  [Column mode editing](#org754a22b)
+        6.  [If you change buffer, or focus, disable the current buffer's mark:](#org700bd31)
+        7.  [Fringe](#org7e1616e)
+        8.  [`ediff`](#orge08ea02)
+        9.  [`tramp`](#orgf3d4a4c)
+        10. [Ibuffer customization](#org88630dc)
+        11. [Minibuffer](#org470982b)
+        12. [`conf-mode`](#orgce323c2)
+        13. [PDF-Tools](#org4c42ad9)
+        14. [Whitespace-mode](#org911fd0a)
+        15. [Display Line Numbers](#orgdd4b43b)
+        16. [GUD](#org2be9046)
+        17. [Undo Tree](#orgec80ea6)
+        18. [`which-function-mode`](#org3d5fb6d)
     7.  [Keybindings](#default-key-binding)
-3.  [Third parties](#orgb39d361)
-    1.  [Company](#orgf296094)
-        1.  [Settings](#org86b4925)
-        2.  [Default backends for company](#orged7dbe6)
-        3.  [flx matching in company](#orgda4a634)
-        4.  [Sort completions by usage frequency](#org1d18172)
-        5.  [Use `company-postframe` for frontend](#org40274ae)
-        6.  [company-ispell setup](#org8eda2f9)
-        7.  [Enable quick help for company-mode](#orge7d7853)
-        8.  [Disable company-mode for certain major modes.](#orgc915e6e)
+3.  [Third parties](#org28690a0)
+    1.  [Company](#org9891dbe)
+        1.  [Settings](#orgddac6da)
+        2.  [Default backends for company](#orgcb69f60)
+        3.  [flx matching in company](#orga96af61)
+        4.  [Sort completions by usage frequency](#orga7add52)
+        5.  [Use `company-postframe` for frontend](#orgd8af653)
+        6.  [company-ispell setup](#org9cb6207)
+        7.  [Enable quick help for company-mode](#org6b8cd23)
+        8.  [Disable company-mode for certain major modes.](#orgcd8214d)
         9.  [Keybinding](#company-binding)
-    2.  [Selectrum](#org90b612c)
-        1.  [Marginalia](#orgfce5cd8)
-        2.  [Consult](#orgfa31972)
-        3.  [Switch to buffer or recent file](#org53a0312)
-        4.  [Orderless](#org8b3278c)
-        5.  [Filtering advice](#org27295de)
+    2.  [Selectrum](#org73d1905)
+        1.  [Marginalia](#orge181503)
+        2.  [Consult](#orged5f1b5)
+        3.  [Switch to buffer or recent file](#orgfd49d41)
+        4.  [Orderless](#orgeb60f59)
+        5.  [Filtering advice](#orgef4e28d)
         6.  [Selectrum Map Binding](#selectrum-map-binding)
         7.  [Normal Keybinding](#normal-selectrum-binding)
         8.  [Visual Keybinding](#visual-selectrum-binding)
-    3.  [Mini-Frame](#org53439ff)
-    4.  [Mode-line-bell](#org949b34c)
-    5.  [Tempbuf](#orgad16d80)
-    6.  [Evil](#orgfb663b0)
-        1.  [Init](#orgebdc127)
-        2.  [Enable Evil](#org3a271a0)
-        3.  [Plugins](#org2b515d3)
-        4.  [Common Settings](#orga6a4bb9)
-        5.  [Undo System](#org0e64abf)
-        6.  [Command `*` and `#`](#orge1f88fb)
-        7.  [Initial evil state for some major mode](#org04b3bfc)
-        8.  [Define my own text objects](#org5371fb4)
-        9.  [Term Settings](#orgc1892b5)
-        10. [evil-ex-search behaviour](#org2b6d7de)
-        11. [evil search in minor mode](#orgf294348)
-        12. [Bindings](#org5403917)
-        13. [Evil-Leader Binding](#evil-leader-binding)
-    7.  [Mixed-pitch](#org9925232)
-    8.  [Dired](#orgbfe9fd7)
+    3.  [Mini-Frame](#org1e6004b)
+    4.  [Mode-line-bell](#org104893c)
+    5.  [Tempbuf](#orga73b11f)
+    6.  [Evil](#org8b35e25)
+        1.  [Init](#orgf25e14d)
+        2.  [Enable Evil](#orga089316)
+        3.  [Plugins](#org718ae36)
+        4.  [Common Settings](#org056abc0)
+        5.  [Undo System](#org1e7a6bb)
+        6.  [Command `*` and `#`](#orgd4bd78b)
+        7.  [Initial evil state for some major mode](#orgc6c54b0)
+        8.  [Define my own text objects](#org934dcb5)
+        9.  [Term Settings](#orgc078d6e)
+        10. [evil-ex-search behaviour](#org75ec4c7)
+        11. [evil search in minor mode](#orgf972616)
+        12. [Bindings](#org294019f)
+        13. [Keymap Bindings](#org58d27fe)
+        14. [Evil-Leader Binding](#evil-leader-binding)
+    7.  [Mixed-pitch](#orgaa657bc)
+    8.  [Dired](#orgccdc90f)
         1.  [Evil Binding](#evil-dired-binding)
-    9.  [Ag](#org218dac9)
+    9.  [Ag](#org5bb4ffb)
         1.  [Evil Binding](#evil-ag-binding)
-    10. [Git/Magit](#orgd37cab5)
-        1.  [Settings](#org300347a)
-        2.  [magit-commit-mode](#orgf503075)
-        3.  [git-timemachine](#orga4d92ca)
-        4.  [git-blame-line](#orgcac131f)
-        5.  [git-gutter-fringe](#orgb24e43d)
-        6.  [git-messenger](#org7f14da5)
+    10. [Git/Magit](#org0beaee8)
+        1.  [Settings](#org4c5961a)
+        2.  [magit-commit-mode](#org6c350e0)
+        3.  [git-timemachine](#orgd67b508)
+        4.  [git-blame-line](#orgbf4af5a)
+        5.  [git-gutter-fringe](#org4df9b5d)
+        6.  [git-messenger](#org75774e6)
         7.  [Keybinding](#evil-magit-binding)
-    11. [CalibreDB](#orgff7da81)
-    12. [Beacon](#orgd526a71)
-    13. [Lsp-mode](#org9cf29d0)
-        1.  [Logging](#orge62736c)
-        2.  [Ccls](#org2a85e89)
-        3.  [Clangd](#orgb18d9ba)
-        4.  [Lsp-UI](#orge3b2531)
+    11. [CalibreDB](#org04a6c44)
+    12. [Beacon](#org7afd10b)
+    13. [Lsp-mode](#orgffe9287)
+        1.  [Logging](#org6b115d2)
+        2.  [Ccls](#org5d7b98a)
+        3.  [Clangd](#org55b4a82)
+        4.  [Lsp-UI](#orgc7e2385)
         5.  [Normal Keybinding](#normal-lsp-binding)
-    14. [Org](#org67373ef)
-        1.  [Settings](#orgddead00)
-        2.  [org-habit](#org95cad88)
-        3.  [org-babel](#org1adba01)
-        4.  [org-abbrev](#orgf475fae)
+    14. [Org](#org76511d1)
+        1.  [Settings](#org5410231)
+        2.  [org-habit](#orgc494891)
+        3.  [org-babel](#org907076c)
+        4.  [org-abbrev](#orgf3d7fdd)
         5.  [Bindings](#orgmode-key-binding)
         6.  [Evil Binding](#evil-org-binding)
-    15. [PDFTools](#orgf63437e)
-        1.  [Settings](#org0d317b7)
-        2.  [Evil-mode](#orgd7abf3b)
-        3.  [Midnight mode](#orgfd0b254)
-        4.  [Org-mode links](#org1794673)
+    15. [PDFTools](#orga5e390c)
+        1.  [Settings](#org498c7f8)
+        2.  [Evil-mode](#org73b3342)
+        3.  [Midnight mode](#org0c32584)
+        4.  [Org-mode links](#org667f146)
         5.  [Local keybindings](#pdftools-bindings)
-    16. [Projectile](#orgec4d3b1)
-        1.  [Settings](#org62f7423)
+    16. [Projectile](#orgeae7c1c)
+        1.  [Settings](#org8d4e297)
         2.  [Keybinding](#evil-projectile-binding)
-    17. [Persp-mode](#org38218e1)
-        1.  [Settings](#org0709884)
-        2.  [Ignore temporary buffers](#org3c418ae)
-        3.  [Rename main perspective](#org238f3dd)
-        4.  [Create save folder if it doesn't exist](#orge2f45bd)
-        5.  [Load persp-mode after init](#org3ce1351)
-        6.  [Buffer lists](#org5eea288)
-        7.  [Auto perspective for dired](#org2414bf0)
+    17. [Persp-mode](#org1e64911)
+        1.  [Settings](#org46cd168)
+        2.  [Ignore temporary buffers](#org6aadead)
+        3.  [Rename main perspective](#org0e1af19)
+        4.  [Create save folder if it doesn't exist](#org8afae81)
+        5.  [Load persp-mode after init](#org8a74994)
+        6.  [Buffer lists](#orgca7f9e6)
+        7.  [Auto perspective for dired](#org32fe164)
         8.  [Keybindings](#persp-key-binding)
-    18. [Shell/Term/Fasd](#org2b0ede9)
-        1.  [Add color to shell & eshell](#orga061c73)
-        2.  [Highlight some text based on regexp (useful to see "OK" or warnings):](#org291d42a)
-        3.  [Make URLs clickable](#orgceaebc5)
-        4.  [Make file paths clickable](#org11fa91b)
-        5.  [Shell completion with a nice menu à la zsh](#org441595f)
-        6.  [Change directory with `ido` and `fasd`](#org3ecc869)
-        7.  [Find files with fasd](#org932c6a1)
-        8.  [Shared and persistent history](#orge46bd7f)
-        9.  [shell-here](#orgafc7ac6)
-        10. [ansi-term](#orgd917660)
-        11. [Serial terminal](#orgf1a89b6)
-    19. [VTerm](#org4856958)
-        1.  [Settings](#org7079527)
+    18. [Shell/Term/Fasd](#org83418fb)
+        1.  [Add color to shell & eshell](#org3c9a6db)
+        2.  [Highlight some text based on regexp (useful to see "OK" or warnings):](#org33fe805)
+        3.  [Make URLs clickable](#org63fc124)
+        4.  [Make file paths clickable](#org580fab1)
+        5.  [Shell completion with a nice menu à la zsh](#org47d5d98)
+        6.  [Change directory with `ido` and `fasd`](#orge050012)
+        7.  [Find files with fasd](#orga232ec6)
+        8.  [Shared and persistent history](#org278a98c)
+        9.  [shell-here](#org6d8b224)
+        10. [ansi-term](#org1008d7d)
+        11. [Serial terminal](#org5cf4238)
+    19. [VTerm](#orgf4deb8b)
+        1.  [Settings](#orge55b11c)
         2.  [Evil Binding](#global-vterm-binding)
-    20. [Highlight-indent-guides](#orgac82774)
-        1.  [Settings](#org791aa03)
-    21. [Which key](#org9746606)
-        1.  [Init](#org971629e)
-        2.  [Replacements for how KEY is replaced when which-key displays](#org9df2210)
-        3.  [Use cool unicode characters if available](#org68619f8)
-        4.  [Change what string to display for a given **complete** key binding](#org380edc4)
-    22. [Window numbering mode](#org6e80081)
-4.  [Languages](#orgbfecae4)
-    1.  [General](#orgf6638dd)
-    2.  [Compilation](#org846b64b)
-        1.  [Compilation behaviour](#org9344ec9)
-        2.  [Custom command](#orgbf464d4)
-        3.  [ANSI-escape coloring in compilation-mode](#org58a4dba)
-        4.  [Bury compilation buffer](#orgaa2bb12)
-    3.  [C and its derivative](#orgedd666e)
-        1.  [Common](#orgc22ad14)
-        2.  [C++](#org62ff0f9)
-        3.  [Java](#org4471e83)
-        4.  [Objective-C](#orgb9b5222)
-        5.  [Yaml](#org51b6d62)
+    20. [Highlight-indent-guides](#orgd20972b)
+        1.  [Settings](#org7785fc9)
+    21. [Which key](#org0b2b6c6)
+        1.  [Init](#orgc576ff0)
+        2.  [Replacements for how KEY is replaced when which-key displays](#orgb67614b)
+        3.  [Use cool unicode characters if available](#org98974c2)
+        4.  [Change what string to display for a given **complete** key binding](#org8269991)
+    22. [Window numbering mode](#org9225d39)
+4.  [Languages](#org7bdcde6)
+    1.  [General](#org52301d3)
+    2.  [Compilation](#orgd235cba)
+        1.  [Compilation behaviour](#org436c743)
+        2.  [Custom command](#orgc2231ba)
+        3.  [ANSI-escape coloring in compilation-mode](#org07a7f87)
+        4.  [Bury compilation buffer](#orgbd3bef0)
+    3.  [C and its derivative](#orgbbac707)
+        1.  [Common](#org3d4b047)
+        2.  [C++](#org1b13f3b)
+        3.  [Java](#orgcf83858)
+        4.  [Objective-C](#org6ab28b8)
+        5.  [Yaml](#orgbbcc468)
         6.  [Keybinding](#evil-cc-mode-binding)
-    4.  [Swift](#orgb633fb1)
-        1.  [`lsp-sourcekit`](#org9f2209c)
-        2.  [Settings](#org0994abe)
-    5.  [Lisp](#org57e4b32)
-    6.  [Markdown](#org262e29a)
-        1.  [Turn off `electric-indent-mode` in markdown buffers](#orga40bde3)
-    7.  [Python](#orga569002)
-        1.  [Default Python interpreter](#org725b96c)
-        2.  [Make electric-indent-mode and python-mode play nice](#org701a448)
-    8.  [Sh-Mode](#org816df1c)
-        1.  [Make scripts executable on save](#org018bce9)
-        2.  [Associate .zsh files with zshell in `sh-mode`](#org08225a8)
-    9.  [NXML](#orgbcdff92)
-        1.  [To have files automatically loaded with nxml-mode with various file extensions](#orgc4478b4)
-        2.  [Settings](#orga2d5331)
-        3.  [Pretty printing xml region](#org06a95a1)
-        4.  [Where am I?](#org44de207)
-        5.  [Folding with HideShow](#orgbb92656)
-        6.  [Enable nxml-mode when the user starts typing an xml document](#orgea56ae5)
-        7.  [Rebind '>', so that it automatically inserts a closing xml tag (if appropriate)](#orgc49ad68)
-        8.  [Color scheme](#org6a72c6f)
-5.  [Recipes](#org86b30a8)
-    1.  [Add `sort-words` command](#orga6a31b4)
-    2.  [Switch to Editing a File with SUDO](#org9382617)
-    3.  [unfill-paragraph function](#orga83b60d)
-    4.  [Coloring regions with ANSI color codes](#org3d40f35)
-    5.  [Diff two regions](#org034a4c7)
-    6.  [Narrow or widen region](#orgd90858e)
-    7.  [Open the `init.org` file](#org2523f45)
-    8.  [Abort minibuffer when it lose focus](#org2247202)
-    9.  [Show current buffer full path in minibuffer](#org6060755)
-    10. [Inline PlantUML image](#orgb750981)
+    4.  [Swift](#org7329f52)
+        1.  [`lsp-sourcekit`](#orgd7e014c)
+        2.  [Settings](#org4090176)
+    5.  [Lisp](#orgbb56a42)
+    6.  [Markdown](#orgd61728a)
+        1.  [Turn off `electric-indent-mode` in markdown buffers](#orga92c67c)
+    7.  [Python](#org9532220)
+        1.  [Default Python interpreter](#orgaef183f)
+        2.  [Make electric-indent-mode and python-mode play nice](#orgf39a1d0)
+    8.  [Sh-Mode](#org66c2da1)
+        1.  [Make scripts executable on save](#org7debbd9)
+        2.  [Associate .zsh files with zshell in `sh-mode`](#org542d4e0)
+    9.  [NXML](#org9547a11)
+        1.  [To have files automatically loaded with nxml-mode with various file extensions](#org048bda5)
+        2.  [Settings](#org61f1f7f)
+        3.  [Pretty printing xml region](#org1191e60)
+        4.  [Where am I?](#orga342454)
+        5.  [Folding with HideShow](#org26740a1)
+        6.  [Enable nxml-mode when the user starts typing an xml document](#orga08f878)
+        7.  [Rebind '>', so that it automatically inserts a closing xml tag (if appropriate)](#org2e97d58)
+        8.  [Color scheme](#org5d61282)
+5.  [Recipes](#org01438de)
+    1.  [Add `sort-words` command](#orgebfec7d)
+    2.  [Switch to Editing a File with SUDO](#orgf675e32)
+    3.  [unfill-paragraph function](#orgaf49e07)
+    4.  [Coloring regions with ANSI color codes](#org8390bfe)
+    5.  [Diff two regions](#org2d6e1bd)
+    6.  [Narrow or widen region](#orgedc06cf)
+    7.  [Open the `init.org` file](#orga9dbbfe)
+    8.  [Abort minibuffer when it lose focus](#orgd1727e0)
+    9.  [Show current buffer full path in minibuffer](#org0e832b7)
+    10. [Inline PlantUML image](#org9d48366)
     11. [KeyBindings](#recipes-binding)
-6.  [Bindings](#orgdd93d12)
-    1.  [Setup](#org6758453)
-        1.  [Leader key](#orgbf7bb3d)
-        2.  [Macros](#org352b1c5)
-    2.  [Basic Bindings](#orgc4e1646)
-    3.  [Vterm Bindings](#orgff628be)
-    4.  [Evil Bindings](#org95d9aa4)
-        1.  [Start](#org3a3e6bd)
-        2.  [Evil Global Bindings](#org241c808)
-        3.  [Evil Normal Bindings](#orga43a484)
-        4.  [Evil Motion Bindings](#org64a53e4)
-        5.  [Evil Visual Bindings](#orgf02c84f)
-        6.  [Evil Ex Bindings](#org1f5b92c)
-        7.  [Evil BS Bindings](#orgacb9f4d)
-        8.  [Normal Leader Bindings](#orgdd0452e)
-        9.  [Visual Leader Bindings](#org8c64c7a)
-        10. [Evil iBuffer Bindings](#org6bb23df)
-        11. [Evil Projectile Bindings](#org91b7e92)
-        12. [Evil CC Mode Bindings](#org1e58e4f)
-        13. [Evil Ag Bindings](#org3b383b2)
-        14. [Evil Dired Bindings](#org98c7814)
-        15. [Evil Org Bindings](#org1975cda)
-        16. [End](#org02fae4c)
-    5.  [Selectrum Map Bindings](#orgc3db5ea)
-    6.  [PDFTools Bindings](#orgc017d01)
-    7.  [Persp-mode Bindings](#orgb00af40)
-    8.  [Org Mode Bindings](#org9088852)
-    9.  [Recipes Bindings](#orge0c25f8)
-    10. [Company Bindings](#org77daf65)
-    11. [Undo-tree Bindings](#orgd2f5b0a)
 
 
 
-<a id="org3dad557"></a>
+<a id="orgb12ecc6"></a>
 
 # About
 
 An Emacs configuration file written in `org-mode`.
 
 
-<a id="org6a07d67"></a>
+<a id="org262f451"></a>
 
 ## How does it work?
 
@@ -269,31 +240,31 @@ An Emacs configuration file written in `org-mode`.
 document have a global setting that will enable `tangle` on all code block
 except for code block marked with `:tangle no`. The resulting code is stored
 in `~/.emacs.d/init.el`. A compiled code will also be produced. Take a look
-at [2.1.5](#org1586a93) for more details.
+at [2.1.5](#org24c3b84) for more details.
 
 You can find more information about **Literate Programming** and **org-mode**
 here:
 <http://orgmode.org/worg/org-contrib/babel/intro.html#literate-programming>
 
 
-<a id="org93b9478"></a>
+<a id="orgea844f6"></a>
 
 # Basic
 
 
-<a id="orga75c125"></a>
+<a id="org1ef9c42"></a>
 
 ## Meta
 
 
-<a id="org3ea7bc6"></a>
+<a id="org661a65e"></a>
 
 ### Enable `lexical-binding`
 
     ;; -*- lexical-binding: t -*-
 
 
-<a id="orga994635"></a>
+<a id="org8cb760e"></a>
 
 ### Early Init
 
@@ -377,7 +348,7 @@ Emacs27 introduces `early-init.el`, which is run before `init.el`, before packag
         (provide 'early-init)
 
 
-<a id="org7d95999"></a>
+<a id="orgbab9e2f"></a>
 
 ### Packages
 
@@ -617,7 +588,7 @@ List of packages used through out this configuration.
     (package-initialize)
 
 
-<a id="org4796e4f"></a>
+<a id="orgb506013"></a>
 
 ### Init utilites
 
@@ -645,7 +616,7 @@ List of packages used through out this configuration.
           `(funcall (or (get ',sym 'custom-set) 'set-default) ',sym ,val))
 
 
-<a id="org1586a93"></a>
+<a id="org24c3b84"></a>
 
 ### Tangling Function
 
@@ -686,7 +657,7 @@ To export to other format, just press `C-c C-e`, which will display further
 option to choose output format like HTML, PDF or LaTeX.
 
 
-<a id="orgb6a2ce4"></a>
+<a id="orgc91eb9b"></a>
 
 ### Custom `load-path`
 
@@ -708,7 +679,7 @@ the `load-path`. Doing that any `.el` or `.elc` files in this directory can be
 required from **emacs**.
 
 
-<a id="orgccc4e8d"></a>
+<a id="org9a868f2"></a>
 
 ### Custom Cache
 
@@ -724,7 +695,7 @@ exist.
       (load custom-file))
 
 
-<a id="orga86a06e"></a>
+<a id="org4f94613"></a>
 
 ### Keybinding Generation
 
@@ -758,12 +729,12 @@ lower the delay so that chords are not triggered too easily.
 Utility function for keys generation, this portion will add pre/post code
 
 
-<a id="org6e1123a"></a>
+<a id="org9fb014d"></a>
 
 ## Site-Specific
 
 
-<a id="orga5e73e9"></a>
+<a id="orgf365619"></a>
 
 ### Common
 
@@ -814,7 +785,7 @@ Utility function for keys generation, this portion will add pre/post code
         (setq qq/fullscreen-max t)
 
 
-<a id="org2851292"></a>
+<a id="org12defee"></a>
 
 ### Ubuntu@WSL2
 
@@ -855,7 +826,7 @@ Utility function for keys generation, this portion will add pre/post code
         ))
 
 
-<a id="org0dbcc65"></a>
+<a id="org80b97b8"></a>
 
 ### Mac @home
 
@@ -973,7 +944,7 @@ Utility function for keys generation, this portion will add pre/post code
         ))
 
 
-<a id="org360ddb3"></a>
+<a id="org2ad5ad4"></a>
 
 ### GwsEmb
 
@@ -1006,7 +977,7 @@ Utility function for keys generation, this portion will add pre/post code
         ))
 
 
-<a id="orgd5472e4"></a>
+<a id="org24477e5"></a>
 
 ### Work Laptop
 
@@ -1036,7 +1007,7 @@ Utility function for keys generation, this portion will add pre/post code
         ))
 
 
-<a id="org3e735c5"></a>
+<a id="org7548d22"></a>
 
 ### Other Sites
 
@@ -1053,12 +1024,12 @@ Utility function for keys generation, this portion will add pre/post code
         )))
 
 
-<a id="org53a85b7"></a>
+<a id="orgf0db12e"></a>
 
 ## Settings
 
 
-<a id="org8d8ae2f"></a>
+<a id="org435d497"></a>
 
 ### Require
 
@@ -1078,7 +1049,7 @@ but is not a high priority.
       (require feature))
 
 
-<a id="org5ed2c2d"></a>
+<a id="orgab8fc81"></a>
 
 ### Backups
 
@@ -1116,14 +1087,14 @@ but is not a high priority.
         version-control t)
 
 
-<a id="orgefc94ce"></a>
+<a id="orgcc76a52"></a>
 
 ### Custom variables
 
     (defvar best-gc-cons-threshold (* 5 1024 1024) "Best default gc threshold value (5 MB). Shouldn't be too big.")
 
 
-<a id="org1a70e7a"></a>
+<a id="org6d8056c"></a>
 
 ### Emacs Garbage Collector
 
@@ -1132,7 +1103,7 @@ Once startup complete decrease threshold to 5 MB
     (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
 
 
-<a id="org00b6ec2"></a>
+<a id="org4811d40"></a>
 
 ### Trailing whitespace
 
@@ -1164,7 +1135,7 @@ whitespace after every line when saving a file:
           (message "Trailing whitespace will be IGNORED on file save"))))
 
 
-<a id="org6c24965"></a>
+<a id="orgec7c6a8"></a>
 
 ### Setq
 
@@ -1361,7 +1332,7 @@ whitespace after every line when saving a file:
         reb-re-syntax 'string)                       ; fix backslash madness
 
 
-<a id="orgd102f9d"></a>
+<a id="orgfef25dd"></a>
 
 ### Setq-Defaults
 
@@ -1407,7 +1378,7 @@ buffer-local variable's default value.
         imenu-auto-rescan t)
 
 
-<a id="orgddc130f"></a>
+<a id="orge0c2dc5"></a>
 
 ### Remember cursor position
 
@@ -1418,14 +1389,14 @@ buffer-local variable's default value.
       (save-place-mode 1))
 
 
-<a id="orgf821fb4"></a>
+<a id="orga655773"></a>
 
 ### Turn on auto-fill mode in text buffers
 
     (add-hook 'text-mode-hook 'turn-on-auto-fill)
 
 
-<a id="org86e9259"></a>
+<a id="org1a1ece7"></a>
 
 ### Emacs Server
 
@@ -1453,7 +1424,7 @@ j\*\*\* Local `compile-command`
     (make-variable-buffer-local 'compile-command)
 
 
-<a id="org413fb50"></a>
+<a id="orgd61217c"></a>
 
 ### Bells
 
@@ -1474,7 +1445,7 @@ will only ring when there’s actually an error raised somehow:
               (ding))))
 
 
-<a id="org16aa23c"></a>
+<a id="org4bdcc18"></a>
 
 ### Yes or No
 
@@ -1484,14 +1455,14 @@ single *y* or *n* will suffice.
     (fset 'yes-or-no-p 'y-or-n-p)
 
 
-<a id="org80c151d"></a>
+<a id="orge289e06"></a>
 
 ### Automatically revert `doc-view` buffers when the file changes on disk.
 
     (add-hook 'doc-view-mode-hook 'auto-revert-mode)
 
 
-<a id="orga08a663"></a>
+<a id="org477bd4b"></a>
 
 ### Hook for find-file
 
@@ -1511,7 +1482,7 @@ display trailing whitespace and enable visual-line-mode
                                 (setq show-trailing-whitespace t)))
 
 
-<a id="orgd22ae8e"></a>
+<a id="orgaae0e0e"></a>
 
 ### Leave scratch buffers alone
 
@@ -1524,7 +1495,7 @@ display trailing whitespace and enable visual-line-mode
     (add-hook 'kill-buffer-query-functions 'qq/do-not-kill-scratch-buffer)
 
 
-<a id="orgbe0797a"></a>
+<a id="org1a7688a"></a>
 
 ### UTF-8
 
@@ -1544,7 +1515,7 @@ Treat clipboard input as UTF-8 string first; compound text next, etc.
       (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
 
-<a id="orgc209447"></a>
+<a id="org4e6146c"></a>
 
 ### Start emacs @fullscreen
 
@@ -1558,12 +1529,12 @@ Treat clipboard input as UTF-8 string first; compound text next, etc.
       ;(setq default-frame-alist '((left . 0) (width . 487) (fullscreen . fullheight))))
 
 
-<a id="org9c80440"></a>
+<a id="org785e2ff"></a>
 
 ## Visual
 
 
-<a id="org7eeb9b9"></a>
+<a id="org4edadf2"></a>
 
 ### Theme
 
@@ -1621,7 +1592,7 @@ Change the color-theme to `moe-theme` (downloaded using `package`).
             )
 
 
-<a id="org7506781"></a>
+<a id="org37d888a"></a>
 
 ### Transparency
 
@@ -1631,7 +1602,7 @@ Change the color-theme to `moe-theme` (downloaded using `package`).
     (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
 
 
-<a id="orgd2a95aa"></a>
+<a id="org52f92eb"></a>
 
 ### Modeline
 
@@ -1678,7 +1649,7 @@ Using [doom-modeline](https://github.com/seagle0128/doom-modeline).
         (setq doom-modeline-buffer-file-name-style 'relative-from-project)
 
 
-<a id="orge35f6a6"></a>
+<a id="org441034d"></a>
 
 ### Highlight
 
@@ -1692,7 +1663,7 @@ Highlight current line mode
     (global-hl-line-mode)
 
 
-<a id="orgaf9352d"></a>
+<a id="org7ccf248"></a>
 
 ### Emoji font support
 
@@ -1711,7 +1682,7 @@ Highlight current line mode
     ;(add-hook 'after-make-frame-functions '--set-emoji-font)
 
 
-<a id="orgb13ac93"></a>
+<a id="org45dd495"></a>
 
 ### Fix italics
 
@@ -1722,7 +1693,7 @@ the fonts in use. But having this doesn't hurt regardless.
     (set-face-attribute 'italic nil :inherit nil :slant 'italic)
 
 
-<a id="org16b5ca0"></a>
+<a id="org935adb9"></a>
 
 ### PragmataPro Ligatures
 
@@ -1797,8 +1768,8 @@ This only work for Pragmata Pro fonts, details [here](https://www.reddit.com/r/e
                ("<*"   . ?)
                ("<*>"  . ?)
                ("<+>"  . ?)
-               ("<-"   . ?🡐)
-               ("->"   . ?🠮)
+               ("<-"   . ?)
+               ("->"   . ?)
                ("<<"   . ?)
                ("<<<"  . ?)
                ("<<="  . ?)
@@ -1905,7 +1876,7 @@ This only work for Pragmata Pro fonts, details [here](https://www.reddit.com/r/e
     (global-prettify-symbols-mode +1)
 
 
-<a id="orge78194f"></a>
+<a id="orgbe63caf"></a>
 
 ### Frame Scaling / Zooming
 
@@ -1915,7 +1886,7 @@ The keybindings for this are C+M+- and C+M+=.
     (default-text-scale-mode)
 
 
-<a id="orgd6a7a90"></a>
+<a id="org0e983ed"></a>
 
 ## Advice
 
@@ -1943,12 +1914,12 @@ enabled themes.
       (mapc 'disable-theme custom-enabled-themes))
 
 
-<a id="orged54757"></a>
+<a id="org3e1191d"></a>
 
 ## Modes
 
 
-<a id="orgda3354d"></a>
+<a id="orge33e296"></a>
 
 ### Disabled Modes
 
@@ -1964,7 +1935,7 @@ these.
       (funcall mode 0))
 
 
-<a id="org601c68b"></a>
+<a id="org18ab8ed"></a>
 
 ### Enabled Modes
 
@@ -2001,7 +1972,7 @@ default.
     ;;       '((auto-compile-on-save-mode)))   ; compile .el files on save.
 
 
-<a id="orgd98a5e1"></a>
+<a id="orge07ffd6"></a>
 
 ### `hungry-delete-mode`
 
@@ -2011,7 +1982,7 @@ direction (instead of just one). Use it everywhere.
     (global-hungry-delete-mode)
 
 
-<a id="orgdca34f2"></a>
+<a id="orgd22021d"></a>
 
 ### Recentf
 
@@ -2048,7 +2019,7 @@ buffers will also be put to recentf
     (add-hook 'dired-after-readin-hook 'recentf-track-opened-file)))
 
 
-<a id="org725b00a"></a>
+<a id="org754a22b"></a>
 
 ### Column mode editing
 
@@ -2059,14 +2030,14 @@ One reason I enable this mode.
     (cua-mode)
 
 
-<a id="org35c5092"></a>
+<a id="org700bd31"></a>
 
 ### If you change buffer, or focus, disable the current buffer's mark:
 
     (transient-mark-mode t)
 
 
-<a id="orgff86ee9"></a>
+<a id="org7e1616e"></a>
 
 ### Fringe
 
@@ -2097,7 +2068,7 @@ Set fringe width on each side to 12 and add few indications
     (add-hook 'after-init-hook #'qq/set-fringe-background)
 
 
-<a id="org86f08ac"></a>
+<a id="orge08ea02"></a>
 
 ### `ediff`
 
@@ -2129,7 +2100,7 @@ Only ever use one set of windows in one frame:
         (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 
 
-<a id="org28f6474"></a>
+<a id="orgf3d4a4c"></a>
 
 ### `tramp`
 
@@ -2162,7 +2133,7 @@ default protocol is `ssh`.
                           (member method '("su" "sudo"))))))))
 
 
-<a id="org8ff8d6f"></a>
+<a id="org88630dc"></a>
 
 ### Ibuffer customization
 
@@ -2261,13 +2232,7 @@ default protocol is `ssh`.
 
 6.  Keybinding
 
-    Using The table below as the source for generating [Evil iBuffer Bindings](#org6bb23df)
-
-        (general-define-key
-         :states 'normal
-         :keymaps 'ibuffer-mode-map
-
-    <table id="org09a3ec3" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="orgc79b97d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -2392,7 +2357,7 @@ default protocol is `ssh`.
     </table>
 
 
-<a id="org1706a58"></a>
+<a id="org470982b"></a>
 
 ### Minibuffer
 
@@ -2435,7 +2400,7 @@ default protocol is `ssh`.
               '(invisible t))
 
 
-<a id="org65f79b2"></a>
+<a id="orgce323c2"></a>
 
 ### `conf-mode`
 
@@ -2452,14 +2417,14 @@ Use conf-mode for git config files
                        'conf-mode))
 
 
-<a id="org47014a0"></a>
+<a id="org4c42ad9"></a>
 
 ### PDF-Tools
 
     (pdf-loader-install)
 
 
-<a id="org9d4ecde"></a>
+<a id="org911fd0a"></a>
 
 ### Whitespace-mode
 
@@ -2467,7 +2432,7 @@ Use conf-mode for git config files
                             (face spaces trailing tabs newline space-mark tab-mark newline-mark)))
 
 
-<a id="orga0d3151"></a>
+<a id="orgdd4b43b"></a>
 
 ### Display Line Numbers
 
@@ -2479,7 +2444,7 @@ Add a toggle function for toggling relative line number
       (setq display-line-numbers (if (eq display-line-numbers 'relative) 'default 'relative)))
 
 
-<a id="orge5070b4"></a>
+<a id="org2be9046"></a>
 
 ### GUD
 
@@ -2496,7 +2461,7 @@ Add a toggle function for toggling relative line number
         (add-hook 'gud-mode-hook 'qq/gud-hooks)
 
 
-<a id="org3d56cea"></a>
+<a id="orgec80ea6"></a>
 
 ### Undo Tree
 
@@ -2520,9 +2485,7 @@ Add a toggle function for toggling relative line number
 
 3.  Keybinding
 
-    Using The table below as the source for generating [Undo-tree Bindings](#orgd2f5b0a)
-
-    <table id="orgf6b473b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="orgcb3d615" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -2607,7 +2570,7 @@ Add a toggle function for toggling relative line number
         (global-undo-tree-mode 1)
 
 
-<a id="orga7596dd"></a>
+<a id="org3d5fb6d"></a>
 
 ### `which-function-mode`
 
@@ -2630,9 +2593,7 @@ This mode will show current function name. the code below will show it in Header
 
 ## Keybindings
 
-Using The table below as the source for generating [6.2](#orgc4e1646)
-
-<table id="org49cfe83" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org4ea36e3" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -2744,12 +2705,12 @@ Using The table below as the source for generating [6.2](#orgc4e1646)
 </table>
 
 
-<a id="orgb39d361"></a>
+<a id="org28690a0"></a>
 
 # Third parties
 
 
-<a id="orgf296094"></a>
+<a id="org9891dbe"></a>
 
 ## Company
 
@@ -2758,7 +2719,7 @@ A text completion framework for Emacs.
 <http://company-mode.github.io>
 
 
-<a id="org86b4925"></a>
+<a id="orgddac6da"></a>
 
 ### Settings
 
@@ -2808,7 +2769,7 @@ A text completion framework for Emacs.
         (setq company-tooltip-align-annotations t)
 
 
-<a id="orged7dbe6"></a>
+<a id="orgcb69f60"></a>
 
 ### Default backends for company
 
@@ -2864,7 +2825,7 @@ Make the backends buffer local
                              company-dabbrev))
 
 
-<a id="orgda4a634"></a>
+<a id="orga96af61"></a>
 
 ### flx matching in company
 
@@ -2872,7 +2833,7 @@ Make the backends buffer local
       (company-flx-mode +1))
 
 
-<a id="org1d18172"></a>
+<a id="orga7add52"></a>
 
 ### Sort completions by usage frequency
 
@@ -2880,7 +2841,7 @@ Make the backends buffer local
          (company-statistics-mode))
 
 
-<a id="org40274ae"></a>
+<a id="orgd8af653"></a>
 
 ### Use `company-postframe` for frontend
 
@@ -2888,7 +2849,7 @@ Make the backends buffer local
     (add-hook 'company-mode-hook 'company-posframe-mode)
 
 
-<a id="org8eda2f9"></a>
+<a id="org9cb6207"></a>
 
 ### company-ispell setup
 
@@ -2914,7 +2875,7 @@ Make the backends buffer local
     (add-hook 'org-mode-hook 'company-ispell-setup)
 
 
-<a id="orge7d7853"></a>
+<a id="org6b8cd23"></a>
 
 ### Enable quick help for company-mode
 
@@ -2922,7 +2883,7 @@ Make the backends buffer local
         (company-quickhelp-mode +1))
 
 
-<a id="orgc915e6e"></a>
+<a id="orgcd8214d"></a>
 
 ### Disable company-mode for certain major modes.
 
@@ -2930,11 +2891,6 @@ Make the backends buffer local
           '(not
             eshell-mode comint-mode erc-mode gud-mode rcirc-mode
             minibuffer-inactive-mode))
-
-
-<a id="company-binding"></a>
-
-### Keybinding
 
 Custom function used to trigger tab within active company-mode window
 
@@ -2950,9 +2906,12 @@ Custom function used to trigger tab within active company-mode window
               (call-interactively #'company-complete-selection)
               (call-interactively #'company-complete))))))
 
-Using The table below as the source for generating [Company Bindings](#org77daf65)
 
-<table id="orgcfdca64" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<a id="company-binding"></a>
+
+### Keybinding
+
+<table id="orgdf45a80" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -2994,7 +2953,7 @@ Using The table below as the source for generating [Company Bindings](#org77daf6
 </table>
 
 
-<a id="org90b612c"></a>
+<a id="org73d1905"></a>
 
 ## Selectrum
 
@@ -3011,7 +2970,7 @@ To save your command history on disk, so the sorting gets more intelligent over 
     (prescient-persist-mode +1)
 
 
-<a id="orgfce5cd8"></a>
+<a id="orge181503"></a>
 
 ### Marginalia
 
@@ -3033,7 +2992,7 @@ When using Selectrum, ensure that Selectrum is refreshed when cycling annotation
                 (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
 
 
-<a id="orgfa31972"></a>
+<a id="orged5f1b5"></a>
 
 ### Consult
 
@@ -3046,7 +3005,7 @@ Enable previews
     ;(consult-preview-mode)
 
 
-<a id="org53a0312"></a>
+<a id="orgfd49d41"></a>
 
 ### Switch to buffer or recent file
 
@@ -3102,7 +3061,7 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
                (switch-to-buffer cand)))))
 
 
-<a id="org8b3278c"></a>
+<a id="orgeb60f59"></a>
 
 ### Orderless
 
@@ -3118,7 +3077,7 @@ Selectrum Integration
     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
 
 
-<a id="org27295de"></a>
+<a id="orgef4e28d"></a>
 
 ### Filtering advice
 
@@ -3141,13 +3100,7 @@ candidates by completion in region.
 
 ### Selectrum Map Binding
 
-Using The table below as the source for generating [Selectrum Map Bindings](#orgc3db5ea)
-
-    (general-define-key
-     :states 'insert
-     :keymaps 'selectrum-minibuffer-map
-
-<table id="org871cea9" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org0081a87" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -3248,9 +3201,7 @@ Using The table below as the source for generating [Selectrum Map Bindings](#org
 
 ### Normal Keybinding
 
-Using The table below as the source for generating [Normal Selectrum Bindings](#org1d23644)
-
-<table id="org6bc5f52" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org0afcd12" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -3429,9 +3380,7 @@ Using The table below as the source for generating [Normal Selectrum Bindings](#
 
 ### Visual Keybinding
 
-Using The table below as the source for generating [Visual Selectrum Bindings](#org4c9e111)
-
-<table id="org5405a40" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org7b00d1b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -3459,7 +3408,7 @@ Using The table below as the source for generating [Visual Selectrum Bindings](#
 </table>
 
 
-<a id="org53439ff"></a>
+<a id="org1e6004b"></a>
 
 ## Mini-Frame
 
@@ -3468,7 +3417,7 @@ Using The table below as the source for generating [Visual Selectrum Bindings](#
     (mini-frame-mode)
 
 
-<a id="org949b34c"></a>
+<a id="org104893c"></a>
 
 ## Mode-line-bell
 
@@ -3476,7 +3425,7 @@ Using The table below as the source for generating [Visual Selectrum Bindings](#
     (mode-line-bell-mode)
 
 
-<a id="orgad16d80"></a>
+<a id="orga73b11f"></a>
 
 ## Tempbuf
 
@@ -3526,12 +3475,12 @@ kill unused buffers in the background
     (add-hook 'after-change-major-mode-hook 'tempbuf-major-mode-hook)
 
 
-<a id="orgfb663b0"></a>
+<a id="org8b35e25"></a>
 
 ## Evil
 
 
-<a id="orgebdc127"></a>
+<a id="orgf25e14d"></a>
 
 ### Init
 
@@ -3554,14 +3503,14 @@ kill unused buffers in the background
       (evil-collection-init 'magit))
 
 
-<a id="org3a271a0"></a>
+<a id="orga089316"></a>
 
 ### Enable Evil
 
     (evil-mode 1)
 
 
-<a id="org2b515d3"></a>
+<a id="org718ae36"></a>
 
 ### Plugins
 
@@ -3660,7 +3609,7 @@ kill unused buffers in the background
         (evil-exchange-install)
 
 
-<a id="orga6a4bb9"></a>
+<a id="org056abc0"></a>
 
 ### Common Settings
 
@@ -3695,14 +3644,14 @@ Set the cursor color for different evil mode:
         evil-jumper-auto-save-interval 3600)
 
 
-<a id="org0e64abf"></a>
+<a id="org1e7a6bb"></a>
 
 ### Undo System
 
     (csetq evil-undo-system 'undo-tree)
 
 
-<a id="orge1f88fb"></a>
+<a id="orgd4bd78b"></a>
 
 ### Command `*` and `#`
 
@@ -3718,7 +3667,7 @@ search. I wanted to have both behaviour around, so I made a toggle function:
                     (if (eq evil-symbol-word-search t) nil t)))
 
 
-<a id="org04b3bfc"></a>
+<a id="orgc6c54b0"></a>
 
 ### Initial evil state for some major mode
 
@@ -3765,7 +3714,7 @@ search. I wanted to have both behaviour around, so I made a toggle function:
              do (evil-set-initial-state mode state))
 
 
-<a id="org5371fb4"></a>
+<a id="org934dcb5"></a>
 
 ### Define my own text objects
 
@@ -3800,7 +3749,7 @@ Works on evil v1.0.9 using older method
         (define-and-bind-text-object "r" "\{\{" "\}\}")
 
 
-<a id="orgc1892b5"></a>
+<a id="orgc078d6e"></a>
 
 ### Term Settings
 
@@ -3819,7 +3768,7 @@ Works on evil v1.0.9 using older method
     (qq/evil-terminal-cursor-change)
 
 
-<a id="org2b6d7de"></a>
+<a id="org75ec4c7"></a>
 
 ### evil-ex-search behaviour
 
@@ -3830,7 +3779,7 @@ Works on evil v1.0.9 using older method
       (recenter))
 
 
-<a id="orgf294348"></a>
+<a id="orgf972616"></a>
 
 ### evil search in minor mode
 
@@ -3859,15 +3808,13 @@ Works on evil v1.0.9 using older method
                                      #'evil-search-previous))))
 
 
-<a id="org5403917"></a>
+<a id="org294019f"></a>
 
 ### Bindings
 
 1.  Global Mode Binding
 
-    Using The table below as the source for generating [Evil Global Bindings](#org241c808)
-
-    <table id="org1c67c58" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="orga5d92f3" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -3903,9 +3850,7 @@ Works on evil v1.0.9 using older method
 
 2.  Normal Mode Binding
 
-    Using The table below as the source for generating [Evil Normal Bindings](#orga43a484)
-
-    <table id="orgbd3532e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="orgc4c9642" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -4074,9 +4019,7 @@ Works on evil v1.0.9 using older method
 
 3.  Motion Mode Binding
 
-    Using The table below as the source for generating [Evil Motion Bindings](#org64a53e4)
-
-    <table id="org53e2555" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="orgec74e2f" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -4140,9 +4083,7 @@ Works on evil v1.0.9 using older method
 
 4.  Visual Mode Binding
 
-    Using The table below as the source for generating [Evil Visual Bindings](#orgf02c84f)
-
-    <table id="org799953b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="org7735420" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -4178,9 +4119,7 @@ Works on evil v1.0.9 using older method
 
 5.  Ex Mode Binding
 
-    Using The table below as the source for generating [Evil Ex Bindings](#org1f5b92c)
-
-    <table id="org40cf9e2" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <table id="org015e94a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -4221,11 +4160,14 @@ Works on evil v1.0.9 using older method
     </tbody>
     </table>
 
-6.  Buffer Selection Binding
 
-    Using The table below as the source for generating [Evil BS Bindings](#orgacb9f4d)
+<a id="org58d27fe"></a>
 
-    <table id="org72e237e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+### Keymap Bindings
+
+1.  Buffer Selection Binding
+
+    <table id="orgae53bfa" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
     <colgroup>
@@ -4309,9 +4251,7 @@ Works on evil v1.0.9 using older method
 
 ### Evil-Leader Binding
 
-Using The table below as the source for generating [Evil Leader Bindings](#orgefeb99a)
-
-<table id="org960e07d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org3ad5254" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -4962,14 +4902,14 @@ Using The table below as the source for generating [Evil Leader Bindings](#orgef
 </table>
 
 
-<a id="org9925232"></a>
+<a id="orgaa657bc"></a>
 
 ## Mixed-pitch
 
     (add-hook 'text-mode-hook 'mixed-pitch-mode)
 
 
-<a id="orgbfe9fd7"></a>
+<a id="orgccdc90f"></a>
 
 ## Dired
 
@@ -4980,9 +4920,7 @@ Using The table below as the source for generating [Evil Leader Bindings](#orgef
 
 ### Evil Binding
 
-Using The table below as the source for generating [Evil Dired Bindings](#org98c7814)
-
-<table id="orgc8c951e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgf7e58a8" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -6141,7 +6079,7 @@ Using The table below as the source for generating [Evil Dired Bindings](#org98c
 </tbody>
 </table>
 
-<table id="org948b0a9" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgcb3c838" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -6188,7 +6126,7 @@ Using The table below as the source for generating [Evil Dired Bindings](#org98c
 </table>
 
 
-<a id="org218dac9"></a>
+<a id="org5bb4ffb"></a>
 
 ## Ag
 
@@ -6197,9 +6135,7 @@ Using The table below as the source for generating [Evil Dired Bindings](#org98c
 
 ### Evil Binding
 
-Using The table below as the source for generating [Evil Ag Bindings](#org3b383b2)
-
-<table id="org3f31a8e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org7d21554" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -6333,12 +6269,12 @@ Using The table below as the source for generating [Evil Ag Bindings](#org3b383b
 </table>
 
 
-<a id="orgd37cab5"></a>
+<a id="org0beaee8"></a>
 
 ## Git/Magit
 
 
-<a id="org300347a"></a>
+<a id="org4c5961a"></a>
 
 ### Settings
 
@@ -6354,7 +6290,7 @@ Using The table below as the source for generating [Evil Ag Bindings](#org3b383b
       (diff-hl-margin-mode))
 
 
-<a id="orgf503075"></a>
+<a id="org6c350e0"></a>
 
 ### magit-commit-mode
 
@@ -6373,7 +6309,7 @@ Using The table below as the source for generating [Evil Ag Bindings](#org3b383b
      '(git-commit-summary ((t nil))))
 
 
-<a id="orga4d92ca"></a>
+<a id="orgd67b508"></a>
 
 ### git-timemachine
 
@@ -6388,7 +6324,7 @@ Refer [here](https://bitbucket.org/lyro/evil/issues/511/let-certain-minor-modes-
     (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)
 
 
-<a id="orgcac131f"></a>
+<a id="orgbf4af5a"></a>
 
 ### git-blame-line
 
@@ -6420,7 +6356,7 @@ somewhere else if you need to. From [here](http://jayconrod.com/posts/67/emacs-r
         (kill-buffer commit-buf)))
 
 
-<a id="orgb24e43d"></a>
+<a id="org4df9b5d"></a>
 
 ### git-gutter-fringe
 
@@ -6441,7 +6377,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
     (add-hook 'find-file-hook #'git-gutter-find-file-hook)
 
 
-<a id="org7f14da5"></a>
+<a id="org75774e6"></a>
 
 ### git-messenger
 
@@ -6460,9 +6396,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 ### Keybinding
 
-Using The table below as the source for generating [Evil Magit Bindings](#org078236e)
-
-<table id="orgba4256f" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgd3c0a2b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -6616,7 +6550,7 @@ Using The table below as the source for generating [Evil Magit Bindings](#org078
 </table>
 
 
-<a id="orgff7da81"></a>
+<a id="org04a6c44"></a>
 
 ## CalibreDB
 
@@ -6629,14 +6563,14 @@ Using The table below as the source for generating [Evil Magit Bindings](#org078
                                     ))
 
 
-<a id="orgd526a71"></a>
+<a id="org7afd10b"></a>
 
 ## Beacon
 
     (beacon-mode 1)
 
 
-<a id="org9cf29d0"></a>
+<a id="orgffe9287"></a>
 
 ## Lsp-mode
 
@@ -6654,7 +6588,7 @@ Language Server Protocol support for Emacs. [lsp-mode](https://github.com/emacs-
                       :server-id 'clangd-lsp-remote))
 
 
-<a id="orge62736c"></a>
+<a id="org6b115d2"></a>
 
 ### Logging
 
@@ -6664,7 +6598,7 @@ session, for example. It can cause a great performance hit.
     (setq lsp-log-io nil) ; if set to true can cause a performance hit
 
 
-<a id="org2a85e89"></a>
+<a id="org5d7b98a"></a>
 
 ### Ccls
 
@@ -6675,7 +6609,7 @@ A C/C++/Objective-C language server supporting multi-million line C++ code-bases
     ;(setq ccls-executable qq/ccls-binary)
 
 
-<a id="orgb18d9ba"></a>
+<a id="org55b4a82"></a>
 
 ### Clangd
 
@@ -6690,7 +6624,7 @@ A C/C++/Objective-C language server supporting multi-million line C++ code-bases
             "--header-insertion-decorators=0"))
 
 
-<a id="orge3b2531"></a>
+<a id="orgc7e2385"></a>
 
 ### Lsp-UI
 
@@ -6718,9 +6652,7 @@ A C/C++/Objective-C language server supporting multi-million line C++ code-bases
 
 ### Normal Keybinding
 
-Using The table below as the source for generating [Normal LSP Bindings](#org4af28b8)
-
-<table id="orgb0d820a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org0930d81" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -6818,7 +6750,7 @@ Using The table below as the source for generating [Normal LSP Bindings](#org4af
 </table>
 
 
-<a id="org67373ef"></a>
+<a id="org76511d1"></a>
 
 ## Org
 
@@ -6827,7 +6759,7 @@ Using The table below as the source for generating [Normal LSP Bindings](#org4af
 <http://sachachua.com/blog/2015/02/learn-take-notes-efficiently-org-mode/>
 
 
-<a id="orgddead00"></a>
+<a id="org5410231"></a>
 
 ### Settings
 
@@ -6838,6 +6770,8 @@ Using The table below as the source for generating [Normal LSP Bindings](#org4af
         (require 'org-indent)
         (require 'org-superstar)
         (require 'ob-napkin)
+        (require 'ox-extra)
+        (ox-extras-activate '(ignore-headlines))
         (add-to-list 'org-src-lang-modes '("napkin-puml" . plantuml))
 
 2.  `setq`
@@ -7308,7 +7242,7 @@ Using The table below as the source for generating [Normal LSP Bindings](#org4af
         (require 'ox-md nil t)
 
 
-<a id="org95cad88"></a>
+<a id="orgc494891"></a>
 
 ### org-habit
 
@@ -7330,7 +7264,7 @@ lot, so I start it at 80 characters.
           org-habit-show-all-today t)
 
 
-<a id="org1adba01"></a>
+<a id="org907076c"></a>
 
 ### org-babel
 
@@ -7406,7 +7340,7 @@ aware of Clojure by default, so the following sets that up.
                   'append)
 
 
-<a id="orgf475fae"></a>
+<a id="orgf3d7fdd"></a>
 
 ### org-abbrev
 
@@ -7451,9 +7385,7 @@ aware of Clojure by default, so the following sets that up.
 
 ### Bindings
 
-The table below will be generated as key-bindings [here](#org9088852).
-
-<table id="orgfbfd65b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgc743be4" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -7506,9 +7438,7 @@ The table below will be generated as key-bindings [here](#org9088852).
 
 ### Evil Binding
 
-Using The table below as the source for generating [Evil Org Bindings](#org1975cda)
-
-<table id="org66bf196" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org6737cae" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -7678,7 +7608,7 @@ Using The table below as the source for generating [Evil Org Bindings](#org1975c
 </table>
 
 
-<a id="orgf63437e"></a>
+<a id="orga5e390c"></a>
 
 ## PDFTools
 
@@ -7687,7 +7617,7 @@ It require certain setting to configure in the OS to make it work, so
 be sure to read the github page for installation procedure.
 
 
-<a id="org0d317b7"></a>
+<a id="org498c7f8"></a>
 
 ### Settings
 
@@ -7704,7 +7634,7 @@ More fine grained zooming with + and - than the default 25%, so set it to 10%
     (setq pdf-view-resize-factor 1.1)
 
 
-<a id="orgd7abf3b"></a>
+<a id="org73b3342"></a>
 
 ### Evil-mode
 
@@ -7746,7 +7676,7 @@ taken from [evil-collection](https://github.com/emacs-evil/evil-collection)
                            (image-bob)))
 
 
-<a id="orgfd0b254"></a>
+<a id="org0c32584"></a>
 
 ### Midnight mode
 
@@ -7786,7 +7716,7 @@ Additional midnite mode taken from [here](https://babbagefiles.blogspot.com/2017
       )
 
 
-<a id="org1794673"></a>
+<a id="org667f146"></a>
 
 ### Org-mode links
 
@@ -7806,9 +7736,7 @@ with support for jumping to specific pages.
 
 ### Local keybindings
 
-The table below will be generated as key-bindings [here](#orgc017d01).
-
-<table id="orgdea323a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org3e9b45f" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -8184,7 +8112,7 @@ The table below will be generated as key-bindings [here](#orgc017d01).
 </tbody>
 </table>
 
-<table id="org9136862" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org536c9b5" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -8223,7 +8151,7 @@ The table below will be generated as key-bindings [here](#orgc017d01).
 </table>
 
 
-<a id="orgec4d3b1"></a>
+<a id="orgeae7c1c"></a>
 
 ## Projectile
 
@@ -8232,7 +8160,7 @@ Project interaction module for Emacs.
 <https://github.com/bbatsov/projectile>
 
 
-<a id="org62f7423"></a>
+<a id="org8d4e297"></a>
 
 ### Settings
 
@@ -8257,9 +8185,7 @@ Project interaction module for Emacs.
 
 ### Keybinding
 
-Using The table below as the source for generating [Evil Projectile Bindings](#org91b7e92) with leader-key bindings
-
-<table id="org20cfb92" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgdb4f486" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -8294,12 +8220,12 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
 </table>
 
 
-<a id="org38218e1"></a>
+<a id="org1e64911"></a>
 
 ## Persp-mode
 
 
-<a id="org0709884"></a>
+<a id="org46cd168"></a>
 
 ### Settings
 
@@ -8316,7 +8242,7 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
           persp-hook-up-emacs-buffer-completion t)
 
 
-<a id="org3c418ae"></a>
+<a id="org6aadead"></a>
 
 ### Ignore temporary buffers
 
@@ -8325,14 +8251,14 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
                               (string-prefix-p "magit" (buffer-name b)))))
 
 
-<a id="org238f3dd"></a>
+<a id="org0e1af19"></a>
 
 ### Rename main perspective
 
     (setq persp-nil-name "Home")
 
 
-<a id="orge2f45bd"></a>
+<a id="org8afae81"></a>
 
 ### Create save folder if it doesn't exist
 
@@ -8340,7 +8266,7 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
       (make-directory persp-save-dir))
 
 
-<a id="org3ce1351"></a>
+<a id="org8a74994"></a>
 
 ### Load persp-mode after init
 
@@ -8350,7 +8276,7 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
     (require 'persp-mode)
 
 
-<a id="org5eea288"></a>
+<a id="orgca7f9e6"></a>
 
 ### Buffer lists
 
@@ -8359,7 +8285,7 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
       (substitute-key-definition #'kill-buffer #'persp-kill-buffer global-map))
 
 
-<a id="org2414bf0"></a>
+<a id="org32fe164"></a>
 
 ### Auto perspective for dired
 
@@ -8380,9 +8306,7 @@ Using The table below as the source for generating [Evil Projectile Bindings](#o
 
 ### Keybindings
 
-The code generated from this table is [here](#orgb00af40).
-
-<table id="orgb48937c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgfaa0f3a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -8431,14 +8355,14 @@ The code generated from this table is [here](#orgb00af40).
 </table>
 
 
-<a id="org2b0ede9"></a>
+<a id="org83418fb"></a>
 
 ## Shell/Term/Fasd
 
 Launch shell/term within emacs
 
 
-<a id="orga061c73"></a>
+<a id="org3c9a6db"></a>
 
 ### Add color to shell & eshell
 
@@ -8447,21 +8371,21 @@ Launch shell/term within emacs
               'ansi-color-filter-apply)
 
 
-<a id="org291d42a"></a>
+<a id="org33fe805"></a>
 
 ### Highlight some text based on regexp (useful to see "OK" or warnings):
 
     ;(add-hook 'shell-mode-hook (lambda () (highlight-regexp "\\[OK\\]" "hi-green-b")))
 
 
-<a id="orgceaebc5"></a>
+<a id="org63fc124"></a>
 
 ### Make URLs clickable
 
     (add-hook 'shell-mode-hook (lambda () (goto-address-mode )))
 
 
-<a id="org11fa91b"></a>
+<a id="org580fab1"></a>
 
 ### Make file paths clickable
 
@@ -8473,7 +8397,7 @@ tests):
     (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
 
 
-<a id="org441595f"></a>
+<a id="org47d5d98"></a>
 
 ### Shell completion with a nice menu à la zsh
 
@@ -8481,7 +8405,7 @@ tests):
     (define-key shell-mode-map (kbd "TAB") #'company-manual-begin)
 
 
-<a id="org3ecc869"></a>
+<a id="orge050012"></a>
 
 ### Change directory with `ido` and `fasd`
 
@@ -8493,7 +8417,7 @@ line utility: <https://github.com/clvv/fasd>
     (add-hook 'shell-mode-hook 'fasd-shell-mode)
 
 
-<a id="org932c6a1"></a>
+<a id="orga232ec6"></a>
 
 ### Find files with fasd
 
@@ -8506,7 +8430,7 @@ An Emacs extension to integrate Fasd.
     (setq fasd-enable-initial-prompt nil)  ;; don't ask for first query but fire fuzzy completion straight away.
 
 
-<a id="orge46bd7f"></a>
+<a id="org278a98c"></a>
 
 ### Shared and persistent history
 
@@ -8516,7 +8440,7 @@ An Emacs extension to integrate Fasd.
       (comint-read-input-ring t))
 
 
-<a id="orgafc7ac6"></a>
+<a id="org6d8b224"></a>
 
 ### shell-here
 
@@ -8530,7 +8454,7 @@ of the current project.
     (define-key (current-global-map) "\C-c!" 'shell-here)
 
 
-<a id="orgd917660"></a>
+<a id="org1008d7d"></a>
 
 ### ansi-term
 
@@ -8623,7 +8547,7 @@ traditional terminal emulator than `eshell`.
         (add-hook 'term-mode-hook #'my-term-mode-hook)
 
 
-<a id="orgf1a89b6"></a>
+<a id="org5cf4238"></a>
 
 ### Serial terminal
 
@@ -8746,12 +8670,12 @@ traditional terminal emulator than `eshell`.
                     (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
 
 
-<a id="org4856958"></a>
+<a id="orgf4deb8b"></a>
 
 ## VTerm
 
 
-<a id="org7079527"></a>
+<a id="orge55b11c"></a>
 
 ### Settings
 
@@ -8762,12 +8686,7 @@ traditional terminal emulator than `eshell`.
 
 ### Evil Binding
 
-Using The table below as the source for generating [Vterm Bindings](#orgff628be)
-
-    (general-define-key
-     :keymaps 'vterm-mode-map
-
-<table id="orgd4f6932" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orga5c5dae" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -8815,7 +8734,7 @@ Using The table below as the source for generating [Vterm Bindings](#orgff628be)
 </table>
 
 
-<a id="orgac82774"></a>
+<a id="orgd20972b"></a>
 
 ## Highlight-indent-guides
 
@@ -8824,14 +8743,14 @@ Add highlight column guides on indentation
 <https://github.com/abo-abo/swiper>
 
 
-<a id="org791aa03"></a>
+<a id="org7785fc9"></a>
 
 ### Settings
 
     (setq highlight-indent-guides-method 'character)
 
 
-<a id="org9746606"></a>
+<a id="org0b2b6c6"></a>
 
 ## Which key
 
@@ -8840,7 +8759,7 @@ Show keybindings.
 <https://github.com/justbur/emacs-which-key>
 
 
-<a id="org971629e"></a>
+<a id="orgc576ff0"></a>
 
 ### Init
 
@@ -8887,7 +8806,7 @@ frame's height (float larger than 0 and smaller than 1)
     (setq which-key-side-window-max-height 0.33)
 
 
-<a id="org9df2210"></a>
+<a id="orgb67614b"></a>
 
 ### Replacements for how KEY is replaced when which-key displays
 
@@ -8906,14 +8825,14 @@ Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
             ("prior"               . "PgUp")))
 
 
-<a id="org68619f8"></a>
+<a id="org98974c2"></a>
 
 ### Use cool unicode characters if available
 
     (add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩-"))
 
 
-<a id="org380edc4"></a>
+<a id="org8269991"></a>
 
 ### Change what string to display for a given **complete** key binding
 
@@ -8939,7 +8858,7 @@ Eg: After `C-x`, display `8 → +unicode` instead of `8 → +prefix`
       "C-x 8 0" "ZWS")
 
 
-<a id="org6e80081"></a>
+<a id="org9225d39"></a>
 
 ## Window numbering mode
 
@@ -8950,12 +8869,12 @@ Number window shortcuts for emacs
     ;     (window-numbering-mode)
 
 
-<a id="orgbfecae4"></a>
+<a id="org7bdcde6"></a>
 
 # Languages
 
 
-<a id="orgf6638dd"></a>
+<a id="org52301d3"></a>
 
 ## General
 
@@ -8980,12 +8899,12 @@ Some general settings that should apply to all programming mode. Highlight
     (add-hook 'cmake-mode-hook 'eldoc-cmake-enable)
 
 
-<a id="org846b64b"></a>
+<a id="orgd235cba"></a>
 
 ## Compilation
 
 
-<a id="org9344ec9"></a>
+<a id="org436c743"></a>
 
 ### Compilation behaviour
 
@@ -9006,7 +8925,7 @@ Some general settings that should apply to all programming mode. Highlight
         (setq compilation-ask-about-save nil)
 
 
-<a id="orgbf464d4"></a>
+<a id="orgc2231ba"></a>
 
 ### Custom command
 
@@ -9019,7 +8938,7 @@ Some general settings that should apply to all programming mode. Highlight
     (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
 
 
-<a id="org58a4dba"></a>
+<a id="org07a7f87"></a>
 
 ### ANSI-escape coloring in compilation-mode
 
@@ -9032,7 +8951,7 @@ Some general settings that should apply to all programming mode. Highlight
     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
 
-<a id="orgaa2bb12"></a>
+<a id="orgbd3bef0"></a>
 
 ### Bury compilation buffer
 
@@ -9056,12 +8975,12 @@ buffer will disappear after 1 second. Stolen from [stackoverflow](http://stackov
     (add-hook 'compilation-finish-functions 'qq/bury-compile-buffer-if-successful)
 
 
-<a id="orgedd666e"></a>
+<a id="orgbbac707"></a>
 
 ## C and its derivative
 
 
-<a id="orgc22ad14"></a>
+<a id="org3d4b047"></a>
 
 ### Common
 
@@ -9153,7 +9072,7 @@ The `c-mode-common-hook` is a general hook that work on all C-like languages
         (add-hook 'c++-mode-hook 'qq/c-mode-init)
 
 
-<a id="org62ff0f9"></a>
+<a id="org1b13f3b"></a>
 
 ### C++
 
@@ -9230,7 +9149,7 @@ The `c-mode-common-hook` is a general hook that work on all C-like languages
           `(define-key c++-mode-map "." 'c++-smart-dot))
 
 
-<a id="org4471e83"></a>
+<a id="orgcf83858"></a>
 
 ### Java
 
@@ -9252,7 +9171,7 @@ activated.
     (add-hook 'java-mode-hook 'java-setup)
 
 
-<a id="orgb9b5222"></a>
+<a id="org6ab28b8"></a>
 
 ### Objective-C
 
@@ -9261,7 +9180,7 @@ Associate `.mm`-files with `objc-mode` instead of `nroff-mode`.
     (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
 
 
-<a id="org51b6d62"></a>
+<a id="orgbbcc468"></a>
 
 ### Yaml
 
@@ -9274,9 +9193,7 @@ Associate `.mm`-files with `objc-mode` instead of `nroff-mode`.
 
 ### Keybinding
 
-Using The table below as the source for generating [Evil CC Mode Bindings](#org1e58e4f)
-
-<table id="orgae82534" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org55596d6" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -9320,12 +9237,12 @@ Using The table below as the source for generating [Evil CC Mode Bindings](#org1
 </table>
 
 
-<a id="orgb633fb1"></a>
+<a id="org7329f52"></a>
 
 ## Swift
 
 
-<a id="org9f2209c"></a>
+<a id="orgd7e014c"></a>
 
 ### `lsp-sourcekit`
 
@@ -9402,7 +9319,7 @@ Using The table below as the source for generating [Evil CC Mode Bindings](#org1
     ;;; lsp-sourcekit.el ends here
 
 
-<a id="org0994abe"></a>
+<a id="org4090176"></a>
 
 ### Settings
 
@@ -9412,7 +9329,7 @@ Using The table below as the source for generating [Evil CC Mode Bindings](#org1
     (add-hook 'swift-mode-hook 'lsp)
 
 
-<a id="org57e4b32"></a>
+<a id="orgbb56a42"></a>
 
 ## Lisp
 
@@ -9420,12 +9337,12 @@ Using The table below as the source for generating [Evil CC Mode Bindings](#org1
     (add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
 
 
-<a id="org262e29a"></a>
+<a id="orgd61728a"></a>
 
 ## Markdown
 
 
-<a id="orga40bde3"></a>
+<a id="orga92c67c"></a>
 
 ### Turn off `electric-indent-mode` in markdown buffers
 
@@ -9435,19 +9352,19 @@ Using The table below as the source for generating [Evil CC Mode Bindings](#org1
               (apply-partially #'electric-indent-local-mode 0))
 
 
-<a id="orga569002"></a>
+<a id="org9532220"></a>
 
 ## Python
 
 
-<a id="org725b96c"></a>
+<a id="orgaef183f"></a>
 
 ### Default Python interpreter
 
     (setq python-shell-interpreter "python3")
 
 
-<a id="org701a448"></a>
+<a id="orgf39a1d0"></a>
 
 ### Make electric-indent-mode and python-mode play nice
 
@@ -9477,12 +9394,12 @@ Using The table below as the source for generating [Evil CC Mode Bindings](#org1
     (add-hook 'python-mode-hook #'turn-off-electric-indent-local-mode)
 
 
-<a id="org816df1c"></a>
+<a id="org66c2da1"></a>
 
 ## Sh-Mode
 
 
-<a id="org018bce9"></a>
+<a id="org7debbd9"></a>
 
 ### Make scripts executable on save
 
@@ -9492,7 +9409,7 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
               'executable-make-buffer-file-executable-if-script-p)
 
 
-<a id="org08225a8"></a>
+<a id="org542d4e0"></a>
 
 ### Associate .zsh files with zshell in `sh-mode`
 
@@ -9510,12 +9427,12 @@ Emacs sh-mode doesn’t automatically associate \*.zsh with zsh. This enables th
     (add-hook 'sh-mode-hook 'sh-mode-set-zsh-by-file-name)
 
 
-<a id="orgbcdff92"></a>
+<a id="org9547a11"></a>
 
 ## NXML
 
 
-<a id="orgc4478b4"></a>
+<a id="org048bda5"></a>
 
 ### To have files automatically loaded with nxml-mode with various file extensions
 
@@ -9534,7 +9451,7 @@ Emacs sh-mode doesn’t automatically associate \*.zsh with zsh. This enables th
     (require 'rng-loc nil t)
 
 
-<a id="orga2d5331"></a>
+<a id="org61f1f7f"></a>
 
 ### Settings
 
@@ -9555,7 +9472,7 @@ Emacs sh-mode doesn’t automatically associate \*.zsh with zsh. This enables th
                 ))
 
 
-<a id="org06a95a1"></a>
+<a id="org1191e60"></a>
 
 ### Pretty printing xml region
 
@@ -9574,7 +9491,7 @@ Emacs sh-mode doesn’t automatically associate \*.zsh with zsh. This enables th
           (indent-region begin end)))
 
 
-<a id="org44de207"></a>
+<a id="orga342454"></a>
 
 ### Where am I?
 
@@ -9602,7 +9519,7 @@ To show current xpath in echo area, use the following function:
               (format "/%s" (mapconcat 'identity path "/")))))))
 
 
-<a id="orgbb92656"></a>
+<a id="org26740a1"></a>
 
 ### Folding with HideShow
 
@@ -9627,7 +9544,7 @@ To show current xpath in echo area, use the following function:
          (define-key nxml-mode-map [mouse-3] 'lgfang-toggle-level)))
 
 
-<a id="orgea56ae5"></a>
+<a id="orga08f878"></a>
 
 ### Enable nxml-mode when the user starts typing an xml document
 
@@ -9636,7 +9553,7 @@ To show current xpath in echo area, use the following function:
                magic-mode-alist))
 
 
-<a id="orgc49ad68"></a>
+<a id="org2e97d58"></a>
 
 ### Rebind '>', so that it automatically inserts a closing xml tag (if appropriate)
 
@@ -9655,7 +9572,7 @@ To show current xpath in echo area, use the following function:
                 (define-key nxml-mode-map ">" 'qq/nxml-end-tag)))
 
 
-<a id="org6a72c6f"></a>
+<a id="org5d61282"></a>
 
 ### Color scheme
 
@@ -9677,12 +9594,12 @@ To show current xpath in echo area, use the following function:
     ; (set-face-foreground 'nxml-text-face "#ddd")
 
 
-<a id="org86b30a8"></a>
+<a id="org01438de"></a>
 
 # Recipes
 
 
-<a id="orga6a31b4"></a>
+<a id="orgebfec7d"></a>
 
 ## Add `sort-words` command
 
@@ -9700,7 +9617,7 @@ Emacs has a command to sort lines, but not to sort words in a region.
       (sort-regexp-fields reverse "\\w+" "\\&" beg end))
 
 
-<a id="org9382617"></a>
+<a id="orgf675e32"></a>
 
 ## Switch to Editing a File with SUDO
 
@@ -9713,7 +9630,7 @@ Taken from [here](http://irreal.org/blog/?p=4883)
           (find-alternate-file (concat "/sudo::" file-name)))))
 
 
-<a id="orga83b60d"></a>
+<a id="orgaf49e07"></a>
 
 ## unfill-paragraph function
 
@@ -9729,7 +9646,7 @@ Unfilling  a paragraph joins all the lines in a paragraph into a single line.
         (fill-paragraph nil)))
 
 
-<a id="org3d40f35"></a>
+<a id="org8390bfe"></a>
 
 ## Coloring regions with ANSI color codes
 
@@ -9741,7 +9658,7 @@ Unfilling  a paragraph joins all the lines in a paragraph into a single line.
       (ansi-color-apply-on-region beg end))
 
 
-<a id="org034a4c7"></a>
+<a id="org2d6e1bd"></a>
 
 ## Diff two regions
 
@@ -9833,7 +9750,7 @@ Step 2: Select another region and \`M-x diff-region-compare-with-b'
         (message "Please select region at first!")))
 
 
-<a id="orgd90858e"></a>
+<a id="orgedc06cf"></a>
 
 ## Narrow or widen region
 
@@ -9848,7 +9765,7 @@ See <https://gist.github.com/mwfogleman/95cc60c87a9323876c6c>
             (t (error "Please select a region to narrow to"))))
 
 
-<a id="org2523f45"></a>
+<a id="orga9dbbfe"></a>
 
 ## Open the `init.org` file
 
@@ -9858,7 +9775,7 @@ See <https://gist.github.com/mwfogleman/95cc60c87a9323876c6c>
       (find-file (concat user-emacs-directory "init.org")))
 
 
-<a id="org2247202"></a>
+<a id="orgd1727e0"></a>
 
 ## Abort minibuffer when it lose focus
 
@@ -9870,7 +9787,7 @@ See <https://gist.github.com/mwfogleman/95cc60c87a9323876c6c>
     (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
 
 
-<a id="org6060755"></a>
+<a id="org0e832b7"></a>
 
 ## Show current buffer full path in minibuffer
 
@@ -9880,7 +9797,7 @@ See <https://gist.github.com/mwfogleman/95cc60c87a9323876c6c>
       (message (buffer-file-name)))
 
 
-<a id="orgb750981"></a>
+<a id="org9d48366"></a>
 
 ## Inline PlantUML image
 
@@ -9920,9 +9837,7 @@ See <https://gist.github.com/mwfogleman/95cc60c87a9323876c6c>
 
 ## KeyBindings
 
-Using The table below as the source for generating [Recipes Bindings](#orge0c25f8)
-
-<table id="org4576988" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgdd01a2b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -9948,247 +9863,3 @@ Using The table below as the source for generating [Recipes Bindings](#orge0c25f
 </tr>
 </tbody>
 </table>
-
-
-<a id="orgdd93d12"></a>
-
-# Bindings
-
-Generate all the bindings here.
-
-
-<a id="org6758453"></a>
-
-## Setup
-
-    (require 'general)
-    (general-evil-setup t)
-
-
-<a id="orgbf7bb3d"></a>
-
-### Leader key
-
-    (general-create-definer qq-leader-def
-      :prefix "SPC"
-      :global-prefix "C-SPC")
-
-
-<a id="org352b1c5"></a>
-
-### Macros
-
-    (general-define-key
-     :keymaps 'override
-
-    (qq-leader-def
-    :keymaps 'normal
-
-    (qq-leader-def
-    :keymaps 'visual
-
-    (general-def 'normal
-
-    (general-def 'motion
-
-    (general-def 'visual
-
-
-<a id="orgc4e1646"></a>
-
-## Basic Bindings
-
-Generate binding using table from [here](#default-key-binding)
-
-
-<a id="orgff628be"></a>
-
-## Vterm Bindings
-
-Generate binding using table from [here](#global-vterm-binding)
-
-
-<a id="org95d9aa4"></a>
-
-## Evil Bindings
-
-
-<a id="org3a3e6bd"></a>
-
-### Start
-
-
-<a id="org241c808"></a>
-
-### Evil Global Bindings
-
-Generate binding using table from [here](#evil-global-binding)
-
-
-<a id="orga43a484"></a>
-
-### Evil Normal Bindings
-
-Generate binding using table from [here](#evil-normal-binding)
-
-
-<a id="org64a53e4"></a>
-
-### Evil Motion Bindings
-
-Generate binding using table from [here](#evil-motion-binding)
-
-
-<a id="orgf02c84f"></a>
-
-### Evil Visual Bindings
-
-Generate binding using table from [here](#evil-visual-binding)
-
-
-<a id="org1f5b92c"></a>
-
-### Evil Ex Bindings
-
-Generate binding using table from [here](#evil-ex-binding)
-
-
-<a id="orgacb9f4d"></a>
-
-### Evil BS Bindings
-
-Generate binding using table from [here](#evil-bs-binding)
-
-
-<a id="orgdd0452e"></a>
-
-### Normal Leader Bindings
-
-1.  Start
-
-2.  Evil Leader Bindings
-
-    Generate binding using table from [here](#evil-leader-binding)
-
-3.  Evil Magit Bindings
-
-    Generate binding using table from [here](#evil-magit-binding)
-
-4.  Normal Selectrum Bindings
-
-    Generate binding using table from [here](#normal-selectrum-binding)
-
-5.  Normal LSP Bindings
-
-    Generate binding using table from [here](#normal-lsp-binding)
-
-6.  End
-
-
-<a id="org8c64c7a"></a>
-
-### Visual Leader Bindings
-
-1.  Start
-
-2.  Visual Selectrum Bindings
-
-    Generate binding using table from [here](#visual-selectrum-binding)
-
-3.  End
-
-
-<a id="org6bb23df"></a>
-
-### Evil iBuffer Bindings
-
-Generate binding using table from [here](#evil-ibuffer-binding)
-
-
-<a id="org91b7e92"></a>
-
-### Evil Projectile Bindings
-
-Generate binding using table from [here](#evil-projectile-binding)
-
-
-<a id="org1e58e4f"></a>
-
-### Evil CC Mode Bindings
-
-Generate binding using table from [here](#evil-cc-mode-binding)
-
-
-<a id="org3b383b2"></a>
-
-### Evil Ag Bindings
-
-Generate binding using table from [here](#evil-ag-binding)
-
-
-<a id="org98c7814"></a>
-
-### Evil Dired Bindings
-
-Generate binding using table from [here](#evil-dired-binding)
-
-
-<a id="org1975cda"></a>
-
-### Evil Org Bindings
-
-Generate binding using table from [here](#evil-org-binding)
-
-
-<a id="org02fae4c"></a>
-
-### End
-
-
-<a id="orgc3db5ea"></a>
-
-## Selectrum Map Bindings
-
-Generate binding using table from [here](#selectrum-map-binding)
-
-
-<a id="orgc017d01"></a>
-
-## PDFTools Bindings
-
-Binding code generation for [this](#pdftools-bindings) table
-
-
-<a id="orgb00af40"></a>
-
-## Persp-mode Bindings
-
-Binding code generation for [this](#persp-key-binding) table
-
-
-<a id="org9088852"></a>
-
-## Org Mode Bindings
-
-`org_keys` table is [here](#orgmode-key-binding).
-
-
-<a id="orge0c25f8"></a>
-
-## Recipes Bindings
-
-`recipes_keys` table is [here](#recipes-binding).
-
-
-<a id="org77daf65"></a>
-
-## Company Bindings
-
-Binding code generation for [this](#company-binding) table
-
-
-<a id="orgd2f5b0a"></a>
-
-## Undo-tree Bindings
-
-Generate binding using table from [here](#undo-tree-binding)
