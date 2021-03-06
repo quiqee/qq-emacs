@@ -518,7 +518,6 @@ required from *emacs*.
    create custom macros.
 
    #+BEGIN_SRC emacs-lisp
-     (require 'bind-key)
      (defmacro bind (&rest commands)
        "Convience macro which creates a lambda interactive command."
        `(lambda ()
@@ -568,7 +567,7 @@ required from *emacs*.
                                     (format "evil-ex-define-cmd \"%s\"" key))
                                    ((string= (format "%s" key) "[escape]")
                                     (format "bind-key %s" key))
-                                   (t (format "bind-key \"%s\"" key))))
+                                   (t (format "general-define-key \"%s\"" key))))
                         (command (car (last l))))
                    (if usemap
                        (princ (format "(%s %s %s)\n" def command map))
@@ -615,13 +614,6 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (defvar qq/ccls-binary "/usr/bin/ccls")
-   #+end_src
-
-**** Swift =sourcekit-lsp=
-
-   #+begin_src emacs-lisp
-     (setq qq/swift-toolchain-path "/Library/Developer/Toolchains/swift-latest.xctoolchain")
-     (setq qq/swift-lsp-executable "~/LocalDocuments/Projects/sourcekit-lsp/.build/debug/sourcekit-lsp")
    #+end_src
 
 **** Shell program
@@ -717,13 +709,6 @@ required from *emacs*.
      (defvar qq/serial-port1 "/dev/cu.usbserial-FTXKVR0Q")
    #+end_src
 
-**** Swift =sourcekit-lsp=
-
-   #+BEGIN_SRC emacs-lisp
-     (setq qq/swift-toolchain-path "/Library/Developer/Toolchains/swift-latest.xctoolchain")
-     (setq qq/swift-lsp-executable "~/Documents/Projects/sourcekit-lsp/.build/debug/sourcekit-lsp")
-   #+END_SRC
-
 **** Fulscreen setting
 
    #+begin_src emacs-lisp
@@ -810,26 +795,6 @@ required from *emacs*.
      (setq dired-use-ls-dired nil)
    #+end_src
 
-**** Get keychain password
-   If I’m on OS X, I can fetch passwords etc. from my Keychain. This is much
-   more secure than storing them in configuration on disk:
-
-   #+begin_src emacs-lisp
-     (defun qq/chomp (str)
-       "Chomp leading and tailing whitespace from `str'."
-       (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'" str)
-         (setq str (replace-match "" t t str))) str)
-
-     (defun qq/get-keychain-password (account-name)
-       "Get `account-name' keychain password from OS X Keychain"
-       (interactive "sAccount name: ")
-       (when (executable-find "security")
-         (qq/chomp
-          (shell-command-to-string
-           (concat
-            "security find-generic-password -wa "
-            account-name)))))
-   #+end_src
 **** End
    #+BEGIN_SRC emacs-lisp
      ))
@@ -1509,17 +1474,6 @@ j*** Local =compile-command=
                          :foreground "#000000"
                          :background "#ff6347"))))
    #+END_SRC
-***** powerline
-   #+BEGIN_SRC emacs-lisp
-         `(powerline-inactive1  ((t (
-                         :background "#1D2021"
-                         :foreground "#a89984"
-                         :inherit mode-line-inactive))))
-         `(powerline-inactive2  ((t (
-                         :background "#504945"
-                         :forground "#a89984"
-                         :inherit mode-line-inactive))))
-   #+END_SRC
 ***** which-func-mode
    #+BEGIN_SRC emacs-lisp
          '(which-func  ((t (:foreground "#87d7af"))))
@@ -1556,7 +1510,7 @@ j*** Local =compile-command=
      (require 'minions)
      (minions-mode 1)
      (after minions-mode
-       (minions-mode-line-lighter ""))
+       (setq minions-mode-line-lighter ""))
    #+END_SRC
 
 **** Filename display mode
@@ -1996,15 +1950,6 @@ j*** Local =compile-command=
    #+BEGIN_SRC emacs-lisp
      (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
    #+END_SRC
-**** Changing some =Ediff= key bindings
-   #+BEGIN_SRC emacs-lisp
-     (defun qq/ediff-hook ()
-       (ediff-setup-keymap)
-       (define-key ediff-mode-map "j" 'ediff-next-difference)
-       (define-key ediff-mode-map "k" 'ediff-previous-difference))
-
-     (add-hook 'ediff-mode-hook 'qq/ediff-hook)
-   #+END_SRC
 **** Restoring the windows after =Ediff= quits
    #+BEGIN_SRC emacs-lisp
      (winner-mode)
@@ -2122,23 +2067,26 @@ Don't backup su and sudo files
 **** Choose between two filter group options
 
    #+BEGIN_SRC emacs-lisp
-         (defvar qq/ibuffer-use-vc-groups t
-           "Use filter groups detected from vc root when non-nil.
-     This will be done with `ibuffer-vc-set-filter-groups-by-vc-root'
-     If this is nil, then filter groups will be restored from `ibuffer-saved-filter-groups'.")
+     (defvar qq/ibuffer-use-vc-groups t
+       "Use filter groups detected from vc root when non-nil.
+                This will be done with `ibuffer-vc-set-filter-groups-by-vc-root'
+                If this is nil, then filter groups will be restored from `ibuffer-saved-filter-groups'.")
 
-         (defun qq/ibuffer-setup ()
-           "Configure ibuffer the way I want it.
-     This sets `ibuffer-auto-mode' and restores the chosen filter group settings,
-     according to the values of `qq/ibuffer-use-vc-groups' and
-     `ibuffer-saved-filter-groups'."
-           (ibuffer-auto-mode 1)
-           (hl-line-mode t)
-           (if qq/ibuffer-use-vc-groups
-               (ibuffer-vc-set-filter-groups-by-vc-root)
-             (ibuffer-switch-to-saved-filter-groups "default")))
+     (autoload 'ibuffer-auto-mode "ibuf-ext.el" nil t)
+     (autoload 'ibuffer-switch-to-saved-filter-groups "ibuf-ext.el" nil t)
+     (defun qq/ibuffer-setup ()
+       "Configure ibuffer the way I want it.
+                This sets `ibuffer-auto-mode' and restores the chosen filter group settings,
+                according to the values of `qq/ibuffer-use-vc-groups' and
+                `ibuffer-saved-filter-groups'."
+       (add-to-list 'ibuffer-never-show-predicates "^\\*")
+       (ibuffer-auto-mode 1)
+       (hl-line-mode t)
+       (if qq/ibuffer-use-vc-groups
+           (ibuffer-vc-set-filter-groups-by-vc-root)
+         (ibuffer-switch-to-saved-filter-groups "default")))
 
-         (add-hook 'ibuffer-mode-hook 'qq/ibuffer-setup)
+     (add-hook 'ibuffer-mode-hook 'qq/ibuffer-setup)
    #+END_SRC
 
 **** Keybinding
@@ -2162,6 +2110,7 @@ Don't backup su and sudo files
       | d         |                       | 'ibuffer-mark-for-delete              |
       | C-d       |                       | 'ibuffer-mark-for-delete-backwards    |
       | x         |                       | 'ibuffer-do-kill-on-deletion-marks    |
+      | q         |                       | 'quit-window                          |
 ***** Links: [[Evil iBuffer Bindings][Evil iBuffer Bindings]]                           :ignore:
 *** Minibuffer
 **** Enable paredit in lisp related minibuffer
@@ -2265,6 +2214,8 @@ Use conf-mode for git config files
 **** Settings
 
    #+BEGIN_SRC emacs-lisp
+     (autoload 'undo-tree-save-history-hook "undo-tree.el" nil t)
+     (autoload 'undo-tree-load-history-hook "undo-tree.el" nil t)
      (setq
            undo-tree-visualizer-timestamps t            ; show timestamps
            undo-tree-visualizer-diff t                  ; show diff
@@ -2544,6 +2495,7 @@ Use conf-mode for git config files
    #+begin_src emacs-lisp
      (require 'selectrum)
      (selectrum-mode +1)
+     (autoload 'prescient-persist-mode "prescient.el" nil t)
    #+end_src
 
    To make sorting and filtering more intelligent
@@ -2798,6 +2750,7 @@ kill unused buffers in the background
        (require feature))
      (when (require 'evil-collection nil t)
        (evil-collection-init 'info)
+       (evil-collection-init 'ediff)
        (evil-collection-init 'help)
        (evil-collection-init 'custom)
        (evil-collection-init 'minibuffer)
@@ -2826,27 +2779,16 @@ kill unused buffers in the background
 
    #+BEGIN_SRC emacs-lisp
      (after 'evil-quickscope
-         (setq evil-quickscope-word-separator " -./")
-         (set-face-attribute 'evil-quickscope-first-face nil
-                             :inherit nil)
+       (setq evil-quickscope-word-separator " -./")
+       (set-face-attribute 'evil-quickscope-first-face nil
+                           :inherit nil)
 
-         (if (display-graphic-p)
-             (set-face-attribute 'evil-quickscope-second-face nil
-                                 :underline '(:style wave)
-                                 :inherit nil)
+       (if (display-graphic-p)
            (set-face-attribute 'evil-quickscope-second-face nil
-                               :inherit nil))
-
-         (defun nadvice/evil-quickscope-update-overlays-bidirectional ()
-           "Update overlays in both directions from point."
-           (evil-quickscope-remove-overlays)
-           (when (memq evil-state '(normal motion))
-             (evil-quickscope-apply-overlays-forward)
-             (evil-quickscope-apply-overlays-backward)))
-
-         (advice-add 'evil-quickscope-update-overlays-bidirectional
-                     :override
-                     #'nadvice/evil-quickscope-update-overlays-bidirectional))
+                               :underline '(:style wave)
+                               :inherit nil)
+         (set-face-attribute 'evil-quickscope-second-face nil
+                             :inherit nil)))
 
      (global-evil-quickscope-always-mode +1)
    #+END_SRC
@@ -3587,13 +3529,6 @@ Git-gutter doesn’t play nice with TRAMP remotes
    #+BEGIN_SRC emacs-lisp
      ;; show details to play `git blame' game
      (setq git-messenger:show-detail t)
-     (add-hook 'git-messenger:after-popup-hook
-               (lambda (msg)
-                 ;; extract commit id and put into the kill ring
-                 (when (string-match "\\(commit *: *\\)\\([0-9a-z]+\\)" msg)
-                   (copy-yank-str (match-string 2 msg))
-                   (message "commit hash %s => clipboard & kill-ring" (match-string 2 msg))
-                   )))
    #+END_SRC
 
 *** Keybinding
@@ -3687,6 +3622,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 *** Lsp-UI
    #+BEGIN_SRC emacs-lisp
+     (autoload 'lsp-ui-doc-show "lsp-ui-doc.el" nil t)
      (add-hook 'lsp-mode-hook 'lsp-ui-mode)
      (after 'lsp-ui-mode
 
@@ -3702,8 +3638,6 @@ Git-gutter doesn’t play nice with TRAMP remotes
              lsp-ui-peek-list-width 60
              lsp-ui-peek-peek-height 25
              lsp-ui-sideline-show-hover t)
-       ;(setq lsp-ui-sideline-enable t)
-       ;(setq lsp-ui-doc-position 'bottom)
        (lsp-ui-doc-show))
    #+END_SRC
 *** Normal Keybinding
@@ -3811,6 +3745,7 @@ my collection of org-ellipsis candidate symbols
    #+BEGIN_SRC emacs-lisp
      org-superstar-remove-leading-stars t
      org-hide-leading-stars t
+     org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")
    #+END_SRC
 ***** Image
    The GUI Emacs has the ability to display images. But if the image is pretty
@@ -4186,7 +4121,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
    #+BEGIN_SRC emacs-lisp
      (org-superstar-mode 1)
-     (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
      #+END_SRC
 ***** Enable =writegood-mode=
 
@@ -4332,21 +4266,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (setq org-confirm-babel-evaluate nil)
    #+END_SRC
 
-**** Clojure support
-
-   #+BEGIN_SRC emacs-lisp
-     (add-to-list 'org-babel-tangle-lang-exts '("clojure" . "clj"))
-
-     (defvar org-babel-default-header-args:clojure
-       '((:results . "silent") (:tangle . "yes")))
-
-     (defun org-babel-execute:clojure (body params)
-       (lisp-eval-string body)
-       "Done!")
-
-     (provide 'ob-clojure)
-   #+END_SRC
-
 **** Display inline image after execution
 
    #+BEGIN_SRC emacs-lisp
@@ -4461,6 +4380,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    taken from [[https://github.com/emacs-evil/evil-collection][evil-collection]]
 
    #+begin_src emacs-lisp
+     (autoload 'pdf-view-next-line-or-next-page "pdf-view.el" nil t)
+     (autoload 'pdf-view-previous-line-or-previous-page "pdf-view.el" nil t)
+     (autoload 'pdf-view-goto-page "pdf-view.el" nil t)
+     (autoload 'pdf-view-last-page "pdf-view.el" nil t)
+     (autoload 'pdf-view-first-page "pdf-view.el" nil t)
+     (autoload 'pdf-view-midnight-minor-mode "pdf-view.el" nil t)
      (evil-set-initial-state 'pdf-view-mode 'normal)
 
      (defun qq-pdf-view-next-line-or-next-page (&optional count)
@@ -4634,6 +4559,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | ,     |             | 'projectile-find-file                                                      |
 **** Links: [[Evil Projectile Bindings][Evil Projectile Bindings]]                                      :ignore:
 ** Persp-mode
+*** Init
+   #+begin_src emacs-lisp
+    (with-eval-after-load "persp-mode-autoloads"
+      (setq wg-morph-on nil) ;; switch off animation
+      (setq persp-autokill-buffer-on-remove 'kill-weak)
+      (add-hook 'window-setup-hook #'(lambda () (persp-mode 1))))
+   #+end_src
 *** Settings
    #+begin_src emacs-lisp
      (setq wg-morph-on nil ;; switch off animation
@@ -4680,22 +4612,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (with-eval-after-load "persp-mode"
        (substitute-key-definition #'switch-to-buffer #'persp-switch-to-buffer global-map)
        (substitute-key-definition #'kill-buffer #'persp-kill-buffer global-map))
-   #+end_src
-
-*** Auto perspective for dired
-
-   #+begin_src emacs-lisp
-     (with-eval-after-load "persp-mode-autoload"
-       (with-eval-after-load "dired"
-         (def-auto-persp "dired"
-           :parameters '((dont-save-to-file . t))
-           :mode dired-mode
-           :dyn-env (after-switch-to-buffer-functions ;; prevent recursion
-                     (persp-add-buffer-on-find-file nil)
-                     persp-add-buffer-on-after-change-major-mode)
-           :hooks (after-switch-to-buffer-functions)
-           :after-match #'(lambda (p b h ha)
-                            (persp-window-switch (safe-persp-name p))))))
    #+end_src
 
 *** Keybindings
@@ -4861,6 +4777,8 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
    #+begin_src emacs-lisp
      (setq term-buffer-maximum-size (lsh 1 14))
+     (autoload 'term-send-raw-string "term.el" nil t)
+     (autoload 'term-send-string "term.el" nil t)
 
      (eval-after-load 'term
        '(progn
@@ -4882,6 +4800,10 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        (goto-address-mode 1))
      (add-hook 'term-mode-hook #'my-term-mode-hook)
    #+end_src
+
+   #+RESULTS:
+   | (closure (t) nil (define-key term-mode-map (kbd C-c C-j) 'term-char-mode) (define-key term-raw-map (kbd C-c C-j) 'term-line-mode)) | my-term-mode-hook | qq/term-hook | (closure (t) nil (setq indicate-empty-lines nil indicate-buffer-boundaries nil)) |
+
 *** Serial terminal
 **** For serial port, default to 115200 b/s instead of 9600
 
@@ -5017,6 +4939,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 ** VTerm
 *** Settings
    #+BEGIN_SRC emacs-lisp
+     (autoload 'multi-vterm "multi-vterm.el" nil t)
      (setq vterm-kill-buffer-on-exit t)
    #+END_SRC
 
@@ -5528,6 +5451,7 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
    Emacs sh-mode doesn’t automatically associate *.zsh with zsh. This enables that. It also enables it for a few other zsh-related files.
 
    #+BEGIN_SRC emacs-lisp
+     (autoload 'sh-set-shell "sh-script.el" nil t)
      ;; Files ending in .zsh
      (add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
      ;; zsh startup files
@@ -5627,6 +5551,8 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
    [[http://stackoverflow.com/questions/944614/emacs-does-hideshow-work-with-xml-mode-sgml-mode]]
 
    #+BEGIN_SRC emacs-lisp
+     (autoload 'hs-show-block "hideshow.el" nil t)
+     (autoload 'hs-hide-level "hideshow.el" nil t)
      (add-to-list 'hs-special-modes-alist
                   '(nxml-mode
                     "<!--\\|<[^/>]*[^/]>" ;; regexp for start block
@@ -6198,14 +6124,16 @@ Generate binding using table from [[#evil-leader-binding][here]]
    Binding code generation for [[#company-binding][this]] table
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-keys(mmap="mvar", mvar="company-active-map", tname=company_keys)>>
+     <<gen-fix(pre="general-define-key\n :keymaps 'company-active-map")>>
+     <<gen-keys(moda="lead", tname=company_keys)>>
+     <<gen-fix(pos=")\n")>>
    #+END_SRC
 
 ** Undo-tree Bindings
    Generate binding using table from [[#undo-tree-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="eval-after-load 'undo-tree\n'(with-no-warnings")>>
-     <<gen-keys(mmap="mvar", mvar="undo-tree-visualizer-mode-map", tname=undo_tree_keys)>>
-     <<gen-fix(pos="))\n")>>
+     <<gen-fix(pre="eval-after-load 'undo-tree\n'(with-no-warnings\n(general-define-key\n :states 'normal\n :keymaps 'undo-tree-visualizer-mode-map")>>
+     <<gen-keys(moda="lead", tname=undo_tree_keys)>>
+     <<gen-fix(pos=")))\n")>>
    #+END_SRC
