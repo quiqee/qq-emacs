@@ -4,6 +4,7 @@
 
 shopt -s nocasematch nullglob # using Bash
 EMACS=emacs
+EMACS_DIR=$HOME/.emacs.d
 
 dotfiles=${0%/*}
 dotfiles_abs=$(cd $dotfiles && pwd -L)
@@ -57,15 +58,19 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 fi
 ln -sf $(pwd)/Xresources $HOME/.Xresources
 
-mkdir -p ~/.emacs.d/elisp
-mkdir -p ~/.emacs.d/extern/org
-mkdir -p ~/.emacs.d/bin
-mkdir -p ~/.emacs.d/.cache/themes
+mkdir -p $EMACS_DIR/elisp
+mkdir -p $EMACS_DIR/extern/org
+mkdir -p $EMACS_DIR/bin
+mkdir -p $EMACS_DIR/.cache/themes
 
-curl -L https://sourceforge.net/projects/plantuml/files/1.2021.1/plantuml.1.2021.1.jar/download > ~/.emacs.d/extern/org/platuml.jar
+echo -n "** installing planuml.jar"
+(
+curl -L https://sourceforge.net/projects/plantuml/files/1.2021.1/plantuml.1.2021.1.jar/download > $EMACS_DIR/extern/org/platuml.jar  >> /dev/null 2>&1
+) || exit 1
+echo " ... done"
 
-ln -sf $(pwd)/init.org $HOME/.emacs.d/init.org
-ln -sf $(pwd)/quickbeans-theme.el $HOME/.emacs.d/.cache/themes/quickbeans-theme.el
+ln -sf $(pwd)/init.org $EMACS_DIR/init.org
+ln -sf $(pwd)/quickbeans-theme.el $EMACS_DIR/.cache/themes/quickbeans-theme.el
 
 update_bzr_lib() {
     path=$1
@@ -86,7 +91,7 @@ update_bzr_lib() {
     echo " ... done"
 }
 #update_bzr_lib \
-#    ".emacs.d/extern/cedet" "bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk/"
+#    "${EMACS_DIR}/extern/cedet" "bzr://cedet.bzr.sourceforge.net/bzrroot/cedet/code/trunk/"
 
 clone_git_repo() {
     # Some tools are self-updating, so we don't import them as submodules, instead just clone
@@ -107,11 +112,11 @@ clone_git_repo() {
         echo " ... done"
     fi
 }
-#clone_git_repo ".emacs.d/extern/cask" "https://github.com/cask/cask.git"
+#clone_git_repo "${EMACS_DIR}/extern/cask" "https://github.com/cask/cask.git"
 
 echo -n "** Generating Emacs' script files"
 (
-cat > ~/.emacs.d/bin/upgrade.el <<- EOM
+cat > $EMACS_DIR/bin/upgrade.el <<- EOM
 (setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
    package-user-dir (concat user-emacs-directory ".cache/elpa/"))
 (setq package-archives
@@ -124,28 +129,11 @@ cat > ~/.emacs.d/bin/upgrade.el <<- EOM
 (package-menu-mark-upgrades)
 (package-menu-execute t)
 EOM
-cat > ~/.emacs.d/bin/compile.el <<- EOM
-(setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
-   package-user-dir (concat user-emacs-directory ".cache/elpa/"))
-(package-initialize)
-(require 'org-install)
-(require 'ob-tangle)
-(require 'alert)
-(setq org-confirm-babel-evaluate nil)
-(org-babel-tangle-file "$(pwd)/init.org")
-(cond
- ((string-equal system-type "darwin") ; Mac OS X
-  (setq alert-default-style 'osx-notifier))
- ((string-equal system-type "gnu/linux") ; linux
-    (setq alert-default-style 'libnotify)))
-
-(alert "Finish tangling 'init.org'" :title "Emacs")
-EOM
-cat > ~/.emacs.d/bin/tangle <<- EOM
+cat > $EMACS_DIR/bin/tangle <<- EOM
 #!/bin/bash
-$EMACS --script ~/.emacs.d/bin/compile.el >> /dev/null 2>&1 && mv $(pwd)/init.el ~/.emacs.d/
+$EMACS --script ${EMACS_DIR}/bin/compile.el >> /dev/null 2>&1 && $EMACS --script ${EMACS_DIR}/bin/package.el >> /dev/null 2>&1
 EOM
-chmod +x ~/.emacs.d/bin/tangle
+chmod +x ${EMACS_DIR}/bin/tangle
 $EMACS --batch --eval="(require 'org-install)" \
     --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
@@ -155,13 +143,12 @@ echo " ... done"
 
 echo "** Installing Emacs' packages"
 (
-$EMACS -q --script ~/.emacs.d/bin/packages.el
+yes | $EMACS -q --script $EMACS_DIR/bin/packages.el
 ) || exit 1
 echo " "
 
 echo -n "** Compiling init.el"
 (
-mv init.el ~/.emacs.d/
-$EMACS --batch --eval='(progn (package-initialize) (byte-compile-file "~/.emacs.d/init.el"))' >> /dev/null 2>&1
+$EMACS --batch --eval="(progn (package-initialize) (byte-compile-file \"$EMACS_DIR/init.el\"))"
 ) || exit 1
 echo " ... done"

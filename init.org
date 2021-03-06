@@ -1,7 +1,7 @@
 #+BABEL: :cache yes
 #+LATEX_HEADER: \usepackage{parskip}
 #+LATEX_HEADER: \usepackage{inconsolata}
-#+PROPERTY: header-args :output-dir ~/.emacs.d/ :tangle yes
+#+PROPERTY: header-args :tangle ~/.emacs.d/init.el
 #+STARTUP: fold
 #+DATE:  <2016-01-25 Mon>
 
@@ -122,6 +122,45 @@ It will be faster to disable them here before they've been initialized.
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (provide 'early-init)
    #+END_SRC
+*** Compile
+   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/bin/compile.el
+     (defcustom qq/cache-directory
+       (concat user-emacs-directory ".cache/")
+       "The storage location for various persistent files."
+       :type '(string)
+       :group 'qq)
+     (when (boundp 'comp-eln-load-path)
+       (let ((eln-cache-dir (expand-file-name "eln-cache/" qq/cache-directory))
+             (find-exec (executable-find "find")))
+         (setcar comp-eln-load-path eln-cache-dir)
+         ;; Quitting emacs while native compilation in progress can leave zero byte
+         ;; sized *.eln files behind. Hence delete such files during startup.
+         (when find-exec
+           (call-process find-exec nil nil nil eln-cache-dir
+                         "-name" "*.eln" "-size" "0" "-delete"))))
+     (setq quelpa-dir (concat user-emacs-directory ".cache/quelpa/")
+           package-user-dir (concat user-emacs-directory ".cache/elpa/"))
+     (package-initialize)
+     (require 'org-install)
+     (require 'ob-tangle)
+     (require 'alert)
+     (setq org-confirm-babel-evaluate nil)
+     (org-babel-tangle-file "~/.emacs.d/init.org")
+     (let ((tangled-file "~/.emacs.d/init.el"))
+       (if (byte-compile-file tangled-file)
+           (progn (when (featurep 'nativecomp)
+                    (setq msg-result-output (format "Native compiled %s" (file-name-nondirectory (native-compile tangled-file)))))
+                  (setq msg-result-output (format "%s\nTangled and compiled %s" msg-result-output tangled-file)))
+         (setq msg-result-output (format "Error trying to compile %s" tangled-file))))
+     (cond
+      ((string-equal system-type "darwin") ; Mac OS X
+       (setq alert-default-style 'osx-notifier))
+      ((string-equal system-type "gnu/linux") ; linux
+       (setq alert-default-style 'libnotify)))
+
+     (alert msg-result-output :title "Emacs")
+   #+END_SRC
+
 *** Packages
    List of packages used through out this configuration.
 
@@ -138,7 +177,7 @@ It will be faster to disable them here before they've been initialized.
            (eval-buffer)
            (quelpa-self-upgrade))))
 
-     ; find package information from following archives
+                                             ; find package information from following archives
      (setq package-archives (quote (("gnu" . "http://elpa.gnu.org/packages/")
                                     ("org" . "https://orgmode.org/elpa/")
                                     ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
@@ -155,10 +194,11 @@ It will be faster to disable them here before they've been initialized.
                      (let* ((inhibit-message t))
                        (quelpa package)))
                    (if (package-installed-p (or ret package))
-                       (message "✓ Installed %s" (or ret package))
+                       (progn (setq qq/package-installed t)
+                              (message "✓ Installed %s" (or ret package)))
                      (error "✕ Couldn't install %s" (or ret package))))))
 
-             ; list of packages to be installed
+                                             ; list of packages to be installed
              '(
                ;; Tools
                exec-path-from-shell
@@ -180,27 +220,26 @@ It will be faster to disable them here before they've been initialized.
                org-superstar                 ; show org bullet as Unicode character
                org-cliplink
                ob-napkin
-               ;org-pdfview
-               ;org-sidebar
-               ;paredit                       ; minor mode for editing parentheses
+                                             ;org-pdfview
+                                             ;org-sidebar
+                                             ;paredit                       ; minor mode for editing parentheses
                popwin                        ; popup window manager
                                              ;(depends-on "pretty-lambdada")
                rainbow-delimiters
-               ;smart-mode-line
+                                             ;smart-mode-line
                smartparens                   ; Minor mode for Emacs that deals with parens pairs
                smart-tabs-mode               ; provide semantic way of using tab in source code
                smex                          ; M-x interface with Ido-style fuzzy matching.
 
                vterm
                multi-vterm
-               sr-speedbar
                volatile-highlights
                wgrep-ag
                xcscope
                yasnippet                     ; snippet tools for emacs
 
                ;; UI Enhancement
-               ;window-numbering
+                                             ;window-numbering
                amx
                default-text-scale
 
@@ -220,7 +259,7 @@ It will be faster to disable them here before they've been initialized.
                swift-mode
                modern-cpp-font-lock
 
-               ;emojify
+                                             ;emojify
 
                fasd
                (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
@@ -243,8 +282,7 @@ It will be faster to disable them here before they've been initialized.
                company
                company-box
                company-posframe
-               company-sourcekit
-               ;company-emoji
+               company-emoji
                company-math
                company-quickhelp
                company-flx
@@ -275,7 +313,7 @@ It will be faster to disable them here before they've been initialized.
                lsp-ui
                lsp-treemacs
                ccls
-               ;lsp-sourcekit
+                                             ;lsp-sourcekit
                vlf
                git-timemachine
                ggtags
@@ -291,7 +329,6 @@ It will be faster to disable them here before they've been initialized.
                ag
                                              ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
                auto-compile                  ; automatically compile Emacs Lisp libraries
-               bind-key                      ; a simple way to manage personal keybindings
                color-identifiers-mode        ; gives colors to unique variables passed into functions
 
                diff-hl
@@ -337,6 +374,7 @@ It will be faster to disable them here before they've been initialized.
                flycheck                      ; on-the-fly syntax checking
                ggtags
                which-key
+               ws-butler
 
                hungry-delete
                idle-highlight-mode           ; sets an idle timer that highlights all
@@ -354,6 +392,15 @@ It will be faster to disable them here before they've been initialized.
                git-messenger
 
                ))
+     (cond
+      ((string-equal system-type "darwin") ; Mac OS X
+       (setq alert-default-style 'osx-notifier))
+      ((string-equal system-type "gnu/linux") ; linux
+       (setq alert-default-style 'libnotify)))
+
+     (when (boundp 'qq/package-installed)
+       (require 'alert)
+       (alert "package installation done" :title "Emacs"))
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -425,9 +472,6 @@ Convenient macro to allow processing after checking existing pre-condition
      (add-hook 'org-babel-pre-tangle-hook #'qq/double-gc-cons-threshold)
      (add-hook 'org-babel-post-tangle-hook #'qq/set-gc-cons-threshold)
    #+END_SRC
-
-   #+RESULTS:
-   : byte-compile-file
 
    To export to other format, just press =C-c C-e=, which will display further
    option to choose output format like HTML, PDF or LaTeX.
@@ -686,12 +730,6 @@ required from *emacs*.
      (setq qq/fullscreen-max t)
    #+end_src
 
-**** Company-Sourcekit
-
-   #+BEGIN_SRC emacs-lisp
-     (after 'company
-       (add-to-list 'company-backends 'company-sourcekit))
-   #+END_SRC
 **** Gerrit Identitiy
     Used by =company-c-headers=. left empty as gerrit is not used @home
 
@@ -1572,7 +1610,7 @@ j*** Local =compile-command=
      (--set-emoji-font nil)
      ;; Hook for when a frame is created with emacsclient
      ;; see https://www.gnu.org/software/emacs/manual/html_node/elisp/Creating-Frames.html
-     ;(add-hook 'after-make-frame-functions '--set-emoji-font)
+     (add-hook 'after-make-frame-functions '--set-emoji-font)
    #+END_SRC
 
 *** Fix italics
@@ -2759,13 +2797,13 @@ kill unused buffers in the background
                      ))
        (require feature))
      (when (require 'evil-collection nil t)
-       (evil-collection-init 'compile)
        (evil-collection-init 'info)
        (evil-collection-init 'help)
        (evil-collection-init 'custom)
        (evil-collection-init 'minibuffer)
        (evil-collection-init 'flycheck)
        (evil-collection-init 'package-menu)
+       (evil-collection-init 'proced)
        (evil-collection-init 'xref)
        (evil-collection-init 'which-key)
        (evil-collection-init 'magit))
@@ -2965,7 +3003,7 @@ kill unused buffers in the background
                 ;(weibo-post-mode . emacs)
                 ;(sr-mode . emacs)
                 (dired-mode . normal)
-                ;(compilation-mode . emacs)
+                (compilation-mode . normal)
                 ;(js2-error-buffer-mode . emacs)
                 (speedbar-mode . emacs)
                 (package-menu-mode . normal)
@@ -3146,14 +3184,29 @@ kill unused buffers in the background
     :CUSTOM_ID: evil-bs-binding
     :END:
    #+TBLNAME: evil_bs_keys
-      | Combo | Mode        | Evil Mode | Description | Command             |
-      | h     | bs-mode-map | normal    |             | 'evil-backward-char |
-      | q     | bs-mode-map | normal    |             | 'bs-abort           |
-      | j     | bs-mode-map | normal    |             | 'bs-down            |
-      | k     | bs-mode-map | normal    |             | 'bs-up              |
-      | l     | bs-mode-map | normal    |             | 'evil-forwared-char |
-      | RET   | bs-mode-map | normal    |             | 'bs-select          |
+      | Combo | Description | Command             |
+      | h     |             | 'evil-backward-char |
+      | q     |             | 'bs-abort           |
+      | j     |             | 'bs-down            |
+      | k     |             | 'bs-up              |
+      | l     |             | 'evil-forwared-char |
+      | RET   |             | 'bs-select          |
 ***** Links: [[Evil BS Bindings][Evil BS Bindings]] :ignore:
+**** Compilation Buffer Binding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-compile-bufer
+    :END:
+   #+TBLNAME: evil_compile_keys
+      | Combo | Description                           | Command                     |
+      | r     |                                       | 'recompile                  |
+      | TAB   |                                       | 'compilation-next-error     |
+      | S-TAB |                                       | 'compilation-previous-error |
+      | RET   | Jump to the error line in source code | 'compile-goto-error         |
+      | C-j   | Navigate cursor to the lower window   | 'windmove-down              |
+      | C-k   | Navigate cursor to the upper window   | 'windmove-up                |
+      | [ [   | Jump to error on the previous file    | 'compilation-previous-file  |
+      | ] ]   |                                       | 'compilation-next-file      |
+***** Links: [[Compilation Buffer Map Bindings][Compilation Buffer Map Bindings]]                       :ignore:
 *** Evil-Leader Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-leader-binding
@@ -3256,6 +3309,14 @@ kill unused buffers in the background
 
    #+begin_src emacs-lisp
      (add-hook 'text-mode-hook 'mixed-pitch-mode)
+   #+end_src
+
+** Whitespace Butler
+https://github.com/lewang/ws-butler
+
+   #+begin_src emacs-lisp
+     (require 'ws-butler)
+     (ws-butler-global-mode 1)
    #+end_src
 
 ** Dired
@@ -3748,6 +3809,7 @@ my collection of org-ellipsis candidate symbols
    Remove all the "*" but the last one for [[https://orgmode.org/org.html#Headlines][headline]]
 
    #+BEGIN_SRC emacs-lisp
+     org-superstar-remove-leading-stars t
      org-hide-leading-stars t
    #+END_SRC
 ***** Image
@@ -4124,7 +4186,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
    #+BEGIN_SRC emacs-lisp
      (org-superstar-mode 1)
-     (org-superstar-remove-leading-stars t)
      (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
      #+END_SRC
 ***** Enable =writegood-mode=
@@ -5407,92 +5468,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
       | RET   | c-mode-base-map | insert    |             | 'newline-and-indent  |
       | C-S-f | c-mode-base-map | visual    |             | 'clang-format-region |
 **** Links: [[Evil CC Mode Bindings][Evil CC Mode Bindings]]                                     :ignore:
-** Swift
-*** =lsp-sourcekit=
-
-   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/elisp/lsp-sourcekit.el
-     ;;; lsp-sourcekit.el --- sourcekit-lsp client for lsp-mode     -*- lexical-binding: t; -*-
-
-     ;; Copyright (C) 2018 Daniel Martín
-
-     ;; Author: Daniel Martín
-     ;; Version: 0.1
-     ;; Homepage: https://github.com/emacs-lsp/lsp-sourcekit
-     ;; Package-Requires: ((emacs "25.1") (lsp-mode "5"))
-     ;; Keywords: languages, lsp, swift, objective-c, c++
-
-     ;; Permission is hereby granted, free of charge, to any person obtaining a copy
-     ;; of this software and associated documentation files (the "Software"), to deal
-     ;; in the Software without restriction, including without limitation the rights
-     ;; to use, copy, modify, merge, publish, distribute, sublicense, and-or sell
-     ;; copies of the Software, and to permit persons to whom the Software is
-     ;; furnished to do so, subject to the following conditions:
-
-     ;; The above copyright notice and this permission notice shall be included in
-     ;; all copies or substantial portions of the Software.
-
-     ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-     ;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-     ;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-     ;; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-     ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-     ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-     ;; SOFTWARE.
-     ;;
-     ;;; Commentary:
-
-     ;;
-     ;; Call (lsp) after visiting a file in swift-mode major mode.
-     ;;
-     ;; TODO: Configure the Objective-C/C++ LSP client (requires clangd).
-
-     ;;; Code:
-
-     (require 'lsp)
-
-     ;; ---------------------------------------------------------------------
-     ;;   Customization
-     ;; ---------------------------------------------------------------------
-
-     (defcustom lsp-sourcekit-executable
-       "sourcekit"
-       "Path of the lsp-sourcekit executable."
-       :type 'file
-       :group 'sourcekit)
-
-     (defcustom lsp-sourcekit-extra-args
-       nil
-       "Additional command line options passed to the lsp-sourcekit executable."
-       :type '(repeat string)
-       :group 'sourcekit)
-
-     ;; ---------------------------------------------------------------------
-     ;;  Register lsp client
-     ;; ---------------------------------------------------------------------
-
-     (defun lsp-sourcekit--lsp-command ()
-       "Generate the language server startup command."
-       `(,lsp-sourcekit-executable
-         ,@lsp-sourcekit-extra-args))
-
-     (lsp-register-client
-      (make-lsp-client :new-connection (lsp-stdio-connection 'lsp-sourcekit--lsp-command)
-                       :major-modes '(swift-mode)
-                       :server-id 'sourcekit-ls))
-
-     (provide 'lsp-sourcekit)
-     ;;; lsp-sourcekit.el ends here
-   #+END_SRC
-
-*** Settings
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'lsp-sourcekit)
-     (setenv "SOURCEKIT_TOOLCHAIN_PATH" qq/swift-toolchain-path)
-     (setq lsp-sourcekit-executable (expand-file-name qq/swift-lsp-executable))
-     (add-hook 'swift-mode-hook 'lsp)
-   #+END_SRC
-
 ** Lisp
 
    #+BEGIN_SRC emacs-lisp
@@ -5953,26 +5928,6 @@ Emacs has a command to sort lines, but not to sort words in a region.
        :global-prefix "C-SPC")
    #+END_SRC
 *** Macros
-   #+name: ibuffer_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :states 'normal
-      :keymaps 'ibuffer-mode-map
-   #+end_src
-
-   #+name: selectrum_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :states 'insert
-      :keymaps 'selectrum-minibuffer-map
-   #+end_src
-
-   #+name: vterm_map
-   #+begin_src emacs-lisp :tangle no
-     (general-define-key
-      :keymaps 'vterm-mode-map
-   #+end_src
-
    #+name: gen_emacs
    #+begin_src emacs-lisp :tangle no
      (general-define-key
@@ -6018,7 +5973,7 @@ Emacs has a command to sort lines, but not to sort words in a region.
    Generate binding using table from [[#global-vterm-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<vterm_map>>
+     <<gen-fix(pre="general-define-key\n :keymaps 'vterm-mode-map")>>
      <<gen-keys(moda="lead", tname=vterm_mode_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
@@ -6075,8 +6030,8 @@ Emacs has a command to sort lines, but not to sort words in a region.
    Generate binding using table from [[#evil-bs-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="defadvice bs-mode (before bs-mode-override-keybindings activate)\n (evil-make-overriding-map bs-mode-map 'normal t)")>>
-     <<gen-keys(moda="evil", tname=evil_bs_keys)>>
+     <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'bs-mode-map")>>
+     <<gen-keys(moda="lead", tname=evil_bs_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
@@ -6137,7 +6092,7 @@ Generate binding using table from [[#evil-leader-binding][here]]
    Generate binding using table from [[#evil-ibuffer-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<ibuffer_map>>
+     <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'ibuffer-mode-map")>>
      <<gen-keys(moda="lead", tname=evil_ibuffer_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
@@ -6190,11 +6145,20 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
+** Compilation Buffer Map Bindings
+   Generate binding using table from  [[evil-compile-bufer][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'compilation-mode-map")>>
+     <<gen-keys(moda="lead", tname=evil_compile_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+
 ** Selectrum Map Bindings
    Generate binding using table from [[#selectrum-map-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<selectrum_map>>
+     <<gen-fix(pre="general-define-key\n :states 'insert\n :keymaps 'selectrum-minibuffer-map")>>
      <<gen-keys(moda="lead", tname=selectrum_map_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
