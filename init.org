@@ -212,6 +212,7 @@ It will be faster to disable them here before they've been initialized.
                async
                auto-dim-other-buffers
                crux
+               ;emojify
 
                mixed-pitch
 
@@ -243,6 +244,10 @@ It will be faster to disable them here before they've been initialized.
                amx
                default-text-scale
 
+               hydra
+               vc-msg
+               pretty-hydra
+
                flx
 
                calibredb
@@ -258,8 +263,6 @@ It will be faster to disable them here before they've been initialized.
                json-mode
                swift-mode
                modern-cpp-font-lock
-
-                                             ;emojify
 
                fasd
                (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
@@ -280,12 +283,14 @@ It will be faster to disable them here before they've been initialized.
                eldoc-cmake
 
                company
+               company-c-headers
                company-box
                company-posframe
                company-emoji
                company-math
                company-quickhelp
                company-flx
+               company-tabnine
                company-statistics
 
                dired-narrow
@@ -556,11 +561,11 @@ required from *emacs*.
                         (def (cond ((string= (format "%s" moda) "key")
                                     (format "key-chord-define-global \"%s\"" key))
                                    ((string= (format "%s" moda) "normalmap")
-                                    (format "evil-define-key 'normal %s (kbd \"%s\")" mvar key))
+                                    (format "general-def 'normal %s \"%s\"" mvar key))
                                    ((string= (format "%s" moda) "evilmap")
-                                    (format "evil-define-key '%s %s (kbd \"%s\")" (nth 1 l) mvar key))
+                                    (format "general-def '%s %s \"%s\"" (nth 1 l) mvar key))
                                    ((string= (format "%s" moda) "evil")
-                                    (format "evil-define-key '%s %s (kbd \"%s\")" (nth 2 l) (nth 1 l) key))
+                                    (format "general-def '%s %s \"%s\"" (nth 2 l) (nth 1 l) key))
                                    ((string= (format "%s" moda) "lead")
                                     (format "\"%s\"" key))
                                    ((string= (format "%s" moda) "xvil")
@@ -666,15 +671,11 @@ required from *emacs*.
    #+end_src
 
 **** C-Headers path
-    Used by =company-c-headers=
-
    #+BEGIN_SRC emacs-lisp
      (defvar qq/c-headers-path "/usr/include/c++/4.8.4")
    #+END_SRC
 
 **** Gerrit Identitiy
-    Used by =company-c-headers=
-
    #+BEGIN_SRC emacs-lisp
      (defvar qq/gerrit-creds "fpribadi@gitgerrit-01.greenwavereality.eu")
    #+END_SRC
@@ -716,8 +717,6 @@ required from *emacs*.
    #+end_src
 
 **** Gerrit Identitiy
-    Used by =company-c-headers=. left empty as gerrit is not used @home
-
    #+BEGIN_SRC emacs-lisp
      (defvar qq/gerrit-creds "")
    #+END_SRC
@@ -831,8 +830,6 @@ required from *emacs*.
    #+END_SRC
 
 **** Gerrit Identitiy
-    Used by =company-c-headers=
-
    #+BEGIN_SRC emacs-lisp
      (defvar qq/gerrit-creds "fpribadi@gitgerrit-02.greenwavereality.eu")
    #+END_SRC
@@ -869,8 +866,6 @@ required from *emacs*.
    #+END_SRC
 
 **** Gerrit Identitiy
-    Used by =company-c-headers=
-
    #+BEGIN_SRC emacs-lisp
      (defvar qq/gerrit-creds "fpribadi@gitgerrit-02.greenwavereality.eu")
    #+END_SRC
@@ -2396,13 +2391,14 @@ Use conf-mode for git config files
    Make the backends buffer local
 
    #+BEGIN_SRC emacs-lisp
-     (setq company-backends '((company-capf
-                               company-emoji
-                               company-math-symbols-unicode
-                               company-dabbrev-code
+     (require 'company-tabnine)
+     (require 'company-emoji)
+     (setq company-backends '((company-tabnine
+                               company-keywords
                                company-files
-                               company-keywords)
-
+                               company-emoji
+                               company-dabbrev-code
+                               company-math-symbols-unicode)
                               company-dabbrev))
    #+END_SRC
 
@@ -2428,7 +2424,6 @@ Use conf-mode for git config files
    #+END_SRC
 
 *** company-ispell setup
-
    #+BEGIN_SRC emacs-lisp
      (defun toggle-company-ispell ()
        (interactive)
@@ -2439,17 +2434,15 @@ Use conf-mode for git config files
         (t
          (add-to-list 'company-backends 'company-ispell)
          (message "company-ispell enabled!"))))
-
-     (defun company-ispell-setup ()
-       ;; @see https://github.com/company-mode/company-mode/issues/50
-       (when (boundp 'company-backends)
-         (make-local-variable 'company-backends)
-         (add-to-list 'company-backends 'company-ispell)
-         (setq company-ispell-dictionary ispell-alternate-dictionary)))
-
-     ;; message-mode use company-bbdb.
-     ;; So we should NOT turn on company-ispell
-     (add-hook 'org-mode-hook 'company-ispell-setup)
+   #+END_SRC
+*** company-c-header
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'c-mode-hook
+               (bind (add-to-list (make-local-variable 'company-backends)
+                                  'company-c-headers)))
+     (add-hook 'c++-mode-hook
+               (bind (add-to-list (make-local-variable 'company-backends)
+                                  'company-c-headers)))
    #+END_SRC
 *** Enable quick help for company-mode
 
@@ -2485,11 +2478,13 @@ Use conf-mode for git config files
     :CUSTOM_ID: company-binding
     :END:
    #+TBLNAME: company_keys
-      | Combo | Description                       | Command                                   |
-      |-------+-----------------------------------+-------------------------------------------|
-      | C-j   | move cursor to the next entry     | 'company-select-next                      |
-      | C-k   | move cursor to the previous entry | 'company-select-previous                  |
-      | TAB   |                                   | 'company-complete-common-or-complete-full |
+      | Combo | Description                       | Command                     |
+      |-------+-----------------------------------+-----------------------------|
+      | C-j   | move cursor to the next entry     | 'company-select-next        |
+      | C-k   | move cursor to the previous entry | 'company-select-previous    |
+      | TAB   |                                   | 'company-complete-selection |
+      | C-f   |                                   | 'company-next-page          |
+      | C-b   |                                   | 'company-previous-page      |
 **** Links: [[Company Bindings][Company Bindings]]                                     :ignore:
 ** Selectrum
    #+begin_src emacs-lisp
@@ -3252,7 +3247,24 @@ kill unused buffers in the background
    #+begin_src emacs-lisp
      (add-hook 'text-mode-hook 'mixed-pitch-mode)
    #+end_src
+** Hydra
+   #+begin_src emacs-lisp
+     (require 'pretty-hydra)
+     (setq hydra-posframe-show-params '(:internal-border-width 1
+                                        :internal-border-color "#c6c6c6"
+                                        :horizontal-scroll-bars 't
+                                        :poshandler posframe-poshandler-point-bottom-left-corner))
 
+
+     (pretty-hydra-define test-hydra
+       (:title "TEST" :color amaranth :quit-key "q")
+       ("hello"
+        (("cmp" nil "profile" )
+         ("cmc" nil "cmake")
+         ("cmb" nil "build")
+         )))
+     (setq hydra-hint-display-type 'posframe)
+   #+end_src
 ** Whitespace Butler
 https://github.com/lewang/ws-butler
 
@@ -3525,12 +3537,130 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (add-hook 'find-file-hook #'git-gutter-find-file-hook)
    #+END_SRC
 *** git-messenger
-
+**** settings
    #+BEGIN_SRC emacs-lisp
+     (require 'git-messenger)
      ;; show details to play `git blame' game
-     (setq git-messenger:show-detail t)
+     (setq git-messenger:show-detail t
+           git-messenger:use-magit-popup t)
    #+END_SRC
+**** Custom UI with hydra-posframe
+   #+BEGIN_SRC emacs-lisp
+     (defhydra git-messenger-hydra (:color black)
+       ("d" git-messenger:popup-show "Show diff")
+       ("y" git-messenger:copy-commit-id "Yank SHA")
+       ("m" git-messenger:copy-message "Yank message")
+       ("q" git-messenger:popup-close "Quit"))
 
+     (defun qq/git-messenger-format-message (vcs commit-id commit-author message)
+       (if (eq vcs 'git)
+           (let ((date (git-messenger:commit-date commit-id))
+                 (colon (propertize ":" 'face 'font-lock-comment-face)))
+             (concat
+              (format "%s%s %s \n%s%s %s\n%s  %s %s \n"
+                      (propertize "Commit" 'face 'font-lock-keyword-face) colon
+                      (propertize (substring commit-id 0 8) 'face 'font-lock-comment-face)
+                      (propertize "Author" 'face 'font-lock-keyword-face) colon
+                      (propertize commit-author 'face 'font-lock-string-face)
+                      (propertize "Date" 'face 'font-lock-keyword-face) colon
+                      (propertize date 'face 'font-lock-string-face))
+              (propertize (make-string 38 ?─) 'face 'font-lock-comment-face)
+              message "\n"))
+         (git-messenger:format-detail vcs commit-id commit-author message)))
+
+     (defun qq/git-messenger-show ()
+       "TODO: docstring."
+       (interactive)
+       (let* ((vcs (git-messenger:find-vcs))
+              (file (buffer-file-name (buffer-base-buffer)))
+              (line (line-number-at-pos))
+              (commit-info (git-messenger:commit-info-at-line vcs file line))
+              (commit-id (car commit-info))
+              (commit-author (cdr commit-info))
+              (commit-message (git-messenger:commit-message vcs commit-id))
+              (detailed-message (if (git-messenger:show-detail-p commit-id)
+                                    (qq/git-messenger-format-message
+                                     vcs commit-id commit-author commit-message)
+                                  commit-message)))
+         (setq git-messenger:vcs vcs
+               git-messenger:last-message commit-message
+               git-messenger:last-commit-id commit-id)
+         (run-hook-with-args 'git-messenger:before-popup-hook detailed-message)
+         (git-messenger-hydra/body)
+         (cond ((and (fboundp 'posframe-workable-p) (posframe-workable-p))
+                (let ((buffer-name "*git-messenger*"))
+                  ;; TODO: reuse frame.
+                  (posframe-show buffer-name
+                                 :string detailed-message
+                                 :left-fringe 8
+                                 :right-fringe 8
+                                 :background-color (face-attribute 'mode-line :background nil t)
+                                 :internal-border-color (face-attribute 'internal-border
+                                                                        :background
+                                                                        nil
+                                                                        t)
+                                 :internal-border-width 2)
+                  (unwind-protect
+                      (push (read-event) unread-command-events)
+                    (posframe-delete buffer-name))))
+               (t (message "%s" detailed-message)))
+         (run-hook-with-args 'git-messenger:after-popup-hook detailed-message))
+       (advice-add #'git-messenger:popup-close :override #'ignore)
+       (advice-add #'git-messenger:popup-message :override #'qq/git-messenger-show))
+   #+END_SRC
+*** vc-msg
+**** settings
+   #+BEGIN_SRC emacs-lisp
+     (require 'vc-msg)
+   #+END_SRC
+**** Custom UI with pretty-hydra
+   #+BEGIN_SRC emacs-lisp
+(pretty-hydra-define qq/vc-msg-hydra
+  (:title (concat "vc-msg\n\n"
+                  (cl-etypecase vc-msg-commit-info
+                    (list
+                     (let* ((pad 2)
+                            (padstr (make-string pad ?\ ))
+                            (width (- (min (window-width) 100) (* pad 2)))
+                            (src (funcall vc-msg-formatter vc-msg-commit-info)))
+                       (thread-last (split-string src "\n")
+                         (mapcar (lambda (s) (seq-partition s width)))
+                         (apply #'append)
+                         (mapcar (lambda (s) (concat padstr s padstr)))
+                         (funcall (lambda (xs) (string-join xs "\n"))))))
+                    (string
+                     vc-msg-commit-info)))
+          :pre (setq vc-msg-commit-info
+                     (when vc-msg-current-file
+                       (funcall vc-msg-executer
+                                vc-msg-current-file
+                                (funcall vc-msg-get-line-num-function)
+                                (funcall vc-msg-get-version-function))))
+          :quit-key ("C-g" "q"))
+  ("Copy info"
+   (("wa" vc-msg-copy-all "All" :exit t)
+    ("wl" vc-msg-copy-link "Commit URL" :exit t))
+   "Visit"
+   (("c" vc-msg-show-commit "Commit" :exit t)
+    ("l" vc-msg-log "Log" :exit t))
+   "Blame"
+   (("b" (if magit-blame-mode
+             (magit-blame-cycle-style)
+           (magit-blame-addition nil))
+     "Show")
+    ("B" magit-blame-quit "Quit"))))
+
+(defun qq/vc-msg-show ()
+  "Show commit message of current line.
+If Git is used and some text inside the line is selected,
+the correct commit which submits the selected text is displayed."
+  (interactive)
+  (let ((plugin (vc-msg-find-plugin)))
+    (setq vc-msg-current-file (funcall vc-msg-get-current-file-function))
+    (setq vc-msg-executer (plist-get plugin :execute))
+    (setq vc-msg-formatter (plist-get plugin :format))
+    (qq/vc-msg-hydra/body)))
+   #+END_SRC
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: evil-magit-binding
@@ -3549,7 +3679,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
       | g k               |             | 'git-gutter:previous-hunk      |
       | g L               |             | 'vc-print-log                  |
       | g l               |             | 'magit-log-buffer-file         |
-      | g m               |             | 'git-messenger:popup-message   |
+      | g m               |             | 'qq/git-messenger-show         |
       | g p               |             | 'git-gutter:stage-hunk         |
       | g r               |             | 'git-gutter:revert-hunk        |
       | g s               |             | 'magit-status                  |
@@ -3581,7 +3711,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
    #+BEGIN_SRC emacs-lisp
      (require 'lsp-mode)
      (add-hook 'prog-mode-hook #'lsp)
-     (setq lsp-completion-provider :capf)
+     ;(setq lsp-completion-provider :capf)
      (setq lsp-session-file (concat qq/cache-directory "lsp-session-v1"))
 
      (lsp-register-client
@@ -4350,6 +4480,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | 0       | org-mode-map     | normal    |             | 'evil-digit-argument-or-evil-beginning-of-line         |
       | M-k     | org-mode-map     | normal    |             | 'org-metaup                                            |
       | M-j     | org-mode-map     | normal    |             | 'org-metadown                                          |
+      | K       | org-mode-map     | normal    |             | 'org-edit-special                                      |
 **** Links: [[Evil Org Bindings][Evil Org Bindings]]                                     :ignore:
 ** PDFTools
    [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
@@ -5198,6 +5329,13 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 
    #+BEGIN_SRC emacs-lisp
      (modify-syntax-entry ?_ "w")
+   #+END_SRC
+
+**** Company-backend
+   Add hook to =clang-format-buffer= when saving C++ files, only when
+   =.clang-formatted= file exist in current folder.
+
+   #+BEGIN_SRC emacs-lisp
    #+END_SRC
 
 **** Coding style via =clang-format=
