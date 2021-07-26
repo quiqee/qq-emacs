@@ -238,6 +238,7 @@ It will be faster to disable them here before they've been initialized.
                wgrep-ag
                xcscope
                yasnippet                     ; snippet tools for emacs
+               yasnippet-snippets
 
                ;; UI Enhancement
                                              ;window-numbering
@@ -259,6 +260,10 @@ It will be faster to disable them here before they've been initialized.
                plantuml-mode
 
                ;; Languages major modes
+               prettier-js
+               js-doc
+               rjsx-mode
+               json-mode
                markdown-mode
                json-mode
                swift-mode
@@ -605,7 +610,7 @@ required from *emacs*.
       '(fixed-pitch ((t ( :family "PragmataPro"
                           :slant normal
                           :weight normal
-                          :height 1.3
+                          :height 1.1
                           :width normal)))))
 
      ;; Setting the default general font
@@ -708,6 +713,7 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (defvar qq/serial-port1 "/dev/cu.usbserial-FTXKVR0Q")
+  ;   (defvar qq/serial-port1 "/dev/cu.usbserial-FTZ84CHE")
    #+end_src
 
 **** Fulscreen setting
@@ -2171,6 +2177,14 @@ Use conf-mode for git config files
      (pdf-loader-install)
    #+END_SRC
 
+*** WoMan
+**** Use most of the window width
+   #+BEGIN_SRC emacs-lisp
+     (setq woman-fill-frame t)
+     (setq woman-use-topic-at-point t)
+     (setq woman-use-topic-at-point-default t)
+   #+END_SRC
+
 *** Whitespace-mode
 
    #+BEGIN_SRC emacs-lisp
@@ -2285,21 +2299,22 @@ Use conf-mode for git config files
     :CUSTOM_ID: default-key-binding
     :END:
    #+TBLNAME: std_keys
-      | Combo   | Description                                                                | Command                      |
-      |---------+----------------------------------------------------------------------------+------------------------------|
-      | C-s     | Do incremental search forward for regular expression                       | 'consult-isearch             |
-      | C-c s   | Jump to *scratch* buffer                                                     | 'qq/goto-scratch-buffer      |
-      | C-x C-b | Use iBuffer to replace built-in buffer manager                             | 'ibuffer                     |
-      | C-x C-k | Kill the current buffer. When called in the minibuffer, will get out of it | 'kill-this-buffer            |
-      | C-c e   |                                                                            | 'qq/eval-and-replace         |
-      | C-(     | In selected window switch to previous buffer                               | 'previous-buffer             |
-      | C-)     | In selected window switch to next buffer                                   | 'next-buffer                 |
-      | C-h     | Navigate cursor to the window on the left                                  | 'windmove-left               |
-      | C-l     | Navigate cursor to the window on the right                                 | 'windmove-right              |
-      | C-S-d   | Display minions-mode menu that shows current mini modes in modeline        | 'minions-minor-modes-menu    |
-      | C-s-=   | Increase text scale                                                        | 'default-text-scale-increase |
-      | C-s--   | Decrease text scale                                                        | 'default-text-scale-decrease |
-      | C-s-0   | Reset text scale                                                           | 'default-text-scale-reset    |
+      | Combo   | Description                                                       | Command                      |
+      |---------+-------------------------------------------------------------------+------------------------------|
+      | C-s     | Do incremental search forward for regular expression              | 'consult-isearch             |
+      | C-c s   | Jump to *scratch* buffer                                            | 'qq/goto-scratch-buffer      |
+      | C-x C-b | Use iBuffer to replace built-in buffer manager                    | 'ibuffer                     |
+      | C-x C-k | Kill the current buffer. in minibuffer, will get out of it        | 'kill-this-buffer            |
+      | C-c e   |                                                                   | 'qq/eval-and-replace         |
+      | C-c w   | show manpage at point                                             | 'woman                       |
+      | C-(     | In selected window switch to previous buffer                      | 'previous-buffer             |
+      | C-)     | In selected window switch to next buffer                          | 'next-buffer                 |
+      | C-h     | Navigate cursor to the window on the left                         | 'windmove-left               |
+      | C-l     | Navigate cursor to the window on the right                        | 'windmove-right              |
+      | C-S-d   | Display minions-mode menu to shows current mini modes in modeline | 'minions-minor-modes-menu    |
+      | C-s-=   | Increase text scale                                               | 'default-text-scale-increase |
+      | C-s--   | Decrease text scale                                               | 'default-text-scale-decrease |
+      | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
 **** Links: [[Basic Bindings]]                                     :ignore:
 * Third parties
 ** Company
@@ -2335,32 +2350,33 @@ Use conf-mode for git config files
 **** Allow non-matching input when company-mode is active
 
    #+BEGIN_SRC emacs-lisp
-     (setq company-require-match nil)
+;     (setq company-require-match nil)
    #+END_SRC
 
 **** Instruct company-emoji to not insert unicode
 
    #+BEGIN_SRC emacs-lisp
-     (setq company-emoji-insert-unicode nil)
+;     (setq company-emoji-insert-unicode nil)
    #+END_SRC
 
 **** Delays
 
    #+BEGIN_SRC emacs-lisp
-     (setq company-idle-delay 0.1
-           company-echo-delay 0)
+;     (setq company-idle-delay 0.1
+;           company-echo-delay 0)
    #+END_SRC
 
 **** Trigger autocomplete if user interaction took place
 
    #+BEGIN_SRC emacs-lisp
-  (setq company-auto-complete 'company-explicit-action-p)
+;  (setq company-auto-complete 'company-explicit-action-p)
    #+END_SRC
 
 **** Minimum prefix length for idle completion
 
    #+BEGIN_SRC emacs-lisp
-  (setq company-minimum-prefix-length 2)
+;     (setq company-minimum-prefix-length 200)
+     (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
    #+END_SRC
 
 **** Flip tooltip when it's above the current line
@@ -2391,15 +2407,15 @@ Use conf-mode for git config files
    Make the backends buffer local
 
    #+BEGIN_SRC emacs-lisp
-     (require 'company-tabnine)
-     (require 'company-emoji)
-     (setq company-backends '((company-tabnine
-                               company-keywords
-                               company-files
-                               company-emoji
-                               company-dabbrev-code
-                               company-math-symbols-unicode)
-                              company-dabbrev))
+;     (require 'company-tabnine)
+;     (require 'company-emoji)
+;     (setq company-backends '((company-tabnine
+;                               company-keywords
+;                               company-files
+;                               company-emoji
+;                               company-dabbrev-code
+;                               company-math-symbols-unicode)
+;                              company-dabbrev))
    #+END_SRC
 
 *** flx matching in company
@@ -2423,6 +2439,10 @@ Use conf-mode for git config files
      (add-hook 'company-mode-hook 'company-posframe-mode)
    #+END_SRC
 
+*** company-box
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'company-mode-hook 'company-box-mode)
+   #+END_SRC
 *** company-ispell setup
    #+BEGIN_SRC emacs-lisp
      (defun toggle-company-ispell ()
@@ -2487,13 +2507,16 @@ Use conf-mode for git config files
       | C-b   |                                   | 'company-previous-page      |
 **** Links: [[Company Bindings][Company Bindings]]                                     :ignore:
 ** Selectrum
+   Provide vertical completion
+
    #+begin_src emacs-lisp
      (require 'selectrum)
      (selectrum-mode +1)
      (autoload 'prescient-persist-mode "prescient.el" nil t)
    #+end_src
 
-   To make sorting and filtering more intelligent
+*** Prescient
+   Filter most recent completions to the top of the list
    #+begin_src emacs-lisp
      (selectrum-prescient-mode +1)
    #+end_src
@@ -2525,7 +2548,9 @@ Use conf-mode for git config files
                  (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
    #+end_src
 *** Consult
-   Replace functions (consult-multi-occur is a drop-in replacement)
+   Provide commands which allow quick selection of an item from a list of
+   candidates with selection.
+
    #+begin_src emacs-lisp
      ;  (fset 'multi-occur #'consult-multi-occur)
    #+end_src
@@ -2533,6 +2558,20 @@ Use conf-mode for git config files
    Enable previews
    #+begin_src emacs-lisp
      ;(consult-preview-mode)
+   #+end_src
+*** Orderless
+   A completion styles. Using spaces and in any order. To make sorting and
+   filtering more intelligent for =selectrum=
+
+   #+begin_src emacs-lisp
+     (require 'orderless)
+     (setq completion-styles '(orderless))
+     (icomplete-mode) ; optional but recommended!
+   #+end_src
+   Selectrum Integration
+   #+begin_src emacs-lisp
+     (setq selectrum-refine-candidates-function #'orderless-filter)
+     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
    #+end_src
 *** Switch to buffer or recent file
 Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, to files with "f " prefix and to buffers with "b " prefix. (See https://github.com/raxod502/selectrum/issues/9#issuecomment-631325725)
@@ -2587,19 +2626,6 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
                (t
                 (switch-to-buffer cand)))))
    #+end_src
-*** Orderless
-   To make sorting and filtering more intelligent for =selectrum=
-
-   #+begin_src emacs-lisp
-     (require 'orderless)
-     (setq completion-styles '(orderless))
-     (icomplete-mode) ; optional but recommended!
-   #+end_src
-   Selectrum Integration
-   #+begin_src emacs-lisp
-     (setq selectrum-refine-candidates-function #'orderless-filter)
-     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
-   #+end_src
 *** Filtering advice
    If you also =orderless= configured as the `completion-styles`, use the
    following advice Orderless isn't well suited for initial gathering of
@@ -2625,8 +2651,8 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
       | C-k   | selects the previous candidate | 'selectrum-previous-candidate  |
       | C-a   | selects the first candidate    | 'selectrum-goto-beginning      |
       | C-e   | selects the last candidate     | 'selectrum-goto-end            |
-      | C-b   | scrolls down                   | 'selectrum-next-page           |
-      | C-f   | scrolls up                     | 'selectrum-previous-page       |
+      | C-f   | scrolls down                   | 'selectrum-next-page           |
+      | C-b   | scrolls up                     | 'selectrum-previous-page       |
       | C-w   |                                | 'selectrum-kill-ring-save      |
       | C-r   | rotate visual information      | 'marginalia-cycle              |
       | ESC   | cancel selecturm               | 'keyboard-quit                 |
@@ -3074,7 +3100,6 @@ kill unused buffers in the background
       | C-l   | Navigate cursor to the window on the right | 'windmove-right                                      |
       | C-a   | Increment number at cursor                 | 'evil-numbers/inc-at-pt                              |
       | "-"   | Decrement number at cursor                 | 'evil-numbers/dec-at-pt                              |
-      | Q     | Close a window                             | 'qq/window-killer                                    |
       | Y     |                                            | (kbd "y$")                                           |
       | g ]   |                                            | 'ggtags-find-definition                              |
       | g [   |                                            | 'ggtags-find-reference                               |
@@ -3207,6 +3232,7 @@ kill unused buffers in the background
       | t d    |                                 | 'toggle-debug-on-error                           |
       | t h    | toggle highlight current line   | 'global-hl-line-mode                             |
       | t i    | toggle indent guide             | 'highlight-indent-guides-mode                    |
+      | t c    |                                 | 'qq/toggle-clang-format-save                     |
       | t s    |                                 | 'qq/toggle-evil-search                           |
       | t f    |                                 | 'toggle-frame-fullscreen                         |
       | t m    |                                 | 'toggle-frame-maximized                          |
@@ -3710,15 +3736,17 @@ the correct commit which submits the selected text is displayed."
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
    #+BEGIN_SRC emacs-lisp
      (require 'lsp-mode)
-     (add-hook 'prog-mode-hook #'lsp)
-     ;(setq lsp-completion-provider :capf)
+     ;(add-hook 'prog-mode-hook #'lsp)
+     (setq lsp-keymap-prefix "C-c L")
+     (setq lsp-completion-provider :capf)
      (setq lsp-session-file (concat qq/cache-directory "lsp-session-v1"))
+     (setq lsp-auto-guess-root t)
 
-     (lsp-register-client
-      (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
-                       :major-modes '(c-mode c++-mode)
-                       :remote? t
-                       :server-id 'clangd-lsp-remote))
+     ;(lsp-register-client
+     ; (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
+     ;                  :major-modes '(c-mode c++-mode)
+     ;                  :remote? t
+     ;                  :server-id 'clangd-lsp-remote))
    #+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
@@ -3752,23 +3780,12 @@ the correct commit which submits the selected text is displayed."
 
 *** Lsp-UI
    #+BEGIN_SRC emacs-lisp
-     (autoload 'lsp-ui-doc-show "lsp-ui-doc.el" nil t)
-     (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-     (after 'lsp-ui-mode
-
-       (setq lsp-ui-doc-enable t
-             lsp-ui-doc-use-childframe t
-             lsp-ui-doc-position 'top
-             lsp-ui-doc-include-signature t
-             lsp-ui-sideline-enable t
-             lsp-ui-flycheck-enable t
-             lsp-ui-flycheck-list-position 'right
-             lsp-ui-flycheck-live-reporting t
-             lsp-ui-peek-enable t
-             lsp-ui-peek-list-width 60
-             lsp-ui-peek-peek-height 25
-             lsp-ui-sideline-show-hover t)
-       (lsp-ui-doc-show))
+     (setq lsp-ui-doc-enable nil)
+     (setq lsp-ui-doc-position 'at-point)
+     (setq lsp-ui-doc-max-height 70)
+     (add-hook 'lsp-ui-mode-hook
+               (bind
+                 (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
    #+END_SRC
 *** Normal Keybinding
     :PROPERTIES:
@@ -4218,28 +4235,28 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 **** Font Settings
 ;; Increase the size of various headings
    #+BEGIN_SRC emacs-lisp
-     (set-face-attribute 'org-document-title nil :font "Cantarell" :weight 'bold :height 1.6)
-     (dolist (face '((org-level-1 . 1.4)
-                     (org-level-2 . 1.3)
-                     (org-level-3 . 1.2)
-                     (org-level-4 . 1.15)
-                     (org-level-5 . 1.15)
-                     (org-level-6 . 1.15)
-                     (org-level-7 . 1.15)
-                     (org-level-8 . 1.15)))
-       (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+     ;; (set-face-attribute 'org-document-title nil :font "Cantarell" :weight 'bold :height 1.6)
+     ;; (dolist (face '((org-level-1 . 1.4)
+     ;;                 (org-level-2 . 1.3)
+     ;;                 (org-level-3 . 1.2)
+     ;;                 (org-level-4 . 1.15)
+     ;;                 (org-level-5 . 1.15)
+     ;;                 (org-level-6 . 1.15)
+     ;;                 (org-level-7 . 1.15)
+     ;;                 (org-level-8 . 1.15)))
+     ;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
    #+END_SRC
 Ensure that anything that should be fixed-pitch in Org files appears that way
    #+BEGIN_SRC emacs-lisp
-     (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-     (set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
-     (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-     (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-     (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
-     (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+     ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+     ;; (set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
+     ;; (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+     ;; (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+     ;; (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
+     ;; (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+     ;; (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+     ;; (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+     ;; (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
    #+END_SRC
 **** Hooks
 
@@ -4470,7 +4487,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | -       | org-mode-map     | normal    |             | 'org-cycle-list-bullet                                 |
       | C-c .   | org-mode-map     | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t)) |
       | C-e     | org-mode-map     | normal    |             | 'org-edit-src-code                                     |
-      | Q       | org-src-mode-map | normal    |             | 'org-edit-src-exit                                     |
+      | Q       | org-src-mode-map | normal    |             | 'org-edit-src-abort                                    |
       | >       | org-mode-map     | normal    |             | 'org-metaright                                         |
       | <       | org-mode-map     | normal    |             | 'org-metaleft                                          |
       | C->     | org-mode-map     | normal    |             | 'org-demote-subtree                                    |
@@ -4665,6 +4682,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (projectile-global-mode)
      (setq projectile-tags-command "gtags")
      (setq projectile-enable-caching t)
+     (setq projectile-git-submodule-command nil)
      ;; global ignores
      (add-to-list 'projectile-globally-ignored-files ".tern-port")
      (add-to-list 'projectile-globally-ignored-files "GTAGS")
@@ -4757,6 +4775,14 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | M-e   |             | 'persp-add-new              |
       | M-b   |             | 'persp-load-state-from-file |
 **** Links: [[Persp-mode Bindings][here]]                                     :ignore:
+** Yasnippet
+
+   #+begin_src emacs-lisp
+     (yas-reload-all)
+     (add-hook 'prog-mode-hook #'yas-minor-mode)
+     (add-hook 'org-mode-hook #'yas-minor-mode)
+   #+end_src
+
 ** Shell/Term/Fasd
    Launch shell/term within emacs
 
@@ -5264,8 +5290,10 @@ Some general settings that should apply to all programming mode. Highlight
     (setq-local compilation-read-command nil)
     (call-interactively 'compile))
 
-  (after "c-mode" (define-key c-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
-  (after "c++-mode" (define-key c++-mode-map (kbd "C-c C-c") 'qq/c-mode-compile))
+  (defun qq/c-mode-compile-set-command()
+    (interactive)
+    (setq-local compilation-read-command t)
+    (call-interactively 'compile))
 #+END_SRC
 
 *** ANSI-escape coloring in compilation-mode
@@ -5331,13 +5359,6 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
      (modify-syntax-entry ?_ "w")
    #+END_SRC
 
-**** Company-backend
-   Add hook to =clang-format-buffer= when saving C++ files, only when
-   =.clang-formatted= file exist in current folder.
-
-   #+BEGIN_SRC emacs-lisp
-   #+END_SRC
-
 **** Coding style via =clang-format=
    Add hook to =clang-format-buffer= when saving C++ files, only when
    =.clang-formatted= file exist in current folder.
@@ -5346,16 +5367,46 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
      (require 'clang-format)
      (require 'rx)
 
+     (setq clang-format-style "file")
+     (setq qq/clang-format-save t)
+
      ;; Hook function
      (defun clang-format-buffer-smart ()
-       "Reformat buffer if .clang-formatted exists in current directory."
-       (when (f-exists? (expand-file-name ".clang-formatted" (file-name-directory buffer-file-name)))
-         (clang-format-buffer)))
+       "Reformat buffer if .clang-format exists in the projectile root."
+       (interactive)
+       (when qq/clang-format-save
+         (let ((start (if (use-region-p) (region-beginning) (point)))
+               (end (if (use-region-p) (region-end) (point)))
+               (assumed-filename (if (file-remote-p buffer-file-name)
+                                     (concat (getenv "HOME") "/" (file-name-nondirectory buffer-file-name))
+                                   buffer-file-name)))
+           (clang-format-buffer clang-format-style assumed-filename))))
 
      ;; Install hook to use clang-format on save
-     (add-hook 'before-save-hook 'clang-format-buffer-smart)
+     (add-hook 'before-save-hook 'clang-format-buffer-smart nil t)
+
+     (defun qq/toggle-clang-format-save ()
+       "Enable/disable performing clang-format on saving a file"
+       (interactive)
+       (if qq/clang-format-save
+           (progn
+             (setq qq/clang-format-save nil)
+             (message "Disable performing clang-format on file save"))
+         (progn
+           (setq qq/clang-format-save t)
+           (message "Enable performing clang-format on file save"))))
    #+END_SRC
 
+   #+BEGIN_SRC emacs-lisp
+     (defun my-clang-format-region ()
+       (interactive)
+       (let ((start (if (use-region-p) (region-beginning) (point)))
+             (end (if (use-region-p) (region-end) (point)))
+             (assumed-filename (if (file-remote-p buffer-file-name)
+                                   (concat (getenv "HOME") "/" (file-name-nondirectory buffer-file-name))
+                                 buffer-file-name)))
+         (clang-format-region start end clang-format-style assumed-filename)))
+   #+END_SRC
 **** Minor modes
 
    #+BEGIN_SRC emacs-lisp
@@ -5525,15 +5576,41 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
     :CUSTOM_ID: evil-cc-mode-binding
     :END:
    #+TBLNAME: cc_mode_keys
-      | Combo | Mode            | Evil Mode | Description | Command              |
-      | RET   | c-mode-base-map | insert    |             | 'newline-and-indent  |
-      | C-S-f | c-mode-base-map | visual    |             | 'clang-format-region |
+      | Combo   | Mode            | Evil Mode | Description | Command                        |
+      | RET     | c-mode-base-map | insert    |             | 'newline-and-indent            |
+      | C-S-f   | c-mode-base-map | visual    |             | 'clang-format-region           |
+      | C-c C-c | c-mode-base-map | normal    |             | 'qq/c-mode-compile             |
+      | C-c C-r | c-mode-base-map | normal    |             | 'qq/c-mode-compile-set-command |
 **** Links: [[Evil CC Mode Bindings][Evil CC Mode Bindings]]                                     :ignore:
 ** Lisp
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
      (add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
+   #+END_SRC
+
+** Web/CSS/Javascript/Json
+*** Hooks
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'css-mode-hook 'prettier-js-mode)
+     (add-hook 'js2-mode-hook 'prettier-js-mode)
+     (add-hook 'web-mode-hook 'prettier-js-mode)
+   #+END_SRC
+
+*** Settings
+   #+BEGIN_SRC emacs-lisp
+     (setq auto-mode-alist (cons '("\\.js$"   . js2-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.jsx$" . rjsx-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
+     (after 'css-mode
+       (css-indent-offset 2))
+     (after 'js2-mode
+       (setq js-indent-level 2
+             js-switch-indent-offset 2
+             js2-highlight-level 3
+             js2-idle-timer-delay 0
+             js2-mode-show-parse-errors nil
+             js2-mode-show-strict-warnings nil))
    #+END_SRC
 
 ** Markdown
@@ -5758,7 +5835,7 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
 
 * Recipes
 ** Add =sort-words= command
-Emacs has a command to sort lines, but not to sort words in a region.
+Emacs has a command to sort lines, but not to sort words in a region
    #+BEGIN_SRC emacs-lisp
      (defun sort-words (reverse beg end)
        "Sort words in region alphabetically, in REVERSE if negative.
@@ -5969,6 +6046,41 @@ Emacs has a command to sort lines, but not to sort words in a region.
          (reload-image-at-point)))
    #+END_SRC
 
+** Aligning Columns
+https://blog.lambda.cx/posts/emacs-align-columns/
+
+   #+BEGIN_SRC emacs-lisp
+     (defun align-non-space (BEG END)
+       "Align non-space columns in region BEG END."
+       (interactive "r")
+       (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))
+   #+END_SRC
+
+ Let's walk through what's going on here.
+
+1. BEG and END are the beginning and end positions of the area to be aligned
+2. (interactive "r") tells Emacs that the function is interactive, meaning that
+   it can be called from the M-x menu
+   - "r" tells Emacs that when the function is called interactively, it expects
+      a region (beginning and end points) as arguments
+3. align-regexp where the work is happening. This function has the following
+    signature.
+
+    =(align-regexp BEG END REGEXP &optional GROUP SPACING REPEAT)=
+
+   + BEG and END is the region that it expects as the first arguments
+   + "\\(\\s-*\\)\\S-+" is an Emacs regular expression. Backslashes are doubled because they need to be escaped in a string literal
+       + \( \) is a capture group
+       + \s- is a regular expression construct specific to Emacs which specifies a type of syntax which is to be matched.
+           + - refers to the whitespace characters
+       + * means match zero or more
+            \S- is similar to the previous construct, but instead means to match anything other than whitespace
+       + =+= means one or more
+   + 1 here refers to the group within the regex that will be modified to align the fields
+   + 1 is the number of spaces between fields once aligned
+   + t indicates to repeat the rule multiple times on the same line
+
+To use this function, simply highlight a region you want to align and run M-x align-non-space.
 ** KeyBindings
     :PROPERTIES:
     :CUSTOM_ID: recipes-binding

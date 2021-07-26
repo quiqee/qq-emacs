@@ -157,3 +157,4 @@ export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 # Added by ~/.emacs.d/install.sh
 export PATH=$HOME/.local/bin:$PATH
+alias emacs="emacs -nw"
