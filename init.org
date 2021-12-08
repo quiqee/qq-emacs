@@ -40,33 +40,6 @@ Increase the garbage collection threshold to 500 MB to ease startup
      (setq gc-cons-threshold (* 500 1024 1024))
    #+END_SRC
 
-**** Personal Custom group
-   Create a custom group to group any custom variable so it will not
-   polute built in variable space
-
-   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (defgroup qq nil
-       "Personal Custom configuration."
-       ;:type '(string)
-       :group 'local)
-   #+END_SRC
-
-   Add a cache-directory root folder custom variable
-
-   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (defcustom qq/cache-directory
-       (concat user-emacs-directory ".cache/")
-       "The storage location for various persistent files."
-       :type '(string)
-       :group 'qq)
-   #+END_SRC
-
-   Add a custom theme folder under cache-directory
-
-   #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
-   #+END_SRC
-
 **** Emacs JIT
 
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
@@ -75,15 +48,11 @@ Increase the garbage collection threshold to 500 MB to ease startup
 
    Add a cache-directory root folder for compiled .eln files
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (when (boundp 'comp-eln-load-path)
-       (let ((eln-cache-dir (expand-file-name "eln-cache/" qq/cache-directory))
-             (find-exec (executable-find "find")))
-         (setcar comp-eln-load-path eln-cache-dir)
-         ;; Quitting emacs while native compilation in progress can leave zero byte
-         ;; sized *.eln files behind. Hence delete such files during startup.
-         (when find-exec
-           (call-process find-exec nil nil nil eln-cache-dir
-                         "-name" "*.eln" "-size" "0" "-delete"))))
+     (when (boundp 'native-comp-eln-load-path)
+       (setcar native-comp-eln-load-path
+               (expand-file-name "eln-cache/" (format "%s%s" user-emacs-directory ".cache/"))))
+
+     (setq native-comp-async-report-warnings-errors nil)
    #+END_SRC
 
 **** Disable package-enable-at-startup
@@ -159,6 +128,33 @@ It will be faster to disable them here before they've been initialized.
        (setq alert-default-style 'libnotify)))
 
      (alert msg-result-output :title "Emacs")
+   #+END_SRC
+
+*** Personal Custom group
+   Create a custom group to group any custom variable so it will not
+   polute built in variable space
+
+   #+BEGIN_SRC emacs-lisp
+     (defgroup qq nil
+       "Personal Custom configuration."
+       ;:type '(string)
+       :group 'local)
+   #+END_SRC
+
+   Add a cache-directory root folder custom variable
+
+   #+BEGIN_SRC emacs-lisp
+     (defcustom qq/cache-directory
+       (concat user-emacs-directory ".cache/")
+       "The storage location for various persistent files."
+       :type '(string)
+       :group 'qq)
+   #+END_SRC
+
+   Add a custom theme folder under cache-directory
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
    #+END_SRC
 
 *** Packages
@@ -649,18 +645,34 @@ required from *emacs*.
      (setq qq/fullscreen-max t)
    #+end_src
 
-*** Ubuntu@WSL2
+*** Ubuntu@Focal
 
    #+BEGIN_SRC emacs-lisp
      (defvar qq/system-name system-name)
      (cond
-      ((string-equal qq/system-name "DESKTOP-H6SU6I7") ; Greenwave Build Server
+      ((string-equal qq/system-name "focal") ; Greenwave Build Server
        (progn
    #+END_SRC
 
 **** Fonts
 
    #+begin_src emacs-lisp
+     (custom-theme-set-faces
+      'user
+
+      '(variable-pitch ((t (:family "Cantarell"
+                                    :height 1.3))))
+      '(fixed-pitch ((t ( :family "PragmataPro"
+                          :slant normal
+                          :weight normal
+                          :height 1.0
+                          :width normal)))))
+
+     ;; Setting the default general font
+     (set-face-attribute 'default nil
+                         :family "PragmataPro"
+                         :height 110
+                         )
    #+end_src
 
 **** Ccls Executables
@@ -2700,9 +2712,9 @@ Switch to open buffer or recent file. Narrow to hidden buffer with " " prefix, t
 **** Links: [[Visual Selectrum Bindings][Visual Selectrum Bindings]]                                     :ignore:
 ** Mini-Frame
    #+begin_src emacs-lisp
-     (after 'mini-frame
-       (csetq mini-frame-show-parameters '((top . 0.2) (width . 0.3) (left . 0.5))))
-     (mini-frame-mode)
+     ;(after 'mini-frame
+     ;  (csetq mini-frame-show-parameters '((top . 0.2) (width . 0.3) (left . 0.5))))
+     ;(mini-frame-mode)
    #+end_src
 
 ** Mode-line-bell
@@ -5194,7 +5206,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 *** Use cool unicode characters if available
 
    #+BEGIN_SRC emacs-lisp
-     (add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩-"))
+     ;(add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩-"))
    #+END_SRC
 
 *** Change what string to display for a given *complete* key binding
@@ -5337,7 +5349,7 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-init ()
-       (push '(?( . ("(" . ")")) evil-surround-pairs-alist)
+       (push '(?\( . ("(" . ")")) evil-surround-pairs-alist)
        (push '(?{ . ("{" . "}")) evil-surround-pairs-alist)
        (local-set-key (kbd "C-c C-c") 'compile)
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
@@ -5690,7 +5702,7 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
                   (cons (concat "\\." (regexp-opt '("xml" "xsd" "sch" "rng" "xslt" "svg" "rss") t) "\\'")
                         'nxml-mode))
 
-     (unify-8859-on-decoding-mode)
+     ;(unify-8859-on-decoding-mode)
 
      (fset 'xml-mode 'nxml-mode)
      (fset 'html-mode 'nxml-mode)
