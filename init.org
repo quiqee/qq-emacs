@@ -175,7 +175,6 @@ It will be faster to disable them here before they've been initialized.
 
                                              ; find package information from following archives
      (setq package-archives (quote (("gnu" . "http://elpa.gnu.org/packages/")
-                                    ("org" . "https://orgmode.org/elpa/")
                                     ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
 
      (list-packages)
@@ -601,7 +600,7 @@ required from *emacs*.
      (custom-theme-set-faces
       'user
 
-      '(variable-pitch ((t (:family "Cantarell"
+      '(variable-pitch ((t (:family "Cabin"
                                     :height 1.3))))
       '(fixed-pitch ((t ( :family "PragmataPro"
                           :slant normal
@@ -620,6 +619,18 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (defvar qq/ccls-binary "/usr/bin/ccls")
+   #+end_src
+
+**** Serial Ports
+
+   #+begin_src emacs-lisp
+     (defvar qq/serial-port1 "/dev/ttyUSB0")
+   #+end_src
+
+**** clangd Executables
+
+   #+begin_src emacs-lisp
+     (defvar qq/clangd-binary "/usr/bin/clangd")
    #+end_src
 
 **** Shell program
@@ -660,7 +671,7 @@ required from *emacs*.
      (custom-theme-set-faces
       'user
 
-      '(variable-pitch ((t (:family "Cantarell"
+      '(variable-pitch ((t (:family "Cabin"
                                     :height 1.3))))
       '(fixed-pitch ((t ( :family "PragmataPro"
                           :slant normal
@@ -671,7 +682,7 @@ required from *emacs*.
      ;; Setting the default general font
      (set-face-attribute 'default nil
                          :family "PragmataPro"
-                         :height 110
+                         :height 105
                          )
    #+end_src
 
@@ -679,12 +690,6 @@ required from *emacs*.
 
    #+begin_src emacs-lisp
      (defvar qq/ccls-binary "/usr/local/bin/ccls")
-   #+end_src
-
-**** Serial Ports
-
-   #+begin_src emacs-lisp
-     (defvar qq/serial-port1 "/dev/ttyS3")
    #+end_src
 
 **** C-Headers path
@@ -3779,7 +3784,7 @@ the correct commit which submits the selected text is displayed."
 
 *** Clangd
    #+BEGIN_SRC emacs-lisp
-     (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
+     (setq lsp-clients-clangd-executable qq/clangd-binary)
      (setq lsp-clients-clangd-args
            '("-j=8"
              "--background-index"
@@ -4492,24 +4497,25 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: evil-org-binding
     :END:
    #+TBLNAME: evil_org_keys
-      | Combo   | Mode             | Evil Mode | Description | Command                                                |
-      | z c     | org-mode-map     | normal    |             | 'outline-hide-subtree                                  |
-      | RET     | org-mode-map     | normal    |             | 'org-open-at-point                                     |
-      | s-v     | org-mode-map     | insert    |             | 'org-cliplink                                          |
-      | -       | org-mode-map     | normal    |             | 'org-cycle-list-bullet                                 |
-      | C-c .   | org-mode-map     | insert    |             | '(lambda () (interactive) (org-time-stamp-inactive t)) |
-      | C-e     | org-mode-map     | normal    |             | 'org-edit-src-code                                     |
-      | Q       | org-src-mode-map | normal    |             | 'org-edit-src-abort                                    |
-      | >       | org-mode-map     | normal    |             | 'org-metaright                                         |
-      | <       | org-mode-map     | normal    |             | 'org-metaleft                                          |
-      | C->     | org-mode-map     | normal    |             | 'org-demote-subtree                                    |
-      | C-<     | org-mode-map     | normal    |             | 'org-promote-subtree                                   |
-      | SPC k   | org-mode-map     | normal    |             | 'outline-up-heading                                    |
-      | SPC j j | org-mode-map     | normal    |             | 'outline-next-heading                                  |
-      | 0       | org-mode-map     | normal    |             | 'evil-digit-argument-or-evil-beginning-of-line         |
-      | M-k     | org-mode-map     | normal    |             | 'org-metaup                                            |
-      | M-j     | org-mode-map     | normal    |             | 'org-metadown                                          |
-      | K       | org-mode-map     | normal    |             | 'org-edit-special                                      |
+      | Combo   | Mode             | Evil Mode | Desc | Command                                                |
+      | z c     | org-mode-map     | normal    |      | 'outline-hide-subtree                                  |
+      | RET     | org-mode-map     | normal    |      | 'org-open-at-point                                     |
+      | s-v     | org-mode-map     | insert    |      | 'org-cliplink                                          |
+      | -       | org-mode-map     | normal    |      | 'org-cycle-list-bullet                                 |
+      | C-c .   | org-mode-map     | insert    |      | '(lambda () (interactive) (org-time-stamp-inactive t)) |
+      | C-e     | org-mode-map     | normal    |      | 'org-edit-src-code                                     |
+      | Q       | org-src-mode-map | normal    |      | 'org-edit-src-abort                                    |
+      | >       | org-mode-map     | normal    |      | 'org-metaright                                         |
+      | <       | org-mode-map     | normal    |      | 'org-metaleft                                          |
+      | C->     | org-mode-map     | normal    |      | 'org-demote-subtree                                    |
+      | C-<     | org-mode-map     | normal    |      | 'org-promote-subtree                                   |
+      | SPC k   | org-mode-map     | normal    |      | 'outline-up-heading                                    |
+      | SPC j j | org-mode-map     | normal    |      | 'outline-next-heading                                  |
+      | 0       | org-mode-map     | normal    |      | 'evil-digit-argument-or-evil-beginning-of-line         |
+      | M-k     | org-mode-map     | normal    |      | 'org-metaup                                            |
+      | M-j     | org-mode-map     | normal    |      | 'org-metadown                                          |
+      | K       | org-mode-map     | normal    |      | 'org-edit-special                                      |
+      | TAB     | org-mode-map     | normal    |      | 'org-cycle                                             |
 **** Links: [[Evil Org Bindings][Evil Org Bindings]]                                     :ignore:
 ** PDFTools
    [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
@@ -4786,6 +4792,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | M-1   |             | 'persp-prev                 |
       | M-e   |             | 'persp-add-new              |
       | M-b   |             | 'persp-load-state-from-file |
+      | M-w   |             | 'persp-save-state-to-file   |
 **** Links: [[Persp-mode Bindings][here]]                                     :ignore:
 ** Yasnippet
 
@@ -4880,7 +4887,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
    #+BEGIN_SRC emacs-lisp
      (defadvice ansi-term (after bw/advise-ansi-term-coding-system activate)
-       (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+       (set-process-coding-system 'utf-8-unix 'utf-8-unix))
    #+END_SRC
 
 **** When exiting a terminal buffer (either with exit or EOF), automatically kill the buffer
