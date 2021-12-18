@@ -661,7 +661,7 @@ required from *emacs*.
    #+BEGIN_SRC emacs-lisp
      (defvar qq/system-name system-name)
      (cond
-      ((string-equal qq/system-name "focal") ; Greenwave Build Server
+      ((or (string-equal qq/system-name "focal") (string-equal qq/system-name "z390-manjaro"))
        (progn
    #+END_SRC
 
