@@ -336,7 +336,7 @@ It will be faster to disable them here before they've been initialized.
                ag
                                              ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
                auto-compile                  ; automatically compile Emacs Lisp libraries
-               color-identifiers-mode        ; gives colors to unique variables passed into functions
+               ;color-identifiers-mode        ; gives colors to unique variables passed into functions
 
                diff-hl
                                              ;(depends-on "dired+")
@@ -5248,7 +5248,7 @@ Some general settings that should apply to all programming mode. Highlight
                  (rainbow-delimiters-mode)
                  (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
                  (smart-tabs-insinuate 'c++ 'c 'javascript)
-                 (color-identifiers-mode t)))   ; WARNING: if scrolling is slow, turn this off
+                 ;(color-identifiers-mode t)))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
 #+begin_src emacs-lisp
