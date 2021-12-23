@@ -44,6 +44,7 @@ Increase the garbage collection threshold to 500 MB to ease startup
 
    #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
      (setq comp-speed 2)
+     (setq native-comp-async-report-warnings-errors nil)
    #+END_SRC
 
    Add a cache-directory root folder for compiled .eln files
@@ -121,11 +122,11 @@ It will be faster to disable them here before they've been initialized.
                     (setq msg-result-output (format "Native compiled %s" (file-name-nondirectory (native-compile tangled-file)))))
                   (setq msg-result-output (format "%s\nTangled and compiled %s" msg-result-output tangled-file)))
          (setq msg-result-output (format "Error trying to compile %s" tangled-file))))
-     (cond
-      ((string-equal system-type "darwin") ; Mac OS X
-       (setq alert-default-style 'osx-notifier))
-      ((string-equal system-type "gnu/linux") ; linux
-       (setq alert-default-style 'libnotify)))
+     ;(cond
+     ; ((string-equal system-type "darwin") ; Mac OS X
+     ;  (setq alert-default-style 'osx-notifier))
+     ; ((string-equal system-type "gnu/linux") ; linux
+     ;  (setq alert-default-style 'libnotify)))
 
      (alert msg-result-output :title "Emacs")
    #+END_SRC
@@ -175,6 +176,7 @@ It will be faster to disable them here before they've been initialized.
 
                                              ; find package information from following archives
      (setq package-archives (quote (("gnu" . "http://elpa.gnu.org/packages/")
+                                    ("nongnu" . "https://elpa.nongnu.org/nongnu/")
                                     ("melpa" . "https://melpa.org/packages/"))) package-menu-async nil)
 
      (list-packages)
@@ -207,7 +209,7 @@ It will be faster to disable them here before they've been initialized.
                async
                auto-dim-other-buffers
                crux
-               ;emojify
+                                             ;emojify
 
                mixed-pitch
 
@@ -273,7 +275,7 @@ It will be faster to disable them here before they've been initialized.
                (auctex builtin)              ; integrated environment for *TeX*
                (rainbow-mode builtin)        ; colorized color code in file
                (undo-tree builtin)           ; Treat undo history as a tree
-               (org-plus-contrib builtin)    ; Outline-based notes management and organizer
+               (org-contrib builtin)    ; Outline-based notes management and organizer
                (bug-hunter builtin)
 
                clang-format
@@ -981,14 +983,14 @@ required from *emacs*.
 *** Custom variables
 
    #+BEGIN_SRC emacs-lisp
-     (defvar best-gc-cons-threshold (* 5 1024 1024) "Best default gc threshold value (5 MB). Shouldn't be too big.")
+     (defvar best-gc-cons-threshold (* 32 1024 1024) "Best default gc threshold value (5 MB). Shouldn't be too big.")
    #+END_SRC
 
 *** Emacs Garbage Collector
    Once startup complete decrease threshold to 5 MB
 
    #+begin_src emacs-lisp
-     (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
+     (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 32 1024 1024))))
    #+end_src
 
 *** Trailing whitespace
@@ -3692,17 +3694,6 @@ Git-gutter doesn’t play nice with TRAMP remotes
            (magit-blame-addition nil))
      "Show")
     ("B" magit-blame-quit "Quit"))))
-
-(defun qq/vc-msg-show ()
-  "Show commit message of current line.
-If Git is used and some text inside the line is selected,
-the correct commit which submits the selected text is displayed."
-  (interactive)
-  (let ((plugin (vc-msg-find-plugin)))
-    (setq vc-msg-current-file (funcall vc-msg-get-current-file-function))
-    (setq vc-msg-executer (plist-get plugin :execute))
-    (setq vc-msg-formatter (plist-get plugin :format))
-    (qq/vc-msg-hydra/body)))
    #+END_SRC
 *** Keybinding
     :PROPERTIES:
@@ -3731,18 +3722,6 @@ the correct commit which submits the selected text is displayed."
       | g x               |             | 'vc-next-action                |
       | g v               |             | 'git-gutter:set-start-revision |
 **** Links: [[Evil Magit Bindings][Evil Magit Bindings]]                                     :ignore:
-** CalibreDB
-
-   #+begin_src emacs-lisp
-     (require 'calibredb)
-     (setq sql-sqlite-program "/usr/bin/sqlite3")
-     (setq calibredb-root-dir "/Volumes/WDC 2/Calibre Library")
-     (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
-     (setq calibredb-program "/Applications/calibre.app/Contents/MacOS/calibredb")
-     (setq calibredb-library-alist '(("/Volumes/WDC 2/Calibre Library")
-                                     ))
-   #+end_src
-
 ** Beacon
 
    #+begin_src emacs-lisp
@@ -3753,7 +3732,7 @@ the correct commit which submits the selected text is displayed."
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
    #+BEGIN_SRC emacs-lisp
      (require 'lsp-mode)
-     ;(add-hook 'prog-mode-hook #'lsp)
+     (add-hook 'prog-mode-hook #'lsp)
      (setq lsp-keymap-prefix "C-c L")
      (setq lsp-completion-provider :capf)
      (setq lsp-session-file (concat qq/cache-directory "lsp-session-v1"))
@@ -4516,6 +4495,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | M-j     | org-mode-map     | normal    |      | 'org-metadown                                          |
       | K       | org-mode-map     | normal    |      | 'org-edit-special                                      |
       | TAB     | org-mode-map     | normal    |      | 'org-cycle                                             |
+
 **** Links: [[Evil Org Bindings][Evil Org Bindings]]                                     :ignore:
 ** PDFTools
    [[https://github.com/politza/pdf-tools][pdf-tools]] allows you to read and annotate PDF documents in Emacs.
