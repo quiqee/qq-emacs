@@ -658,12 +658,12 @@ required from *emacs*.
      (setq qq/fullscreen-max t)
    #+end_src
 
-*** Ubuntu@Focal
+*** Linux Desktop
 
    #+BEGIN_SRC emacs-lisp
      (defvar qq/system-name system-name)
      (cond
-      ((or (string-equal qq/system-name "focal") (string-equal qq/system-name "z390-manjaro"))
+      ((or (string-equal qq/system-name "focal") (string-equal qq/system-name "osboxes") (string-equal qq/system-name "z390-manjaro"))
        (progn
    #+END_SRC
 
