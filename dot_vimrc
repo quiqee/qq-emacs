@@ -1,0 +1,99 @@
+" -*- vim -*-
+" FILE: "/Users/fikri/.vimrc"
+" LAST MODIFICATION: "Sun, 04 Mar 2012 20:49:56 +0940 (fikri)"
+" (C) 2001-2012 by Fikri Pribadi, <fikri@me.com>
+" $Id:$
+
+
+" GUI Startup Settings    {{{
+" ----------------------------------------------------------------------------
+if has("gui_running")
+  if has("gui_gtk2")
+    :set guifont=PragmataPro\ Mono
+    :set dir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+    " Works on Ubuntu, require wmctrl: sudo apt-get install wmctrl
+    :au VimEnter * :!wmctrl -r :ACTIVE: -b toggle,fullscreen
+
+  elseif has("x11") " Also for GTK 1
+    :set guifont=*-lucidatypewriter-medium-r-normal-*-*-180-*-*-m-*-*
+  elseif has("gui_win32")
+    let $HOME = $USERPROFILE
+    :set guifont=PragmataPro_for_Powerline:h10:cANSI
+    :set dir=c:\windows\temp
+    :set fileformats=unix,dos,mac
+"    :au VimEnter * win 380 115
+    :winpos -1680 0                           " Force to use second monitor on the left
+    :au GUIEnter * simalt ~x
+  elseif has("gui_macvim")
+    :set guifont=PragmataPro\ for\ Powerline:h12
+    :set transparency=30
+    :set fullscreen
+    :set dir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+    :set fileformats=unix,mac,dos
+    :set fuoptions=maxvert,maxhorz
+  else
+    :set dir=/tmp
+    :set fileformats=dos,unix,mac
+  endif
+    set wmh=0
+    set wmw=0
+  "See the error list
+"  au BufReadPost quickfix  silent g/^/s//\=line(".")." "/
+"  au BufReadPost quickfix  set nonumber
+else
+  :set t_Co=256                            " Explicitly tell vim that the terminal supports 256 colors
+  :set fileformats=unix,dos,mac
+  :set winminheight=0
+  :set pastetoggle=<F7>                    " enable paste toggle and map it to F7
+  :set ttyfast                             " indicate fast terminal connection
+  :set ttyscroll=3
+  if exists('$TMUX')
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+  else
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  endif
+  if expand('%:t') =~?'bash-fc-\d\+'
+    setfiletype sh
+  endif
+endif
+
+source $VIMRUNTIME/menu.vim                  " Setup a console menu
+
+" }}}
+
+source ~/.vim/settings.vim
+
+source ~/.vim/bundle.vim
+
+source ~/.vim/autocommands.vim
+
+source ~/.vim/bundle_settings.vim
+
+source ~/.vim/mappings.vim
+
+source ~/.vim/registers.vim
+
+source ~/.vim/custom.vim
+
+" COLOR SCHEME {{{
+"colo baycomb
+set background=dark
+"colo fikri-molokai
+if &t_Co > 2 || has("gui_running")
+ syntax on
+endif
+"if !has("win32")
+"let g:solarized_termcolors=256
+"colo solarized
+colo hybrid
+"colo jellybeans
+"hi WarningMsg guibg=yellow gui=bold
+"endif
+
+"custom highlight:
+highlight ColorColumn guibg=#443322
+" }}}
+
+" vim: ts=2 fdm=marker

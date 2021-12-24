@@ -5248,7 +5248,8 @@ Some general settings that should apply to all programming mode. Highlight
                  (rainbow-delimiters-mode)
                  (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
                  (smart-tabs-insinuate 'c++ 'c 'javascript)
-                 ;(color-identifiers-mode t)))   ; WARNING: if scrolling is slow, turn this off
+                 ;(color-identifiers-mode t))
+              ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
 #+begin_src emacs-lisp

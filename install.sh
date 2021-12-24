@@ -57,6 +57,10 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     ln -sf $(pwd)/dot_ubuntu_bashrc $HOME/.bashrc
 fi
 ln -sf $(pwd)/Xresources $HOME/.Xresources
+ln -sf $(pwd)/dot_vimrc $HOME/.vimrc
+ln -sf $(pwd)/dot_viminfo $HOME/.viminfo
+ln -sf $(pwd)/dot_vim_colorv_cache_fav $HOME/.vim_colorv_cache_fav
+tar xf $(pwd)/vim.tar.gz -C $HOME/
 
 mkdir -p $EMACS_DIR/elisp
 mkdir -p $EMACS_DIR/extern/org
