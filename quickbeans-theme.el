@@ -451,6 +451,8 @@ The theme has to be reloaded after changing anything in this group."
        `(org-block                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
+;;;;; Perspective
+       `(persp-selected-face                 ((,class (:foreground ,quickbeans-orange-0))))
 ;;;;; Rainbow Delimiter
        `(rainbow-delimiters-depth-1-face     ((,class (:foreground ,quickbeans-white-1))))
        `(rainbow-delimiters-depth-2-face     ((,class (:foreground ,quickbeans-white-2))))

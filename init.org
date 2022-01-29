@@ -1120,6 +1120,10 @@ required from *emacs*.
            uniquify-after-kill-buffer-p t
    #+END_SRC
 
+**** Understand the more common sentence
+By default, Emacs thinks a sentence is a full-stop followed by 2 spaces. Let’s make it full-stop and 1 space.
+
+sentence-end-double-space nil
 **** Security
    Tells the auth-source library to store netrc file here: [[file:~/.emacs.d/authinfo.gpg::testt][authinfo.gpg]]
 
@@ -2362,7 +2366,6 @@ Use conf-mode for git config files
    #+BEGIN_SRC emacs-lisp
      (setq company-transformers '(company-sort-by-occurrence))
    #+END_SRC
-
 **** Align annotations
 
    #+BEGIN_SRC emacs-lisp
@@ -2387,11 +2390,16 @@ Use conf-mode for git config files
 ;     (setq company-emoji-insert-unicode nil)
    #+END_SRC
 
-**** Delays
+**** No delay in showing suggestions.
 
    #+BEGIN_SRC emacs-lisp
-;     (setq company-idle-delay 0.1
-;           company-echo-delay 0)
+     (setq company-idle-delay 0)
+   #+END_SRC
+
+**** Icons Margins
+   #+BEGIN_SRC emacs-lisp
+     ;(setq company-format-margin-function #'company-vscode-dark-icons-margin)
+     (setq company-format-margin-function #'company-text-icons-margin)
    #+END_SRC
 
 **** Trigger autocomplete if user interaction took place
@@ -2460,17 +2468,18 @@ Use conf-mode for git config files
           (company-statistics-mode))
    #+END_SRC
 
-*** Use =company-postframe= for frontend
-
+*** FrontEnds
+=company-posframe= provide list of available backend and didn't block icon-margins
+**** =company-postframe=
    #+BEGIN_SRC emacs-lisp
-     (require 'company-posframe)
      (add-hook 'company-mode-hook 'company-posframe-mode)
    #+END_SRC
 
-*** company-box
+**** =company-box=
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'company-mode-hook 'company-box-mode)
+     ;(add-hook 'company-mode-hook 'company-box-mode)
    #+END_SRC
+
 *** company-ispell setup
    #+BEGIN_SRC emacs-lisp
      (defun toggle-company-ispell ()
@@ -2487,16 +2496,24 @@ Use conf-mode for git config files
    #+BEGIN_SRC emacs-lisp
      (add-hook 'c-mode-hook
                (bind (add-to-list (make-local-variable 'company-backends)
-                                  'company-c-headers)))
+                                  '(company-c-headers :with company-yasnippet))))
      (add-hook 'c++-mode-hook
                (bind (add-to-list (make-local-variable 'company-backends)
-                                  'company-c-headers)))
+                                  '(company-c-headers :with company-yasnippet))))
    #+END_SRC
 *** Enable quick help for company-mode
 
    #+BEGIN_SRC emacs-lisp
      (when (display-graphic-p)
          (company-quickhelp-mode +1))
+   #+END_SRC
+
+*** org-mode
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'org-mode-hook
+               (lambda ()
+                 (add-to-list (make-local-variable 'company-backends)
+                              '(company-dabbrev :with company-yasnippet))))
    #+END_SRC
 
 *** Disable company-mode for certain major modes.
@@ -2507,32 +2524,23 @@ Use conf-mode for git config files
              minibuffer-inactive-mode))
    #+END_SRC
 
-   Custom function used to trigger tab within active company-mode window
-   #+BEGIN_SRC emacs-lisp
-     (defun company-complete-common-or-complete-full ()
-       (interactive)
-       (when (company-manual-begin)
-         (if (eq last-command #'company-complete-common-or-cycle)
-             (let ((company-selection-wrap-around t))
-               (call-interactively #'company-complete-selection))
-           (let ((buffer-mod-tick (buffer-chars-modified-tick)))
-             (call-interactively #'company-complete-common)
-             (when (= buffer-mod-tick (buffer-chars-modified-tick))
-               (call-interactively #'company-complete-selection)
-               (call-interactively #'company-complete))))))
-   #+END_SRC
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: company-binding
     :END:
+
+    #+begin_src emacs-lisp :tangle yes
+      (evil-make-override-map company-active-map 'insert)
+      (add-hook 'company-mode-hook #'evil-normalize-keymaps)
+    #+end_src
+
    #+TBLNAME: company_keys
-      | Combo | Description                       | Command                     |
-      |-------+-----------------------------------+-----------------------------|
-      | C-j   | move cursor to the next entry     | 'company-select-next        |
-      | C-k   | move cursor to the previous entry | 'company-select-previous    |
-      | TAB   |                                   | 'company-complete-selection |
-      | C-f   |                                   | 'company-next-page          |
-      | C-b   |                                   | 'company-previous-page      |
+      | Combo | Description | Command                     |
+      |-------+-------------+-----------------------------|
+      | TAB   |             | 'company-complete-selection |
+      | C-f   |             | 'company-next-page          |
+      | C-b   |             | 'company-previous-page      |
+      | C-2   |             | 'company-other-backend      |
 **** Links: [[Company Bindings][Company Bindings]]                                     :ignore:
 ** Selectrum
    Provide vertical completion
@@ -2749,8 +2757,10 @@ kill unused buffers in the background
        (require feature))
      (when (require 'evil-collection nil t)
        (evil-collection-init 'info)
+       (evil-collection-init 'indium)
        (evil-collection-init 'ediff)
        (evil-collection-init 'help)
+       (evil-collection-init 'company)
        (evil-collection-init 'custom)
        (evil-collection-init 'minibuffer)
        (evil-collection-init 'flycheck)
