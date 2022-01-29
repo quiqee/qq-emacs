@@ -199,7 +199,6 @@ It will be faster to disable them here before they've been initialized.
              '(
                ;; Tools
                exec-path-from-shell
-               ranger
                multi-term
                restart-emacs
                smerge-mode
@@ -299,6 +298,9 @@ It will be faster to disable them here before they've been initialized.
 
                dired-narrow
                dired-subtree
+               dired-filter
+               dired-rainbow
+               dired-avfs   ; require installation of avfs in the OS (apt install avfs)
                all-the-icons-dired
                docker-tramp
 
@@ -342,7 +344,6 @@ It will be faster to disable them here before they've been initialized.
                ;color-identifiers-mode        ; gives colors to unique variables passed into functions
 
                diff-hl
-                                             ;(depends-on "dired+")
                discover-my-major             ; Discover key bindings and their meaning for
                                              ; the current Emacs major mode
                elisp-slime-nav               ; Provide convinient navigation to the definitions
@@ -1067,7 +1068,7 @@ required from *emacs*.
 **** Activate default value of =C= or =R= commands to another dired window.
 
    #+BEGIN_SRC emacs-lisp
-           dired-dwim-target t
+           ;dired-dwim-target t
    #+END_SRC
 
 **** Echo commands quicker than the default 1 second
@@ -3190,7 +3191,8 @@ kill unused buffers in the background
       | c l    |                                 | 'evilnc-comment-or-uncomment-to-the-line         |
       | c c    |                                 | 'evilnc-copy-and-comment-lines                   |
       | c p    |                                 | 'evilnc-comment-or-uncomment-paragraphs          |
-      | d      |                                 | 'dired-jump                                      |
+      | d d    |                                 | 'dired-jump                                      |
+      | d e    |                                 | 'dired                                           |
       | e l    |                                 | 'eval-last-sexp                                  |
       | e b    |                                 | 'eval-buffer                                     |
       | e e    |                                 | 'eval-expression                                 |
@@ -3290,6 +3292,47 @@ https://github.com/lewang/ws-butler
    #+end_src
 
 ** Dired
+*** dired-avfs
+Make sure avfs is installed and its daemon is running (=mountavfs=)
+
+   #+begin_src emacs-lisp
+     (require 'dired-avfs)
+   #+end_src
+*** dired-rainbow
+Make sure avfs is installed and its daemon is running (=mountavfs=)
+
+   #+begin_src emacs-lisp
+     (require 'dired-rainbow)
+     (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+     (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+     (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+     (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+     (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+     (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+     (dired-rainbow-define media "#de751f" ("mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+     (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+     (dired-rainbow-define log "#c17d11" ("log"))
+     (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+     (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+     (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+     (dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+     (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+     (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+     (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+     (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+     (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+     (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+     (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
+   #+end_src
+*** Set =dired-omit-files= to hidden files
+   #+begin_src emacs-lisp
+     (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\..*$")
+   #+end_src
+*** Listing switches
+   #+begin_src emacs-lisp
+     (setq dired-listing-switches "-alh")
+   #+end_src
+*** Enable All The Icons Dired
    #+begin_src emacs-lisp
      (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
    #+end_src
@@ -3304,7 +3347,6 @@ https://github.com/lewang/ws-butler
       | q             | dired-mode-map | (normal)        |                             | 'quit-window                             |
       | nn            | dired-mode-map | (normal)        | dired-narrow operation      | 'dired-narrow                            |
       | nx            | dired-mode-map | (normal)        |                             | 'dired-narrow-regexp                     |
-      | j             | dired-mode-map | (normal)        |                             | 'dired-next-line                         |
       | j             | dired-mode-map | (normal)        |                             | 'dired-next-line                         |
       | k             | dired-mode-map | (normal)        |                             | 'dired-previous-line                     |
       | [mouse-2]     | dired-mode-map | (normal)        |                             | 'dired-mouse-find-file-other-window      |
@@ -3333,13 +3375,10 @@ https://github.com/lewang/ws-butler
       | &             | dired-mode-map | (normal)        |                             | 'dired-do-async-shell-command            |
       | "="           | dired-mode-map | (normal)        | Comparison commands         | 'dired-diff                              |
       | M-C-?         | dired-mode-map | (normal)        | Tree Dired commands         | 'dired-unmark-all-files                  |
-      | M-C-d         | dired-mode-map | (normal)        |                             | 'dired-tree-down                         |
-      | M-C-u         | dired-mode-map | (normal)        |                             | 'dired-tree-up                           |
       | M-C-n         | dired-mode-map | (normal)        |                             | 'dired-next-subdir                       |
       | M-C-p         | dired-mode-map | (normal)        |                             | 'dired-prev-subdir                       |
       | M-{           | dired-mode-map | (normal)        | move to marked files        | 'dired-prev-marked-file                  |
       | M-}           | dired-mode-map | (normal)        |                             | 'dired-next-marked-file                  |
-      | %             | dired-mode-map | (normal)        | Make all regexp commands    | nil                                      |
       | %u            | dired-mode-map | (normal)        | share a `%' prefix:         | 'dired-upcase                            |
       | %l            | dired-mode-map | (normal)        |                             | 'dired-downcase                          |
       | %d            | dired-mode-map | (normal)        |                             | 'dired-flag-files-regexp                 |
@@ -3351,7 +3390,6 @@ https://github.com/lewang/ws-butler
       | %R            | dired-mode-map | (normal)        |                             | 'dired-do-rename-regexp                  |
       | %S            | dired-mode-map | (normal)        |                             | 'dired-do-symlink-regexp                 |
       | %&            | dired-mode-map | (normal)        |                             | 'dired-flag-garbage-files                |
-      | "*"           | dired-mode-map | (normal)        | mark                        | nil                                      |
       | **            | dired-mode-map | (normal)        |                             | 'dired-mark-executables                  |
       | "*/"          | dired-mode-map | (normal)        |                             | 'dired-mark-directories                  |
       | *@            | dired-mode-map | (normal)        |                             | 'dired-mark-symlinks                     |
@@ -3396,7 +3434,7 @@ https://github.com/lewang/ws-butler
       | o             | dired-mode-map | (normal)        | sort                        | 'dired-sort-toggle-or-edit               |
       | gj            | dired-mode-map | (normal)        | moving                      | 'dired-next-dirline                      |
       | gk            | dired-mode-map | (normal)        |                             | 'dired-prev-dirline                      |
-      | [ [           | dired-mode-map | (normal)        |                             | 'dired-prev-dirline                      |
+      | [ [           | dired-mode-map | (normal)        |                             | 'dired-tree-up                           |
       | ] ]           | dired-mode-map | (normal)        |                             | 'dired-next-dirline                      |
       | <             | dired-mode-map | (normal)        |                             | 'dired-prev-dirline                      |
       | >             | dired-mode-map | (normal)        |                             | 'dired-next-dirline                      |
@@ -3404,6 +3442,7 @@ https://github.com/lewang/ws-butler
       | gh            | dired-mode-map | (normal)        | hiding                      | 'dired-hide-subdir                       |
       | M-$           | dired-mode-map | (normal)        |                             | 'dired-hide-all                          |
       | (             | dired-mode-map | (normal)        |                             | 'dired-hide-details-mode                 |
+      | )             | dired-mode-map | (normal)        |                             | 'dired-omit-mode                         |
       | M-s a C-s     | dired-mode-map | (normal)        | isearch                     | 'dired-do-isearch                        |
       | M-s a M-C-s   | dired-mode-map | (normal)        |                             | 'dired-do-isearch-regexp                 |
       | M-s f C-s     | dired-mode-map | (normal)        |                             | 'dired-isearch-filenames                 |
@@ -3427,11 +3466,6 @@ https://github.com/lewang/ws-butler
       | ;s            | dired-mode-map | (normal)        |                             | 'epa-dired-do-sign                       |
       | ;e            | dired-mode-map | (normal)        |                             | 'epa-dired-do-encrypt                    |
 
-   #+TBLNAME: dired-keys
-      | Combo | Mode           | Description | Command |
-      | SPC   | dired-mode-map |             | nil     |
-      | S-SPC | dired-mode-map |             | nil     |
-      | n     | dired-mode-map |             | nil     |
 **** Links: [[Evil Dired Bindings][Evil Dired Bindings]]                                     :ignore:
 ** Ag
 *** Evil Binding
@@ -6419,10 +6453,7 @@ Generate binding using table from [[#evil-leader-binding][here]]
    Generate binding using table from [[#evil-dired-binding][here]]
 
     #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="add-hook 'dired-mode-hook\n(lambda()")>>
      <<gen-keys(moda="evil", tname=evil_dired_keys)>>
-     <<gen-keys(mmap="t", tname=dired-keys)>>
-     <<gen-fix(pos="))\n")>>
     #+END_SRC
 
 *** Evil Org Bindings
