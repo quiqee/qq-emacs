@@ -193,7 +193,7 @@ It will be faster to disable them here before they've been initialized.
                    (if (package-installed-p (or ret package))
                        (progn (setq qq/package-installed t)
                               (message "✓ Installed %s" (or ret package)))
-                     (error "✕ Couldn't install %s" (or ret package))))))
+                     (message "✕ Couldn't install %s" (or ret package))))))
 
                                              ; list of packages to be installed
              '(
@@ -362,6 +362,7 @@ It will be faster to disable them here before they've been initialized.
                pdf-tools
                tablist
 
+               (lacarte :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/lacarte.el")
                (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
 
                expand-region
@@ -3204,6 +3205,7 @@ kill unused buffers in the background
       | h j    |                                 | 'helm-dash-at-point                              |
       | h e    |                                 | 'emojify-describe-emoji-at-point                 |
       | M      |                                 | 'which-key-show-keymap                           |
+      | m      |                                 | 'lacarte-execute-menu-command                    |
       | e c    |                                 | 'evilnc-comment-or-uncomment-lines               |
       | ?      |                                 | 'which-key-show-top-level                        |
       | q      |                                 | 'evil-window-delete                              |
@@ -3752,6 +3754,17 @@ Git-gutter doesn’t play nice with TRAMP remotes
                (bind
                  (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
    #+END_SRC
+*** Evil LSP Browser Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: lsp-browser-binding
+    :END:
+
+   #+TBLNAME: lsp_browser_keys
+      | Combo | Mode                 | Evil Mode | Description | Command         |
+      |-------+----------------------+-----------+-------------+-----------------|
+      | q     | lsp-browser-mode-map | normal    |             | 'quit-window    |
+      | TAB   | lsp-browser-mode-map | normal    |             | 'widget-forward |
+**** Links: [[Evil LSP Browser Bindings][Evil LSP Browser Bindings]]                                     :ignore:
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-lsp-binding
@@ -6175,6 +6188,7 @@ To use this function, simply highlight a region you want to align and run M-x al
    #+BEGIN_SRC emacs-lisp
      (general-create-definer qq-leader-def
        :prefix "SPC"
+       :non-normal-prefix "C-SPC"
        :global-prefix "C-SPC")
    #+END_SRC
 *** Macros
@@ -6187,7 +6201,7 @@ To use this function, simply highlight a region you want to align and run M-x al
    #+name: leader_normal
    #+begin_src emacs-lisp :tangle no
      (qq-leader-def
-     :keymaps 'normal
+     :keymaps '(normal insert)
    #+end_src
 
    #+name: leader_visual
@@ -6376,6 +6390,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=cc_mode_keys)>>
+   #+END_SRC
+
+*** Evil LSP Browser Bindings
+   Binding code generation for [[#lsp-browser-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-keys(moda="evil", tname=lsp_browser_keys)>>
    #+END_SRC
 
 *** Evil Web Mode Bindings
