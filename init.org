@@ -202,6 +202,7 @@ It will be faster to disable them here before they've been initialized.
                multi-term
                restart-emacs
                smerge-mode
+               smart-tabs-mode               ; provide semantic way of using tab in source code
 
                beacon
 
@@ -225,7 +226,6 @@ It will be faster to disable them here before they've been initialized.
                rainbow-delimiters
                                              ;smart-mode-line
                smartparens                   ; Minor mode for Emacs that deals with parens pairs
-               smart-tabs-mode               ; provide semantic way of using tab in source code
                smex                          ; M-x interface with Ido-style fuzzy matching.
 
                vterm
@@ -247,6 +247,7 @@ It will be faster to disable them here before they've been initialized.
 
                flx
 
+               dash-doc                      ; Offline documentation browser using Dash docsets.
                calibredb
                mode-line-bell
                helpful
@@ -260,6 +261,7 @@ It will be faster to disable them here before they've been initialized.
                prettier-js
                js-doc
                rjsx-mode
+               npm-mode                      ; minor mode for working with NPM projects
                json-mode
                markdown-mode
                swift-mode
@@ -635,6 +637,12 @@ required from *emacs*.
      (defvar qq/serial-port1 "/dev/ttyUSB0")
    #+end_src
 
+**** Dash docsets path
+
+   #+begin_src emacs-lisp
+     (defvar qq/docsets-path (expand-file-name (concat qq/cache-directory "docsets")))
+   #+end_src
+
 **** clangd Executables
 
    #+begin_src emacs-lisp
@@ -694,6 +702,10 @@ required from *emacs*.
                          )
    #+end_src
 
+**** Dash docsets path
+   #+begin_src emacs-lisp
+     (custom-set-variables '(dash-docs-docsets-path qq/docsets-path))
+   #+end_src
 **** Ccls Executables
 
    #+begin_src emacs-lisp
@@ -2356,6 +2368,7 @@ Use conf-mode for git config files
       | C-s-=   | Increase text scale                                               | 'default-text-scale-increase |
       | C-s--   | Decrease text scale                                               | 'default-text-scale-decrease |
       | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
+      | C-C d   | Dash Docs search or at point                                      | 'qq/dash-search              |
 **** Links: [[Basic Bindings]]                                     :ignore:
 * Third parties
 ** Company
@@ -2768,6 +2781,7 @@ kill unused buffers in the background
        (evil-collection-init 'helpful)
        (evil-collection-init 'elisp-refs)
        (evil-collection-init 'company)
+       (evil-collection-init 'simple)
        (evil-collection-init 'custom)
        (evil-collection-init 'minibuffer)
        (evil-collection-init 'flycheck)
@@ -3825,7 +3839,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
            lsp-ui-flycheck-enable t
 
            lsp-ui-imenu-enable t
-           lsp-ui-imenu-kind-position (quote left)
+           lsp-ui-imenu-kind-position 'left
 
            lsp-ui-peek-enable t
            lsp-ui-peek-fontify 'on-demand ;; never, on-demand, or always
@@ -5343,8 +5357,35 @@ Some general settings that should apply to all programming mode. Highlight
               ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
+*** Dash-Docs
+   #+begin_src emacs-lisp
+     (require 'dash-docs)
+     (setq dash-docs-browser-func 'eww)
+     (setq dash-docs-common-docsets '("C++" "Emacs Lisp" "Docker"))
+     (setq dash-docs-docsets '("C++" "Emacs Lisp" "Docker"))
+     (defun qq/region-symbol-query()
+       "if a prefix argument (4)(C-u) read from input, else if we have a region select then return that and deselect the region, else try symbol-at-point and finally fallback to input"
+       (let* ((w (if (or  (not current-prefix-arg) (not (listp current-prefix-arg)))
+                     (if(use-region-p)
+                         (let ((sel-text
+                                (buffer-substring-no-properties
+                                 (mark)
+                                 (point))))
+                           sel-text)
+                       (thing-at-point 'symbol)) nil))
+              (result (if w w (read-string "lookup:"))))
+         result))
+     (defun qq/dash-search(&optional w)
+       (interactive)
+       (dash-docs-search (if w w (qq/region-symbol-query))))
+   #+end_src
+
+** CMake
 #+begin_src emacs-lisp
-     (add-hook 'cmake-mode-hook 'eldoc-cmake-enable)
+     (defun qq/cmake-mode ()
+       (eldoc-cmake-enable)
+       (setq-local dash-docs-docsets '("CMake")))
+     (add-hook 'cmake-mode-hook 'qq/cmake-mode)
 #+end_src
 
 ** Compilation
@@ -5525,6 +5566,7 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
      (global-cwarn-mode 1)
      (modern-c++-font-lock-mode)
 
+     (setq-local dash-docs-docsets '("C" "C++"))
      ;; slow
      ;;(flycheck-mode)
      ;;(setq flycheck-gcc-language-standard "c++11")
@@ -5691,8 +5733,12 @@ Associate Dockerfile with =docker-mode=.
 ** Web/CSS/Javascript/Json
 *** Hooks
    #+BEGIN_SRC emacs-lisp
+     (defun qq/js2-mode-hook ()
+       (npm-mode t)
+       (prettier-js-mode)
+       (setq-local dash-docs-docsets '("React" "JavaScript" "jQuery")))
+     (add-hook 'js2-mode-hook 'qq/js2-mode-hook)
      (add-hook 'css-mode-hook 'prettier-js-mode)
-     (add-hook 'js2-mode-hook 'prettier-js-mode)
      (add-hook 'web-mode-hook 'prettier-js-mode)
    #+END_SRC
 
@@ -5708,9 +5754,14 @@ Associate Dockerfile with =docker-mode=.
      (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
      (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 
-     (setq auto-mode-alist (cons '("\\.js$"   . js2-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.js$"   . rjsx-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.jsx$" . rjsx-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
+     (custom-set-variables '(prettier-js-args '(
+                                                "--trailing-comma" "all"
+                                                "--bracket-spacing" "false"
+                                                "--print-width" "80"
+                                                )))
      (after 'js2-mode
        (setq js-indent-level 2
              js-switch-indent-offset 2
