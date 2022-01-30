@@ -249,6 +249,7 @@ It will be faster to disable them here before they've been initialized.
 
                calibredb
                mode-line-bell
+               helpful
 
                ;; Modes
                writegood-mode
@@ -2329,6 +2330,12 @@ Use conf-mode for git config files
    #+END_SRC
 
 ** Keybindings
+    Unbind some unused global-key
+    #+begin_src emacs-lisp
+      (dolist (key '("\M-l" "\M-k"))
+        (global-unset-key key))
+    #+end_src
+
     :PROPERTIES:
     :CUSTOM_ID: default-key-binding
     :END:
@@ -2657,10 +2664,6 @@ Use conf-mode for git config files
       | "."               | Forward to 'find file'                   | 'find-file                |
       | b c               |                                          | 'selectrum-switch-buffer+ |
       | h a               |                                          | 'consult-apropos          |
-      | h f               | Display full doc on a function           | 'describe-function        |
-      | h F               | Display properties of a face             | 'describe-face            |
-      | h v               | Display full doc of a variable           | 'describe-variable        |
-      | h l               | Find Emacs Lisp source of a library      | 'find-library             |
       | b b               | Show list of supported colors in a frame | 'consult-buffer           |
       | b o               | Display definition of a symbol           | 'consult-other-window     |
       | b F               | Display definition of a symbol           | 'consult-other-frame      |
@@ -2762,6 +2765,8 @@ kill unused buffers in the background
        (evil-collection-init 'indium)
        (evil-collection-init 'ediff)
        (evil-collection-init 'help)
+       (evil-collection-init 'helpful)
+       (evil-collection-init 'elisp-refs)
        (evil-collection-init 'company)
        (evil-collection-init 'custom)
        (evil-collection-init 'minibuffer)
@@ -3164,101 +3169,107 @@ kill unused buffers in the background
     :CUSTOM_ID: evil-leader-binding
     :END:
    #+TBLNAME: evil_leader_keys
-      | Combo  | Description                     | Command                                          |
-      |--------+---------------------------------+--------------------------------------------------|
-      | %      |                                 | 'ctl-x-5-prefix                                  |
-      | "\\\\" |                                 | 'evil-execute-in-emacs-state                     |
-      | 0      |                                 | 'select-window-0                                 |
-      | 1      |                                 | 'select-window-1                                 |
-      | 2      |                                 | 'select-window-2                                 |
-      | 3      |                                 | 'select-window-3                                 |
-      | 4      |                                 | 'select-window-4                                 |
-      | 5      |                                 | 'select-window-5                                 |
-      | 6      |                                 | 'select-window-6                                 |
-      | 7      |                                 | 'select-window-7                                 |
-      | 8      |                                 | 'select-window-8                                 |
-      | 9      |                                 | 'select-window-9                                 |
-      | b k    | Kill current buffer             | 'ido-kill-buffer                                 |
-      | b S    |                                 | 'bs-show                                         |
-      | b d    |                                 | 'kill-this-buffer                                |
-      | b e    |                                 | 'evil-buffer                                     |
-      | b i    |                                 | 'ibuffer                                         |
-      | b q    |                                 | 'kill-buffer-and-window                          |
-      | b f    |                                 | 'ido-find-file                                   |
-      | b x    |                                 | 'ido-switch-buffer                               |
-      | C      |                                 | 'customize-group                                 |
-      | c i    |                                 | 'evilnc-comment-or-uncomment-lines               |
-      | c l    |                                 | 'evilnc-comment-or-uncomment-to-the-line         |
-      | c c    |                                 | 'evilnc-copy-and-comment-lines                   |
-      | c p    |                                 | 'evilnc-comment-or-uncomment-paragraphs          |
-      | d d    |                                 | 'dired-jump                                      |
-      | d e    |                                 | 'dired                                           |
-      | e l    |                                 | 'eval-last-sexp                                  |
-      | e b    |                                 | 'eval-buffer                                     |
-      | e e    |                                 | 'eval-expression                                 |
-      | e d    |                                 | 'eval-defun                                      |
-      | j c    |                                 | 'evil-ace-jump-char-mode                         |
-      | j l    |                                 | 'evil-ace-jump-line-mode                         |
-      | j w    |                                 | 'evil-ace-jump-word-mode                         |
-      | h x    | Describe character under cursor | 'describe-char                                   |
-      | h k    | Describe keybinding             | 'describe-key                                    |
-      | h m    | Describe keybinding             | 'describe-mode                                   |
-      | h h    |                                 | 'help-for-help-internal                          |
-      | h j    |                                 | 'helm-dash-at-point                              |
-      | h e    |                                 | 'emojify-describe-emoji-at-point                 |
-      | M      |                                 | 'which-key-show-keymap                           |
-      | m      |                                 | 'lacarte-execute-menu-command                    |
-      | e c    |                                 | 'evilnc-comment-or-uncomment-lines               |
-      | ?      |                                 | 'which-key-show-top-level                        |
-      | q      |                                 | 'evil-window-delete                              |
-      | P      |                                 | 'package-list-packages                           |
-      | r 1    |                                 | 'qq/serial-term-1                                |
-      | r 2    |                                 | 'qq/serial-term-2                                |
-      | r r    |                                 | 'serial-term                                     |
-      | r v    |                                 | 'multi-vterm                                     |
-      | s      |                                 | 'save-buffer                                     |
-      | t SPC  |                                 | 'whitespace-mode                                 |
-      | t TAB  |                                 | 'c-toggle-syntactic-indentation                  |
-      | t b    |                                 | 'sr-speedbar-toggle                              |
-      | t r    |                                 | 'toggle-truncate-lines                           |
-      | t d    |                                 | 'toggle-debug-on-error                           |
-      | t h    | toggle highlight current line   | 'global-hl-line-mode                             |
-      | t i    | toggle indent guide             | 'highlight-indent-guides-mode                    |
-      | t c    |                                 | 'qq/toggle-clang-format-save                     |
-      | t s    |                                 | 'qq/toggle-evil-search                           |
-      | t f    |                                 | 'toggle-frame-fullscreen                         |
-      | t m    |                                 | 'toggle-frame-maximized                          |
-      | t o    |                                 | 'auto-dim-other-buffers-mode                     |
-      | t t    |                                 | 'treemacs                                        |
-      | t l    |                                 | 'qq/toggle-line-numbers                          |
-      | t e    |                                 | 'qq/toggle-delete-trailing-whitespace            |
-      | t g    |                                 | 'gdb-many-windows                                |
-      | t w    |                                 | 'other-frame                                     |
-      | u u    |                                 | 'undo-tree-visualize                             |
-      | u s    |                                 | 'undo-tree-save-state-to-register ; C-x r u      |
-      | u r    |                                 | 'undo-tree-restore-state-from-register ; C-x r U |
-      | V      |                                 | (bind (term "vim"))                              |
-      | v d    |                                 | 'gdb                                             |
-      | v k    |                                 | 'gud-kill-yes                                    |
-      | v r    |                                 | 'gud-remove                                      |
-      | v b    |                                 | 'gud-break                                       |
-      | v u    |                                 | 'gud-run                                         |
-      | v p    |                                 | 'gud-print                                       |
-      | v e    |                                 | 'gud-cls                                         |
-      | v n    |                                 | 'gud-next                                        |
-      | v s    |                                 | 'gud-step                                        |
-      | v i    |                                 | 'gud-stepi                                       |
-      | v c    |                                 | 'gud-cont                                        |
-      | v f    |                                 | 'gud-finish                                      |
-      | x h    |                                 | 'mark-whole-buffer                               |
-      | x x    |                                 | 'smex                                            |
-      | x n n  |                                 | 'narrow-or-widen-dwim                            |
-      | x n w  |                                 | 'widen                                           |
-      | x n d  |                                 | 'narrow-to-defun                                 |
-      | x n r  |                                 | 'narrow-to-region                                |
-      | x z    |                                 | 'suspend-frame                                   |
-      | y h    |                                 | 'cliphist-paste-item                             |
-      | y u    |                                 | 'cliphist-select-item                            |
+      | Combo  | Description                         | Command                                          |
+      |--------+-------------------------------------+--------------------------------------------------|
+      | %      |                                     | 'ctl-x-5-prefix                                  |
+      | "\\\\" |                                     | 'evil-execute-in-emacs-state                     |
+      | 0      |                                     | 'select-window-0                                 |
+      | 1      |                                     | 'select-window-1                                 |
+      | 2      |                                     | 'select-window-2                                 |
+      | 3      |                                     | 'select-window-3                                 |
+      | 4      |                                     | 'select-window-4                                 |
+      | 5      |                                     | 'select-window-5                                 |
+      | 6      |                                     | 'select-window-6                                 |
+      | 7      |                                     | 'select-window-7                                 |
+      | 8      |                                     | 'select-window-8                                 |
+      | 9      |                                     | 'select-window-9                                 |
+      | b k    | Kill current buffer                 | 'ido-kill-buffer                                 |
+      | b S    |                                     | 'bs-show                                         |
+      | b d    |                                     | 'kill-this-buffer                                |
+      | b e    |                                     | 'evil-buffer                                     |
+      | b i    |                                     | 'ibuffer                                         |
+      | b q    |                                     | 'kill-buffer-and-window                          |
+      | b f    |                                     | 'ido-find-file                                   |
+      | b x    |                                     | 'ido-switch-buffer                               |
+      | C      |                                     | 'customize-group                                 |
+      | c i    |                                     | 'evilnc-comment-or-uncomment-lines               |
+      | c l    |                                     | 'evilnc-comment-or-uncomment-to-the-line         |
+      | c c    |                                     | 'evilnc-copy-and-comment-lines                   |
+      | c p    |                                     | 'evilnc-comment-or-uncomment-paragraphs          |
+      | d d    |                                     | 'dired-jump                                      |
+      | d e    |                                     | 'dired                                           |
+      | e l    |                                     | 'eval-last-sexp                                  |
+      | e b    |                                     | 'eval-buffer                                     |
+      | e e    |                                     | 'eval-expression                                 |
+      | e d    |                                     | 'eval-defun                                      |
+      | j c    |                                     | 'evil-ace-jump-char-mode                         |
+      | j l    |                                     | 'evil-ace-jump-line-mode                         |
+      | j w    |                                     | 'evil-ace-jump-word-mode                         |
+      | h x    | Describe character under cursor     | 'describe-char                                   |
+      | h k    | Describe keybinding                 | 'helpful-key                                     |
+      | h m    | Describe keybinding                 | 'describe-mode                                   |
+      | h M    | Describe macros                     | 'helpful-macros                                  |
+      | h f    | Display full doc on a function      | 'helpful-callable                                |
+      | h c    | Describe interactive function       | 'helpful-command                                 |
+      | h F    | Display properties of a face        | 'describe-face                                   |
+      | h v    | Display full doc of a variable      | 'helpful-variable                                |
+      | h l    | Find Emacs Lisp source of a library | 'find-library                                    |
+      | h h    |                                     | 'help-for-help-internal                          |
+      | h .    |                                     | 'helpful-at-point                                |
+      | h e    |                                     | 'emojify-describe-emoji-at-point                 |
+      | M      |                                     | 'which-key-show-keymap                           |
+      | m      |                                     | 'lacarte-execute-menu-command                    |
+      | e c    |                                     | 'evilnc-comment-or-uncomment-lines               |
+      | ?      |                                     | 'which-key-show-top-level                        |
+      | q      |                                     | 'evil-window-delete                              |
+      | P      |                                     | 'package-list-packages                           |
+      | r 1    |                                     | 'qq/serial-term-1                                |
+      | r 2    |                                     | 'qq/serial-term-2                                |
+      | r r    |                                     | 'serial-term                                     |
+      | r v    |                                     | 'multi-vterm                                     |
+      | s      |                                     | 'save-buffer                                     |
+      | t SPC  |                                     | 'whitespace-mode                                 |
+      | t TAB  |                                     | 'c-toggle-syntactic-indentation                  |
+      | t b    |                                     | 'sr-speedbar-toggle                              |
+      | t r    |                                     | 'toggle-truncate-lines                           |
+      | t d    |                                     | 'toggle-debug-on-error                           |
+      | t h    | toggle highlight current line       | 'global-hl-line-mode                             |
+      | t i    | toggle indent guide                 | 'highlight-indent-guides-mode                    |
+      | t c    |                                     | 'qq/toggle-clang-format-save                     |
+      | t s    |                                     | 'qq/toggle-evil-search                           |
+      | t f    |                                     | 'toggle-frame-fullscreen                         |
+      | t m    |                                     | 'toggle-frame-maximized                          |
+      | t o    |                                     | 'auto-dim-other-buffers-mode                     |
+      | t t    |                                     | 'treemacs                                        |
+      | t l    |                                     | 'qq/toggle-line-numbers                          |
+      | t e    |                                     | 'qq/toggle-delete-trailing-whitespace            |
+      | t g    |                                     | 'gdb-many-windows                                |
+      | t w    |                                     | 'other-frame                                     |
+      | u u    |                                     | 'undo-tree-visualize                             |
+      | u s    |                                     | 'undo-tree-save-state-to-register ; C-x r u      |
+      | u r    |                                     | 'undo-tree-restore-state-from-register ; C-x r U |
+      | V      |                                     | (bind (term "vim"))                              |
+      | v d    |                                     | 'gdb                                             |
+      | v k    |                                     | 'gud-kill-yes                                    |
+      | v r    |                                     | 'gud-remove                                      |
+      | v b    |                                     | 'gud-break                                       |
+      | v u    |                                     | 'gud-run                                         |
+      | v p    |                                     | 'gud-print                                       |
+      | v e    |                                     | 'gud-cls                                         |
+      | v n    |                                     | 'gud-next                                        |
+      | v s    |                                     | 'gud-step                                        |
+      | v i    |                                     | 'gud-stepi                                       |
+      | v c    |                                     | 'gud-cont                                        |
+      | v f    |                                     | 'gud-finish                                      |
+      | x h    |                                     | 'mark-whole-buffer                               |
+      | x x    |                                     | 'smex                                            |
+      | x n n  |                                     | 'narrow-or-widen-dwim                            |
+      | x n w  |                                     | 'widen                                           |
+      | x n d  |                                     | 'narrow-to-defun                                 |
+      | x n r  |                                     | 'narrow-to-region                                |
+      | x z    |                                     | 'suspend-frame                                   |
+      | y h    |                                     | 'cliphist-paste-item                             |
+      | y u    |                                     | 'cliphist-select-item                            |
 **** Links: [[Evil Leader Bindings][Evil Leader Bindings]]                                     :ignore:
 ** Mixed-pitch
 
@@ -3736,18 +3747,13 @@ Git-gutter doesn’t play nice with TRAMP remotes
 ** Lsp-mode
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
    #+BEGIN_SRC emacs-lisp
-     (require 'lsp-mode)
      (add-hook 'prog-mode-hook #'lsp)
-     (setq lsp-keymap-prefix "C-c L")
-     (setq lsp-completion-provider :capf)
-     (setq lsp-session-file (concat qq/cache-directory "lsp-session-v1"))
-     (setq lsp-auto-guess-root t)
-
-     ;(lsp-register-client
-     ; (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
-     ;                  :major-modes '(c-mode c++-mode)
-     ;                  :remote? t
-     ;                  :server-id 'clangd-lsp-remote))
+     (setq lsp-keymap-prefix "s-g")
+     (after 'lsp-mode
+       (setq lsp-completion-provider :capf
+             lsp-session-file (concat qq/cache-directory "lsp-session-v1")
+             lsp-auto-guess-root t)
+       (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
    #+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
@@ -3806,28 +3812,69 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 *** Lsp-UI
    #+BEGIN_SRC emacs-lisp
-     (setq lsp-ui-doc-enable nil)
-     (setq lsp-ui-doc-position 'at-point)
-     (setq lsp-ui-doc-max-height 70)
+     (setq lsp-ui-doc-enable t
+           lsp-ui-doc-position 'at-point
+           lsp-ui-doc-max-height 70
+           lsp-ui-doc-max-width 120
+           lsp-ui-doc-header t
+           lsp-ui-doc-include-signature t
+           lsp-ui-doc-use-childframe t
+
+           ;; If this is true then you can't see the docs in terminal
+           lsp-ui-doc-use-webkit nil
+           lsp-ui-flycheck-enable t
+
+           lsp-ui-imenu-enable t
+           lsp-ui-imenu-kind-position (quote left)
+
+           lsp-ui-peek-enable t
+           lsp-ui-peek-fontify 'on-demand ;; never, on-demand, or always
+           lsp-ui-peek-list-width 50
+           lsp-ui-peek-peek-height 20
+           lsp-ui-peek-show-directory t
+
+                                             ;inline right flush docs
+           lsp-ui-sideline-enable t
+
+           lsp-ui-sideline-ignore-duplicate t
+           lsp-ui-sideline-show-code-actions t
+           lsp-ui-sideline-show-diagnostics t
+           lsp-ui-sideline-show-hover t
+           lsp-ui-sideline-show-symbol t)
+
      (add-hook 'lsp-ui-mode-hook
                (bind
-                 (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
+                (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
    #+END_SRC
-*** Evil LSP Browser Keybinding
+*** =lsp-ui-peek= Binding
+    :PROPERTIES:
+    :CUSTOM_ID: lsp-ui-peek-binding
+    :END:
+   #+TBLNAME: lsp_ui_peek_keys
+      | Combo | Description | Command                        |
+      | C-j   |             | 'lsp-ui-peek--select-next      |
+      | C-k   |             | 'lsp-ui-peek--select-prev      |
+      | C-n   |             | 'lsp-ui-peek--select-next-file |
+      | C-p   |             | 'lsp-ui-peek--select-prev-file |
+**** Links: [[=lsp-ui-peek= Bindings][lsp-ui-peek Bindings]]                                     :ignore:
+*** Evil Keybinding
     :PROPERTIES:
     :CUSTOM_ID: lsp-browser-binding
     :END:
-
+(define-key lsp-ui-peek-mode-map (kbd "<prior>") #'lsp-ui-peek--select-prev-file)
+(define-key lsp-ui-peek-mode-map (kbd "<next>") #'lsp-ui-peek--select-next-file)
    #+TBLNAME: lsp_browser_keys
-      | Combo | Mode                 | Evil Mode | Description | Command         |
-      |-------+----------------------+-----------+-------------+-----------------|
-      | q     | lsp-browser-mode-map | normal    |             | 'quit-window    |
-      | TAB   | lsp-browser-mode-map | normal    |             | 'widget-forward |
+      | Combo | Mode                  | Evil Mode       | Description | Command                        |
+      |-------+-----------------------+-----------------+-------------+--------------------------------|
+      | q     | lsp-browser-mode-map  | normal          |             | 'quit-window                   |
+      | q     | lsp-ui-imenu-mode-map | normal          |             | 'lsp-ui-imenu--kill            |
+      | TAB   | lsp-browser-mode-map  | normal          |             | 'widget-forward                |
 **** Links: [[Evil LSP Browser Bindings][Evil LSP Browser Bindings]]                                     :ignore:
 *** Normal Keybinding
     :PROPERTIES:
     :CUSTOM_ID: normal-lsp-binding
     :END:
+
    #+TBLNAME: normal_lsp_keys
       | Evil Leader Combo | Description         | Command                       |
       |-------------------+---------------------+-------------------------------|
@@ -3835,12 +3882,12 @@ Git-gutter doesn’t play nice with TRAMP remotes
       | l]                | Peek to definitions | 'lsp-ui-peek-find-definitions |
       | l[                | Jump to definitions | 'lsp-ui-peek-jump-backward    |
       | l                 |                     | '(:ignore t :which-key "lsp") |
-      | ld                |                     | 'xref-find-definitions        |
-      | lr                |                     | 'xref-find-references         |
+      | ld                |                     | 'lsp-ui-doc-show              |
+      | lr                |                     | 'lsp-ui-peek-find-references  |
       | ln                |                     | 'lsp-ui-find-next-reference   |
       | lp                |                     | 'lsp-ui-find-prev-reference   |
       | le                |                     | 'lsp-ui-flycheck-list         |
-      | lS                |                     | 'lsp-ui-sideline-mode         |
+      | li                |                     | 'lsp-ui-imenu                 |
       | lX                |                     | 'lsp-execute-code-action      |
 **** Links: [[Normal LSP Bindings][Normal LSP Bindings]]                                     :ignore:
 ** Org
@@ -4812,6 +4859,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 ** Yasnippet
 
    #+begin_src emacs-lisp
+     (autoload 'yas-reload-all "yasnippet.el" nil t)
      (yas-reload-all)
      (add-hook 'prog-mode-hook #'yas-minor-mode)
      (add-hook 'org-mode-hook #'yas-minor-mode)
@@ -6298,6 +6346,14 @@ To use this function, simply highlight a region you want to align and run M-x al
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :keymaps 'vterm-mode-map")>>
      <<gen-keys(moda="lead", tname=vterm_mode_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+** =lsp-ui-peek= Bindings
+   Generate binding using table from [[#lsp-ui-peek-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="general-define-key\n :keymaps 'lsp-ui-peek-mode-map")>>
+     <<gen-keys(moda="lead", tname=lsp_ui_peek_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 ** Evil Bindings
