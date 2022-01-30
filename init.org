@@ -247,7 +247,8 @@ It will be faster to disable them here before they've been initialized.
 
                flx
 
-               dash-doc                      ; Offline documentation browser using Dash docsets.
+               counsel-dash                  ; Offline documentation browser using Dash docsets.
+               shrface
                calibredb
                mode-line-bell
                helpful
@@ -1832,11 +1833,11 @@ j*** Local =compile-command=
 
 ** Windows layout
    #+BEGIN_SRC emacs-lisp
-     (customize-set-variable 'display-buffer-base-action
-                             '((display-buffer-reuse-window display-buffer-same-window)
-                               (reusable-frames . t)))
+     ;(customize-set-variable 'display-buffer-base-action
+     ;                        '((display-buffer-reuse-window display-buffer-same-window)
+     ;                          (reusable-frames . t)))
 
-     (customize-set-variable 'even-window-sizes nil)     ; avoid resizing
+     ;(customize-set-variable 'even-window-sizes nil)     ; avoid resizing
    #+END_SRC
 
 ** Modes
@@ -2368,7 +2369,7 @@ Use conf-mode for git config files
       | C-s-=   | Increase text scale                                               | 'default-text-scale-increase |
       | C-s--   | Decrease text scale                                               | 'default-text-scale-decrease |
       | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
-      | C-C d   | Dash Docs search or at point                                      | 'qq/dash-search              |
+      | C-C d   | Dash Docs search or at point                                      | 'counsel-dash-at-point       |
 **** Links: [[Basic Bindings]]                                     :ignore:
 * Third parties
 ** Company
@@ -2782,12 +2783,14 @@ kill unused buffers in the background
        (evil-collection-init 'elisp-refs)
        (evil-collection-init 'company)
        (evil-collection-init 'simple)
+       (evil-collection-init 'eww)
        (evil-collection-init 'custom)
        (evil-collection-init 'minibuffer)
        (evil-collection-init 'flycheck)
        (evil-collection-init 'package-menu)
        (evil-collection-init 'proced)
        (evil-collection-init 'xref)
+       (evil-collection-init 'xwidget)
        (evil-collection-init 'which-key)
        (evil-collection-init 'magit))
    #+END_SRC
@@ -3835,7 +3838,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
            lsp-ui-doc-use-childframe t
 
            ;; If this is true then you can't see the docs in terminal
-           lsp-ui-doc-use-webkit nil
+           lsp-ui-doc-use-webkit t
            lsp-ui-flycheck-enable t
 
            lsp-ui-imenu-enable t
@@ -4870,6 +4873,32 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | b c               | Show list of supported colors in a frame | 'consult-buffer                                      |
       | b S               |                                          | (lambda (arg) (interactive "P") (persp-bs-show arg)) |
 **** Links: [[Normal Persp Bindings][Normal Persp Bindings]]                                     :ignore:
+** =shrface=
+
+   #+begin_src emacs-lisp
+     (autoload 'shrface-basic "shrface.el" nil t)
+     (autoload 'shrface-trial "shrface.el" nil t)
+     (shrface-basic)
+     (shrface-trial)
+     (setq shrface-href-versatile t)
+     (add-hook 'eww-after-render-hook #'shrface-mode)
+   #+end_src
+
+*** =eww= Binding
+    :PROPERTIES:
+    :CUSTOM_ID: shrface-binding
+    :END:
+   #+TBLNAME: shrface_keys
+      | Combo | Description | Command                       |
+      | TAB   |             | 'shrface-outline-cycle        |
+      | S-TAB |             | 'shrface-outline-cycle-buffer |
+      | C-t   |             | 'shrface-toggle-bullet        |
+      | C-j   |             | 'shrface-next-headline        |
+      | C-k   |             | 'shrface-previous-headline    |
+      | M-l   |             | 'shrface-links-consult        |
+      | M-h   |             | 'shrface-headline-consult     |
+**** Links: [[=shrface= Bindings][shrface Bindings]]                                     :ignore:
+
 ** Yasnippet
 
    #+begin_src emacs-lisp
@@ -5357,27 +5386,18 @@ Some general settings that should apply to all programming mode. Highlight
               ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
-*** Dash-Docs
+*** Counsel-Dash
    #+begin_src emacs-lisp
-     (require 'dash-docs)
-     (setq dash-docs-browser-func 'eww)
-     (setq dash-docs-common-docsets '("C++" "Emacs Lisp" "Docker"))
-     (setq dash-docs-docsets '("C++" "Emacs Lisp" "Docker"))
-     (defun qq/region-symbol-query()
-       "if a prefix argument (4)(C-u) read from input, else if we have a region select then return that and deselect the region, else try symbol-at-point and finally fallback to input"
-       (let* ((w (if (or  (not current-prefix-arg) (not (listp current-prefix-arg)))
-                     (if(use-region-p)
-                         (let ((sel-text
-                                (buffer-substring-no-properties
-                                 (mark)
-                                 (point))))
-                           sel-text)
-                       (thing-at-point 'symbol)) nil))
-              (result (if w w (read-string "lookup:"))))
-         result))
-     (defun qq/dash-search(&optional w)
-       (interactive)
-       (dash-docs-search (if w w (qq/region-symbol-query))))
+     (require 'counsel-dash)
+     (setq counsel-dash-docsets-url "https://raw.github.com/Kapeli/feeds/master"
+           counsel-dash-common-docsets '("Javascript" "HTML" "C" "C++")
+           counsel-dash-min-length 3
+           counsel-dash-candidate-format "%d %n (%t)"
+           counsel-dash-enable-debugging nil
+           dash-docs-enable-debugging nil
+           dash-docs-browser-func 'xwidget-webkit-browse-url
+           counsel-dash-browser-func 'xwidget-webkit-browse-url
+           counsel-dash-ignored-docsets nil)
    #+end_src
 
 ** CMake
@@ -6405,6 +6425,14 @@ To use this function, simply highlight a region you want to align and run M-x al
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :keymaps 'lsp-ui-peek-mode-map")>>
      <<gen-keys(moda="lead", tname=lsp_ui_peek_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
+** =shrface= Bindings
+   Generate binding using table from [[#shrface-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="general-define-key\n :keymaps 'eww-mode-map")>>
+     <<gen-keys(moda="lead", tname=shrface_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 ** Evil Bindings
