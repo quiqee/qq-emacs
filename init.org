@@ -3863,6 +3863,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
                (bind
                 (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
    #+END_SRC
+
 *** =lsp-ui-peek= Binding
     :PROPERTIES:
     :CUSTOM_ID: lsp-ui-peek-binding

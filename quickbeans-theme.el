@@ -340,7 +340,12 @@ The theme has to be reloaded after changing anything in this group."
        `(git-gutter-fr+-deleted              ((,class (:foreground
                                                        ,quickbeans-red-5 :background ,quickbeans-bg))))
 ;;;;; Highlighting
-       `(hi-yellow                            ((,class (:box ,quickbeans-yellow-1 :foreground ,quickbeans-yellow-1 :background, quickbeans-grey-4))))
+       `(hi-yellow                           ((,class (:box ,quickbeans-yellow-1 :foreground ,quickbeans-yellow-1 :background, quickbeans-grey-4))))
+;;;;; Lsp-UI
+       `(lsp-ui-sideline-code-action         ((,class (:foreground ,quickbeans-orange-2))))
+       `(lsp-ui-sideline-current-symbol      ((,class (:foreground ,quickbeans-blue-2))))
+       `(lsp-ui-sideline-symbol              ((,class (:box ,quickbeans-blue-0 :foreground ,quickbeans-blue-3))))
+       `(lsp-ui-sideline-symbol-info         ((,class (:foreground ,quickbeans-blue-3))))
 ;;;;; Magit
        `(magit-blame-heading                 ((,class (:background ,quickbeans-grey-2 :box ,quickbeans-purple-4 :weight bold :foreground ,quickbeans-fg))))
        `(magit-blame-date                    ((,class (:background ,quickbeans-grey-0 :box ,quickbeans-green-3 :weight bold :foreground ,quickbeans-green-5))))
