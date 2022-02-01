@@ -2570,6 +2570,7 @@ Use conf-mode for git config files
 
    #+begin_src emacs-lisp
      (require 'selectrum)
+     (setq selectrum-max-window-height 20)
      (selectrum-mode +1)
      (autoload 'prescient-persist-mode "prescient.el" nil t)
    #+end_src
@@ -2705,9 +2706,14 @@ Use conf-mode for git config files
 **** Links: [[Visual Selectrum Bindings][Visual Selectrum Bindings]]                                     :ignore:
 ** Mini-Frame
    #+begin_src emacs-lisp
-     ;(after 'mini-frame
-     ;  (csetq mini-frame-show-parameters '((top . 0.2) (width . 0.3) (left . 0.5))))
-     ;(mini-frame-mode)
+     (mini-frame-mode)
+     (custom-set-variables
+      '(mini-frame-show-parameters
+        '((no-accept-focus . t)(top . 400)
+          (width . 0.3)
+          (left . 0.5)
+          (height . 20)
+          )))
    #+end_src
 
 ** Mode-line-bell
@@ -3838,7 +3844,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
            lsp-ui-doc-use-childframe t
 
            ;; If this is true then you can't see the docs in terminal
-           lsp-ui-doc-use-webkit t
+           lsp-ui-doc-use-webkit nil
            lsp-ui-flycheck-enable t
 
            lsp-ui-imenu-enable t
@@ -5391,7 +5397,7 @@ Some general settings that should apply to all programming mode. Highlight
    #+begin_src emacs-lisp
      (require 'counsel-dash)
      (setq counsel-dash-docsets-url "https://raw.github.com/Kapeli/feeds/master"
-           counsel-dash-common-docsets '("Javascript" "HTML" "C" "C++")
+           counsel-dash-common-docsets '("jQuery" "JavaScript" "HTML" "C" "C++")
            counsel-dash-min-length 3
            counsel-dash-candidate-format "%d %n (%t)"
            counsel-dash-enable-debugging nil
@@ -5757,6 +5763,7 @@ Associate Dockerfile with =docker-mode=.
      (defun qq/js2-mode-hook ()
        (npm-mode t)
        (prettier-js-mode)
+       (indium-interaction-mode)
        (setq-local dash-docs-docsets '("React" "JavaScript" "jQuery")))
      (add-hook 'js2-mode-hook 'qq/js2-mode-hook)
      (add-hook 'css-mode-hook 'prettier-js-mode)

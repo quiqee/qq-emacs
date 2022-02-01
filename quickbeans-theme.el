@@ -120,7 +120,7 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-red-6      (if (display-graphic-p) "#8a3b3c" "#8a3b3c"))
       (quickbeans-red-7      (if (display-graphic-p) "#663333" "#663333"))
       (quickbeans-red-8      (if (display-graphic-p) "#fc0d1b" "#fc0d1b"))
-      (quickbeans-red-9      (if (display-graphic-p) "#ffdddd" "#ffdddd"))
+      (quickbeans-red-9      (if (display-graphic-p) "#ffccdd" "#ffdddd"))
       (quickbeans-red-10     (if (display-graphic-p) "#ffb6c1" "#ffb6c1"))
       (quickbeans-white-1    (if (display-graphic-p) "#eeeee0" "#eeeee0"))
       (quickbeans-white-2    (if (display-graphic-p) "#cdcdc1" "#cdcdc1"))
@@ -141,6 +141,7 @@ The theme has to be reloaded after changing anything in this group."
        'quickbeans
        `(default                             ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
        `(internal-border                     ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-7))))
+       `(error                               ((,class (:foreground ,quickbeans-red-5))))
 ;;;;; ACE/Avy
        `(aw-leading-char-face                ((,class (:foreground ,quickbeans-red-3 :height 1.2))))
 ;;;;; Alchemist
@@ -197,6 +198,8 @@ The theme has to be reloaded after changing anything in this group."
        `(diredp-symlink                      ((,class (:foreground ,quickbeans-blue-0))))
        `(diredp-dir-name                     ((,class (:foreground ,quickbeans-blue-2))))
        `(diredp-write-priv                   ((,class (:foreground ,quickbeans-blue-0 :background ,quickbeans-bg))))
+;;;;; Doom-modeline
+       `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-orange-0))))
 ;;;;; Emmet
        `(emmet-preview-output                ((,class (:background ,quickbeans-purple-4))))
 ;;;;; Elixir
@@ -226,7 +229,7 @@ The theme has to be reloaded after changing anything in this group."
        `(font-lock-preprocessor-face         ((,class (:foreground ,quickbeans-fg))))
        `(font-lock-string-face               ((,class (:foreground ,quickbeans-green-5))))
        `(font-lock-type-face                 ((,class (:foreground ,quickbeans-orange-0))))
-       `(font-lock-variable-name-face        ((,class (:foreground ,quickbeans-red-1))))
+       `(font-lock-variable-name-face        ((,class (:foreground ,quickbeans-red-9))))
        `(font-lock-warning-face              ((,class (:foreground ,quickbeans-red-10 :bold t))))
        `(font-lock-regexp-grouping-construct ((,class (:foreground ,quickbeans-yellow-3 :bold t))))
        `(font-lock-regexp-grouping-backslash ((,class (:foreground ,quickbeans-red-1 :bold t))))
@@ -344,7 +347,8 @@ The theme has to be reloaded after changing anything in this group."
 ;;;;; Lsp-UI
        `(lsp-ui-sideline-code-action         ((,class (:foreground ,quickbeans-orange-2))))
        `(lsp-ui-sideline-current-symbol      ((,class (:foreground ,quickbeans-blue-2))))
-       `(lsp-ui-sideline-symbol              ((,class (:box ,quickbeans-blue-0 :foreground ,quickbeans-blue-3))))
+       `(lsp-ui-sideline-symbol              ((,class (:box (:line-width -1 :color ,quickbeans-blue-0) :foreground ,quickbeans-blue-3))))
+       `(lsp-ui-sideline-global              ((,class (:foreground ,quickbeans-blue-0))))
        `(lsp-ui-sideline-symbol-info         ((,class (:foreground ,quickbeans-blue-3))))
 ;;;;; Magit
        `(magit-blame-heading                 ((,class (:background ,quickbeans-grey-2 :box ,quickbeans-purple-4 :weight bold :foreground ,quickbeans-fg))))
