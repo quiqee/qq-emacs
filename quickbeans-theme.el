@@ -348,7 +348,6 @@ The theme has to be reloaded after changing anything in this group."
        `(lsp-ui-sideline-code-action         ((,class (:foreground ,quickbeans-orange-2))))
        `(lsp-ui-sideline-current-symbol      ((,class (:foreground ,quickbeans-blue-2))))
        `(lsp-ui-sideline-symbol              ((,class (:box (:line-width -1 :color ,quickbeans-blue-0) :foreground ,quickbeans-blue-3))))
-       `(lsp-ui-sideline-global              ((,class (:foreground ,quickbeans-blue-0))))
        `(lsp-ui-sideline-symbol-info         ((,class (:foreground ,quickbeans-blue-3))))
 ;;;;; Magit
        `(magit-blame-heading                 ((,class (:background ,quickbeans-grey-2 :box ,quickbeans-purple-4 :weight bold :foreground ,quickbeans-fg))))
