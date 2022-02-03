@@ -199,7 +199,7 @@ The theme has to be reloaded after changing anything in this group."
        `(diredp-dir-name                     ((,class (:foreground ,quickbeans-blue-2))))
        `(diredp-write-priv                   ((,class (:foreground ,quickbeans-blue-0 :background ,quickbeans-bg))))
 ;;;;; Doom-modeline
-       `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-orange-0))))
+       `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-blue-5 :weight bold))))
 ;;;;; Emmet
        `(emmet-preview-output                ((,class (:background ,quickbeans-purple-4))))
 ;;;;; Elixir
@@ -460,7 +460,7 @@ The theme has to be reloaded after changing anything in this group."
        `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
        `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
 ;;;;; Perspective
-       `(persp-selected-face                 ((,class (:foreground ,quickbeans-orange-0))))
+       `(persp-selected-face                 ((,class (:foreground ,quickbeans-yellow-1))))
 ;;;;; Rainbow Delimiter
        `(rainbow-delimiters-depth-1-face     ((,class (:foreground ,quickbeans-white-1))))
        `(rainbow-delimiters-depth-2-face     ((,class (:foreground ,quickbeans-white-2))))

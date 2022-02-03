@@ -3543,7 +3543,7 @@ Make sure avfs is installed and its daemon is running (=mountavfs=)
    #+BEGIN_SRC emacs-lisp
      (setq git-commit-finish-query-functions nil)
      (add-hook 'git-commit-mode-hook
-               '(lambda () (auto-fill-mode 0)
+               #'(lambda () (auto-fill-mode 0)
                   (evil-insert-state))
                ;; append rather than prepend to git-commit-mode-hook, since the
                ;; thing that turns auto-fill-mode on in the first place is itself
@@ -3770,7 +3770,11 @@ Git-gutter doesn’t play nice with TRAMP remotes
 ** Lsp-mode
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'prog-mode-hook #'lsp)
+     (defun qq/lsp-deferred-if-supported ()
+       "Runlsp-deferred' if it's a supported mode."
+       (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
+
+     (add-hook 'prog-mode-hook #'qq/lsp-deferred-if-supported)
      (setq lsp-keymap-prefix "s-g")
      (after 'lsp-mode
        (setq lsp-completion-provider :capf
@@ -4593,7 +4597,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | RET     | org-mode-map     | normal    |      | 'org-open-at-point                                     |
       | s-v     | org-mode-map     | insert    |      | 'org-cliplink                                          |
       | -       | org-mode-map     | normal    |      | 'org-cycle-list-bullet                                 |
-      | C-c .   | org-mode-map     | insert    |      | '(lambda () (interactive) (org-time-stamp-inactive t)) |
+      | C-c .   | org-mode-map     | insert    |      | #'(lambda () (interactive) (org-time-stamp-inactive t)) |
       | C-e     | org-mode-map     | normal    |      | 'org-edit-src-code                                     |
       | Q       | org-src-mode-map | normal    |      | 'org-edit-src-abort                                    |
       | >       | org-mode-map     | normal    |      | 'org-metaright                                         |
@@ -4825,8 +4829,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 *** Settings
    #+begin_src emacs-lisp
      (defvar qq/persp-save-dir (concat  qq/cache-directory "persp-conf/"))
-     (setq persp-state-default-file (concat  qq/cache-directory "persp-conf/default")
-           )
+     (custom-set-variables '(persp-state-default-file (concat  qq/cache-directory "persp-conf/default")))
    #+end_src
 *** Ignore temporary buffers
    #+begin_src emacs-lisp
@@ -5383,7 +5386,7 @@ Some general settings that should apply to all programming mode. Highlight
               1 '((:foreground "orange") (:weight bold)) t))))
 
     (add-hook 'prog-mode-hook
-              '(lambda()
+              #'(lambda()
                  (display-line-numbers-mode)
                  (qq/add-watchwords)
                  (rainbow-delimiters-mode)
@@ -6265,17 +6268,6 @@ Emacs has a command to sort lines, but not to sort words in a region
        (interactive)
        (find-file (concat user-emacs-directory "init.org")))
    #+END_SRC
-** Abort minibuffer when it lose focus
-
-   #+BEGIN_SRC emacs-lisp
-     (defun stop-using-minibuffer ()
-       "kill the minibuffer"
-       (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
-         (abort-recursive-edit)))
-
-     (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
-   #+END_SRC
-
 ** Show current buffer full path in minibuffer
 
    #+BEGIN_SRC emacs-lisp
