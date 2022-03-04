@@ -2714,6 +2714,7 @@ Use conf-mode for git config files
           (left . 0.5)
           (height . 20)
           )))
+     (setq mini-frame-ignore-commands '(evil-ex eval-expression))
    #+end_src
 
 ** Mode-line-bell
