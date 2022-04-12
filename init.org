@@ -244,6 +244,7 @@ It will be faster to disable them here before they've been initialized.
                hydra
                vc-msg
                pretty-hydra
+               demap
 
                flx
 
@@ -307,6 +308,7 @@ It will be faster to disable them here before they've been initialized.
                dired-avfs   ; require installation of avfs in the OS (apt install avfs)
                all-the-icons-dired
                docker-tramp
+               dirvish
 
                general
 
@@ -398,6 +400,7 @@ It will be faster to disable them here before they've been initialized.
                highlight-indent-guides       ; a neat mode to show indentation
 
                key-chord
+               svg-tag-mode
 
                latex-preview-pane
 
@@ -406,6 +409,7 @@ It will be faster to disable them here before they've been initialized.
                magit
                git-gutter-fringe
                git-messenger
+               blamer
 
                ))
      (cond
@@ -1096,6 +1100,13 @@ required from *emacs*.
    #+begin_src emacs-lisp
            read-file-name-completion-ignore-case t
            read-buffer-completion-ignore-case t
+   #+end_src
+
+**** Use external image converter for images that don't have builtin converter
+   Make sure to install external converter: ImageMagick, GraphicMagick, or ffmpeg
+
+   #+begin_src emacs-lisp
+           image-use-external-converter t
    #+end_src
 
 **** Hide the mouse while typing
@@ -3212,6 +3223,7 @@ kill unused buffers in the background
       | b d    |                                     | 'kill-this-buffer                                |
       | b e    |                                     | 'evil-buffer                                     |
       | b i    |                                     | 'ibuffer                                         |
+      | b m    |                                     | 'demap-toggle                                    |
       | b q    |                                     | 'kill-buffer-and-window                          |
       | b f    |                                     | 'ido-find-file                                   |
       | b x    |                                     | 'ido-switch-buffer                               |
@@ -3602,6 +3614,23 @@ Make sure avfs is installed and its daemon is running (=mountavfs=)
          (kill-buffer commit-buf)))
    #+END_SRC
 
+*** blamer
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'blamer)
+     (custom-set-variables
+      '(blamer-idle-time 1.0)
+      '(blamer-min-offset 10))
+     (setq blamer-view 'overlay-right
+           blamer-type 'visual
+           blamer-max-commit-message-length 80
+           blamer-author-formatter " ✎ [%s] - "
+           blamer-commit-formatter "● %s ● ")
+
+     (set-face-attribute 'blamer-face nil :foreground "#E46876" :height 90 :italic t)
+     (global-blamer-mode 1)
+   #+END_SRC
+
 *** git-gutter-fringe
    Enable =Git-Gutter+= globally
 
@@ -3735,6 +3764,42 @@ Git-gutter doesn’t play nice with TRAMP remotes
      "Show")
     ("B" magit-blame-quit "Quit"))))
    #+END_SRC
+*** Transient Menu
+
+   #+BEGIN_SRC emacs-lisp
+     (transient-define-prefix shk-customize-locals-menu ()
+       "A menu to manipulate file/dir local variables"
+       ["Local variables"
+        ["File"
+         ("fa" "add" add-file-local-variable)
+         ("fd" "delete" delete-file-local-variable)
+         ("*a" "add prop" add-file-local-variable-prop-line)
+         ("*d" "delete prop" delete-file-local-variable-prop-line)]
+        ["Dir"
+         ("da" "add" add-dir-local-variable)
+         ("dd" "delete" delete-dir-local-variable)]
+        ["Move"
+         ("df" "dir → file" copy-dir-locals-to-file-locals)
+         ("d*" "dir → prop" copy-dir-locals-to-file-locals-prop-line)
+         ("fd" "file → dir" copy-file-locals-to-dir-locals)]])
+
+     (transient-define-prefix shk-customize-menu ()
+       "A menu to open customize options"
+       [["Custom"
+         ("," "List groups" customize)
+         ("/" "Search" customize-apropos)
+         ("r" "Rogue" customize-rogue)
+         ("s" "Saved" customize-saved)
+         ("S" "Unsaved" customize-unsaved)]
+        ["Settings"
+         ("o" "Option" customize-option)
+         ("g" "Group" customize-group)
+         ("f" "Face" customize-face)
+         ("l" "Local variables" shk-customize-locals-menu)]])
+
+     (global-set-key (kbd "S-,") 'shk-customize-menu)
+   #+END_SRC
+
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: evil-magit-binding
@@ -3766,6 +3831,27 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
    #+begin_src emacs-lisp
      (beacon-mode 1)
+   #+end_src
+
+** =svg-tag-mode=
+
+   #+begin_src emacs-lisp
+     (require 'svg-tag-mode)
+     (add-hook 'prog-mode-hook #'svg-tag-mode)
+     (add-hook 'org-mode-hook #'svg-tag-mode)
+     (setq svg-tag-tags
+           '(
+             ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
+             ("FIXME" . ((lambda (tag) (svg-tag-make "FIXME" :face 'org-todo :inverse t :margin 0))))
+             ("\\/\\/\\W?MARK:\\|MARK:" . ((lambda (tag) (svg-tag-make "MARK" :face 'font-lock-doc-face :inverse t :margin 0 :crop-right t))))
+             ("MARK:\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'font-lock-doc-face :crop-left t))))
+             ;("\\/\\/\\W?swiftlint:disable" . ((lambda (tag) (svg-tag-make "disabled lint rule:" :face 'org-done :inverse t :margin 0 :crop-right t))))
+             ;("swiftlint:disable\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'org-done :crop-left t))))
+             ;; TODOS
+             ("\\/\\/\\W?TODO\\|TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0 :crop-right t))))
+             ("TODO\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'org-todo :crop-left t))))
+
+             ))
    #+end_src
 
 ** Lsp-mode
@@ -5349,13 +5435,16 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        "SPC g"   "git/magit"
        "SPC b"   "buffer related"
        "SPC c"   "compile related"
+       "SPC d"   "dired related"
        "SPC e"   "eval related"
+       "SPC f"   "find operation related"
        "SPC j"   "evil ace-jump"
        "SPC p"   "projectile related"
        "SPC r"   "serial commands"
        "SPC h"   "help related"
        "SPC i"   "counsel related"
-       "SPC t"   "toggling thing"
+       "SPC t"   "toggling things"
+       "SPC u"   "undo-tree things"
        "SPC v"   "GUD related"
        "C-x 8"   "unicode"
        "C-x a"   "abbrev/expand"
@@ -5729,13 +5818,6 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
   (add-to-list 'auto-mode-alist '("\\.mm\\'" . objc-mode))
 #+END_SRC
 
-*** Yaml
-Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
-
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-#+END_SRC
-
 *** Keybinding
     :PROPERTIES:
     :CUSTOM_ID: evil-cc-mode-binding
@@ -5747,6 +5829,22 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
       | C-c C-c | c-mode-base-map | normal    |             | 'qq/c-mode-compile             |
       | C-c C-r | c-mode-base-map | normal    |             | 'qq/c-mode-compile-set-command |
 **** Links: [[Evil CC Mode Bindings][Evil CC Mode Bindings]]                                     :ignore:
+** Yaml
+
+#+BEGIN_SRC emacs-lisp
+  (autoload 'yaml-mode "yaml-mode"   "Simple mode to edit YAML." t)
+  (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.yaml$" . yaml-mode))
+
+    (add-hook 'yaml-mode-hook
+              #'(lambda()
+                 (display-line-numbers-mode)
+                 (rainbow-delimiters-mode)
+                 (mixed-pitch-mode 0)
+                 (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
+              ))
+#+END_SRC
+
 ** Lisp
 
    #+BEGIN_SRC emacs-lisp
