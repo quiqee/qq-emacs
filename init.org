@@ -642,6 +642,12 @@ required from *emacs*.
      (defvar qq/serial-port1 "/dev/ttyUSB0")
    #+end_src
 
+**** Default Org files folder
+
+   #+begin_src emacs-lisp
+     (defvar qq/org-folder "~/Documents/src/Org-files/")
+   #+end_src
+
 **** Dash docsets path
 
    #+begin_src emacs-lisp
@@ -890,15 +896,30 @@ required from *emacs*.
 *** Work Laptop
 
    #+BEGIN_SRC emacs-lisp
-     ((or (string-equal qq/system-name "fikri-Latitude-E5470")
+     ((or (string-equal qq/system-name "fikri-ThinkPad-E14-Gen-2")
           (string-equal qq/system-name "ThinkPad-E440")) ; Lenovo Thinkpad
       (progn
         (message "Lenovo Thinkpad")
    #+END_SRC
 
 **** Fonts
-
    #+begin_src emacs-lisp
+     (custom-theme-set-faces
+      'user
+
+      '(variable-pitch ((t (:family "Cabin"
+                                    :height 1.2))))
+      '(fixed-pitch ((t ( :family "PragmataPro"
+                          :slant normal
+                          :weight normal
+                          :height 1.0
+                          :width normal)))))
+
+     ;; Setting the default general font
+     (set-face-attribute 'default nil
+                         :family "PragmataPro"
+                         :height 120
+                         )
    #+end_src
 
 **** Serial Ports
@@ -4036,7 +4057,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
    effectively.
 
    #+BEGIN_SRC emacs-lisp
-     org-directory "~/Dropbox/org"
+     org-directory qq/org-folder
    #+END_SRC
 ***** Elipsis appearance
 my collection of org-ellipsis candidate symbols
@@ -4182,12 +4203,12 @@ my collection of org-ellipsis candidate symbols
 
    #+BEGIN_SRC emacs-lisp
      org-agenda-files (list
-                       "~/Dropbox/org/blog.org"
-                       "~/Dropbox/org/errands.org"
-                       "~/Dropbox/org/references/articles.org"
-                       "~/Dropbox/org/ledger.org"
-                       "~/Dropbox/org/notes.org"
-                       "~/Dropbox/org/fun.org")
+                       (concat qq/org-folder "blog.org")
+                       (concat qq/org-folder "errands.org")
+                       (concat qq/org-folder "references/articles.org")
+                       (concat qq/org-folder "ledger.org")
+                       (concat qq/org-folder "notes.org")
+                       (concat qq/org-folder "fun.org"))
    #+END_SRC
 
    Then, a smaller part of org is the way it shows the [[https://orgmode.org/manual/Deadlines-and-scheduling.html][deadlines]] of all the
@@ -4247,7 +4268,7 @@ my collection of org-ellipsis candidate symbols
         ("a"               ; key
          "Algo/Code"       ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/notes.org" "Code")  ; target
+         (file+headline (concat qq/org-folder "notes.org") "Code")  ; target
          "* %^{TITLE} %(org-set-tags)  :code:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\#+BEGIN_SRC %^{language}\n%?\n\#END_SRC"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4258,7 +4279,7 @@ my collection of org-ellipsis candidate symbols
         ("n"               ; key
          "Note"            ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/notes.org" "Notes")  ; target
+         (file+headline (concat qq/org-folder "notes.org") "Notes")  ; target
          "* %? %(org-set-tags)  :note:\n:PROPERTIES:\n:Created: %U\n:Linked: %A\n:END:\n%i"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4269,7 +4290,7 @@ my collection of org-ellipsis candidate symbols
         ("l"               ; key
          "Ledger"          ; name
          entry             ; type
-         (file+datetree "~/Dropbox/org/ledger.org" "Ledger")  ; target
+         (file+datetree (concat qq/org-folder "ledger.org") "Ledger")  ; target
          "* %^{expense} %(org-set-tags)  :accounts:\n:PROPERTIES:\n:Created: %U\n:END:\n%i
 #+NAME: %\\1-%t
 \#+BEGIN_SRC ledger :noweb yes
@@ -4287,7 +4308,7 @@ my collection of org-ellipsis candidate symbols
         ("w"               ; key
          "Work"            ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/phd.org" "Work")  ; target
+         (file+headline (concat qq/org-folder "work.org") "Work")  ; target
          "* TODO %^{Todo} %(org-set-tags)  :work:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4298,7 +4319,7 @@ my collection of org-ellipsis candidate symbols
         ("r"               ; key
          "Reading"         ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/fun.org" "Reading")  ; target
+         (file+headline (concat qq/org-folder "fun.org") "Reading")  ; target
          "* %^{Title} %(org-set-tags)\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4309,7 +4330,7 @@ my collection of org-ellipsis candidate symbols
         ("m"               ; key
          "Meeting"         ; name
          entry             ; type
-         (file+datetree "~/Dropbox/org/phd.org" "Meeting")  ; target
+         (file+datetree (concat qq/org-folder "work.org") "Meeting")  ; target
          "* %^{Title} %(org-set-tags)  :meeting:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n** Agenda:\n%?\n\n** Minutes of the meeting:\n"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4320,7 +4341,7 @@ my collection of org-ellipsis candidate symbols
         ("d"               ; key
          "Drill driving"   ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/drill.org" "Driving")  ; target
+         (file+headline (concat qq/org-folder "drill.org") "Driving")  ; target
          "* Question  :drill:driving:\n%^{Question}\n** Answer\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4331,7 +4352,7 @@ my collection of org-ellipsis candidate symbols
         ("s"              ; key
          "Drill math"     ; name
          entry            ; type
-         (file+headline "~/Dropbox/org/drill.org" "Stats/Math")  ; target
+         (file+headline (concat qq/org-folder "drill.org") "Stats/Math")  ; target
          "* Question  :drill:stats:math:\n%^{Question}\n** Answer\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4342,7 +4363,7 @@ my collection of org-ellipsis candidate symbols
         ("p"              ; key
          "Drill physics"  ; name
          entry            ; type
-         (file+headline "~/Dropbox/org/drill.org" "Physics")  ; target
+         (file+headline (concat qq/org-folder "drill.org") "Physics")  ; target
          "* Question  :drill:physics:\n%^{Question}\n** Answer\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4353,7 +4374,7 @@ my collection of org-ellipsis candidate symbols
         ("j"                      ; key
          "Jobs"                   ; name
          table-line               ; type
-         (file+headline "~/Dropbox/org/notes.org" "Jobs")  ; target
+         (file+headline (concat qq/org-folder "notes.org") "Jobs")  ; target
          "| %u | %^{Company} | [[%^{job link}][%^{position}]] | %^{referrals?} | %^{Experience?} | %^t | %^{Status} | %^{Follow up} | %^{Result} |"  ; template
          :prepend t               ; properties
          ;; :table-line-pos "II-3"   ; properties
@@ -4365,7 +4386,7 @@ my collection of org-ellipsis candidate symbols
         ("f"              ; key
          "films"          ; name
          entry            ; type
-         (file+headline "~/Dropbox/org/fun.org" "Movies")  ; target
+         (file+headline (concat qq/org-folder "fun.org") "Movies")  ; target
          "* %^{Movie} %(org-set-tags)  :film:\n:PROPERTIES:\n:Created: %U\n:END:\n%i
 Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
          :prepend t        ; properties
@@ -4377,7 +4398,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
         ("b"               ; key
          "Blog"            ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/blog.org" "Blog")  ; target
+         (file+headline (concat qq/org-folder "blog.org") "Blog")  ; target
          "* %^{Title} %(org-set-tags)  :blog:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4388,7 +4409,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
         ("e"               ; key
          "Errands"         ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/errands.org" "Errands")  ; target
+         (file+headline (concat qq/org-folder "errands.org") "Errands")  ; target
          "* TODO %^{Todo} %(org-set-tags)  :errands:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4399,7 +4420,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
         ("c"               ; key
          "Courses"         ; name
          entry             ; type
-         (file+headline "~/Dropbox/org/phd.org" "Courses")  ; target
+         (file+headline (concat qq/org-folder "work.org") "Courses")  ; target
          "* %^{Course} %(org-set-tags)  :courses:\n:PROPERTIES:\n:Created: %U\n:END:\n%i\n%?"  ; template
          :prepend t        ; properties
          :empty-lines 1    ; properties
@@ -4426,7 +4447,7 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
    And ensure the folder exist.
 
    #+BEGIN_SRC emacs-lisp
-     (setq org-directory "~/Dropbox/org")
+     (setq org-directory qq/org-folder)
      (unless (file-exists-p org-directory)
        (make-directory org-directory))
    #+END_SRC
