@@ -215,7 +215,8 @@ It will be faster to disable them here before they've been initialized.
 
                move-text                     ; Move current line or region with M-up or M-down
                multiple-cursors              ; Multiple cursors for Emacs.
-               org-superstar                 ; show org bullet as Unicode character
+               ;org-superstar                 ; show org bullet as Unicode character
+               org-modern                    ; alternative to org-superstar
                org-cliplink
                ob-napkin
                                              ;org-pdfview
@@ -2746,7 +2747,7 @@ Use conf-mode for git config files
           (left . 0.5)
           (height . 20)
           )))
-     (setq mini-frame-ignore-commands '(evil-ex eval-expression))
+     (setq mini-frame-ignore-commands '(evil-ex-search-forward evil-ex eval-expression))
    #+end_src
 
 ** Mode-line-bell
@@ -3406,6 +3407,7 @@ Make sure avfs is installed and its daemon is running (=mountavfs=)
    #+end_src
 
 *** Evil Binding
+TODO: add option to remove mode and add directly to the  binding
     :PROPERTIES:
     :CUSTOM_ID: evil-dired-binding
     :END:
@@ -3857,22 +3859,22 @@ Git-gutter doesn’t play nice with TRAMP remotes
 ** =svg-tag-mode=
 
    #+begin_src emacs-lisp
-     (require 'svg-tag-mode)
-     (add-hook 'prog-mode-hook #'svg-tag-mode)
-     (add-hook 'org-mode-hook #'svg-tag-mode)
-     (setq svg-tag-tags
-           '(
-             ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
-             ("FIXME" . ((lambda (tag) (svg-tag-make "FIXME" :face 'org-todo :inverse t :margin 0))))
-             ("\\/\\/\\W?MARK:\\|MARK:" . ((lambda (tag) (svg-tag-make "MARK" :face 'font-lock-doc-face :inverse t :margin 0 :crop-right t))))
-             ("MARK:\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'font-lock-doc-face :crop-left t))))
-             ;("\\/\\/\\W?swiftlint:disable" . ((lambda (tag) (svg-tag-make "disabled lint rule:" :face 'org-done :inverse t :margin 0 :crop-right t))))
-             ;("swiftlint:disable\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'org-done :crop-left t))))
-             ;; TODOS
-             ("\\/\\/\\W?TODO\\|TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0 :crop-right t))))
-             ("TODO\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'org-todo :crop-left t))))
+     ;(require 'svg-tag-mode)
+     ;(add-hook 'prog-mode-hook #'svg-tag-mode)
+     ;(add-hook 'org-mode-hook #'svg-tag-mode)
+     ;(setq svg-tag-tags
+     ;      '(
+     ;        ("DONE" . ((lambda (tag) (svg-tag-make "DONE" :face 'org-done :margin 0))))
+     ;        ("FIXME" . ((lambda (tag) (svg-tag-make "FIXME" :face 'org-todo :inverse t :margin 0))))
+     ;        ("\\/\\/\\W?MARK:\\|MARK:" . ((lambda (tag) (svg-tag-make "MARK" :face 'font-lock-doc-face :inverse t :margin 0 :crop-right t))))
+     ;        ("MARK:\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'font-lock-doc-face :crop-left t))))
+     ;        ;("\\/\\/\\W?swiftlint:disable" . ((lambda (tag) (svg-tag-make "disabled lint rule:" :face 'org-done :inverse t :margin 0 :crop-right t))))
+     ;        ;("swiftlint:disable\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'org-done :crop-left t))))
+     ;        ;; TODOS
+     ;        ("\\/\\/\\W?TODO\\|TODO" . ((lambda (tag) (svg-tag-make "TODO" :face 'org-todo :inverse t :margin 0 :crop-right t))))
+     ;        ("TODO\\(.*\\)" . ((lambda (tag) (svg-tag-make tag :face 'org-todo :crop-left t))))
 
-             ))
+     ;        ))
    #+end_src
 
 ** Lsp-mode
@@ -4037,7 +4039,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (require 'org)
      (require 'org-eldoc)
      (require 'org-indent)
-     (require 'org-superstar)
+    ; (require 'org-superstar)
      (require 'ob-napkin)
      (require 'ox-extra)
      (ox-extras-activate '(ignore-headlines))
@@ -4110,9 +4112,9 @@ my collection of org-ellipsis candidate symbols
    Remove all the "*" but the last one for [[https://orgmode.org/org.html#Headlines][headline]]
 
    #+BEGIN_SRC emacs-lisp
-     org-superstar-remove-leading-stars t
+     ;org-superstar-remove-leading-stars t
      org-hide-leading-stars t
-     org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")
+     ;org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")
    #+END_SRC
 ***** Image
    The GUI Emacs has the ability to display images. But if the image is pretty
@@ -4487,7 +4489,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 ***** Enable bulleted lists
 
    #+BEGIN_SRC emacs-lisp
-     (org-superstar-mode 1)
+     ;(org-superstar-mode 1)
      #+END_SRC
 ***** Enable =writegood-mode=
 
@@ -4682,6 +4684,43 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
      (define-abbrev org-mode-abbrev-table "fname" "" 'skel-org-html-file-name)
    #+END_SRC
+
+*** org-modern
+
+   #+BEGIN_SRC emacs-lisp
+     ;; Add frame borders and window dividers
+     ;(modify-all-frames-parameters
+     ; '((right-divider-width . 40)
+     ;   (internal-border-width . 40)))
+     (dolist (face '(window-divider
+                     window-divider-first-pixel
+                     window-divider-last-pixel))
+       (face-spec-reset-face face)
+       (set-face-foreground face (face-attribute 'default :background)))
+     (set-face-background 'fringe (face-attribute 'default :background))
+
+     (setq
+      ;; Edit settings
+      org-auto-align-tags nil
+      org-tags-column 0
+      org-catch-invisible-edits 'show-and-error
+      org-special-ctrl-a/e t
+      org-insert-heading-respect-content t
+
+      org-pretty-entities t
+      org-ellipsis "…"
+
+      ;; Agenda styling
+      org-agenda-block-separator ?─
+      org-agenda-time-grid
+      '((daily today require-timed)
+        (800 1000 1200 1400 1600 1800 2000)
+        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+      org-agenda-current-time-string
+      "⭠ now ─────────────────────────────────────────────────")
+
+     (global-org-modern-mode)
+#+END_SRC
 
 *** Bindings
     :PROPERTIES:
@@ -4930,14 +4969,15 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | ,     |             | 'projectile-find-file                                                      |
 **** Links: [[Evil Projectile Bindings][Evil Projectile Bindings]]                                      :ignore:
 ** Perspective
-*** Init
-   #+begin_src emacs-lisp
-     (persp-mode)
-   #+end_src
 *** Settings
    #+begin_src emacs-lisp
      (defvar qq/persp-save-dir (concat  qq/cache-directory "persp-conf/"))
      (custom-set-variables '(persp-state-default-file (concat  qq/cache-directory "persp-conf/default")))
+     (customize-set-variable 'persp-mode-prefix-key (kbd "C-c DEL"))
+   #+end_src
+**** Init
+   #+begin_src emacs-lisp
+     (persp-mode)
    #+end_src
 *** Ignore temporary buffers
    #+begin_src emacs-lisp
@@ -4971,7 +5011,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :END:
    #+TBLNAME: persp_combo
       | Combo   | Description                               | Command           |
-      |---------+-------------------------------------------+-------------------|
+   |---------+-------------------------------------------+-------------------|
       | M-2     |                                           | 'persp-next       |
       | M-1     |                                           | 'persp-prev       |
       | M-e     | query or create perspective               | 'persp-switch     |
@@ -4984,12 +5024,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: normal-persp-binding
     :END:
    #+TBLNAME: normal_persp_keys
-      | Evil Leader Combo | Description                              | Command                                              |
-      |-------------------+------------------------------------------+------------------------------------------------------|
-      | b k               | kill buffer                              | 'persp-kill-buffer*                                  |
-      | b b               | switch buffer                            | 'persp-switch-to-buffer*                             |
-      | b c               | Show list of supported colors in a frame | 'consult-buffer                                      |
-      | b S               |                                          | (lambda (arg) (interactive "P") (persp-bs-show arg)) |
+      | Evil Leader Combo | Description     | Command                                              |
+      |-------------------+-----------------+------------------------------------------------------|
+      | b k               | kill buffer     | 'persp-kill-buffer*                                  |
+      | b b               | switch buffer   | 'persp-switch-to-buffer*                             |
+      | b c               | show all buffer | 'consult-buffer                                     |
+      | b S               |                 | (lambda (arg) (interactive "P") (persp-bs-show arg)) |
 **** Links: [[Normal Persp Bindings][Normal Persp Bindings]]                                     :ignore:
 ** =shrface=
 
