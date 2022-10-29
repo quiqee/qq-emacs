@@ -257,7 +257,7 @@ The theme has to be reloaded after changing anything in this group."
        `(helm-ff-executable                  ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; Highlight
        `(highlight                           ((,class (:background ,quickbeans-grey-3))))
-       `(hl-line                             ((,class (:underline ,quickbeans-purple-4))))
+       ;`(hl-line                             ((,class (:underline ,quickbeans-purple-4))))
 ;;;;; hi-lock
        `(hi-blue                             ((,class (:background ,quickbeans-blue-4 :foreground ,quickbeans-grey-1))))
        `(hi-green                            ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-grey-1))))
