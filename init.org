@@ -312,6 +312,7 @@ It will be faster to disable them here before they've been initialized.
                dired-filter
                dired-rainbow
                dired-avfs   ; require installation of avfs in the OS (apt install avfs)
+               all-the-icons-completion
                all-the-icons-dired
                                              ;tramp-container
                dirvish
@@ -2644,23 +2645,43 @@ Use conf-mode for git config files
 
      ;; Enable recursive minibuffers
      (setq enable-recursive-minibuffers t)
+   #+end_src
 
+*** Multiform-mode
+   #+begin_src emacs-lisp
      ;; Enable vertico-multiform
-     ;(vertico-multiform-mode)
+     (vertico-multiform-mode)
 
-     ;; Configure the display per command.
-     ;; Use a buffer with indices for imenu
-     ;; and a flat (Ido-like) menu for M-x.
-     (setq vertico-multiform-commands
-           '((consult-imenu buffer indexed)
-             (execute-extended-command unobtrusive)))
+     (setq vertico-grid-separator "       "
+           vertico-grid-lookahead 50
+           vertico-buffer-display-action '(display-buffer-reuse-window) ; Default
 
-     ;; Configure the display per completion category.
-     ;; Use the grid display for files and a buffer
-     ;; for the consult-grep commands.
-     (setq vertico-multiform-categories
-           '((file grid)
-             (consult-grep buffer)))
+           ;; Configure the display per completion category.
+           ;; Use the grid display for files and a buffer
+           ;; for the consult-grep commands.
+           vertico-multiform-categories                                  ; Choose a multiform
+           '((file reverse)
+             (consult-grep buffer)
+             (consult-location)
+             (imenu buffer)
+             (library reverse indexed)
+             (org-roam-node reverse indexed)
+             (t reverse)
+             )
+
+           ;; Configure the display per command.
+           ;; Use a buffer with indices for imenu
+           ;; and a flat (Ido-like) menu for M-x.
+           vertico-multiform-commands
+           '(("flyspell-correct-*" grid reverse)
+             (org-refile grid reverse indexed)
+             (consult-yank-pop indexed)
+             (consult-imenu buffer indexed)
+             (execute-extended-command indexed)
+             (consult-flycheck)
+             (consult-lsp-diagnostics)
+             ))
+     (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
    #+end_src
 
 *** Prescient
@@ -2696,6 +2717,12 @@ Use conf-mode for git config files
      ;(advice-add #'marginalia-cycle :after
      ;            (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
    #+end_src
+*** All the Icons Completion
+   #+begin_src emacs-lisp
+     (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
+     (all-the-icons-completion-mode)
+   #+end_src
+
 *** Consult
    Provide commands which allow quick selection of an item from a list of
    candidates with selection.
@@ -2714,51 +2741,123 @@ Use conf-mode for git config files
 
    #+begin_src emacs-lisp
      (require 'orderless)
-     (setq completion-styles '(orderless basic)
-           completion-category-defaults nil
-           completion-category-overrides '((file (styles partial-completion))))
-     (icomplete-mode) ; optional but recommended!
    #+end_src
-   Selectrum Integration
+
    #+begin_src emacs-lisp
-  ;   (setq selectrum-refine-candidates-function #'orderless-filter)
-  ;   (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
+     (setq completion-styles '(orderless))
+     (setq completion-category-defaults nil)    ; I want to be in control!
+     (setq completion-category-overrides
+           '((file (styles basic-remote ; For `tramp' hostname completion with `vertico'
+                           orderless
+                           ))
+             ))
+
+     (setq orderless-component-separator 'orderless-escapable-split-on-space)
+     (setq orderless-matching-styles
+           '(orderless-literal
+             orderless-prefixes
+             orderless-initialism
+             orderless-regexp
+             ;; orderless-flex
+             ;; orderless-strict-leading-initialism
+             ;; orderless-strict-initialism
+             ;; orderless-strict-full-initialism
+             ;; orderless-without-literal          ; Recommended for dispatches instead
+             ))
+     (setq orderless-style-dispatchers
+           '(prot-orderless-literal-dispatcher
+             prot-orderless-strict-initialism-dispatcher
+             prot-orderless-flex-dispatcher
+             ))
+
+     (defun orderless--strict-*-initialism (component &optional anchored)
+       "Match a COMPONENT as a strict initialism, optionally ANCHORED.
+     The characters in COMPONENT must occur in the candidate in that
+     order at the beginning of subsequent words comprised of letters.
+     Only non-letters can be in between the words that start with the
+     initials.
+
+     If ANCHORED is `start' require that the first initial appear in
+     the first word of the candidate.  If ANCHORED is `both' require
+     that the first and last initials appear in the first and last
+     words of the candidate, respectively."
+       (orderless--separated-by
+           '(seq (zero-or-more alpha) word-end (zero-or-more (not alpha)))
+         (cl-loop for char across component collect `(seq word-start ,char))
+         (when anchored '(seq (group buffer-start) (zero-or-more (not alpha))))
+         (when (eq anchored 'both)
+           '(seq (zero-or-more alpha) word-end (zero-or-more (not alpha)) eol))))
+
+     (defun orderless-strict-initialism (component)
+       "Match a COMPONENT as a strict initialism.
+     This means the characters in COMPONENT must occur in the
+     candidate in that order at the beginning of subsequent words
+     comprised of letters.  Only non-letters can be in between the
+     words that start with the initials."
+       (orderless--strict-*-initialism component))
+
+     (defun prot-orderless-literal-dispatcher (pattern _index _total)
+       "Literal style dispatcher using the equals sign as a suffix.
+     It matches PATTERN _INDEX and _TOTAL according to how Orderless
+     parses its input."
+       (when (string-suffix-p "=" pattern)
+         `(orderless-literal . ,(substring pattern 0 -1))))
+
+     (defun prot-orderless-strict-initialism-dispatcher (pattern _index _total)
+       "Leading initialism  dispatcher using the comma suffix.
+     It matches PATTERN _INDEX and _TOTAL according to how Orderless
+     parses its input."
+       (when (string-suffix-p "," pattern)
+         `(orderless-strict-initialism . ,(substring pattern 0 -1))))
+
+     (defun prot-orderless-flex-dispatcher (pattern _index _total)
+       "Flex  dispatcher using the tilde suffix.
+     It matches PATTERN _INDEX and _TOTAL according to how Orderless
+     parses its input."
+       (when (string-suffix-p "." pattern)
+         `(orderless-flex . ,(substring pattern 0 -1))))
+
    #+end_src
-*** Filtering advice
-   If you also =orderless= configured as the `completion-styles`, use the
-   following advice Orderless isn't well suited for initial gathering of
-   candidates by completion in region.
+*** Advice
+add prefixes (i.e. in the left fringe) and arrow character on the currently selected candidate
    #+begin_src emacs-lisp
-  ;   (advice-add #'completion--category-override :filter-return
-  ;               (defun completion-in-region-style-setup+ (res)
-  ;                 "Fallback to default styles for region completions with orderless."
-  ;                 (or res
-  ;                     ;; Don't use orderless for initial candidate gathering.
-  ;                     (and completion-in-region-mode-predicate
-  ;                          (not (minibufferp))
-  ;                          (equal '(orderless) completion-styles)
-  ;                          '(basic partial-completion emacs22)))))
+     ;; Prefix the current candidate with “» ”. From
+     ;; https://github.com/minad/vertico/wiki#prefix-current-candidate-with-arrow
+     (advice-add #'vertico--format-candidate :around
+                 (lambda (orig cand prefix suffix index _start)
+                   (setq cand (funcall orig cand prefix suffix index _start))
+                   (concat
+                    (if (= vertico--index index)
+                        (propertize "» " 'face 'vertico-current)
+                      "  ")
+                    cand)))
+
    #+end_src
 *** Vertico Map Binding
     :PROPERTIES:
     :CUSTOM_ID: vertico-map-binding
     :END:
    #+TBLNAME: vertico_map_keys
-      | Combo    | Description                    | Command                            |
-      | C-r      | rotate visual information      | #'marginalia-cycle                 |
-      | C-v      | vertical layout                | #'vertico-multiform-vertical       |
-      | C-t      | grid layout                    | #'vertico-multiform-grid           |
-      | C-q      | reverse style                  | #'vertico-multiform-reverse        |
-      | C-j      | selects the next candidate     | #'next-line-or-history-element     |
-      | C-k      | selects the previous candidate | #'previous-line-or-history-element |
-      | C-k      | selects the previous candidate | #'previous-line                    |
-      | C-a      | selects the first candidate    | #'minibuffer-beginning-of-buffer   |
-      | C-a      | selects the first candidate    | #'beginning-of-buffer              |
-      | C-e      | selects the last candidate     | #'end-of-buffer                    |
-      | C-f      | scrolls down                   | #'scroll-down-command              |
-      | C-b      | scrolls up                     | #'scroll-up-command                |
-      | C-w      |                                | #'kill-ring-save                   |
-      | <escape> | cancel minibuffer              | #'abort-recursive-edit             |
+      | Combo         | Description                    | Command                            |
+      | C-r           | rotate visual information      | #'marginalia-cycle                 |
+      | C-v           | vertical layout                | #'vertico-multiform-vertical       |
+      | C-t           | grid layout                    | #'vertico-multiform-grid           |
+      | C-q           | reverse style                  | #'vertico-multiform-reverse        |
+      | C-j           | selects the next candidate     | #'next-line-or-history-element     |
+      | C-k           | selects the previous candidate | #'previous-line-or-history-element |
+      | C-k           | selects the previous candidate | #'previous-line                    |
+      | C-a           | selects the first candidate    | #'minibuffer-beginning-of-buffer   |
+      | C-a           | selects the first candidate    | #'beginning-of-buffer              |
+      | C-e           | selects the last candidate     | #'end-of-buffer                    |
+      | C-b           | scrolls up                     | #'vertico-scroll-down              |
+      | C-f           | scrolls down                   | #'vertico-scroll-up                |
+      | C-w           |                                | #'kill-ring-save                   |
+      | <escape>      | cancel minibuffer              | #'abort-recursive-edit             |
+      | C-d           | Next group                     | #'vertico-next-group               |
+      | C-c           | previous group                 | #'vertico-previous-group           |
+      | <backspace>   |                                | #'vertico-directory-delete-char    |
+      | <C-backspace> |                                | #'vertico-directory-delete-word    |
+      | RET           |                                | #'vertico-directory-enter          |
 
 **** Links: [[Vertico Map Bindings][Vertico Map Bindings]]                                     :ignore:
 *** Normal Keybinding
@@ -2766,27 +2865,27 @@ Use conf-mode for git config files
     :CUSTOM_ID: normal-vertico-binding
     :END:
    #+TBLNAME: normal_vertico_keys
-      | Evil Leader Combo | Description                              | Command                   |
-      |-------------------+------------------------------------------+---------------------------|
-      | SPC               | Vertico M-x version                      | 'execute-extended-command |
-      | "."               | Forward to 'find file'                   | 'find-file                |
-      | b c               |                                          | 'selectrum-switch-buffer+ |
-      | h a               |                                          | 'consult-apropos          |
-      | b b               | Show list of supported colors in a frame | 'consult-buffer           |
-      | b o               | Display definition of a symbol           | 'consult-other-window     |
-      | b F               | Display definition of a symbol           | 'consult-other-frame      |
-      | g y               |                                          | 'consult-git-grep         |
-      | f f               |                                          | 'consult-ripgrep          |
-      | i o               | Lists of faces with preview              | 'consult-outline          |
-      | i h               | Load selected Emacs Lisp Library         | 'consult-history          |
-      | i r               |                                          | 'consult-register         |
-      | i b               |                                          | 'consult-bookmark         |
-      | i m               |                                          | 'consult-mark             |
-      | i l               |                                          | 'consult-line             |
-      | i i               |                                          | 'consult-imenu            |
-      | i e               |                                          | 'consult-error            |
-      | i c               |                                          | 'consult-multi-occur      |
-      | p                 |                                          | 'consult-yank-pop         |
+      | Leader Combo | Description                                              | Command                   |
+      | SPC          | Vertico M-x version                                      | 'execute-extended-command |
+      | "."          | Forward to 'find file'                                   | 'find-file                |
+      | b c          |                                                          | 'selectrum-switch-buffer+ |
+      | h a          |                                                          | 'consult-apropos          |
+      | b b          | Show list of supported colors in a frame                 | 'consult-buffer           |
+      | b o          | Display definition of a symbol                           | 'consult-other-window     |
+      | b F          | Display definition of a symbol                           | 'consult-other-frame      |
+      | g y          |                                                          | 'consult-git-grep         |
+      | f f          |                                                          | 'consult-ripgrep          |
+      | i o          | Lists of faces with preview                              | 'consult-outline          |
+      | i h          | Load selected Emacs Lisp Library                         | 'consult-history          |
+      | i r          |                                                          | 'consult-register         |
+      | i b          |                                                          | 'consult-bookmark         |
+      | i m          |                                                          | 'consult-mark             |
+      | i l          |                                                          | 'consult-line             |
+      | i i          |                                                          | 'consult-imenu            |
+      | i e          |                                                          | 'consult-error            |
+      | i c          |                                                          | 'consult-multi-occur      |
+      | p            |                                                          | 'consult-yank-pop         |
+      | x x          | return to the state of the last Vertico minibuffer usage | #'vertico-repeat          |
 **** Links: [[Normal Vertico Bindings][Normal Vertico Bindings]]                                     :ignore:
 *** Visual Keybinding
     :PROPERTIES:
@@ -3380,7 +3479,6 @@ kill unused buffers in the background
       | v c    |                                     | 'gud-cont                                        |
       | v f    |                                     | 'gud-finish                                      |
       | x h    |                                     | 'mark-whole-buffer                               |
-      | x x    |                                     | 'smex                                            |
       | x n n  |                                     | 'narrow-or-widen-dwim                            |
       | x n w  |                                     | 'widen                                           |
       | x n d  |                                     | 'narrow-to-defun                                 |

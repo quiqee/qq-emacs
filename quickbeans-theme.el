@@ -494,6 +494,9 @@ The theme has to be reloaded after changing anything in this group."
        `(selectrum-primary-highlight         ((,class (:foreground ,quickbeans-yellow-1))))
        `(selectrum-secondary-highlight       ((,class (:foreground "#98be65"))))
 
+;;;;; Vertico
+       `(vertico-current                     ((,class (:background ,quickbeans-red-7 :weight bold :foreground ,quickbeans-yellow-0))))
+
 ;;;;; Spacemacs
        `(spacemacs-normal-face               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-orange-2))))
        `(spacemacs-motion-face               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-purple-2))))
