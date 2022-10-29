@@ -323,11 +323,12 @@ It will be faster to disable them here before they've been initialized.
 
                (vertico builtin)             ; use default package-install instead of quelpa
                marginalia
-               prescient
                consult
                consult-flycheck
                orderless
                mini-frame
+               embark
+               embark-consult
 
                yaml-mode
 
@@ -2613,6 +2614,7 @@ Use conf-mode for git config files
 ** Vertico
    Provide vertical completion
 
+*** Init
    #+begin_src emacs-lisp
      (require 'vertico)
      ;(require 'vertico-multiform)
@@ -2620,7 +2622,6 @@ Use conf-mode for git config files
            vertico-cycle t
            vertico-resize t)
      (vertico-mode)
-                                             ;(autoload 'prescient-persist-mode "prescient.el" nil t)
 
      ;; Add prompt indicator to `completing-read-multiple'.
      ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -2684,19 +2685,6 @@ Use conf-mode for git config files
      (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
    #+end_src
 
-*** Prescient
-   Filter most recent completions to the top of the list
-   #+begin_src emacs-lisp
-  ;   (selectrum-prescient-mode +1)
-   #+end_src
-
-   To save your command history on disk, so the sorting gets more intelligent over time
-   #+begin_src emacs-lisp
-  ;   (setq prescient-save-file (concat qq/cache-directory "prescient-save.el"))
-  ;   (setq prescient-filter-method '(fuzzy literal regexp initialism))
-  ;   (prescient-persist-mode +1)
-   #+end_src
-
 *** Marginalia
    Must be in the :init section of use-package such that the mode gets enabled
    right away. Note that this forces loading the package.
@@ -2723,18 +2711,6 @@ Use conf-mode for git config files
      (all-the-icons-completion-mode)
    #+end_src
 
-*** Consult
-   Provide commands which allow quick selection of an item from a list of
-   candidates with selection.
-
-   #+begin_src emacs-lisp
-     ;  (fset 'multi-occur #'consult-multi-occur)
-   #+end_src
-
-   Enable previews
-   #+begin_src emacs-lisp
-     ;(consult-preview-mode)
-   #+end_src
 *** Orderless
    A completion styles. Using spaces and in any order. To make sorting and
    filtering more intelligent for =selectrum=
@@ -2896,6 +2872,46 @@ add prefixes (i.e. in the left fringe) and arrow character on the currently sele
       |-------------------+-----------------------+---------------------------|
       | SPC               | Vertico M-x version | 'execute-extended-command |
 **** Links: [[Visual Vertico Bindings][Visual Vertico Bindings]]                                     :ignore:
+** Consult
+   Provide commands which allow quick selection of an item from a list of
+   candidates with selection.
+
+   #+begin_src emacs-lisp
+     ;  (fset 'multi-occur #'consult-multi-occur)
+   #+end_src
+
+   Enable previews
+   #+begin_src emacs-lisp
+     ;(consult-preview-mode)
+   #+end_src
+** Embark
+*** Init
+   #+begin_src emacs-lisp
+     ;; Optionally replace the key help with a completing-read interface
+     (setq prefix-help-command #'embark-prefix-help-command)
+     ;; Hide the mode line of the Embark live/completions buffers
+     (add-to-list 'display-buffer-alist
+                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                    nil
+                    (window-parameters (mode-line-format . none))))
+   #+end_src
+
+*** Embark-Consult
+
+   #+begin_src emacs-lisp
+     (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode)
+   #+end_src
+
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: normal-embark-binding
+    :END:
+   #+TBLNAME: embark_keys
+      | Combo | Description                | Command      |
+      | C-;   | Apply embark-act on target | 'embark-act  |
+      | C-.   |                            | 'embark-dwim |
+
+**** Links: [[Embark Bindings][Embark Bindings]]                                     :ignore:
 ** Mini-Frame
    #+begin_src emacs-lisp
      (mini-frame-mode)
@@ -6721,14 +6737,30 @@ To use this function, simply highlight a region you want to align and run M-x al
     (general-def 'visual
    #+end_src
 
-** Basic Bindings
+** Global Bindings
+*** Start
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen_emacs>>
+   #+END_SRC
+
+*** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen_emacs>>
      <<gen-keys(moda="lead", tname=std_keys)>>
+   #+END_SRC
+*** Embark Bindings
+   Generate binding using table from [[#normal-embark-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=embark_keys)>>
+   #+END_SRC
+
+*** End
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
    #+END_SRC
+
 ** Vterm Bindings
    Generate binding using table from [[#global-vterm-binding][here]]
 
