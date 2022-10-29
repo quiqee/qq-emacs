@@ -170,7 +170,7 @@ It will be faster to disable them here before they've been initialized.
      (let ((inhibit-message t))
        (unless (package-installed-p 'quelpa)
          (with-temp-buffer
-           (url-insert-file-contents "https://github.com/quelpa/quelpa/raw/master/quelpa.el")
+           (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
            (eval-buffer)
            (quelpa-self-upgrade))))
 
@@ -197,220 +197,226 @@ It will be faster to disable them here before they've been initialized.
 
                                              ; list of packages to be installed
              '(
-               ;; Tools
-               exec-path-from-shell
-               multi-term
-               restart-emacs
-               smerge-mode
-               smart-tabs-mode               ; provide semantic way of using tab in source code
+                 ;; Tools
+                 restart-emacs
+                 beacon
 
-               beacon
-
-               async
-               auto-dim-other-buffers
-               crux
+                 async
+                 auto-dim-other-buffers
+                 crux
                                              ;emojify
 
-               mixed-pitch
+                 mixed-pitch
 
-               move-text                     ; Move current line or region with M-up or M-down
-               multiple-cursors              ; Multiple cursors for Emacs.
-               ;org-superstar                 ; show org bullet as Unicode character
-               org-modern                    ; alternative to org-superstar
-               org-cliplink
-               ob-napkin
+                 move-text                     ; Move current line or region with M-up or M-down
+                 multiple-cursors              ; Multiple cursors for Emacs.
+
+
+                 ;; Modes
+                 smerge-mode
+                 smart-tabs-mode               ; provide semantic way of using tab in source code
+                 svg-tag-mode
+                 writegood-mode
+                 perspective
+                 plantuml-mode
+
+                 ;; Org
+                 ;org-superstar                 ; show org bullet as Unicode character
+                 org-modern                    ; alternative to org-superstar
+                 org-cliplink
+                 (org-contrib builtin)    ; Outline-based notes management and organizer
+                 ob-napkin
                                              ;org-pdfview
                                              ;org-sidebar
                                              ;paredit                       ; minor mode for editing parentheses
-               popwin                        ; popup window manager
+                 popwin                        ; popup window manager
                                              ;(depends-on "pretty-lambdada")
-               rainbow-delimiters
+                 rainbow-delimiters
                                              ;smart-mode-line
-               smartparens                   ; Minor mode for Emacs that deals with parens pairs
-               smex                          ; M-x interface with Ido-style fuzzy matching.
+                 smartparens                   ; Minor mode for Emacs that deals with parens pairs
 
-               vterm
-               multi-vterm
-               volatile-highlights
-               wgrep-ag
-               xcscope
-               yasnippet                     ; snippet tools for emacs
-               yasnippet-snippets
+                 ;; Term
+                 multi-term
+                 vterm
+                 multi-vterm
 
-               ;; UI Enhancement
+                 wgrep-ag
+                 xcscope
+                 yasnippet                     ; snippet tools for emacs
+                 yasnippet-snippets
+
+                 ;; UI Enhancement
                                              ;window-numbering
-               amx
-               default-text-scale
+                 smex                          ; M-x interface with Ido-style fuzzy matching.
+                 amx
+                 default-text-scale
 
-               hydra
-               vc-msg
-               pretty-hydra
-               demap
+                 hydra
+                 vc-msg
+                 pretty-hydra
+                 demap
 
-               flx
+                 flx
 
-               counsel-dash                  ; Offline documentation browser using Dash docsets.
-               shrface
-               calibredb
-               mode-line-bell
-               helpful
+                 counsel-dash                  ; Offline documentation browser using Dash docsets.
+                 shrface
+                 calibredb
+                 mode-line-bell
+                 helpful
 
-               ;; Modes
-               writegood-mode
-               perspective
-               plantuml-mode
+                 ;; Languages major modes
+                 prettier-js
+                 js-doc
+                 rjsx-mode
+                 npm-mode                      ; minor mode for working with NPM projects
+                 json-mode
+                 markdown-mode
+                 swift-mode
+                 modern-cpp-font-lock
+                 dockerfile-mode
+                 docker
+                 docker-compose-mode
 
-               ;; Languages major modes
-               prettier-js
-               js-doc
-               rjsx-mode
-               npm-mode                      ; minor mode for working with NPM projects
-               json-mode
-               markdown-mode
-               swift-mode
-               modern-cpp-font-lock
-               dockerfile-mode
-               docker
-               docker-compose-mode
+                 ;; Shell
+                 fasd
+                 (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
+                 (shell-here :fetcher git :url "https://codeberg.org/emacs-weirdware/shell-here.git")
+                 exec-path-from-shell
 
-               fasd
-               (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
-               shell-here
+                 alert
+                 (csv-mode builtin)
+                 (auctex builtin)              ; integrated environment for *TeX*
+                 (rainbow-mode builtin)        ; colorized color code in file
+                 (undo-tree builtin)           ; Treat undo history as a tree
+                 (bug-hunter builtin)
 
-               alert
-               (csv-mode builtin)
-               (auctex builtin)              ; integrated environment for *TeX*
-               (rainbow-mode builtin)        ; colorized color code in file
-               (undo-tree builtin)           ; Treat undo history as a tree
-               (org-contrib builtin)    ; Outline-based notes management and organizer
-               (bug-hunter builtin)
+                 clang-format
 
-               clang-format
+                 cmake-mode
+                 cmake-font-lock
+                 eldoc-cmake
 
-               cmake-mode
-               cmake-font-lock
-               eldoc-cmake
+                 company
+                 company-c-headers
+                 company-box
+                 company-posframe
+                 company-emoji
+                 company-math
+                 company-quickhelp
+                 company-flx
+                 company-tabnine
+                 company-statistics
 
-               company
-               company-c-headers
-               company-box
-               company-posframe
-               company-emoji
-               company-math
-               company-quickhelp
-               company-flx
-               company-tabnine
-               company-statistics
+                 dired-narrow
+                 dired-subtree
+                 dired-filter
+                 dired-rainbow
+                 dired-avfs   ; require installation of avfs in the OS (apt install avfs)
+                 all-the-icons-dired
+                 ;tramp-container
+                 dirvish
 
-               dired-narrow
-               dired-subtree
-               dired-filter
-               dired-rainbow
-               dired-avfs   ; require installation of avfs in the OS (apt install avfs)
-               all-the-icons-dired
-               docker-tramp
-               dirvish
+                 general
 
-               general
+                 ibuffer-vc
 
-               ibuffer-vc
+                 selectrum
+                 marginalia
+                 prescient
+                 selectrum-prescient
+                 consult
+                 consult-flycheck
+                 orderless
+                 mini-frame
 
-               selectrum
-               marginalia
-               prescient
-               selectrum-prescient
-               consult
-               consult-flycheck
-               orderless
-               mini-frame
+                 yaml-mode
 
-               yaml-mode
-
-               dap-mode
-               lsp-mode
-               lsp-ui
-               lsp-treemacs
-               ccls
+                 dap-mode
+                 lsp-mode
+                 lsp-ui
+                 lsp-treemacs
+                 ccls
                                              ;lsp-sourcekit
-               vlf
-               git-timemachine
-               ggtags
+                 vlf
+                 ggtags
 
-               nyan-mode
+                 nyan-mode
 
-               indium
-               web-mode
+                 indium
+                 web-mode
 
-               clean-aindent-mode
-               ws-butler
-               projectile
-               ace-jump-mode                 ; quick cursor location minor mode
-               ag
+                 clean-aindent-mode
+                 ws-butler
+                 projectile
+                 ace-jump-mode                 ; quick cursor location minor mode
+                 ag
                                              ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
-               auto-compile                  ; automatically compile Emacs Lisp libraries
-               ;color-identifiers-mode        ; gives colors to unique variables passed into functions
+                 auto-compile                  ; automatically compile Emacs Lisp libraries
+                 ;color-identifiers-mode        ; gives colors to unique variables passed into functions
 
-               diff-hl
-               discover-my-major             ; Discover key bindings and their meaning for
+                 diff-hl
+                 discover-my-major             ; Discover key bindings and their meaning for
                                              ; the current Emacs major mode
-               elisp-slime-nav               ; Provide convinient navigation to the definitions
+                 elisp-slime-nav               ; Provide convinient navigation to the definitions
                                              ; of variables, functions, libraries and faces.
-               elscreen                      ; window session manager
+                 elscreen                      ; window session manager
 
-               treemacs
+                 treemacs
 
-               speed-type
+                 speed-type
 
-               region-state
+                 region-state
 
-               doom-modeline
-               minions
-               mini-modeline
+                 doom-modeline
+                 minions
+                 mini-modeline
 
-               pdf-tools
-               tablist
+                 pdf-tools
+                 tablist
 
-               (lacarte :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/lacarte.el")
-               (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
+                 (lacarte :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/lacarte.el")
+                 (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
 
-               expand-region
+                 expand-region
 
-               ;; vim emulator
-               evil
-               evil-collection
-               evil-exchange
-               evil-indent-textobject
+                 ;; vim emulator
+                 evil
+                 evil-collection
+                 evil-exchange
+                 evil-indent-textobject
                                              ;(depends-on "evil-jumper")
-               evil-matchit
-               evil-nerd-commenter
-               evil-numbers
-               evil-surround
-               evil-visualstar
-               evil-quickscope
-               evil-mc
-               general
+                 evil-matchit
+                 evil-nerd-commenter
+                 evil-numbers
+                 evil-surround
+                 evil-visualstar
+                 evil-quickscope
+                 evil-mc
+                 general
 
-               flycheck                      ; on-the-fly syntax checking
-               ggtags
-               which-key
-               ws-butler
+                 flycheck                      ; on-the-fly syntax checking
+                 ggtags
+                 which-key
+                 ws-butler
 
-               hungry-delete
-               idle-highlight-mode           ; sets an idle timer that highlights all
+                 hungry-delete
+                 volatile-highlights
+                 (idle-highlight-mode :fetcher git :url "https://codeberg.org/ideasman42/emacs-idle-highlight-mode.git")
+                                             ; sets an idle timer that highlights all
                                              ; occurences in the buffer of the word under cursor
-               highlight-indent-guides       ; a neat mode to show indentation
+                 highlight-indent-guides       ; a neat mode to show indentation
 
-               key-chord
-               svg-tag-mode
+                 key-chord
 
-               latex-preview-pane
+                 latex-preview-pane
 
-               magic-latex-buffer
+                 magic-latex-buffer
 
-               magit
-               git-gutter-fringe
-               git-messenger
-               blamer
+                 magit
+                 (git-timemachine :fetcher git :url "https://codeberg.org/pidu/git-timemachine.git")
+                 git-gutter-fringe
+                 git-messenger
+                 blamer
 
                ))
      (cond

@@ -57,6 +57,8 @@ else
 fi
 unset color_prompt force_color_prompt
 
+export PATH="/opt/homebrew/bin:/usr/local/opt/bison/bin:/usr/local/opt/make/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-getopt/bin:$PATH"
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -126,6 +128,8 @@ alias jj='fasd_cd -d -i' # cd with interactive selection
 alias master='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc482/ppc_bin:$PATH'
 alias nine='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc462/bin:$PATH'
 alias axon='export PATH=$HOME/.bin:$HOME/toolchains/arm-cortex-a9_linaro-gcc47/bin:$PATH'
+alias rosetta='ps -p `fuser /usr/libexec/rosetta/runtime 2> /dev/null`'
+alias vin='vim -u NONE'
 
 export EDITOR=vi
 
@@ -143,7 +147,6 @@ export CLICOLOR=1
 export LSCOLORS=GxFxCxDxBxegedabagaced
 
 #hdiutil attach ~/Documents/UGW.sparseimage
-export PATH="/usr/local/opt/bison/bin:/usr/local/opt/make/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/gnu-getopt/bin:$PATH"
 
 if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
   __GIT_PROMPT_DIR=$(brew --prefix)/opt/bash-git-prompt/share
