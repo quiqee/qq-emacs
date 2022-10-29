@@ -197,226 +197,225 @@ It will be faster to disable them here before they've been initialized.
 
                                              ; list of packages to be installed
              '(
-                 ;; Tools
-                 restart-emacs
-                 beacon
+               ;; Tools
+               restart-emacs
+               beacon
 
-                 async
-                 auto-dim-other-buffers
-                 crux
+               async
+               auto-dim-other-buffers
+               crux
                                              ;emojify
 
-                 mixed-pitch
+               mixed-pitch
 
-                 move-text                     ; Move current line or region with M-up or M-down
-                 multiple-cursors              ; Multiple cursors for Emacs.
+               move-text                     ; Move current line or region with M-up or M-down
+               multiple-cursors              ; Multiple cursors for Emacs.
 
 
-                 ;; Modes
-                 smerge-mode
-                 smart-tabs-mode               ; provide semantic way of using tab in source code
-                 svg-tag-mode
-                 writegood-mode
-                 perspective
-                 plantuml-mode
+               ;; Modes
+               smerge-mode
+               smart-tabs-mode               ; provide semantic way of using tab in source code
+               svg-tag-mode
+               writegood-mode
+               perspective
+               plantuml-mode
 
-                 ;; Org
-                 ;org-superstar                 ; show org bullet as Unicode character
-                 org-modern                    ; alternative to org-superstar
-                 org-cliplink
-                 (org-contrib builtin)    ; Outline-based notes management and organizer
-                 ob-napkin
+               ;; Org
+                                             ;org-superstar                 ; show org bullet as Unicode character
+               org-modern                    ; alternative to org-superstar
+               org-cliplink
+               (org-contrib builtin)    ; Outline-based notes management and organizer
+               ob-napkin
                                              ;org-pdfview
                                              ;org-sidebar
                                              ;paredit                       ; minor mode for editing parentheses
-                 popwin                        ; popup window manager
+               popwin                        ; popup window manager
                                              ;(depends-on "pretty-lambdada")
-                 rainbow-delimiters
+               rainbow-delimiters
                                              ;smart-mode-line
-                 smartparens                   ; Minor mode for Emacs that deals with parens pairs
+               smartparens                   ; Minor mode for Emacs that deals with parens pairs
 
-                 ;; Term
-                 multi-term
-                 vterm
-                 multi-vterm
+               ;; Term
+               multi-term
+               vterm
+               multi-vterm
 
-                 wgrep-ag
-                 xcscope
-                 yasnippet                     ; snippet tools for emacs
-                 yasnippet-snippets
+               wgrep-ag
+               xcscope
+               yasnippet                     ; snippet tools for emacs
+               yasnippet-snippets
 
-                 ;; UI Enhancement
+               ;; UI Enhancement
                                              ;window-numbering
-                 smex                          ; M-x interface with Ido-style fuzzy matching.
-                 amx
-                 default-text-scale
+               smex                          ; M-x interface with Ido-style fuzzy matching.
+               amx
+               default-text-scale
 
-                 hydra
-                 vc-msg
-                 pretty-hydra
-                 demap
+               hydra
+               vc-msg
+               pretty-hydra
+               demap
 
-                 flx
+               flx
 
-                 counsel-dash                  ; Offline documentation browser using Dash docsets.
-                 shrface
-                 calibredb
-                 mode-line-bell
-                 helpful
+               counsel-dash                  ; Offline documentation browser using Dash docsets.
+               shrface
+               calibredb
+               mode-line-bell
+               helpful
 
-                 ;; Languages major modes
-                 prettier-js
-                 js-doc
-                 rjsx-mode
-                 npm-mode                      ; minor mode for working with NPM projects
-                 json-mode
-                 markdown-mode
-                 swift-mode
-                 modern-cpp-font-lock
-                 dockerfile-mode
-                 docker
-                 docker-compose-mode
+               ;; Languages major modes
+               prettier-js
+               js-doc
+               rjsx-mode
+               npm-mode                      ; minor mode for working with NPM projects
+               json-mode
+               markdown-mode
+               swift-mode
+               modern-cpp-font-lock
+               dockerfile-mode
+               docker
+               docker-compose-mode
 
-                 ;; Shell
-                 fasd
-                 (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
-                 (shell-here :fetcher git :url "https://codeberg.org/emacs-weirdware/shell-here.git")
-                 exec-path-from-shell
+               ;; Shell
+               fasd
+               (fasd-shell :fetcher git :url "https://gitlab.com/emacs-stuff/fasd-shell.git")
+               (shell-here :fetcher git :url "https://codeberg.org/emacs-weirdware/shell-here.git")
+               exec-path-from-shell
 
-                 alert
-                 (csv-mode builtin)
-                 (auctex builtin)              ; integrated environment for *TeX*
-                 (rainbow-mode builtin)        ; colorized color code in file
-                 (undo-tree builtin)           ; Treat undo history as a tree
-                 (bug-hunter builtin)
+               alert
+               (csv-mode builtin)
+               (auctex builtin)              ; integrated environment for *TeX*
+               (rainbow-mode builtin)        ; colorized color code in file
+               (undo-tree builtin)           ; Treat undo history as a tree
+               (bug-hunter builtin)
 
-                 clang-format
+               clang-format
 
-                 cmake-mode
-                 cmake-font-lock
-                 eldoc-cmake
+               cmake-mode
+               cmake-font-lock
+               eldoc-cmake
 
-                 company
-                 company-c-headers
-                 company-box
-                 company-posframe
-                 company-emoji
-                 company-math
-                 company-quickhelp
-                 company-flx
-                 company-tabnine
-                 company-statistics
+               company
+               company-c-headers
+               company-box
+               company-posframe
+               company-emoji
+               company-math
+               company-quickhelp
+               company-flx
+               company-tabnine
+               company-statistics
 
-                 dired-narrow
-                 dired-subtree
-                 dired-filter
-                 dired-rainbow
-                 dired-avfs   ; require installation of avfs in the OS (apt install avfs)
-                 all-the-icons-dired
-                 ;tramp-container
-                 dirvish
+               dired-narrow
+               dired-subtree
+               dired-filter
+               dired-rainbow
+               dired-avfs   ; require installation of avfs in the OS (apt install avfs)
+               all-the-icons-dired
+                                             ;tramp-container
+               dirvish
 
-                 general
+               general
 
-                 ibuffer-vc
+               ibuffer-vc
 
-                 selectrum
-                 marginalia
-                 prescient
-                 selectrum-prescient
-                 consult
-                 consult-flycheck
-                 orderless
-                 mini-frame
+               (vertico builtin)             ; use default package-install instead of quelpa
+               marginalia
+               prescient
+               consult
+               consult-flycheck
+               orderless
+               mini-frame
 
-                 yaml-mode
+               yaml-mode
 
-                 dap-mode
-                 lsp-mode
-                 lsp-ui
-                 lsp-treemacs
-                 ccls
+               dap-mode
+               lsp-mode
+               lsp-ui
+               lsp-treemacs
+               ccls
                                              ;lsp-sourcekit
-                 vlf
-                 ggtags
+               vlf
+               ggtags
 
-                 nyan-mode
+               nyan-mode
 
-                 indium
-                 web-mode
+               indium
+               web-mode
 
-                 clean-aindent-mode
-                 ws-butler
-                 projectile
-                 ace-jump-mode                 ; quick cursor location minor mode
-                 ag
+               clean-aindent-mode
+               ws-butler
+               projectile
+               ace-jump-mode                 ; quick cursor location minor mode
+               ag
                                              ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
-                 auto-compile                  ; automatically compile Emacs Lisp libraries
-                 ;color-identifiers-mode        ; gives colors to unique variables passed into functions
+               auto-compile                  ; automatically compile Emacs Lisp libraries
+                                             ;color-identifiers-mode        ; gives colors to unique variables passed into functions
 
-                 diff-hl
-                 discover-my-major             ; Discover key bindings and their meaning for
+               diff-hl
+               discover-my-major             ; Discover key bindings and their meaning for
                                              ; the current Emacs major mode
-                 elisp-slime-nav               ; Provide convinient navigation to the definitions
+               elisp-slime-nav               ; Provide convinient navigation to the definitions
                                              ; of variables, functions, libraries and faces.
-                 elscreen                      ; window session manager
+               elscreen                      ; window session manager
 
-                 treemacs
+               treemacs
 
-                 speed-type
+               speed-type
 
-                 region-state
+               region-state
 
-                 doom-modeline
-                 minions
-                 mini-modeline
+               doom-modeline
+               minions
+               mini-modeline
 
-                 pdf-tools
-                 tablist
+               pdf-tools
+               tablist
 
-                 (lacarte :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/lacarte.el")
-                 (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
+               (lacarte :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/lacarte.el")
+               (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
 
-                 expand-region
+               expand-region
 
-                 ;; vim emulator
-                 evil
-                 evil-collection
-                 evil-exchange
-                 evil-indent-textobject
+               ;; vim emulator
+               evil
+               evil-collection
+               evil-exchange
+               evil-indent-textobject
                                              ;(depends-on "evil-jumper")
-                 evil-matchit
-                 evil-nerd-commenter
-                 evil-numbers
-                 evil-surround
-                 evil-visualstar
-                 evil-quickscope
-                 evil-mc
-                 general
+               evil-matchit
+               evil-nerd-commenter
+               evil-numbers
+               evil-surround
+               evil-visualstar
+               evil-quickscope
+               evil-mc
+               general
 
-                 flycheck                      ; on-the-fly syntax checking
-                 ggtags
-                 which-key
-                 ws-butler
+               flycheck                      ; on-the-fly syntax checking
+               ggtags
+               which-key
+               ws-butler
 
-                 hungry-delete
-                 volatile-highlights
-                 (idle-highlight-mode :fetcher git :url "https://codeberg.org/ideasman42/emacs-idle-highlight-mode.git")
+               hungry-delete
+               volatile-highlights
+               (idle-highlight-mode :fetcher git :url "https://codeberg.org/ideasman42/emacs-idle-highlight-mode.git")
                                              ; sets an idle timer that highlights all
                                              ; occurences in the buffer of the word under cursor
-                 highlight-indent-guides       ; a neat mode to show indentation
+               highlight-indent-guides       ; a neat mode to show indentation
 
-                 key-chord
+               key-chord
 
-                 latex-preview-pane
+               latex-preview-pane
 
-                 magic-latex-buffer
+               magic-latex-buffer
 
-                 magit
-                 (git-timemachine :fetcher git :url "https://codeberg.org/pidu/git-timemachine.git")
-                 git-gutter-fringe
-                 git-messenger
-                 blamer
+               magit
+               (git-timemachine :fetcher git :url "https://codeberg.org/pidu/git-timemachine.git")
+               git-gutter-fringe
+               git-messenger
+               blamer
 
                ))
      (cond
@@ -590,6 +589,8 @@ required from *emacs*.
                                     (format "general-def '%s %s \"%s\"" (nth 2 l) (nth 1 l) key))
                                    ((string= (format "%s" moda) "lead")
                                     (format "\"%s\"" key))
+                                   ((string= (format "%s" moda) "remap")
+                                    (format "[remap %s]" (nth 1 l)))
                                    ((string= (format "%s" moda) "xvil")
                                     (format "evil-ex-define-cmd \"%s\"" key))
                                    ((string= (format "%s" key) "[escape]")
@@ -600,7 +601,9 @@ required from *emacs*.
                        (princ (format "(%s %s %s)\n" def command map))
                      (if (string= (format "%s" moda) "lead")
                          (princ (format "%s %s\n" def command map))
-                       (princ (format "(%s %s)\n" def command)))
+                       (if (string= (format "%s" moda) "remap")
+                           (princ (format "%s %s\n" def command))
+                         (princ (format "(%s %s)\n" def command)) ))
                      ))))
              tname)
    #+END_SRC
@@ -2182,23 +2185,23 @@ Don't backup su and sudo files
     :CUSTOM_ID: evil-ibuffer-binding
     :END:
    #+TBLNAME: evil_ibuffer_keys
-      | Combo     | Description           | Command                               |
-      | SPC SPC   | Selectrum M-x version | 'execute-extended-command             |
-      | v         |                       | 'ibuffer-toggle-marks                 |
-      | l         |                       | 'ibuffer-visit-buffer                 |
-      | J         |                       | 'ibuffer-jump-to-buffer               |
-      | M-s a C-o |                       | 'ibuffer-do-occur                     |
-      | * *       |                       | 'ibuffer-unmark-all                   |
-      | * s       |                       | 'ibuffer-mark-special-buffers         |
-      | * r       |                       | 'ibuffer-mark-read-only-buffers       |
-      | * /       |                       | 'ibuffer-mark-dired-buffers           |
-      | * e       |                       | 'ibuffer-mark-dissociated-buffers     |
-      | * h       |                       | 'ibuffer-mark-help-buffers            |
-      | * z       |                       | 'ibuffer-mark-compressed-file-buffers |
-      | d         |                       | 'ibuffer-mark-for-delete              |
-      | C-d       |                       | 'ibuffer-mark-for-delete-backwards    |
-      | x         |                       | 'ibuffer-do-kill-on-deletion-marks    |
-      | q         |                       | 'quit-window                          |
+      | Combo     | Description         | Command                               |
+      | SPC SPC   | Vertico M-x version | 'execute-extended-command             |
+      | v         |                     | 'ibuffer-toggle-marks                 |
+      | l         |                     | 'ibuffer-visit-buffer                 |
+      | J         |                     | 'ibuffer-jump-to-buffer               |
+      | M-s a C-o |                     | 'ibuffer-do-occur                     |
+      | * *       |                     | 'ibuffer-unmark-all                   |
+      | * s       |                     | 'ibuffer-mark-special-buffers         |
+      | * r       |                     | 'ibuffer-mark-read-only-buffers       |
+      | * /       |                     | 'ibuffer-mark-dired-buffers           |
+      | * e       |                     | 'ibuffer-mark-dissociated-buffers     |
+      | * h       |                     | 'ibuffer-mark-help-buffers            |
+      | * z       |                     | 'ibuffer-mark-compressed-file-buffers |
+      | d         |                     | 'ibuffer-mark-for-delete              |
+      | C-d       |                     | 'ibuffer-mark-for-delete-backwards    |
+      | x         |                     | 'ibuffer-do-kill-on-deletion-marks    |
+      | q         |                     | 'quit-window                          |
 ***** Links: [[Evil iBuffer Bindings][Evil iBuffer Bindings]]                           :ignore:
 *** Minibuffer
 **** Enable paredit in lisp related minibuffer
@@ -2388,6 +2391,7 @@ Use conf-mode for git config files
         (global-unset-key key))
     #+end_src
 
+*** Default Binding
     :PROPERTIES:
     :CUSTOM_ID: default-key-binding
     :END:
@@ -2410,6 +2414,7 @@ Use conf-mode for git config files
       | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
       | C-C d   | Dash Docs search or at point                                      | 'counsel-dash-at-point       |
 **** Links: [[Basic Bindings]]                                     :ignore:
+
 * Third parties
 ** Company
    A text completion framework for Emacs.
@@ -2604,27 +2609,71 @@ Use conf-mode for git config files
       | C-b   |             | 'company-previous-page      |
       | C-2   |             | 'company-other-backend      |
 **** Links: [[Company Bindings][Company Bindings]]                                     :ignore:
-** Selectrum
+** Vertico
    Provide vertical completion
 
    #+begin_src emacs-lisp
-     (require 'selectrum)
-     (setq selectrum-max-window-height 20)
-     (selectrum-mode +1)
-     (autoload 'prescient-persist-mode "prescient.el" nil t)
+     (require 'vertico)
+     ;(require 'vertico-multiform)
+     (setq vertico-count 20
+           vertico-cycle t
+           vertico-resize t)
+     (vertico-mode)
+                                             ;(autoload 'prescient-persist-mode "prescient.el" nil t)
+
+     ;; Add prompt indicator to `completing-read-multiple'.
+     ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+     (defun crm-indicator (args)
+       (cons (format "[CRM%s] %s"
+                     (replace-regexp-in-string
+                      "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                      crm-separator)
+                     (car args))
+             (cdr args)))
+     (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+     ;; Do not allow the cursor in the minibuffer prompt
+     (setq minibuffer-prompt-properties
+           '(read-only t cursor-intangible t face minibuffer-prompt))
+     (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+     ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+     ;; Vertico commands are hidden in normal buffers.
+     (setq read-extended-command-predicate
+           #'command-completion-default-include-p)
+
+     ;; Enable recursive minibuffers
+     (setq enable-recursive-minibuffers t)
+
+     ;; Enable vertico-multiform
+     ;(vertico-multiform-mode)
+
+     ;; Configure the display per command.
+     ;; Use a buffer with indices for imenu
+     ;; and a flat (Ido-like) menu for M-x.
+     (setq vertico-multiform-commands
+           '((consult-imenu buffer indexed)
+             (execute-extended-command unobtrusive)))
+
+     ;; Configure the display per completion category.
+     ;; Use the grid display for files and a buffer
+     ;; for the consult-grep commands.
+     (setq vertico-multiform-categories
+           '((file grid)
+             (consult-grep buffer)))
    #+end_src
 
 *** Prescient
    Filter most recent completions to the top of the list
    #+begin_src emacs-lisp
-     (selectrum-prescient-mode +1)
+  ;   (selectrum-prescient-mode +1)
    #+end_src
 
    To save your command history on disk, so the sorting gets more intelligent over time
    #+begin_src emacs-lisp
-     (setq prescient-save-file (concat qq/cache-directory "prescient-save.el"))
-     (setq prescient-filter-method '(fuzzy literal regexp initialism))
-     (prescient-persist-mode +1)
+  ;   (setq prescient-save-file (concat qq/cache-directory "prescient-save.el"))
+  ;   (setq prescient-filter-method '(fuzzy literal regexp initialism))
+  ;   (prescient-persist-mode +1)
    #+end_src
 
 *** Marginalia
@@ -2644,8 +2693,8 @@ Use conf-mode for git config files
 
    When using Selectrum, ensure that Selectrum is refreshed when cycling annotations.
    #+begin_src emacs-lisp
-     (advice-add #'marginalia-cycle :after
-                 (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
+     ;(advice-add #'marginalia-cycle :after
+     ;            (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
    #+end_src
 *** Consult
    Provide commands which allow quick selection of an item from a list of
@@ -2665,56 +2714,61 @@ Use conf-mode for git config files
 
    #+begin_src emacs-lisp
      (require 'orderless)
-     (setq completion-styles '(orderless))
+     (setq completion-styles '(orderless basic)
+           completion-category-defaults nil
+           completion-category-overrides '((file (styles partial-completion))))
      (icomplete-mode) ; optional but recommended!
    #+end_src
    Selectrum Integration
    #+begin_src emacs-lisp
-     (setq selectrum-refine-candidates-function #'orderless-filter)
-     (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
+  ;   (setq selectrum-refine-candidates-function #'orderless-filter)
+  ;   (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
    #+end_src
 *** Filtering advice
    If you also =orderless= configured as the `completion-styles`, use the
    following advice Orderless isn't well suited for initial gathering of
    candidates by completion in region.
    #+begin_src emacs-lisp
-     (advice-add #'completion--category-override :filter-return
-                 (defun completion-in-region-style-setup+ (res)
-                   "Fallback to default styles for region completions with orderless."
-                   (or res
-                       ;; Don't use orderless for initial candidate gathering.
-                       (and completion-in-region-mode-predicate
-                            (not (minibufferp))
-                            (equal '(orderless) completion-styles)
-                            '(basic partial-completion emacs22)))))
+  ;   (advice-add #'completion--category-override :filter-return
+  ;               (defun completion-in-region-style-setup+ (res)
+  ;                 "Fallback to default styles for region completions with orderless."
+  ;                 (or res
+  ;                     ;; Don't use orderless for initial candidate gathering.
+  ;                     (and completion-in-region-mode-predicate
+  ;                          (not (minibufferp))
+  ;                          (equal '(orderless) completion-styles)
+  ;                          '(basic partial-completion emacs22)))))
    #+end_src
-*** Selectrum Map Binding
+*** Vertico Map Binding
     :PROPERTIES:
-    :CUSTOM_ID: selectrum-map-binding
+    :CUSTOM_ID: vertico-map-binding
     :END:
-   #+TBLNAME: selectrum_map_keys
-      | Combo | Description                    | Command                        |
-      | C-j   | selects the next candidate     | 'selectrum-next-candidate      |
-      | C-k   | selects the previous candidate | 'selectrum-previous-candidate  |
-      | C-a   | selects the first candidate    | 'selectrum-goto-beginning      |
-      | C-e   | selects the last candidate     | 'selectrum-goto-end            |
-      | C-d   | forget candidate               | 'prescient-forget              |
-      | C-f   | scrolls down                   | 'selectrum-next-page           |
-      | C-b   | scrolls up                     | 'selectrum-previous-page       |
-      | C-w   |                                | 'selectrum-kill-ring-save      |
-      | C-r   | rotate visual information      | 'marginalia-cycle              |
-      | ESC   | cancel selecturm               | 'keyboard-quit                 |
-      | C-s   | use the input as is            | 'selectrum-submit-exact-input  |
-      | C-q   | cycle selectrum display style  | 'selectrum-cycle-display-style |
-**** Links: [[Selectrum Map Bindings][Selectrum Map Bindings]]                                     :ignore:
+   #+TBLNAME: vertico_map_keys
+      | Combo    | Description                    | Command                            |
+      | C-r      | rotate visual information      | #'marginalia-cycle                 |
+      | C-v      | vertical layout                | #'vertico-multiform-vertical       |
+      | C-t      | grid layout                    | #'vertico-multiform-grid           |
+      | C-q      | reverse style                  | #'vertico-multiform-reverse        |
+      | C-j      | selects the next candidate     | #'next-line-or-history-element     |
+      | C-k      | selects the previous candidate | #'previous-line-or-history-element |
+      | C-k      | selects the previous candidate | #'previous-line                    |
+      | C-a      | selects the first candidate    | #'minibuffer-beginning-of-buffer   |
+      | C-a      | selects the first candidate    | #'beginning-of-buffer              |
+      | C-e      | selects the last candidate     | #'end-of-buffer                    |
+      | C-f      | scrolls down                   | #'scroll-down-command              |
+      | C-b      | scrolls up                     | #'scroll-up-command                |
+      | C-w      |                                | #'kill-ring-save                   |
+      | <escape> | cancel minibuffer              | #'abort-recursive-edit             |
+
+**** Links: [[Vertico Map Bindings][Vertico Map Bindings]]                                     :ignore:
 *** Normal Keybinding
     :PROPERTIES:
-    :CUSTOM_ID: normal-selectrum-binding
+    :CUSTOM_ID: normal-vertico-binding
     :END:
-   #+TBLNAME: normal_selectrum_keys
+   #+TBLNAME: normal_vertico_keys
       | Evil Leader Combo | Description                              | Command                   |
       |-------------------+------------------------------------------+---------------------------|
-      | SPC               | Selectrum M-x version                    | 'execute-extended-command |
+      | SPC               | Vertico M-x version                      | 'execute-extended-command |
       | "."               | Forward to 'find file'                   | 'find-file                |
       | b c               |                                          | 'selectrum-switch-buffer+ |
       | h a               |                                          | 'consult-apropos          |
@@ -2733,16 +2787,16 @@ Use conf-mode for git config files
       | i e               |                                          | 'consult-error            |
       | i c               |                                          | 'consult-multi-occur      |
       | p                 |                                          | 'consult-yank-pop         |
-**** Links: [[Normal Selectrum Bindings][Normal Selectrum Bindings]]                                     :ignore:
+**** Links: [[Normal Vertico Bindings][Normal Vertico Bindings]]                                     :ignore:
 *** Visual Keybinding
     :PROPERTIES:
-    :CUSTOM_ID: visual-selectrum-binding
+    :CUSTOM_ID: visual-vertico-binding
     :END:
-   #+TBLNAME: visual_selectrum_keys
+   #+TBLNAME: visual_vertico_keys
       | Evil Leader Combo | Description           | Command                   |
       |-------------------+-----------------------+---------------------------|
-      | SPC               | Selectrum M-x version | 'execute-extended-command |
-**** Links: [[Visual Selectrum Bindings][Visual Selectrum Bindings]]                                     :ignore:
+      | SPC               | Vertico M-x version | 'execute-extended-command |
+**** Links: [[Visual Vertico Bindings][Visual Vertico Bindings]]                                     :ignore:
 ** Mini-Frame
    #+begin_src emacs-lisp
      (mini-frame-mode)
@@ -6677,11 +6731,11 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
    #+END_SRC
 
-**** Normal Selectrum Bindings
-   Generate binding using table from [[#normal-selectrum-binding][here]]
+**** Normal Vertico Bindings
+   Generate binding using table from [[#normal-vertico-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(moda="lead", tname=normal_selectrum_keys)>>
+     <<gen-keys(moda="lead", tname=normal_vertico_keys)>>
    #+END_SRC
 
 **** Normal FASD Bindings
@@ -6716,10 +6770,10 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<leader_visual>>
    #+END_SRC
 
-**** Visual Selectrum Bindings
-   Generate binding using table from [[#visual-selectrum-binding][here]]
+**** Visual Vertico Bindings
+   Generate binding using table from [[#visual-vertico-binding][here]]
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-keys(moda="lead", tname=visual_selectrum_keys)>>
+     <<gen-keys(moda="lead", tname=visual_vertico_keys)>>
    #+END_SRC
 **** End
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
@@ -6803,12 +6857,12 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
-** Selectrum Map Bindings
-   Generate binding using table from [[#selectrum-map-binding][here]]
+** Vertico Map Bindings
+   Generate binding using table from [[#vertico-map-binding][here]]
 
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="general-define-key\n :states 'insert\n :keymaps 'selectrum-minibuffer-map")>>
-     <<gen-keys(moda="lead", tname=selectrum_map_keys)>>
+     <<gen-fix(pre="general-define-key\n :states 'insert\n :keymaps 'vertico-map")>>
+     <<gen-keys(moda="lead", tname=vertico_map_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
 
