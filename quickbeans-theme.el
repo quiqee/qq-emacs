@@ -142,6 +142,7 @@ The theme has to be reloaded after changing anything in this group."
        `(default                             ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
        `(internal-border                     ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-7))))
        `(error                               ((,class (:foreground ,quickbeans-red-5))))
+       `(italic                              ((,class (:slant italic :underline nil))))
 ;;;;; ACE/Avy
        `(aw-leading-char-face                ((,class (:foreground ,quickbeans-red-3 :height 1.2))))
 ;;;;; Alchemist

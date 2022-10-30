@@ -66,6 +66,7 @@ mkdir -p $EMACS_DIR/elisp
 mkdir -p $EMACS_DIR/extern/org
 mkdir -p $EMACS_DIR/bin
 mkdir -p $EMACS_DIR/.cache/themes
+mkdir -p $HOME/Documents/Org-files/RoamNotes
 
 echo -n "** installing planuml.jar"
 (

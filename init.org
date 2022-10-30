@@ -22,7 +22,7 @@
    here:
    [[http://orgmode.org/worg/org-contrib/babel/intro.html#literate-programming]]
 
-* Basic
+* Base Settings
 ** Meta
 *** Enable =lexical-binding=
    #+BEGIN_SRC emacs-lisp
@@ -225,6 +225,7 @@ It will be faster to disable them here before they've been initialized.
                org-modern                    ; alternative to org-superstar
                org-cliplink
                (org-contrib builtin)    ; Outline-based notes management and organizer
+               org-roam
                ob-napkin
                                              ;org-pdfview
                                              ;org-sidebar
@@ -667,7 +668,7 @@ required from *emacs*.
 **** Default Org files folder
 
    #+begin_src emacs-lisp
-     (defvar qq/org-folder "~/Documents/src/Org-files/")
+     (defvar qq/org-folder "~/Documents/Org-files/")
    #+end_src
 
 **** Dash docsets path
@@ -4752,6 +4753,16 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
            org-habit-show-all-today t)
    #+END_SRC
 
+*** org-roam
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'org-roam)
+     (setq org-roam-db-location (concat qq/cache-directory "org-roam.db")
+           org-roam-completion-everywhere t
+           org-roam-directory (concat qq/org-folder "RoamNotes"))
+     (org-roam-setup)
+   #+END_SRC
+
 *** org-babel
    org-babel is a feature inside of org-mode that makes this document possible.
    It allows for embedding languages inside of an org-mode document with all the
@@ -4905,37 +4916,41 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: orgmode-key-binding
     :END:
    #+TBLNAME: org_keys
-      | Combo | Description                                                  | Command         |
-      |-------+--------------------------------------------------------------+-----------------|
-      | C-c c | Capture and store note quickly                               | 'org-capture    |
-      | C-c a | Display Org agenda                                           | 'org-agenda     |
-      | C-c l | Correctly insert links into org files                        | 'org-store-link |
-      | C-c b | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb   |
+      | Combo   | Description                                                  | Command                 |
+      | C-c c   | Capture and store note quickly                               | 'org-capture            |
+      | C-c a   | Display Org agenda                                           | 'org-agenda             |
+      | C-c l   | Correctly insert links into org files                        | 'org-store-link         |
+      | C-c b   | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb           |
+      | C-c r r | Enable/Disable org-roam buffer                               | 'org-roam-buffer-toggle |
+      | C-c r f | find org-roam notes                                          | 'org-roam-node-find     |
+      | C-c r i | Insert org-roam notes                                        | 'org-roam-node-insert   |
+      | C-c r c | Create on org-roam id on a heading inside org-file           | 'org-id-get-create      |
 **** Links: [[Org Mode Bindings][here]].                                     :ignore:
 *** Evil Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-org-binding
     :END:
    #+TBLNAME: evil_org_keys
-      | Combo   | Mode             | Evil Mode | Desc | Command                                                |
-      | z c     | org-mode-map     | normal    |      | 'outline-hide-subtree                                  |
-      | RET     | org-mode-map     | normal    |      | 'org-open-at-point                                     |
-      | s-v     | org-mode-map     | insert    |      | 'org-cliplink                                          |
-      | -       | org-mode-map     | normal    |      | 'org-cycle-list-bullet                                 |
+      | Combo   | Mode             | Evil Mode | Desc | Command                                                 |
+      | z c     | org-mode-map     | normal    |      | 'outline-hide-subtree                                   |
+      | RET     | org-mode-map     | normal    |      | 'org-open-at-point                                      |
+      | s-v     | org-mode-map     | insert    |      | 'org-cliplink                                           |
+      | -       | org-mode-map     | normal    |      | 'org-cycle-list-bullet                                  |
       | C-c .   | org-mode-map     | insert    |      | #'(lambda () (interactive) (org-time-stamp-inactive t)) |
-      | C-e     | org-mode-map     | normal    |      | 'org-edit-src-code                                     |
-      | Q       | org-src-mode-map | normal    |      | 'org-edit-src-abort                                    |
-      | >       | org-mode-map     | normal    |      | 'org-metaright                                         |
-      | <       | org-mode-map     | normal    |      | 'org-metaleft                                          |
-      | C->     | org-mode-map     | normal    |      | 'org-demote-subtree                                    |
-      | C-<     | org-mode-map     | normal    |      | 'org-promote-subtree                                   |
-      | SPC k   | org-mode-map     | normal    |      | 'outline-up-heading                                    |
-      | SPC j j | org-mode-map     | normal    |      | 'outline-next-heading                                  |
-      | 0       | org-mode-map     | normal    |      | 'evil-first-non-blank                                  |
-      | M-k     | org-mode-map     | normal    |      | 'org-metaup                                            |
-      | M-j     | org-mode-map     | normal    |      | 'org-metadown                                          |
-      | K       | org-mode-map     | normal    |      | 'org-edit-special                                      |
-      | TAB     | org-mode-map     | normal    |      | 'org-cycle                                             |
+      | C-e     | org-mode-map     | normal    |      | 'org-edit-src-code                                      |
+      | Q       | org-src-mode-map | normal    |      | 'org-edit-src-abort                                     |
+      | >       | org-mode-map     | normal    |      | 'org-metaright                                          |
+      | <       | org-mode-map     | normal    |      | 'org-metaleft                                           |
+      | C->     | org-mode-map     | normal    |      | 'org-demote-subtree                                     |
+      | C-<     | org-mode-map     | normal    |      | 'org-promote-subtree                                    |
+      | SPC k   | org-mode-map     | normal    |      | 'outline-up-heading                                     |
+      | SPC j j | org-mode-map     | normal    |      | 'outline-next-heading                                   |
+      | 0       | org-mode-map     | normal    |      | 'evil-first-non-blank                                   |
+      | M-k     | org-mode-map     | normal    |      | 'org-metaup                                             |
+      | M-j     | org-mode-map     | normal    |      | 'org-metadown                                           |
+      | K       | org-mode-map     | normal    |      | 'org-edit-special                                       |
+      | TAB     | org-mode-map     | normal    |      | 'org-cycle                                              |
+      | C-c i   | org-mode-map     | normal    |      | 'completion-at-point                                    |
 
 **** Links: [[Evil Org Bindings][Evil Org Bindings]]                                     :ignore:
 ** PDFTools
@@ -6114,6 +6129,7 @@ Associate Dockerfile with =docker-mode=.
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (require 'web-mode)
+     (setq indium-chrome--default-data-dir (concat qq/cache-directory "indium-chrome-profile"))
      (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
      (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
      (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
