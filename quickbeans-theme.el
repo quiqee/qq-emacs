@@ -257,7 +257,7 @@ The theme has to be reloaded after changing anything in this group."
        `(helm-ff-executable                  ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; Highlight
        `(highlight                           ((,class (:background ,quickbeans-grey-3))))
-       ;`(hl-line                             ((,class (:underline ,quickbeans-purple-4))))
+       `(hl-line                             ((,class (:inherit unspecified :background ,quickbeans-bg :underline ,quickbeans-purple-4))))
 ;;;;; hi-lock
        `(hi-blue                             ((,class (:background ,quickbeans-blue-4 :foreground ,quickbeans-grey-1))))
        `(hi-green                            ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-grey-1))))
@@ -495,7 +495,7 @@ The theme has to be reloaded after changing anything in this group."
        `(selectrum-secondary-highlight       ((,class (:foreground "#98be65"))))
 
 ;;;;; Vertico
-       `(vertico-current                     ((,class (:background ,quickbeans-red-7 :weight bold :foreground ,quickbeans-yellow-0))))
+       `(vertico-current                     ((,class (:background ,quickbeans-grey-1 :weight bold :foreground ,quickbeans-yellow-0))))
 
 ;;;;; Spacemacs
        `(spacemacs-normal-face               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-orange-2))))

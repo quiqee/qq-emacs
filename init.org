@@ -648,6 +648,16 @@ required from *emacs*.
      (defvar qq/ccls-binary "/usr/bin/ccls")
    #+end_src
 
+**** Mini-Frame
+   #+begin_src emacs-lisp
+     (defvar qq/mini-frame
+        '((no-accept-focus . t)(top . 100)
+          (width . 0.7)
+          (left . 0.2)
+          (height . 20)
+          ))
+   #+end_src
+
 **** Serial Ports
 
    #+begin_src emacs-lisp
@@ -732,7 +742,7 @@ required from *emacs*.
 **** Ccls Executables
 
    #+begin_src emacs-lisp
-     (defvar qq/ccls-binary "/usr/local/bin/ccls")
+     (setq qq/ccls-binary "/usr/local/bin/ccls")
    #+end_src
 
 **** C-Headers path
@@ -767,6 +777,16 @@ required from *emacs*.
 **** Fonts
 
    #+begin_src emacs-lisp
+   #+end_src
+
+**** Mini-Frame
+   #+begin_src emacs-lisp
+     (setq qq/mini-frame
+        '((no-accept-focus . t)(top . 400)
+          (width . 0.3)
+          (left . 0.5)
+          (height . 20)
+          ))
    #+end_src
 
 **** Serial Ports
@@ -2661,13 +2681,13 @@ Use conf-mode for git config files
            ;; Use the grid display for files and a buffer
            ;; for the consult-grep commands.
            vertico-multiform-categories                                  ; Choose a multiform
-           '((file reverse)
+           '((file indexed)
              (consult-grep buffer)
              (consult-location)
              (imenu buffer)
              (library reverse indexed)
              (org-roam-node reverse indexed)
-             (t reverse)
+             (t indexed)
              )
 
            ;; Configure the display per command.
@@ -2720,79 +2740,9 @@ Use conf-mode for git config files
    #+end_src
 
    #+begin_src emacs-lisp
-     (setq completion-styles '(orderless))
-     (setq completion-category-defaults nil)    ; I want to be in control!
-     (setq completion-category-overrides
-           '((file (styles basic-remote ; For `tramp' hostname completion with `vertico'
-                           orderless
-                           ))
-             ))
-
-     (setq orderless-component-separator 'orderless-escapable-split-on-space)
-     (setq orderless-matching-styles
-           '(orderless-literal
-             orderless-prefixes
-             orderless-initialism
-             orderless-regexp
-             ;; orderless-flex
-             ;; orderless-strict-leading-initialism
-             ;; orderless-strict-initialism
-             ;; orderless-strict-full-initialism
-             ;; orderless-without-literal          ; Recommended for dispatches instead
-             ))
-     (setq orderless-style-dispatchers
-           '(prot-orderless-literal-dispatcher
-             prot-orderless-strict-initialism-dispatcher
-             prot-orderless-flex-dispatcher
-             ))
-
-     (defun orderless--strict-*-initialism (component &optional anchored)
-       "Match a COMPONENT as a strict initialism, optionally ANCHORED.
-     The characters in COMPONENT must occur in the candidate in that
-     order at the beginning of subsequent words comprised of letters.
-     Only non-letters can be in between the words that start with the
-     initials.
-
-     If ANCHORED is `start' require that the first initial appear in
-     the first word of the candidate.  If ANCHORED is `both' require
-     that the first and last initials appear in the first and last
-     words of the candidate, respectively."
-       (orderless--separated-by
-           '(seq (zero-or-more alpha) word-end (zero-or-more (not alpha)))
-         (cl-loop for char across component collect `(seq word-start ,char))
-         (when anchored '(seq (group buffer-start) (zero-or-more (not alpha))))
-         (when (eq anchored 'both)
-           '(seq (zero-or-more alpha) word-end (zero-or-more (not alpha)) eol))))
-
-     (defun orderless-strict-initialism (component)
-       "Match a COMPONENT as a strict initialism.
-     This means the characters in COMPONENT must occur in the
-     candidate in that order at the beginning of subsequent words
-     comprised of letters.  Only non-letters can be in between the
-     words that start with the initials."
-       (orderless--strict-*-initialism component))
-
-     (defun prot-orderless-literal-dispatcher (pattern _index _total)
-       "Literal style dispatcher using the equals sign as a suffix.
-     It matches PATTERN _INDEX and _TOTAL according to how Orderless
-     parses its input."
-       (when (string-suffix-p "=" pattern)
-         `(orderless-literal . ,(substring pattern 0 -1))))
-
-     (defun prot-orderless-strict-initialism-dispatcher (pattern _index _total)
-       "Leading initialism  dispatcher using the comma suffix.
-     It matches PATTERN _INDEX and _TOTAL according to how Orderless
-     parses its input."
-       (when (string-suffix-p "," pattern)
-         `(orderless-strict-initialism . ,(substring pattern 0 -1))))
-
-     (defun prot-orderless-flex-dispatcher (pattern _index _total)
-       "Flex  dispatcher using the tilde suffix.
-     It matches PATTERN _INDEX and _TOTAL according to how Orderless
-     parses its input."
-       (when (string-suffix-p "." pattern)
-         `(orderless-flex . ,(substring pattern 0 -1))))
-
+     (setq completion-styles '(orderless basic)
+           completion-category-defaults nil
+           completion-category-overrides '((file (styles partial-completion))))
    #+end_src
 *** Advice
 add prefixes (i.e. in the left fringe) and arrow character on the currently selected candidate
@@ -2809,31 +2759,44 @@ add prefixes (i.e. in the left fringe) and arrow character on the currently sele
                     cand)))
 
    #+end_src
+
+Hides *completion* buffers for =tmm-menubar= and =fap-menu=
+   #+begin_src emacs-lisp
+     (advice-add #'tmm-add-prompt :after #'minibuffer-hide-completions)
+     (advice-add #'ffap-menu-ask :around (lambda (&rest args)
+                                           (cl-letf (((symbol-function #'minibuffer-completion-help)
+                                                      #'ignore))
+                                             (apply args))))
+   #+end_src
+
 *** Vertico Map Binding
     :PROPERTIES:
     :CUSTOM_ID: vertico-map-binding
     :END:
    #+TBLNAME: vertico_map_keys
-      | Combo         | Description                    | Command                            |
-      | C-r           | rotate visual information      | #'marginalia-cycle                 |
-      | C-v           | vertical layout                | #'vertico-multiform-vertical       |
-      | C-t           | grid layout                    | #'vertico-multiform-grid           |
-      | C-q           | reverse style                  | #'vertico-multiform-reverse        |
-      | C-j           | selects the next candidate     | #'next-line-or-history-element     |
-      | C-k           | selects the previous candidate | #'previous-line-or-history-element |
-      | C-k           | selects the previous candidate | #'previous-line                    |
-      | C-a           | selects the first candidate    | #'minibuffer-beginning-of-buffer   |
-      | C-a           | selects the first candidate    | #'beginning-of-buffer              |
-      | C-e           | selects the last candidate     | #'end-of-buffer                    |
-      | C-b           | scrolls up                     | #'vertico-scroll-down              |
-      | C-f           | scrolls down                   | #'vertico-scroll-up                |
-      | C-w           |                                | #'kill-ring-save                   |
-      | <escape>      | cancel minibuffer              | #'abort-recursive-edit             |
-      | C-d           | Next group                     | #'vertico-next-group               |
-      | C-c           | previous group                 | #'vertico-previous-group           |
-      | <backspace>   |                                | #'vertico-directory-delete-char    |
-      | <C-backspace> |                                | #'vertico-directory-delete-word    |
-      | RET           |                                | #'vertico-directory-enter          |
+      | Combo         | Description                    | Command                              |
+      | C-r           | rotate visual information      | #'marginalia-cycle                   |
+      | C-v           | vertical layout                | #'vertico-multiform-vertical         |
+      | C-t           | grid layout                    | #'vertico-multiform-grid             |
+      | C-q           | reverse style                  | #'vertico-multiform-reverse          |
+      | C-j           | selects the next candidate     | #'next-line-or-history-element       |
+      | C-k           | selects the previous candidate | #'previous-line-or-history-element   |
+      | C-k           | selects the previous candidate | #'previous-line                      |
+      | C-a           | selects the first candidate    | #'minibuffer-beginning-of-buffer     |
+      | C-a           | selects the first candidate    | #'beginning-of-buffer                |
+      | C-e           | selects the last candidate     | #'end-of-buffer                      |
+      | C-b           | scrolls up                     | #'vertico-scroll-down                |
+      | C-f           | scrolls down                   | #'vertico-scroll-up                  |
+      | C-w           |                                | #'kill-ring-save                     |
+      | <escape>      | cancel minibuffer              | #'abort-recursive-edit               |
+      | C-d           | Next group                     | #'vertico-next-group                 |
+      | C-c           | previous group                 | #'vertico-previous-group             |
+      | <backspace>   |                                | #'vertico-directory-delete-char      |
+      | <C-backspace> |                                | #'vertico-directory-delete-word      |
+      | RET           |                                | #'vertico-directory-enter            |
+      | ?             |                                | #'minibuffer-completion-help         |
+      | M-TAB         |                                | #'minibuffer-force-complete-and-exit |
+      | S-RET         |                                | #'vertico-exit-input                 |
 
 **** Links: [[Vertico Map Bindings][Vertico Map Bindings]]                                     :ignore:
 *** Normal Keybinding
@@ -2916,13 +2879,10 @@ add prefixes (i.e. in the left fringe) and arrow character on the currently sele
    #+begin_src emacs-lisp
      (mini-frame-mode)
      (custom-set-variables
-      '(mini-frame-show-parameters
-        '((no-accept-focus . t)(top . 400)
-          (width . 0.3)
-          (left . 0.5)
-          (height . 20)
-          )))
-     (setq mini-frame-ignore-commands '(evil-ex-search-forward evil-ex eval-expression))
+      '(mini-frame-show-parameters qq/mini-frame))
+     (setq mini-frame-ignore-commands '(evil-ex-search-forward evil-ex eval-expression)
+           mini-frame-color-shift-step 10
+           mini-frame-internal-border-color "#444444")
    #+end_src
 
 ** Mode-line-bell
@@ -3451,7 +3411,8 @@ kill unused buffers in the background
       | h .    |                                     | 'helpful-at-point                                |
       | h e    |                                     | 'emojify-describe-emoji-at-point                 |
       | M      |                                     | 'which-key-show-keymap                           |
-      | m      |                                     | 'lacarte-execute-menu-command                    |
+      | m l    |                                     | 'lacarte-execute-menu-command                    |
+      | m m    |                                     | #'tmm-menubar                                    |
       | e c    |                                     | 'evilnc-comment-or-uncomment-lines               |
       | ?      |                                     | 'which-key-show-top-level                        |
       | q      |                                     | 'evil-window-delete                              |
@@ -3775,14 +3736,13 @@ TODO: add option to remove mode and add directly to the  binding
          (`(t . _)
           (treemacs-git-mode 'simple)))
 
-       (treemacs-hide-gitignored-files-mode nil))
-       ;(defface custom-line-highlight '((t (:background "red" :extend t))) "")
-       ;(add-hook
-       ; 'treemacs-mode-hook
-       ; (defun channge-hl-line-mode ()
-       ;   (setq-local hl-line-face 'custom-line-highlight)
-       ;   (overlay-put hl-line-overlay 'face hl-line-face)
-       ;   (treemacs--setup-icon-background-colors))))
+       (treemacs-hide-gitignored-files-mode nil)
+       ;(defface custom-line-highlight '((t (:inherit highlight :extend t))) "")
+       (add-hook
+        'treemacs-mode-hook
+        (defun channge-hl-line-mode ()
+          (face-remap-add-relative 'hl-line 'highlight)
+          )))
    #+end_src
 ** Ag
 *** Evil Binding
