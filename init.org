@@ -3854,36 +3854,6 @@ TODO: add option to remove mode and add directly to the  binding
       (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)
    #+END_SRC
 
-*** git-blame-line
-   This function runs git blame on the line the cursor is on. It prints the
-   short commit id, author, and commit date into the =minibuffer=. It also
-   copies the short commit id to the kill ring so you can paste it
-   somewhere else if you need to. From [[http://jayconrod.com/posts/67/emacs-run-gitblame-on-the-current-line][here]].
-
-   #+BEGIN_SRC emacs-lisp
-     (defun git-blame-line ()
-       "Runs `git blame` on the current line and
-        adds the commit id to the kill ring"
-       (interactive)
-       (let* ((line-number (save-excursion
-                             (goto-char (point-at-bol))
-                             (+ 1 (count-lines 1 (point)))))
-              (line-arg (format "%d,%d" line-number line-number))
-              (commit-buf (generate-new-buffer "*git-blame-line-commit*")))
-         (call-process "git" nil commit-buf nil
-                       "blame" (buffer-file-name) "-L" line-arg)
-         (let* ((commit-id (with-current-buffer commit-buf
-                             (buffer-substring 1 9)))
-                (log-buf (generate-new-buffer "*git-blame-line-log*")))
-           (kill-new commit-id)
-           (call-process "git" nil log-buf nil
-                         "log" "-1" "--pretty=%h   %an   %s" commit-id)
-           (with-current-buffer log-buf
-             (message "Line %d: %s" line-number (buffer-string)))
-           (kill-buffer log-buf))
-         (kill-buffer commit-buf)))
-   #+END_SRC
-
 *** blamer
 
    #+BEGIN_SRC emacs-lisp
@@ -3892,8 +3862,9 @@ TODO: add option to remove mode and add directly to the  binding
       '(blamer-idle-time 1.0)
       '(blamer-min-offset 10))
      (setq blamer-view 'overlay-right
-           blamer-type 'visual
+           blamer-type 'posframe-popup
            blamer-max-commit-message-length 80
+           blamer-max-lines 30
            blamer-author-formatter " ✎ [%s] - "
            blamer-commit-formatter "● %s ● ")
 
@@ -4075,27 +4046,27 @@ Git-gutter doesn’t play nice with TRAMP remotes
     :CUSTOM_ID: evil-magit-binding
     :END:
    #+TBLNAME: evil_magit_keys
-      | Evil Leader Combo | Description | Command                        |
-      |-------------------+-------------+--------------------------------|
-      | g =               |             | 'git-gutter:popup-hunk         |
-      | g a               |             | 'vc-annotate                   |
-      | g b               |             | 'magit-blame-addition          |
-      | g C               |             | 'magit-commit                  |
-      | g d               |             | 'magit-diff-unstaged           |
-      | g f               |             | 'magit-file-dispatch           |
-      | g i               |             | 'git-blame-line                |
-      | g j               |             | 'git-gutter:next-hunk          |
-      | g k               |             | 'git-gutter:previous-hunk      |
-      | g L               |             | 'vc-print-log                  |
-      | g l               |             | 'magit-log-buffer-file         |
-      | g m               |             | 'qq/git-messenger-show         |
-      | g p               |             | 'git-gutter:stage-hunk         |
-      | g r               |             | 'git-gutter:revert-hunk        |
-      | g s               |             | 'magit-status                  |
-      | g t               |             | 'git-timemachine               |
-      | g u               |             | 'git-gutter:toggle             |
-      | g x               |             | 'vc-next-action                |
-      | g v               |             | 'git-gutter:set-start-revision |
+      | Evil Leader Combo | Description | Command                           |
+      |-------------------+-------------+-----------------------------------|
+      | g =               |             | 'git-gutter:popup-hunk            |
+      | g a               |             | 'vc-annotate                      |
+      | g b               |             | 'magit-blame-addition             |
+      | g C               |             | 'magit-commit                     |
+      | g d               |             | 'magit-diff-unstaged              |
+      | g i               |             | 'blamer-show-posframe-commit-info |
+      | g f               |             | 'magit-file-dispatch              |
+      | g j               |             | 'git-gutter:next-hunk             |
+      | g k               |             | 'git-gutter:previous-hunk         |
+      | g L               |             | 'vc-print-log                     |
+      | g l               |             | 'magit-log-buffer-file            |
+      | g m               |             | 'qq/git-messenger-show            |
+      | g p               |             | 'git-gutter:stage-hunk            |
+      | g r               |             | 'git-gutter:revert-hunk           |
+      | g s               |             | 'magit-status                     |
+      | g t               |             | 'git-timemachine                  |
+      | g u               |             | 'git-gutter:toggle                |
+      | g x               |             | 'vc-next-action                   |
+      | g v               |             | 'git-gutter:set-start-revision    |
 **** Links: [[Evil Magit Bindings][Evil Magit Bindings]]                                     :ignore:
 ** Beacon
 
