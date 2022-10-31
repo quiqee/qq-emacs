@@ -3418,6 +3418,7 @@ kill unused buffers in the background
       | ?      |                                     | 'which-key-show-top-level                        |
       | q      |                                     | 'evil-window-delete                              |
       | P      |                                     | 'package-list-packages                           |
+      | R      | Restart emacs                       | 'restart-emacs                                   |
       | r 1    |                                     | 'qq/serial-term-1                                |
       | r 2    |                                     | 'qq/serial-term-2                                |
       | r r    |                                     | 'serial-term                                     |
@@ -4762,10 +4763,22 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
            ;; If you're using a vertical completion framework, you might want a more informative completion interface
            org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))
            org-roam-directory (concat qq/org-folder "RoamNotes"))
+     ;; If using org-roam-protocol
+     (require 'org-roam-protocol)
+     (require 'org-roam-dailies)
      (org-roam-db-autosync-mode)
      (org-roam-setup)
-     ;; If using org-roam-protocol
-     (require 'org-roam-protocol))
+   #+END_SRC
+
+**** Fast note insertion for a smoother writing flow
+
+   #+BEGIN_SRC emacs-lisp
+ (defun org-roam-node-insert-immediate (arg &rest args)
+  (interactive "P")
+  (let ((args (cons arg args))
+        (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                  '(:immediate-finish t)))))
+    (apply #'org-roam-node-insert args)))
    #+END_SRC
 
 *** org-babel
@@ -4921,42 +4934,45 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: orgmode-key-binding
     :END:
    #+TBLNAME: org_keys
-      | Combo   | Description                                                  | Command                 |
-      | C-c c   | Capture and store note quickly                               | 'org-capture            |
-      | C-c a   | Display Org agenda                                           | 'org-agenda             |
-      | C-c l   | Correctly insert links into org files                        | 'org-store-link         |
-      | C-c b   | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb           |
-      | C-c r r | Enable/Disable org-roam buffer                               | 'org-roam-buffer-toggle |
-      | C-c r f | find org-roam notes                                          | 'org-roam-node-find     |
-      | C-c r i | Insert org-roam notes                                        | 'org-roam-node-insert   |
-      | C-c r a | Create on org-roam id on a heading inside org-file           | 'org-id-get-create      |
-      | C-c r c | org-capture for org-roam                                     | 'org-roam-capture       |
+      | Combo   | Description                                                  | Command                         |
+      | C-c c   | Capture and store note quickly                               | 'org-capture                    |
+      | C-c a   | Display Org agenda                                           | 'org-agenda                     |
+      | C-c l   | Correctly insert links into org files                        | 'org-store-link                 |
+      | C-c b   | iswitchb-like interface to switch to and between Org buffers | 'org-iswitchb                   |
+      | C-c r r | Enable/Disable org-roam buffer                               | 'org-roam-buffer-toggle         |
+      | C-c r f | find org-roam notes                                          | 'org-roam-node-find             |
+      | C-c r i | Insert org-roam notes                                        | 'org-roam-node-insert           |
+      | C-c r I | Fast insert org-roam notes                                   | 'org-roam-node-insert-immediate |
+      | C-c r a | Create on org-roam id on a heading inside org-file           | 'org-id-get-create              |
+      | C-c r c | org-capture for org-roam                                     | 'org-roam-capture               |
 **** Links: [[Org Mode Bindings][here]].                                     :ignore:
 *** Evil Binding
     :PROPERTIES:
     :CUSTOM_ID: evil-org-binding
     :END:
    #+TBLNAME: evil_org_keys
-      | Combo   | Mode             | Evil Mode | Desc | Command                                                 |
-      | z c     | org-mode-map     | normal    |      | 'outline-hide-subtree                                   |
-      | RET     | org-mode-map     | normal    |      | 'org-open-at-point                                      |
-      | s-v     | org-mode-map     | insert    |      | 'org-cliplink                                           |
-      | -       | org-mode-map     | normal    |      | 'org-cycle-list-bullet                                  |
-      | C-c .   | org-mode-map     | insert    |      | #'(lambda () (interactive) (org-time-stamp-inactive t)) |
-      | C-e     | org-mode-map     | normal    |      | 'org-edit-src-code                                      |
-      | Q       | org-src-mode-map | normal    |      | 'org-edit-src-abort                                     |
-      | >       | org-mode-map     | normal    |      | 'org-metaright                                          |
-      | <       | org-mode-map     | normal    |      | 'org-metaleft                                           |
-      | C->     | org-mode-map     | normal    |      | 'org-demote-subtree                                     |
-      | C-<     | org-mode-map     | normal    |      | 'org-promote-subtree                                    |
-      | SPC k   | org-mode-map     | normal    |      | 'outline-up-heading                                     |
-      | SPC j j | org-mode-map     | normal    |      | 'outline-next-heading                                   |
-      | 0       | org-mode-map     | normal    |      | 'evil-first-non-blank                                   |
-      | M-k     | org-mode-map     | normal    |      | 'org-metaup                                             |
-      | M-j     | org-mode-map     | normal    |      | 'org-metadown                                           |
-      | K       | org-mode-map     | normal    |      | 'org-edit-special                                       |
-      | TAB     | org-mode-map     | normal    |      | 'org-cycle                                              |
-      | C-c i   | org-mode-map     | normal    |      | 'completion-at-point                                    |
+      | Combo   | Mode                 | Evil Mode | Desc | Command                                                 |
+      | z c     | org-mode-map         | normal    |      | 'outline-hide-subtree                                   |
+      | RET     | org-mode-map         | normal    |      | 'org-open-at-point                                      |
+      | s-v     | org-mode-map         | insert    |      | 'org-cliplink                                           |
+      | -       | org-mode-map         | normal    |      | 'org-cycle-list-bullet                                  |
+      | C-c .   | org-mode-map         | insert    |      | #'(lambda () (interactive) (org-time-stamp-inactive t)) |
+      | C-e     | org-mode-map         | normal    |      | 'org-edit-src-code                                      |
+      | Q       | org-src-mode-map     | normal    |      | 'org-edit-src-abort                                     |
+      | >       | org-mode-map         | normal    |      | 'org-metaright                                          |
+      | <       | org-mode-map         | normal    |      | 'org-metaleft                                           |
+      | C->     | org-mode-map         | normal    |      | 'org-demote-subtree                                     |
+      | C-<     | org-mode-map         | normal    |      | 'org-promote-subtree                                    |
+      | SPC k   | org-mode-map         | normal    |      | 'outline-up-heading                                     |
+      | SPC j j | org-mode-map         | normal    |      | 'outline-next-heading                                   |
+      | 0       | org-mode-map         | normal    |      | 'evil-first-non-blank                                   |
+      | M-k     | org-mode-map         | normal    |      | 'org-metaup                                             |
+      | M-j     | org-mode-map         | normal    |      | 'org-metadown                                           |
+      | K       | org-mode-map         | normal    |      | 'org-edit-special                                       |
+      | TAB     | org-mode-map         | normal    |      | 'org-cycle                                              |
+      | C-c i   | org-mode-map         | normal    |      | 'completion-at-point                                    |
+      | Y       | org-roam-dailies-map | normal    |      | 'org-roam-dailies-capture-yesterday                     |
+      | T       | org-roam-dailies-map | normal    |      | 'org-roam-dailies-capture-tomorrow                      |
 
 **** Links: [[Evil Org Bindings][Evil Org Bindings]]                                     :ignore:
 ** PDFTools
