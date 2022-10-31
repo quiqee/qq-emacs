@@ -4759,8 +4759,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (require 'org-roam)
      (setq org-roam-db-location (concat qq/cache-directory "org-roam.db")
            org-roam-completion-everywhere t
+           ;; If you're using a vertical completion framework, you might want a more informative completion interface
+           org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))
            org-roam-directory (concat qq/org-folder "RoamNotes"))
+     (org-roam-db-autosync-mode)
      (org-roam-setup)
+     ;; If using org-roam-protocol
+     (require 'org-roam-protocol))
    #+END_SRC
 
 *** org-babel
@@ -4924,7 +4929,8 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | C-c r r | Enable/Disable org-roam buffer                               | 'org-roam-buffer-toggle |
       | C-c r f | find org-roam notes                                          | 'org-roam-node-find     |
       | C-c r i | Insert org-roam notes                                        | 'org-roam-node-insert   |
-      | C-c r c | Create on org-roam id on a heading inside org-file           | 'org-id-get-create      |
+      | C-c r a | Create on org-roam id on a heading inside org-file           | 'org-id-get-create      |
+      | C-c r c | org-capture for org-roam                                     | 'org-roam-capture       |
 **** Links: [[Org Mode Bindings][here]].                                     :ignore:
 *** Evil Binding
     :PROPERTIES:
@@ -6286,6 +6292,16 @@ Heredoc (cf. PHP strings) fontification (when the identifier is <<<EOTHTML or <<
      (add-hook 'python-mode-hook #'turn-off-electric-indent-local-mode)
    #+END_SRC
 ** Sh-Mode
+*** Settings
+   #+BEGIN_SRC emacs-lisp
+     (setq sh-basic-offset 2
+           sh-indentation 2)
+
+     (defun qq/sh-mode-init ()
+       (flyspell-prog-mode)
+       (flycheck-mode))
+     (add-hook 'sh-mode-hook 'qq/sh-mode-init)
+   #+END_SRC
 *** Make scripts executable on save
 If a file begins with a shebang (i.e. “#!”), make it executable after saving it.
 
