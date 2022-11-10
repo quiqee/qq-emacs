@@ -653,8 +653,8 @@ required from *emacs*.
    #+begin_src emacs-lisp
      (defvar qq/mini-frame
         '((no-accept-focus . t)(top . 100)
-          (width . 0.7)
-          (left . 0.2)
+          (width . 0.6)
+          (left . 0.5)
           (height . 20)
           ))
    #+end_src
@@ -2429,6 +2429,8 @@ Use conf-mode for git config files
       | C-c w   | show manpage at point                                             | 'woman                       |
       | C-(     | In selected window switch to previous buffer                      | 'previous-buffer             |
       | C-)     | In selected window switch to next buffer                          | 'next-buffer                 |
+      | C-j     | Navigate cursor to the lower window                               | 'windmove-down               |
+      | C-k     | Navigate cursor to the upper window                               | 'windmove-up                 |
       | C-h     | Navigate cursor to the window on the left                         | 'windmove-left               |
       | C-l     | Navigate cursor to the window on the right                        | 'windmove-right              |
       | C-S-d   | Display minions-mode menu to shows current mini modes in modeline | 'minions-minor-modes-menu    |
@@ -4064,13 +4066,14 @@ Git-gutter doesn’t play nice with TRAMP remotes
        "Runlsp-deferred' if it's a supported mode."
        (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
 
-     (add-hook 'prog-mode-hook #'qq/lsp-deferred-if-supported)
      (setq lsp-keymap-prefix "s-g")
      (after 'lsp-mode
        (setq lsp-completion-provider :capf
              lsp-session-file (concat qq/cache-directory "lsp-session-v1")
              lsp-auto-guess-root t)
-       (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+       (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+       (require 'dap-cpptools)
+       (yas-global-mode))
    #+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
@@ -5603,7 +5606,8 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (autoload 'multi-vterm "multi-vterm.el" nil t)
-     (setq vterm-kill-buffer-on-exit t)
+     (setq vterm-kill-buffer-on-exit t
+           vterm-max-scrollback 50000)
    #+END_SRC
 
 *** Evil Binding
@@ -5746,20 +5750,21 @@ Some general settings that should apply to all programming mode. Highlight
 =rainbow-delimiter-mode=
 
 #+begin_src emacs-lisp
-    (defun qq/add-watchwords ()
-      (font-lock-add-keywords
-       nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
-              1 '((:foreground "orange") (:weight bold)) t))))
+  (defun qq/add-watchwords ()
+    (font-lock-add-keywords
+     nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
+            1 '((:foreground "orange") (:weight bold)) t))))
 
-    (add-hook 'prog-mode-hook
-              #'(lambda()
-                 (display-line-numbers-mode)
-                 (qq/add-watchwords)
-                 (rainbow-delimiters-mode)
-                 (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
-                 (smart-tabs-insinuate 'c++ 'c 'javascript)
-                 ;(color-identifiers-mode t))
-              ))   ; WARNING: if scrolling is slow, turn this off
+  (add-hook 'prog-mode-hook
+            #'(lambda()
+                (qq/lsp-deferred-if-supported)
+                (display-line-numbers-mode)
+                (qq/add-watchwords)
+                (rainbow-delimiters-mode)
+                (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
+                (smart-tabs-insinuate 'c++ 'c 'javascript)
+                                          ;(color-identifiers-mode t))
+                ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
 *** Counsel-Dash
@@ -6808,6 +6813,13 @@ To use this function, simply highlight a region you want to align and run M-x al
      <<gen-keys(moda="lead", tname=embark_keys)>>
    #+END_SRC
 
+*** Persp-mode Bindings
+   Binding code generation for [[#persp-key-binding][this]] table
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+     <<gen-keys(moda="lead", tname=persp_combo)>>
+   #+END_SRC
+
 *** End
    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
@@ -7056,13 +7068,6 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="evil", tname=pdftools-evil-keys)>>
      <<gen-keys(mmap="t", tname=pdftools-keys)>>
      <<gen-fix(pos="))\n")>>
-   #+END_SRC
-
-** Persp-mode Bindings
-   Binding code generation for [[#persp-key-binding][this]] table
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
-     <<gen-keys(tname=persp_combo)>>
    #+END_SRC
 
 ** Org Mode Bindings
