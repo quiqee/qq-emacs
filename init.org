@@ -214,7 +214,7 @@ It will be faster to disable them here before they've been initialized.
 
                ;; Modes
                smerge-mode
-               smart-tabs-mode               ; provide semantic way of using tab in source code
+               ;smart-tabs-mode               ; provide semantic way of using tab in source code
                svg-tag-mode
                writegood-mode
                perspective
@@ -4110,7 +4110,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
                                      ;;   One completion item for each semantically distinct completion, with full type information (detailed)
                                      "--completion-style=detailed"
                                      ;; clang-format style to apply by default when no .clang-format file is found
-                                     "--fallback-style=Chromium"
+                                     "--fallback-style=WebKit"
                                      ;; When disabled, completions contain only parentheses for function calls.
                                      ;; When enabled, completions also contain placeholders for method parameters
                                      "--function-arg-placeholders"
@@ -5246,7 +5246,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       |-------------------+-----------------+------------------------------------------------------|
       | b k               | kill buffer     | 'persp-kill-buffer*                                  |
       | b b               | switch buffer   | 'persp-switch-to-buffer*                             |
-      | b c               | show all buffer | 'consult-buffer                                     |
+      | b c               | show all buffer | 'consult-buffer                                      |
       | b S               |                 | (lambda (arg) (interactive "P") (persp-bs-show arg)) |
 **** Links: [[Normal Persp Bindings][Normal Persp Bindings]]                                     :ignore:
 ** =shrface=
@@ -5762,8 +5762,8 @@ Some general settings that should apply to all programming mode. Highlight
                 (qq/add-watchwords)
                 (rainbow-delimiters-mode)
                 (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
-                (smart-tabs-insinuate 'c++ 'c 'javascript)
-                                          ;(color-identifiers-mode t))
+                ;(smart-tabs-insinuate 'c++ 'c 'javascript)
+                ;(color-identifiers-mode t))
                 ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
@@ -5870,13 +5870,50 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-init ()
+       (fset 'c-indent-region 'clang-format-region)
        (push '(?\( . ("(" . ")")) evil-surround-pairs-alist)
        (push '(?{ . ("{" . "}")) evil-surround-pairs-alist)
        (local-set-key (kbd "C-c C-c") 'compile)
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
        ;; the entire buffer, and then runs the indent-region command).
-       (c-set-style "stroustrup")   ; C indenting style
-       (c-set-offset 'inline-open 0)
+       (c-set-style "cc-mode")   ; C indenting style
+
+       (c-add-style "SOFTING"
+                    '(nil
+                      (c-basic-offset . 4)     ; Guessed value
+                      (c-offsets-alist
+                       (access-label . 0)      ; Guessed value
+                       (arglist-intro . ++)     ; Guessed value
+                       (block-close . 0)       ; Guessed value
+                       (brace-entry-open . 0)  ; Guessed value
+                       (brace-list-close . 0)  ; Guessed value
+                       (brace-list-entry . 0)  ; Guessed value
+                       (brace-list-intro . ++)  ; Guessed value
+                       (class-close . 0)       ; Guessed value
+                       (cpp-define-intro . +)  ; Guessed value
+                       (defun-block-intro . +) ; Guessed value
+                       (defun-close . 0)       ; Guessed value
+                       (defun-open . 0)        ; Guessed value
+                       (else-clause . 0)       ; Guessed value
+                       (inclass . +)           ; Guessed value
+                       (inline-close . 0)      ; Guessed value
+                       (innamespace . 0)       ; Guessed value
+                       (member-init-cont . -)  ; Guessed value
+                       (member-init-intro . +) ; Guessed value
+                       (namespace-close . 0)   ; Guessed value
+                       (statement . 0)         ; Guessed value
+                       (statement-block-intro . +) ; Guessed value
+                       (statement-cont . ++)    ; Guessed value
+                       (substatement . +)      ; Guessed value
+                       (topmost-intro . 0)     ; Guessed value
+                       (topmost-intro-cont . 0) ; Guessed value
+                       (arglist-close . c-lineup-close-paren)
+                       (arglist-cont-nonempty . c-lineup-arglist)
+                       (c . c-lineup-C-comments)
+                       (comment-intro . c-lineup-comment)
+                       (cpp-macro . -1000)
+                       (inher-cont . c-lineup-multi-inher)
+                       (string . -1000))))
    #+END_SRC
 
 **** Underscore "_" is not a word character

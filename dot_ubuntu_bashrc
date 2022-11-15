@@ -145,7 +145,7 @@ add-sshkey() {
 set -o vi
 
 # Added by ~/.emacs.d/install.sh
-export PATH=/usr/sbin:$HOME/local/bin:$HOME/.emacs.d/extern/cask/bin:$PATH
+export PATH=/usr/sbin:$HOME/.local/bin:$HOME/.emacs.d/extern/cask/bin:$PATH
 
 eval "$(fasd --init auto)"
 
