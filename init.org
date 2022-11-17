@@ -3781,6 +3781,10 @@ TODO: add option to remove mode and add directly to the  binding
 
    #+BEGIN_SRC emacs-lisp
      (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+     (after 'magit
+       (magit-add-section-hook 'magit-status-sections-hook 'magit-insert-local-branches 'append t)
+       (magit-add-section-hook 'magit-status-sections-hook 'magit-insert-remote-branches 'append t)
+       (magit-add-section-hook 'magit-status-sections-hook 'magit-insert-tags 'append t))
      (unless (display-graphic-p)
        (diff-hl-margin-mode))
    #+END_SRC
