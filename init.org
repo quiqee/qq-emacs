@@ -2798,8 +2798,8 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
       | <C-backspace> |                                | #'vertico-directory-delete-word      |
       | RET           |                                | #'vertico-directory-enter            |
       | ?             |                                | #'minibuffer-completion-help         |
-      | M-TAB         |                                | #'minibuffer-force-complete-and-exit |
-      | S-RET         |                                | #'vertico-exit-input                 |
+      | <backtab>     |                                | #'minibuffer-force-complete-and-exit |
+      | <C-return>    |                                | #'vertico-exit-input                 |
 
 **** Links: [[Vertico Map Bindings][Vertico Map Bindings]]                                     :ignore:
 *** Normal Keybinding
@@ -5234,11 +5234,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    #+TBLNAME: persp_combo
       | Combo   | Description                               | Command           |
    |---------+-------------------------------------------+-------------------|
-      | M-2     |                                           | 'persp-next       |
-      | M-1     |                                           | 'persp-prev       |
+      | M-w     |                                           | 'persp-next       |
+      | M-q     |                                           | 'persp-prev       |
       | M-e     | query or create perspective               | 'persp-switch     |
-      | M-b     |                                           | 'persp-state-load |
-      | M-w     |                                           | 'persp-state-save |
+      | M-r     |                                           | 'persp-state-load |
+      | M-t     |                                           | 'persp-state-save |
       | C-x C-b | Replace ibuffer binding with persp-ibufer | 'persp-ibuffer    |
 **** Links: [[Persp-mode Bindings][here]]                                     :ignore:
 *** Evil Keybinding
@@ -5628,11 +5628,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 ** Highlight-indent-guides
    Add highlight column guides on indentation
 
-   [[https://github.com/abo-abo/swiper]]
-
 *** Settings
    #+BEGIN_SRC emacs-lisp
-     (setq highlight-indent-guides-method 'character)
+     (custom-set-variables
+      '(highlight-indent-guides-method 'character)
+      '(highlight-indent-guides-responsive 'stack))
    #+END_SRC
 
 ** Which key
@@ -5761,11 +5761,13 @@ Some general settings that should apply to all programming mode. Highlight
 
   (add-hook 'prog-mode-hook
             #'(lambda()
-                (qq/lsp-deferred-if-supported)
                 (display-line-numbers-mode)
                 (qq/add-watchwords)
-                (rainbow-delimiters-mode)
-                (highlight-indent-guides-mode) ; WARNING: if scrolling is slow, turn this off
+                (rainbow-delimiters-mode) ; WARNING: if scrolling is slow, turn this off
+                (highlight-indent-guides-mode)
+                (set-face-background 'highlight-indent-guides-odd-face "darkgray")
+                (set-face-background 'highlight-indent-guides-even-face "dimgray")
+                (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
                 ;(smart-tabs-insinuate 'c++ 'c 'javascript)
                 ;(color-identifiers-mode t))
                 ))   ; WARNING: if scrolling is slow, turn this off
@@ -5874,6 +5876,7 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-init ()
+       (qq/lsp-deferred-if-supported)
        (fset 'c-indent-region 'clang-format-region)
        (push '(?\( . ("(" . ")")) evil-surround-pairs-alist)
        (push '(?{ . ("{" . "}")) evil-surround-pairs-alist)
@@ -5995,6 +5998,9 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
      ;; The modes below are optional
 
      (dap-ui-mode 1)
+
+     ;; enables folding support
+     (hs-minor-mode 1)
      ;; enables mouse hover support
      (dap-tooltip-mode 1)
      ;; use tooltips for mouse hover
