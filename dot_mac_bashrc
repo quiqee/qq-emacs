@@ -160,7 +160,7 @@ export HISTCONTROL=ignoreboth:erasedups
 stty -ixon    # allow forward search in BASH
 #eval `ssh-agent`
 export CLICOLOR=1
-export LSCOLORS=GxFxCxDxBxegedabagaced
+export LSCOLORS=GxFxCxDxBxegedabagacex
 
 #hdiutil attach ~/Documents/UGW.sparseimage
 
