@@ -258,7 +258,6 @@ It will be faster to disable them here before they've been initialized.
 
                flx
 
-               counsel-dash                  ; Offline documentation browser using Dash docsets.
                shrface
                calibredb
                mode-line-bell
@@ -324,6 +323,8 @@ It will be faster to disable them here before they've been initialized.
                (vertico builtin)             ; use default package-install instead of quelpa
                marginalia
                consult
+               consult-projectile
+               consult-project-extra
                consult-flycheck
                orderless
                mini-frame
@@ -2436,7 +2437,6 @@ Use conf-mode for git config files
       | C-s-=   | Increase text scale                                               | 'default-text-scale-increase |
       | C-s--   | Decrease text scale                                               | 'default-text-scale-decrease |
       | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
-      | C-C d   | Dash Docs search or at point                                      | 'counsel-dash-at-point       |
 **** Links: [[Basic Bindings]]                                     :ignore:
 
 * Third parties
@@ -2719,13 +2719,10 @@ Use conf-mode for git config files
    default only the keybinding is shown as annotation. Note that there is the
    command `marginalia-cycle-annotators` to switch between the annotators.
    #+begin_src emacs-lisp
-     (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light))
-   #+end_src
-
-   When using Selectrum, ensure that Selectrum is refreshed when cycling annotations.
-   #+begin_src emacs-lisp
-     ;(advice-add #'marginalia-cycle :after
-     ;            (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
+     (custom-set-variables
+      '(marginalia-max-relative-age 0)
+      '(marginalia-align 'right)
+      '(marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
    #+end_src
 *** All the Icons Completion
    #+begin_src emacs-lisp
@@ -2840,14 +2837,138 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 ** Consult
    Provide commands which allow quick selection of an item from a list of
    candidates with selection.
+   Optionally configure the register formatting. This improves the register
+   preview for `consult-register', `consult-register-load',
+   `consult-register-store' and the Emacs built-ins.
 
    #+begin_src emacs-lisp
-     ;  (fset 'multi-occur #'consult-multi-occur)
+     (setq register-preview-delay 0.5
+           register-preview-function #'consult-register-format)
+   #+end_src
+   Optionally tweak the register preview window.
+   This adds thin lines, sorting and hides the mode line of the window.
+   #+begin_src emacs-lisp
+  (advice-add #'register-preview :override #'consult-register-window)
    #+end_src
 
-   Enable previews
+   Optionally configure the register formatting. This improves the register
+   preview for `consult-register', `consult-register-load',
+   `consult-register-store' and the Emacs built-ins.
    #+begin_src emacs-lisp
-     ;(consult-preview-mode)
+  (setq register-preview-delay 0.5
+	    register-preview-function #'consult-register-format)
+   #+end_src
+   Use Consult to select xref locations with preview
+   #+begin_src emacs-lisp
+  (setq xref-show-xrefs-function #'consult-xref
+	    xref-show-definitions-function #'consult-xref)
+   #+end_src
+  config
+   #+begin_src emacs-lisp
+  (setq consult-narrow-key "<") ;; (kbd "C-+")
+   #+end_src
+*** cpp
+   #+begin_src emacs-lisp
+     (after 'consult
+     (defvar  cpp-source
+       (list :name     "CPP Buffer"
+             :category 'buffer
+             :narrow   ?c
+             :face     'consult-buffer
+             :history  'buffer-name-history
+             :state    #'consult--buffer-state
+             :new
+             (lambda (name)
+               (with-current-buffer (get-buffer-create name)
+                 (cpp-mode)
+                 (consult--buffer-action (current-buffer))))
+             :items
+             (lambda ()
+               (mapcar #'buffer-name
+                       (seq-filter
+                        (lambda (x)
+                          (eq (buffer-local-value 'major-mode x) 'cpp-mode))
+                        (buffer-list))))))
+
+     (add-to-list 'consult-buffer-sources 'cpp-source 'append)
+   #+end_src
+*** python
+   #+begin_src emacs-lisp
+     (defvar  python-source
+       (list :name     "Python Buffer"
+             :category 'buffer
+             :narrow   ?P
+             :face     'consult-buffer
+             :history  'buffer-name-history
+             :state    #'consult--buffer-state
+             :new
+             (lambda (name)
+               (with-current-buffer (get-buffer-create name)
+                 (python-mode)
+                 (consult--buffer-action (current-buffer))))
+             :items
+             (lambda ()
+               (mapcar #'buffer-name
+                       (seq-filter
+                        (lambda (x)
+                          (eq (buffer-local-value 'major-mode x) 'python-mode))
+                        (buffer-list))))))
+
+     (add-to-list 'consult-buffer-sources 'python-source 'append)
+   #+end_src
+*** org
+   #+begin_src emacs-lisp
+     (defvar org-source
+       (list :name     "Org Buffer"
+             :category 'buffer
+             :narrow   ?o
+             :face     'consult-buffer
+             :history  'buffer-name-history
+             :state    #'consult--buffer-state
+             :new
+             (lambda (name)
+               (with-current-buffer (get-buffer-create name)
+                 (insert "#+title: " name "\n\n")
+                 (org-mode)
+                 (consult--buffer-action (current-buffer))))
+             :items
+             (lambda ()
+               (mapcar #'buffer-name
+                       (seq-filter
+                        (lambda (x)
+                          (eq (buffer-local-value 'major-mode x) 'org-mode))
+                        (buffer-list))))))
+
+     (add-to-list 'consult-buffer-sources 'org-source 'append)
+   #+end_src
+*** vterm
+   #+begin_src emacs-lisp
+     (defvar  vterm-source
+       (list :name     "Vterm Buffer"
+             :category 'buffer
+             :narrow   ?v
+             :face     'consult-buffer
+             :history  'buffer-name-history
+             :state    #'consult--buffer-state
+             :new
+             (lambda (name)
+               (with-current-buffer (get-buffer-create name)
+                 ;;(insert "#+title: " name "\n\n")
+                 (vterm-mode)
+                 (consult--buffer-action (current-buffer))))
+             :items
+             (lambda ()
+               (mapcar #'buffer-name
+                       (seq-filter
+                        (lambda (x)
+                          (eq (buffer-local-value 'major-mode x) 'vterm-mode))
+                        (buffer-list))))))
+
+     (add-to-list 'consult-buffer-sources 'vterm-source 'append)
+   #+end_src
+*** end
+   #+begin_src emacs-lisp
+     )
    #+end_src
 ** Embark
 *** Init
@@ -5231,10 +5352,10 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :END:
    #+TBLNAME: persp_combo
       | Combo   | Description                               | Command           |
-   |---------+-------------------------------------------+-------------------|
-      | M-w     |                                           | 'persp-next       |
-      | M-q     |                                           | 'persp-prev       |
-      | M-e     | query or create perspective               | 'persp-switch     |
+      |---------+-------------------------------------------+-------------------|
+      | <f6>    |                                           | 'persp-next       |
+      | <f5>    |                                           | 'persp-prev       |
+      | <f7>    | query or create perspective               | 'persp-switch     |
       | M-r     |                                           | 'persp-state-load |
       | M-t     |                                           | 'persp-state-save |
       | C-x C-b | Replace ibuffer binding with persp-ibufer | 'persp-ibuffer    |
@@ -5416,6 +5537,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        (goto-address-mode)
        (setq yas-dont-activate t)
        (define-key term-raw-map "\C-y" 'qq/term-paste)
+       (define-key term-raw-map "\C-l" 'windmove-right)
+       (define-key term-raw-map "\C-k" 'windmove-up)
+       (define-key term-raw-map "\C-j" 'windmove-down)
+       (define-key term-raw-map "\C-h" 'windmove-left)
+       (define-key term-raw-map [(f6)] 'persp-next)
+       (define-key term-raw-map [(f5)] 'persp-prev)
        (evil-define-key 'normal term-raw-map (kbd "p") 'qq/term-paste)
 
        ;(let ((base03  "#002b36")
@@ -5617,11 +5744,17 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: global-vterm-binding
     :END:
    #+TBLNAME: vterm_mode_keys
-      | Combo | Description | Command           |
-      | C-n   |             | 'multi-vterm-next |
-      | C-p   |             | 'multi-vterm-prev |
-      | C-y   |             | 'vterm-yank       |
-      | s-v   |             | 'vterm-yank       |
+      | Combo | Description                                | Command           |
+      | C-n   |                                            | 'multi-vterm-next |
+      | C-p   |                                            | 'multi-vterm-prev |
+      | C-y   |                                            | 'vterm-yank       |
+      | <f5>  |                                            | 'persp-prev       |
+      | <f6>  |                                            | 'persp-next       |
+      | C-j   | Navigate cursor to the lower window        | 'windmove-down    |
+      | C-k   | Navigate cursor to the upper window        | 'windmove-up      |
+      | C-h   | Navigate cursor to the window on the left  | 'windmove-left    |
+      | C-l   | Navigate cursor to the window on the right | 'windmove-right   |
+      | s-v   |                                            | 'vterm-yank       |
 **** Links: [[Vterm Bindings][Vterm Bindings]]                                     :ignore:
 ** Highlight-indent-guides
    Add highlight column guides on indentation
@@ -5724,7 +5857,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        "SPC p"   "projectile related"
        "SPC r"   "serial commands"
        "SPC h"   "help related"
-       "SPC i"   "counsel related"
+       "SPC i"   "consult related"
        "SPC t"   "toggling things"
        "SPC u"   "undo-tree things"
        "SPC v"   "GUD related"
@@ -5770,20 +5903,6 @@ Some general settings that should apply to all programming mode. Highlight
                 ;(color-identifiers-mode t))
                 ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
-
-*** Counsel-Dash
-   #+begin_src emacs-lisp
-     (require 'counsel-dash)
-     (setq counsel-dash-docsets-url "https://raw.github.com/Kapeli/feeds/master"
-           counsel-dash-common-docsets '("jQuery" "JavaScript" "HTML" "C" "C++")
-           counsel-dash-min-length 3
-           counsel-dash-candidate-format "%d %n (%t)"
-           counsel-dash-enable-debugging nil
-           dash-docs-enable-debugging nil
-           dash-docs-browser-func 'xwidget-webkit-browse-url
-           counsel-dash-browser-func 'xwidget-webkit-browse-url
-           counsel-dash-ignored-docsets nil)
-   #+end_src
 
 ** CMake
 #+begin_src emacs-lisp
@@ -5848,6 +5967,7 @@ Some general settings that should apply to all programming mode. Highlight
 If compilation is successful namely neither errors nor warnings, the compilation
 buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close/11059012#11059012][stackoverflow]]
 
+TODO: Cause issue with ggtags
    #+BEGIN_SRC emacs-lisp
      (defun qq/bury-compile-buffer-if-successful (buffer string)
        "Bury a compilation buffer if succeeded without warnings "
@@ -5863,7 +5983,7 @@ buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/que
                              (bury-buffer buf)
                              (delete-window (get-buffer-window (get-buffer "*compilation*"))))
                            buffer)))
-     (add-hook 'compilation-finish-functions 'qq/bury-compile-buffer-if-successful)
+     ;(add-hook 'compilation-finish-functions 'qq/bury-compile-buffer-if-successful)
    #+END_SRC
 
 ** C and its derivative
@@ -6809,7 +6929,7 @@ To use this function, simply highlight a region you want to align and run M-x al
    #+name: gen_emacs
    #+begin_src emacs-lisp :tangle no
      (general-define-key
-      :keymaps 'override
+      :keymaps 'global
    #+end_src
 
    #+name: leader_normal
