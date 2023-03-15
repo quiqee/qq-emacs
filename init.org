@@ -2433,9 +2433,9 @@ Use conf-mode for git config files
       | C-k     | Navigate cursor to the upper window                               | 'windmove-up                 |
       | C-h     | Navigate cursor to the window on the left                         | 'windmove-left               |
       | C-l     | Navigate cursor to the window on the right                        | 'windmove-right              |
-      | C-S-d   | Display minions-mode menu to shows current mini modes in modeline | 'minions-minor-modes-menu    |
-      | C-s-=   | Increase text scale                                               | 'default-text-scale-increase |
-      | C-s--   | Decrease text scale                                               | 'default-text-scale-decrease |
+      | C-<f12> | Display minions-mode menu to shows current mini modes in modeline | 'minions-minor-modes-menu    |
+      | C-<f8>  | Increase text scale                                               | 'default-text-scale-increase |
+      | C-<f7>  | Decrease text scale                                               | 'default-text-scale-decrease |
       | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
 **** Links: [[Basic Bindings]]                                     :ignore:
 
@@ -2502,7 +2502,7 @@ Use conf-mode for git config files
 **** Minimum prefix length for idle completion
 
    #+BEGIN_SRC emacs-lisp
-;     (setq company-minimum-prefix-length 200)
+     (setq company-minimum-prefix-length 2)
      (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
    #+END_SRC
 
@@ -5355,7 +5355,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       |---------+-------------------------------------------+-------------------|
       | <f6>    |                                           | 'persp-next       |
       | <f5>    |                                           | 'persp-prev       |
-      | <f7>    | query or create perspective               | 'persp-switch     |
+      | <f9>    | query or create perspective               | 'persp-switch     |
       | M-r     |                                           | 'persp-state-load |
       | M-t     |                                           | 'persp-state-save |
       | C-x C-b | Replace ibuffer binding with persp-ibufer | 'persp-ibuffer    |
@@ -5778,12 +5778,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      ;(which-key-setup-side-window-right-bottom)
      ;(which-key-setup-minibuffer)
 
-     (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
+     ;;(set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
 
      ;(setq which-key-special-keys nil)
-     (setq which-key-popup-type 'side-window)
+     ;(setq which-key-popup-type 'side-window)
      ;(setq which-key-popup-type 'frame)
-     (setq which-key-popup-type 'minibuffer)
+     ;;(setq which-key-popup-type 'minibuffer)
      (setq which-key-max-display-columns 5)
      ; max width of which-key frame: number of columns (an integer)
      ;(setq which-key-frame-max-width 140)
@@ -5802,21 +5802,21 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    the first location first. It will go to the second location if there is
    not enough room to display any keys in the first location
    #+BEGIN_SRC emacs-lisp
-     (setq which-key-side-window-location 'bottom)
+     ;(setq which-key-side-window-location 'bottom)
    #+END_SRC
 
    max width of which-key window, when displayed at left or right.
    valid values: number of columns (integer), or percentage out of current
    frame's width (float larger than 0 and smaller than 1)
    #+BEGIN_SRC emacs-lisp
-     (setq which-key-side-window-max-width 0.33)
+     ;(setq which-key-side-window-max-width 0.33)
    #+END_SRC
 
    max height of which-key window, when displayed at top or bottom.
    valid values: number of lines (integer), or percentage out of current
    frame's height (float larger than 0 and smaller than 1)
    #+BEGIN_SRC emacs-lisp
-     (setq which-key-side-window-max-height 0.33)
+     ;(setq which-key-side-window-max-height 0.33)
    #+END_SRC
 
 *** Replacements for how KEY is replaced when which-key displays
@@ -5845,28 +5845,29 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 *** Change what string to display for a given *complete* key binding
    Eg: After =C-x=, display =8 → +unicode= instead of =8 → +prefix=
 
-   #+BEGIN_SRC emacs-lisp
-     (which-key-add-key-based-replacements
-       "SPC g"   "git/magit"
-       "SPC b"   "buffer related"
-       "SPC c"   "compile related"
-       "SPC d"   "dired related"
-       "SPC e"   "eval related"
-       "SPC f"   "find operation related"
-       "SPC j"   "evil ace-jump"
-       "SPC p"   "projectile related"
-       "SPC r"   "serial commands"
-       "SPC h"   "help related"
-       "SPC i"   "consult related"
-       "SPC t"   "toggling things"
-       "SPC u"   "undo-tree things"
-       "SPC v"   "GUD related"
-       "C-x 8"   "unicode"
-       "C-x a"   "abbrev/expand"
-       "C-x r"   "rect/reg"
-       "C-c /"   "engine-mode-map"
-       "C-c C-v" "org-babel"
-       "C-x 8 0" "ZWS")
+#+BEGIN_SRC emacs-lisp
+  ;(define-key which-key-mode-map (kbd "<escape>") 'which-key-undo)
+  (which-key-add-key-based-replacements
+    "SPC g"   "git/magit"
+    "SPC b"   "buffer related"
+    "SPC c"   "compile related"
+    "SPC d"   "dired related"
+    "SPC e"   "eval related"
+    "SPC f"   "find operation related"
+    "SPC j"   "evil ace-jump"
+    "SPC p"   "projectile related"
+    "SPC r"   "serial commands"
+    "SPC h"   "help related"
+    "SPC i"   "consult related"
+    "SPC t"   "toggling things"
+    "SPC u"   "undo-tree things"
+    "SPC v"   "GUD related"
+    "C-x 8"   "unicode"
+    "C-x a"   "abbrev/expand"
+    "C-x r"   "rect/reg"
+    "C-c /"   "engine-mode-map"
+    "C-c C-v" "org-babel"
+    "C-x 8 0" "ZWS")
    #+END_SRC
 
 ** Window numbering mode
