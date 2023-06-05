@@ -60,6 +60,7 @@ ln -sf $(pwd)/Xresources $HOME/.Xresources
 ln -sf $(pwd)/dot_vimrc $HOME/.vimrc
 ln -sf $(pwd)/dot_viminfo $HOME/.viminfo
 ln -sf $(pwd)/dot_vim_colorv_cache_fav $HOME/.vim_colorv_cache_fav
+ln -sf $(pwd)/tmux.conf $HOME/.tmux.conf
 tar xf $(pwd)/vim.tar.gz -C $HOME/
 
 mkdir -p $EMACS_DIR/elisp
@@ -68,9 +69,16 @@ mkdir -p $EMACS_DIR/bin
 mkdir -p $EMACS_DIR/.cache/themes
 mkdir -p $HOME/Documents/Org-files/RoamNotes
 
+echo -n "** installing tmux plugin manager"
+(
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm  >> /dev/null 2>&1
+) || exit 1
+echo " ... done"
+
+
 echo -n "** installing planuml.jar"
 (
-curl -L https://sourceforge.net/projects/plantuml/files/1.2021.1/plantuml.1.2021.1.jar/download > $EMACS_DIR/extern/org/platuml.jar  >> /dev/null 2>&1
+curl -L https://sourceforge.net/projects/plantuml/files/1.2021.1/plantuml.1.2021.1.jar/download > $EMACS_DIR/extern/org/plantuml.jar  >> /dev/null 2>&1
 ) || exit 1
 echo " ... done"
 
@@ -139,8 +147,7 @@ cat > $EMACS_DIR/bin/tangle <<- EOM
 $EMACS --script ${EMACS_DIR}/bin/compile.el >> /dev/null 2>&1 && $EMACS --script ${EMACS_DIR}/bin/package.el >> /dev/null 2>&1
 EOM
 chmod +x ${EMACS_DIR}/bin/tangle
-$EMACS --batch --eval="(require 'org-install)" \
-    --eval="(setq org-confirm-babel-evaluate nil)" \
+$EMACS --batch --eval="(setq org-confirm-babel-evaluate nil)" \
     --eval="(require 'ob-tangle)" \
     --eval='(org-babel-tangle-file "init.org")' >> /dev/null 2>&1
 ) || exit 1
