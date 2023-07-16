@@ -95,6 +95,7 @@ The theme has to be reloaded after changing anything in this group."
       (quickbeans-blue-3     (if (display-graphic-p) "#447799" "#447799"))
       (quickbeans-blue-4     (if (display-graphic-p) "#0b24fb" "#0b24fb"))
       (quickbeans-blue-5     (if (display-graphic-p) "#2dfffe" "#2dfffe"))
+      (quickbeans-blue-6     (if (display-graphic-p) "#00282b" "#00282b"))
       (quickbeans-green-0    (if (display-graphic-p) "#ddffdd" "#ddffdd"))
       (quickbeans-green-1    (if (display-graphic-p) "#b6edb6" "#b6edb6"))
       (quickbeans-green-2    (if (display-graphic-p) "#448844" "#448844"))
@@ -142,20 +143,20 @@ The theme has to be reloaded after changing anything in this group."
        `(default                             ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
        `(internal-border                     ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-7))))
        `(error                               ((,class (:foreground ,quickbeans-red-5))))
-       `(italic                              ((,class (:slant italic :underline nil))))
+       `(italic                              ((,class (:slant italic :underline unspecified))))
 ;;;;; ACE/Avy
        `(aw-leading-char-face                ((,class (:foreground ,quickbeans-red-3 :height 1.2))))
 ;;;;; Alchemist
        `(alchemist-test--failed-face         ((,class (:foreground ,quickbeans-red-1))))
        `(alchemist-test--success-face        ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; Company
-       `(company-preview-common              ((,class (:foreground nil :background ,quickbeans-purple-4))))
+       `(company-preview-common              ((,class (:foreground unspecified :background ,quickbeans-purple-4))))
        `(company-scrollbar-bg                ((,class (:background ,quickbeans-grey-1))))
        `(company-scrollbar-fg                ((,class (:background ,quickbeans-grey-7))))
        `(company-tooltip                     ((,class (:background ,quickbeans-grey-1 :foreground ,quickbeans-fg :weight bold))))
        `(company-tooltip-annotation          ((,class (:inherit company-tooltip :foreground ,quickbeans-blue-0))))
-       `(company-tooltip-common              ((,class (:inherit company-tooltip :weight bold :underline nil))))
-       `(company-tooltip-common-selection    ((,class (:inherit company-tooltip-selection :foreground ,quickbeans-fg :underline nil :weight bold))))
+       `(company-tooltip-common              ((,class (:inherit company-tooltip :weight bold :underline unspecified))))
+       `(company-tooltip-common-selection    ((,class (:inherit company-tooltip-selection :foreground ,quickbeans-fg :underline unspecified :weight bold))))
        `(company-tooltip-selection           ((,class (:background ,quickbeans-purple-4))))
 ;;;;; Compilation
        `(compilation-error                   ((,class (:foreground ,quickbeans-red-1))))
@@ -165,13 +166,13 @@ The theme has to be reloaded after changing anything in this group."
        `(compilation-mode-line-fail          ((,class (:foreground ,quickbeans-red-1))))
        `(compilation-mode-line-run           ((,class (:foreground ,quickbeans-yellow-3))))
 ;;;;; Diffs
-       `(diff-changed                        ((,class (:foreground ,quickbeans-grey-8 :background nil))))
-       `(diff-added                          ((,class (:foreground ,quickbeans-green-8 :background nil))))
-       `(diff-removed                        ((,class (:foreground ,quickbeans-red-10 :background nil))))
-       `(diff-header                         ((,class (:foreground ,quickbeans-blue-5 :background nil))))
-       `(diff-file-header                    ((,class (:foreground ,quickbeans-blue-3 :weight bold :background nil))))
-       `(diff-hunk-header                    ((,class (:foreground ,quickbeans-blue-5 :background nil))))
-       `(diff-function                       ((,class (:foreground ,quickbeans-blue-2 :background nil))))
+       `(diff-changed                        ((,class (:foreground ,quickbeans-grey-8 :background unspecified))))
+       `(diff-added                          ((,class (:foreground ,quickbeans-green-8 :background unspecified))))
+       `(diff-removed                        ((,class (:foreground ,quickbeans-red-10 :background unspecified))))
+       `(diff-header                         ((,class (:foreground ,quickbeans-blue-5 :background unspecified))))
+       `(diff-file-header                    ((,class (:foreground ,quickbeans-blue-3 :weight bold :background unspecified))))
+       `(diff-hunk-header                    ((,class (:foreground ,quickbeans-blue-5 :background unspecified))))
+       `(diff-function                       ((,class (:foreground ,quickbeans-blue-2 :background unspecified))))
        `(diff-indicator-changed              ((,class (:inherit diff-changed))))
        `(diff-refine-changed                 ((,class (:inherit diff-removed))))
        `(diff-indicator-added                ((,class (:inherit diff-added))))
@@ -200,7 +201,8 @@ The theme has to be reloaded after changing anything in this group."
        `(diredp-dir-name                     ((,class (:foreground ,quickbeans-blue-2))))
        `(diredp-write-priv                   ((,class (:foreground ,quickbeans-blue-0 :background ,quickbeans-bg))))
 ;;;;; Doom-modeline
-       `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-blue-5 :weight bold))))
+       `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-yellow-1 :weight bold))))
+       `(mode-line-active                    ((,class (:inherit mode-line :background ,quickbeans-blue-6))))
 ;;;;; Emmet
        `(emmet-preview-output                ((,class (:background ,quickbeans-purple-4))))
 ;;;;; Elixir
@@ -297,7 +299,7 @@ The theme has to be reloaded after changing anything in this group."
        `(jabber-chat-prompt-local            ((,class (:foreground ,quickbeans-blue-0))))
        `(jabber-chat-prompt-foreign          ((,class (:foreground ,quickbeans-green-2))))
 ;;;;; Lazy highlight
-       `(lazy-highlight                      ((,class (:foreground ,quickbeans-red-4 :background nil))))
+       `(lazy-highlight                      ((,class (:foreground ,quickbeans-red-4 :background unspecified))))
 ;;;;; Linum
        `(linum                               ((,class (:foreground ,quickbeans-grey-3 :background ,quickbeans-grey-0))))
 ;;;;; Display line numbers
@@ -381,8 +383,8 @@ The theme has to be reloaded after changing anything in this group."
        `(magit-diff-lines-heading            ((,class (:inherit magit-diff-hunk-heading-highlight :background ,quickbeans-red-6 :foreground ,quickbeans-fg))))
        `(magit-diff-our                      ((,class (:inherit magit-diff-removed))))
        `(magit-diff-our-highlight            ((,class (:inherit magit-diff-removed-highlight))))
-       `(magit-diff-removed                  ((,class (:background nil :foreground ,quickbeans-red-10))))
-       `(magit-diff-removed-highlight        ((,class (:background nil :foreground ,quickbeans-red-10))))
+       `(magit-diff-removed                  ((,class (:background unspecified :foreground ,quickbeans-red-10))))
+       `(magit-diff-removed-highlight        ((,class (:background unspecified :foreground ,quickbeans-red-10))))
        `(magit-diff-their                    ((,class (:inherit magit-diff-added))))
        `(magit-diff-their-highlight          ((,class (:inherit magit-diff-added-highlight))))
        `(magit-diff-whitespace-warning       ((,class (:inherit trailing-whitespace))))
@@ -473,7 +475,7 @@ The theme has to be reloaded after changing anything in this group."
        `(rainbow-delimiters-depth-8-face     ((,class (:foreground ,quickbeans-white-8))))
        `(rainbow-delimiters-depth-9-face     ((,class (:foreground ,quickbeans-white-9))))
 ;;;;; Region
-       `(region                              ((,class (:background ,quickbeans-grey-2 :box (:line-width (-1 . -1) :color ,quickbeans-blue-1 style: nil)))))
+       `(region                              ((,class (:background ,quickbeans-grey-2 :box (:line-width (-1 . -1) :color ,quickbeans-blue-1 style: unspecified)))))
 ;;;;; SHM
        `(shm-current-face                    ((,class (:background ,quickbeans-grey-4))))
        `(shm-quarantine-face                 ((,class (:background ,quickbeans-red-4))))
