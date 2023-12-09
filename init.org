@@ -218,6 +218,7 @@ It will be faster to disable them here before they've been initialized.
                writegood-mode
                perspective
                plantuml-mode
+               format-all
 
                ;; Org
                                              ;org-superstar                 ; show org bullet as Unicode character
@@ -272,7 +273,6 @@ It will be faster to disable them here before they've been initialized.
                json-mode
                markdown-mode
                swift-mode
-               modern-cpp-font-lock
                dockerfile-mode
                docker
                docker-compose-mode
@@ -287,7 +287,8 @@ It will be faster to disable them here before they've been initialized.
                (csv-mode builtin)
                (auctex builtin)              ; integrated environment for *TeX*
                (rainbow-mode builtin)        ; colorized color code in file
-               (undo-tree builtin)           ; Treat undo history as a tree
+               undo-fu                       ; Treat undo history as a tree
+               (vundo :fetcher git :url "https://github.com/casouri/vundo.git")
                (bug-hunter builtin)
 
                clang-format
@@ -335,6 +336,7 @@ It will be faster to disable them here before they've been initialized.
                embark-consult
 
                yaml-mode
+               (bb-mode :fetcher git :url "https://github.com/mferland/bb-mode.git")
 
                dap-mode
                lsp-mode
@@ -354,7 +356,6 @@ It will be faster to disable them here before they've been initialized.
                ws-butler
                projectile
                ace-jump-mode                 ; quick cursor location minor mode
-               ag
                                              ;(depends-on "ecb" :git "https://github.com/alexott/ecb.git" :files ("*" (:exclude ".git")))
                auto-compile                  ; automatically compile Emacs Lisp libraries
                                              ;color-identifiers-mode        ; gives colors to unique variables passed into functions
@@ -412,12 +413,14 @@ It will be faster to disable them here before they've been initialized.
                highlight-indent-guides       ; a neat mode to show indentation
 
                key-chord
+               deadgrep
 
                latex-preview-pane
 
                magic-latex-buffer
 
                magit
+               magit-delta
                (git-timemachine :fetcher git :url "https://codeberg.org/pidu/git-timemachine.git")
                git-gutter-fringe
                git-messenger
@@ -1602,12 +1605,15 @@ j*** Local =compile-command=
    #+BEGIN_SRC emacs-lisp
      (require 'doom-modeline)
      (doom-modeline-def-modeline 'qq-simple-line
-       '(modals workspace-name window-number matches buffer-info remote-host minor-modes)
-       '(buffer-position word-count selection-info misc-info major-mode process vcs lsp checker))
+       '(bar modals workspace-name window-number buffer-position matches buffer-info remote-host minor-modes)
+       '(word-count selection-info misc-info major-mode process vcs lsp checker))
      (defun setup-custom-doom-modeline ()
        (doom-modeline-set-modeline 'qq-simple-line 'default))
 
-     (setq doom-modeline-minor-modes t)
+     (setq doom-modeline-minor-modes t
+           doom-modeline-bar-width 4)
+     (set-face-attribute 'mode-line nil :height 100)
+     (set-face-attribute 'mode-line-inactive nil :height 100)
      (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
      (doom-modeline-mode 1)
 
@@ -1643,7 +1649,7 @@ j*** Local =compile-command=
    with tramp, please try `file-name' style.
    Please refer to https://github.com/bbatsov/projectile/issues/657.
    #+BEGIN_SRC emacs-lisp
-     (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+     (setq doom-modeline-buffer-file-name-style 'buffer-name)
    #+END_SRC
 
 *** Highlight
@@ -2394,7 +2400,7 @@ Use conf-mode for git config files
 **** Enable undo-tree
 
    #+BEGIN_SRC emacs-lisp
-     (global-undo-tree-mode 1)
+     ;; (global-undo-tree-mode 1)
    #+END_SRC
 
 *** =which-function-mode=
@@ -2441,8 +2447,8 @@ Use conf-mode for git config files
       | C-h     | Navigate cursor to the window on the left                         | 'windmove-left               |
       | C-l     | Navigate cursor to the window on the right                        | 'windmove-right              |
       | C-<f12> | Display minions-mode menu to shows current mini modes in modeline | 'minions-minor-modes-menu    |
-      | C-<f8>  | Increase text scale                                               | 'default-text-scale-increase |
-      | C-<f7>  | Decrease text scale                                               | 'default-text-scale-decrease |
+      | <f8>    | Increase text scale                                               | 'default-text-scale-increase |
+      | <f7>    | Decrease text scale                                               | 'default-text-scale-decrease |
       | C-s-0   | Reset text scale                                                  | 'default-text-scale-reset    |
 **** Links: [[Basic Bindings]]                                     :ignore:
 
@@ -2646,7 +2652,7 @@ Use conf-mode for git config files
 *** Init
    #+begin_src emacs-lisp
      (require 'vertico)
-     ;(require 'vertico-multiform)
+                                             ;(require 'vertico-multiform)
      (setq vertico-count 20
            vertico-cycle t
            vertico-resize t)
@@ -2675,6 +2681,14 @@ Use conf-mode for git config files
 
      ;; Enable recursive minibuffers
      (setq enable-recursive-minibuffers t)
+     (setq completion-styles '(orderless basic)
+           completion-category-overrides '((file (styles basic partial-completion))))
+
+     (defvar +vertico-transform-functions nil)
+     (defun +vertico-transform (args)
+       (dolist (fun (ensure-list +vertico-transform-functions) args)
+         (setcar args (funcall fun (car args)))))
+     (advice-add #'vertico--format-candidate :filter-args #'+vertico-transform)
    #+end_src
 
 *** Multiform-mode
@@ -3045,6 +3059,7 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
              (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
              (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
      (require 'treesit)
+     (setq treesit-font-lock-level 4)
                                              ;(require 'treesit-auto)
                                              ;(global-treesit-auto-mode)
                                              ;(setq treesit-auto-install 'prompt)
@@ -3269,7 +3284,7 @@ kill unused buffers in the background
 
 *** Undo System
    #+BEGIN_SRC emacs-lisp
-     (csetq evil-undo-system 'undo-tree)
+     (csetq evil-undo-system 'undo-fu)
    #+END_SRC
 
 *** Command =*= and =#=
@@ -3526,110 +3541,143 @@ kill unused buffers in the background
     :CUSTOM_ID: evil-leader-binding
     :END:
    #+TBLNAME: evil_leader_keys
-      | Combo  | Description                         | Command                                          |
-      |--------+-------------------------------------+--------------------------------------------------|
-      | %      |                                     | 'ctl-x-5-prefix                                  |
-      | "\\\\" |                                     | 'evil-execute-in-emacs-state                     |
-      | 0      |                                     | 'select-window-0                                 |
-      | 1      |                                     | 'select-window-1                                 |
-      | 2      |                                     | 'select-window-2                                 |
-      | 3      |                                     | 'select-window-3                                 |
-      | 4      |                                     | 'select-window-4                                 |
-      | 5      |                                     | 'select-window-5                                 |
-      | 6      |                                     | 'select-window-6                                 |
-      | 7      |                                     | 'select-window-7                                 |
-      | 8      |                                     | 'select-window-8                                 |
-      | 9      |                                     | 'select-window-9                                 |
-      | b k    | Kill current buffer                 | 'ido-kill-buffer                                 |
-      | b S    |                                     | 'bs-show                                         |
-      | b d    |                                     | 'kill-this-buffer                                |
-      | b e    |                                     | 'evil-buffer                                     |
-      | b i    |                                     | 'ibuffer                                         |
-      | b m    |                                     | 'demap-toggle                                    |
-      | b q    |                                     | 'kill-buffer-and-window                          |
-      | b f    |                                     | 'ido-find-file                                   |
-      | b x    |                                     | 'ido-switch-buffer                               |
-      | C      |                                     | 'customize-group                                 |
-      | c i    |                                     | 'evilnc-comment-or-uncomment-lines               |
-      | c l    |                                     | 'evilnc-comment-or-uncomment-to-the-line         |
-      | c c    |                                     | 'evilnc-copy-and-comment-lines                   |
-      | c p    |                                     | 'evilnc-comment-or-uncomment-paragraphs          |
-      | d d    |                                     | 'dired-jump                                      |
-      | d e    |                                     | 'dired                                           |
-      | e l    |                                     | 'eval-last-sexp                                  |
-      | e b    |                                     | 'eval-buffer                                     |
-      | e e    |                                     | 'eval-expression                                 |
-      | e d    |                                     | 'eval-defun                                      |
-      | j c    |                                     | 'evil-ace-jump-char-mode                         |
-      | j l    |                                     | 'evil-ace-jump-line-mode                         |
-      | j w    |                                     | 'evil-ace-jump-word-mode                         |
-      | h x    | Describe character under cursor     | 'describe-char                                   |
-      | h k    | Describe keybinding                 | 'helpful-key                                     |
-      | h m    | Describe keybinding                 | 'describe-mode                                   |
-      | h M    | Describe macros                     | 'helpful-macros                                  |
-      | h f    | Display full doc on a function      | 'helpful-callable                                |
-      | h c    | Describe interactive function       | 'helpful-command                                 |
-      | h F    | Display properties of a face        | 'describe-face                                   |
-      | h v    | Display full doc of a variable      | 'helpful-variable                                |
-      | h l    | Find Emacs Lisp source of a library | 'find-library                                    |
-      | h h    |                                     | 'help-for-help-internal                          |
-      | h .    |                                     | 'helpful-at-point                                |
-      | h e    |                                     | 'emojify-describe-emoji-at-point                 |
-      | M      |                                     | 'which-key-show-keymap                           |
-      | m l    |                                     | 'lacarte-execute-menu-command                    |
-      | m m    |                                     | #'tmm-menubar                                    |
-      | e c    |                                     | 'evilnc-comment-or-uncomment-lines               |
-      | ?      |                                     | 'which-key-show-top-level                        |
-      | q      |                                     | 'evil-window-delete                              |
-      | P      |                                     | 'package-list-packages                           |
-      | R      | Restart emacs                       | 'restart-emacs                                   |
-      | r 1    |                                     | 'qq/serial-term-1                                |
-      | r 2    |                                     | 'qq/serial-term-2                                |
-      | r r    |                                     | 'serial-term                                     |
-      | r v    |                                     | 'multi-vterm                                     |
-      | s      |                                     | 'save-buffer                                     |
-      | t SPC  |                                     | 'whitespace-mode                                 |
-      | t TAB  |                                     | 'c-toggle-syntactic-indentation                  |
-      | t b    |                                     | 'sr-speedbar-toggle                              |
-      | t r    |                                     | 'toggle-truncate-lines                           |
-      | t d    |                                     | 'toggle-debug-on-error                           |
-      | t h    | toggle highlight current line       | 'global-hl-line-mode                             |
-      | t i    | toggle indent guide                 | 'highlight-indent-guides-mode                    |
-      | t c    |                                     | 'qq/toggle-clang-format-save                     |
-      | t s    |                                     | 'qq/toggle-evil-search                           |
-      | t f    |                                     | 'toggle-frame-fullscreen                         |
-      | t m    |                                     | 'toggle-frame-maximized                          |
-      | t o    |                                     | 'auto-dim-other-buffers-mode                     |
-      | t t    |                                     | 'treemacs                                        |
-      | t l    |                                     | 'qq/toggle-line-numbers                          |
-      | t e    |                                     | 'qq/toggle-delete-trailing-whitespace            |
-      | t g    |                                     | 'gdb-many-windows                                |
-      | t w    |                                     | 'other-frame                                     |
-      | u u    |                                     | 'undo-tree-visualize                             |
-      | u s    |                                     | 'undo-tree-save-state-to-register ; C-x r u      |
-      | u r    |                                     | 'undo-tree-restore-state-from-register ; C-x r U |
-      | V      |                                     | (bind (term "vim"))                              |
-      | v d    |                                     | 'gdb                                             |
-      | v k    |                                     | 'gud-kill-yes                                    |
-      | v r    |                                     | 'gud-remove                                      |
-      | v b    |                                     | 'gud-break                                       |
-      | v u    |                                     | 'gud-run                                         |
-      | v p    |                                     | 'gud-print                                       |
-      | v e    |                                     | 'gud-cls                                         |
-      | v n    |                                     | 'gud-next                                        |
-      | v s    |                                     | 'gud-step                                        |
-      | v i    |                                     | 'gud-stepi                                       |
-      | v c    |                                     | 'gud-cont                                        |
-      | v f    |                                     | 'gud-finish                                      |
-      | x h    |                                     | 'mark-whole-buffer                               |
-      | x n n  |                                     | 'narrow-or-widen-dwim                            |
-      | x n w  |                                     | 'widen                                           |
-      | x n d  |                                     | 'narrow-to-defun                                 |
-      | x n r  |                                     | 'narrow-to-region                                |
-      | x z    |                                     | 'suspend-frame                                   |
-      | y h    |                                     | 'cliphist-paste-item                             |
-      | y u    |                                     | 'cliphist-select-item                            |
+      | Combo  | Description                         | Command                                  |
+      |--------+-------------------------------------+------------------------------------------|
+      | %      |                                     | 'ctl-x-5-prefix                          |
+      | "\\\\" |                                     | 'evil-execute-in-emacs-state             |
+      | 0      |                                     | 'select-window-0                         |
+      | 1      |                                     | 'select-window-1                         |
+      | 2      |                                     | 'select-window-2                         |
+      | 3      |                                     | 'select-window-3                         |
+      | 4      |                                     | 'select-window-4                         |
+      | 5      |                                     | 'select-window-5                         |
+      | 6      |                                     | 'select-window-6                         |
+      | 7      |                                     | 'select-window-7                         |
+      | 8      |                                     | 'select-window-8                         |
+      | 9      |                                     | 'select-window-9                         |
+      | b k    | Kill current buffer                 | 'ido-kill-buffer                         |
+      | b S    |                                     | 'bs-show                                 |
+      | b d    |                                     | 'kill-this-buffer                        |
+      | b e    |                                     | 'evil-buffer                             |
+      | b i    |                                     | 'ibuffer                                 |
+      | b m    |                                     | 'demap-toggle                            |
+      | b q    |                                     | 'kill-buffer-and-window                  |
+      | b f    |                                     | 'ido-find-file                           |
+      | b x    |                                     | 'ido-switch-buffer                       |
+      | C      |                                     | 'customize-group                         |
+      | c i    |                                     | 'evilnc-comment-or-uncomment-lines       |
+      | c l    |                                     | 'evilnc-comment-or-uncomment-to-the-line |
+      | c c    |                                     | 'evilnc-copy-and-comment-lines           |
+      | c p    |                                     | 'evilnc-comment-or-uncomment-paragraphs  |
+      | d d    |                                     | 'dired-jump                              |
+      | d e    |                                     | 'dired                                   |
+      | e l    |                                     | 'eval-last-sexp                          |
+      | e b    |                                     | 'eval-buffer                             |
+      | e e    |                                     | 'eval-expression                         |
+      | e d    |                                     | 'eval-defun                              |
+      | j c    |                                     | 'evil-ace-jump-char-mode                 |
+      | j l    |                                     | 'evil-ace-jump-line-mode                 |
+      | j w    |                                     | 'evil-ace-jump-word-mode                 |
+      | h x    | Describe character under cursor     | 'describe-char                           |
+      | h k    | Describe keybinding                 | 'helpful-key                             |
+      | h m    | Describe keybinding                 | 'describe-mode                           |
+      | h M    | Describe macros                     | 'helpful-macros                          |
+      | h f    | Display full doc on a function      | 'helpful-callable                        |
+      | h c    | Describe interactive function       | 'helpful-command                         |
+      | h F    | Display properties of a face        | 'describe-face                           |
+      | h v    | Display full doc of a variable      | 'helpful-variable                        |
+      | h l    | Find Emacs Lisp source of a library | 'find-library                            |
+      | h h    |                                     | 'help-for-help-internal                  |
+      | h .    |                                     | 'helpful-at-point                        |
+      | h e    |                                     | 'emojify-describe-emoji-at-point         |
+      | M      |                                     | 'which-key-show-keymap                   |
+      | m l    |                                     | 'lacarte-execute-menu-command            |
+      | m m    |                                     | #'tmm-menubar                            |
+      | e c    |                                     | 'evilnc-comment-or-uncomment-lines       |
+      | E i    |                                     | 'emoji-insert                            |
+      | E E    |                                     | 'emoji-recent                            |
+      | ?      |                                     | 'which-key-show-top-level                |
+      | q      |                                     | 'evil-window-delete                      |
+      | P      |                                     | 'package-list-packages                   |
+      | R      | Restart emacs                       | 'restart-emacs                           |
+      | r 1    |                                     | 'qq/serial-term-1                        |
+      | r 2    |                                     | 'qq/serial-term-2                        |
+      | r r    |                                     | 'serial-term                             |
+      | r v    |                                     | 'multi-vterm                             |
+      | s      |                                     | 'save-buffer                             |
+      | t SPC  |                                     | 'whitespace-mode                         |
+      | t TAB  |                                     | 'c-toggle-syntactic-indentation          |
+      | t b    |                                     | 'sr-speedbar-toggle                      |
+      | t r    |                                     | 'toggle-truncate-lines                   |
+      | t d    |                                     | 'toggle-debug-on-error                   |
+      | t h    | toggle highlight current line       | 'global-hl-line-mode                     |
+      | t i    | toggle indent guide                 | 'highlight-indent-guides-mode            |
+      | t s    |                                     | 'qq/toggle-evil-search                   |
+      | t f    |                                     | 'toggle-frame-fullscreen                 |
+      | t m    |                                     | 'toggle-frame-maximized                  |
+      | t o    |                                     | 'auto-dim-other-buffers-mode             |
+      | t t    |                                     | 'treemacs                                |
+      | t l    |                                     | 'qq/toggle-line-numbers                  |
+      | t e    |                                     | 'qq/toggle-delete-trailing-whitespace    |
+      | t g    |                                     | 'gdb-many-windows                        |
+      | t w    |                                     | 'other-frame                             |
+      | u      |                                     | 'vundo                                   |
+      | V      |                                     | (bind (term "vim"))                      |
+      | v d    |                                     | 'gdb                                     |
+      | v k    |                                     | 'gud-kill-yes                            |
+      | v r    |                                     | 'gud-remove                              |
+      | v b    |                                     | 'gud-break                               |
+      | v u    |                                     | 'gud-run                                 |
+      | v p    |                                     | 'gud-print                               |
+      | v e    |                                     | 'gud-cls                                 |
+      | v n    |                                     | 'gud-next                                |
+      | v s    |                                     | 'gud-step                                |
+      | v i    |                                     | 'gud-stepi                               |
+      | v c    |                                     | 'gud-cont                                |
+      | v f    |                                     | 'gud-finish                              |
+      | x h    |                                     | 'mark-whole-buffer                       |
+      | x n n  |                                     | 'narrow-or-widen-dwim                    |
+      | x n w  |                                     | 'widen                                   |
+      | x n d  |                                     | 'narrow-to-defun                         |
+      | x n r  |                                     | 'narrow-to-region                        |
+      | x z    |                                     | 'suspend-frame                           |
+      | y h    |                                     | 'cliphist-paste-item                     |
+      | y u    |                                     | 'cliphist-select-item                    |
 **** Links: [[Evil Leader Bindings][Evil Leader Bindings]]                                     :ignore:
+** Undo-fu
+
+   #+begin_src emacs-lisp
+     (setq undo-limit 67108864) ; 64mb.
+     (setq undo-strong-limit 100663296) ; 96mb.
+     (setq undo-outer-limit 1006632960) ; 960mb.
+   #+end_src
+** Deadgrep
+
+   #+begin_src emacs-lisp
+     (global-set-key (kbd "M-f") #'deadgrep)
+   #+end_src
+
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-deadgrep-mode-binding
+    :END:
+   #+TBLNAME: deadgrep_mode_keys
+      | Combo | Mode              | Evil Mode | Description | Command                              |
+      | RET   | deadgrep-mode-map | normal    |             | #'deadgrep-visit-result              |
+      | o     | deadgrep-mode-map | normal    |             | #'deadgrep-visit-result-other-window |
+      | S     | deadgrep-mode-map | normal    |             | #'deadgrep-search-term               |
+      | T     | deadgrep-mode-map | normal    |             | #'deadgrep-cycle-search-type         |
+      | C     | deadgrep-mode-map | normal    |             | #'deadgrep-cycle-search-case         |
+      | F     | deadgrep-mode-map | normal    |             | #'deadgrep-cycle-search-case         |
+      | D     | deadgrep-mode-map | normal    |             | #'deadgrep-directory                 |
+      | "^"   | deadgrep-mode-map | normal    |             | #'deadgrep-parent-directory          |
+      | g     | deadgrep-mode-map | normal    |             | #'deadgrep-restart                   |
+      | I     | deadgrep-mode-map | normal    |             | #'deadgrep-incremental               |
+      | TAB   | deadgrep-mode-map | normal    |             | #'deadgrep-toggle-file-results       |
+      | j     | deadgrep-mode-map | normal    |             | #'deadgrep-forward-match             |
+      | k     | deadgrep-mode-map | normal    |             | #'deadgrep-backward-match            |
+
+**** Links: [[Evil Deadgrep Mode Bindings][Evil Deadgrep Mode Bindings]]                                :ignore:
 ** Mixed-pitch
 
    #+begin_src emacs-lisp
@@ -3710,7 +3758,7 @@ Make sure avfs is installed and its daemon is running (=mountavfs=)
 *** Evil Binding
 TODO: add option to remove mode and add directly to the  binding
     :PROPERTIES:
-    :CUSTOM_ID: evil-dired-binding
+    :CUSTOM_ID: evil-dired-bindings
     :END:
    #+TBLNAME: evil_dired_keys
       | Combo         | Mode           | Evil Mode       | Description                 | Command                                  |
@@ -3910,26 +3958,24 @@ TODO: add option to remove mode and add directly to the  binding
           (face-remap-add-relative 'hl-line 'highlight)
           )))
    #+end_src
-** Ag
-*** Evil Binding
+** Avy
+   #+begin_src emacs-lisp
+     (setq avy-timeout 1.0)
+   #+end_src
+
+*** Normal Evil Binding
     :PROPERTIES:
-    :CUSTOM_ID: evil-ag-binding
+    :CUSTOM_ID: evil-avy-binding
     :END:
-   #+TBLNAME: evil_ag_keys
-      | Combo | Mode        | Evil Mode       | Description | Command                     |
-      | h     | ag-mode-map | (visual normal) |             | 'evil-backward-char         |
-      | g r   | ag-mode-map | (visual normal) | refresh     | 'recompile                  |
-      | g j   | ag-mode-map | (visual normal) | navigation  | 'compilation-next-error     |
-      | g k   | ag-mode-map | (visual normal) |             | 'compilation-previous-error |
-      | C-j   | ag-mode-map | (visual normal) |             | 'compilation-next-error     |
-      | C-k   | ag-mode-map | (visual normal) |             | 'compilation-previous-error |
-      | ]     | ag-mode-map | (visual normal) |             | 'compilation-next-error     |
-      | [     | ag-mode-map | (visual normal) |             | 'compilation-previous-error |
-      | ?     | ag-mode-map | (visual normal) | search      | 'qq/evil-search-backward    |
-      | "/"   | ag-mode-map | (visual normal) |             | 'qq/evil-search-forward     |
-      | n     | ag-mode-map | (visual normal) |             | 'qq/evil-search-next        |
-      | N     | ag-mode-map | (visual normal) |             | 'qq/evil-search-previous    |
-**** Links: [[Evil Ag Bindings][Evil Ag Bindings]]                                     :ignore:
+   #+TBLNAME: evil_avy_keys
+      | Combo | Description                     | Command              |
+      | g t   | goto any line in visible buffer | 'avy-goto-line       |
+      | g r   | navigation                      | 'avy-move-line       |
+      | g y   |                                 | 'avy-copy-line       |
+      | g b   |                                 | 'avy-goto-word       |
+      | g z   |                                 | 'avy-goto-char-timer |
+      | g s   |                                 | 'avy-goto-char       |
+**** Links: [[Evil Avy Bindings][Evil Avy Bindings]]                                     :ignore:
 ** Git/Magit
 *** Settings
    #+BEGIN_SRC emacs-lisp
@@ -3938,7 +3984,14 @@ TODO: add option to remove mode and add directly to the  binding
      (setq magit-push-always-verify nil)
      (setq magit-stage-all-confirm nil)
      (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)
+     (setq magit-bury-buffer-function 'magit-restore-window-configuration)
      (setq transient-history-file (concat qq/cache-directory "transient_hist.el"))
+
+     (define-minor-mode full-magit-mode
+       "" :lighter " Full Magit Status Buffer Mode" :global t
+       (if full-magit-mode
+           (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+         (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)))
      #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -3949,6 +4002,12 @@ TODO: add option to remove mode and add directly to the  binding
        (magit-add-section-hook 'magit-status-sections-hook 'magit-insert-tags 'append t))
      (unless (display-graphic-p)
        (diff-hl-margin-mode))
+   #+END_SRC
+
+*** magit-delta
+SLOW!!!
+   #+BEGIN_SRC emacs-lisp
+     ;; (add-hook 'magit-mode-hook 'magit-delta-mode)
    #+END_SRC
 
 *** magit-commit-mode
@@ -4195,6 +4254,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
       | g s               |             | 'magit-status                     |
       | g t               |             | 'git-timemachine                  |
       | g u               |             | 'git-gutter:toggle                |
+      | g w               |             | 'full-magit-mode                  |
       | g x               |             | 'vc-next-action                   |
       | g v               |             | 'git-gutter:set-start-revision    |
 **** Links: [[Evil Magit Bindings][Evil Magit Bindings]]                                     :ignore:
@@ -4202,6 +4262,13 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
    #+begin_src emacs-lisp
      (beacon-mode 1)
+   #+end_src
+
+** Format-All
+
+   #+begin_src emacs-lisp
+     (add-hook 'format-all-mode-hook 'format-all-ensure-formatter)
+     (add-hook 'prog-mode-hook 'format-all-mode)
    #+end_src
 
 ** =svg-tag-mode=
@@ -4261,6 +4328,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
 *** Clangd
    #+BEGIN_SRC emacs-lisp
      (setq lsp-clients-clangd-executable qq/clangd-binary)
+
      (setq lsp-clients-clangd-args '(
                                      ;; If set to true, code completion will include index symbols that are not defined in the scopes
                                      ;; (e.g. namespaces) visible from the code completion point. Such completions can insert scope qualifiers
@@ -4276,7 +4344,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
                                      ;;   One completion item for each semantically distinct completion, with full type information (detailed)
                                      "--completion-style=detailed"
                                      ;; clang-format style to apply by default when no .clang-format file is found
-                                     "--fallback-style=WebKit"
+                                     ;;"--fallback-style=WebKit"
                                      ;; When disabled, completions contain only parentheses for function calls.
                                      ;; When enabled, completions also contain placeholders for method parameters
                                      "--function-arg-placeholders"
@@ -4292,7 +4360,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
                                      ;; Attempts to fix diagnostic errors caused by missing includes using index
                                      "--suggest-missing-includes"
                                      ;; Number of async workers used by clangd. Background index also uses this many workers.
-                                     "-j=8"
+                                     "-j=3"
                                      ))
    #+END_SRC
 
@@ -5407,12 +5475,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: normal-persp-binding
     :END:
    #+TBLNAME: normal_persp_keys
-      | Evil Leader Combo | Description     | Command                                              |
-      |-------------------+-----------------+------------------------------------------------------|
-      | b k               | kill buffer     | 'persp-kill-buffer*                                  |
-      | b b               | switch buffer   | 'persp-switch-to-buffer*                             |
-      | b c               | show all buffer | 'consult-buffer                                      |
-      | b S               |                 | (lambda (arg) (interactive "P") (persp-bs-show arg)) |
+      | Evil Leader Combo | Description               | Command                                              |
+      |-------------------+---------------------------+------------------------------------------------------|
+      | b k               | kill buffer               | 'persp-kill-buffer*                                  |
+      | b b               | switch buffer             | 'persp-switch-to-buffer*                             |
+      | b c               | show all buffer           | 'consult-buffer                                      |
+      | b g               | restore prespective state | 'persp-state-load                                    |
+      | b S               |                           | (lambda (arg) (interactive "P") (persp-bs-show arg)) |
 **** Links: [[Normal Persp Bindings][Normal Persp Bindings]]                                     :ignore:
 ** =shrface=
 
@@ -5804,7 +5873,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 *** Settings
    #+BEGIN_SRC emacs-lisp
      (custom-set-variables
-      '(highlight-indent-guides-method 'character))
+      '(highlight-indent-guides-method 'bitmap))
    #+END_SRC
 
 ** Which key
@@ -5936,7 +6005,7 @@ Some general settings that should apply to all programming mode. Highlight
             #'(lambda()
                 (display-line-numbers-mode)
                 (qq/add-watchwords)
-                (rainbow-delimiters-mode) ; WARNING: if scrolling is slow, turn this off
+                ;; (rainbow-delimiters-mode) ; WARNING: if scrolling is slow, turn this off
                 (highlight-indent-guides-mode)
                 (set-face-background 'highlight-indent-guides-odd-face "darkgray")
                 (set-face-background 'highlight-indent-guides-even-face "dimgray")
@@ -6036,51 +6105,13 @@ TODO: Cause issue with ggtags
 
    #+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-init ()
-       (qq/lsp-deferred-if-supported)
+       ;; (qq/lsp-deferred-if-supported)
        (fset 'c-indent-region 'clang-format-region)
        (push '(?\( . ("(" . ")")) evil-surround-pairs-alist)
        (push '(?{ . ("{" . "}")) evil-surround-pairs-alist)
        (local-set-key (kbd "C-c C-c") 'compile)
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
        ;; the entire buffer, and then runs the indent-region command).
-       (c-set-style "cc-mode")   ; C indenting style
-
-       (c-add-style "SOFTING"
-                    '(nil
-                      (c-basic-offset . 4)     ; Guessed value
-                      (c-offsets-alist
-                       (access-label . 0)      ; Guessed value
-                       (arglist-intro . ++)     ; Guessed value
-                       (block-close . 0)       ; Guessed value
-                       (brace-entry-open . 0)  ; Guessed value
-                       (brace-list-close . 0)  ; Guessed value
-                       (brace-list-entry . 0)  ; Guessed value
-                       (brace-list-intro . ++)  ; Guessed value
-                       (class-close . 0)       ; Guessed value
-                       (cpp-define-intro . +)  ; Guessed value
-                       (defun-block-intro . +) ; Guessed value
-                       (defun-close . 0)       ; Guessed value
-                       (defun-open . 0)        ; Guessed value
-                       (else-clause . 0)       ; Guessed value
-                       (inclass . +)           ; Guessed value
-                       (inline-close . 0)      ; Guessed value
-                       (innamespace . 0)       ; Guessed value
-                       (member-init-cont . -)  ; Guessed value
-                       (member-init-intro . +) ; Guessed value
-                       (namespace-close . 0)   ; Guessed value
-                       (statement . 0)         ; Guessed value
-                       (statement-block-intro . +) ; Guessed value
-                       (statement-cont . ++)    ; Guessed value
-                       (substatement . +)      ; Guessed value
-                       (topmost-intro . 0)     ; Guessed value
-                       (topmost-intro-cont . 0) ; Guessed value
-                       (arglist-close . c-lineup-close-paren)
-                       (arglist-cont-nonempty . c-lineup-arglist)
-                       (c . c-lineup-C-comments)
-                       (comment-intro . c-lineup-comment)
-                       (cpp-macro . -1000)
-                       (inher-cont . c-lineup-multi-inher)
-                       (string . -1000))))
    #+END_SRC
 
 **** Underscore "_" is not a word character
@@ -6096,87 +6127,37 @@ TODO: Cause issue with ggtags
      (modify-syntax-entry ?_ "w")
    #+END_SRC
 
-**** Coding style via =clang-format=
-   Add hook to =clang-format-buffer= when saving C++ files, only when
-   =.clang-formatted= file exist in current folder.
-
-   #+BEGIN_SRC emacs-lisp
-     (require 'clang-format)
-     (require 'rx)
-
-     (setq clang-format-style "file")
-     (setq qq/clang-format-save t)
-
-     ;; Hook function
-     (defun clang-format-buffer-smart ()
-       "Reformat buffer if .clang-format exists in the projectile root."
-       (interactive)
-       (when qq/clang-format-save
-         (let ((start (if (use-region-p) (region-beginning) (point)))
-               (end (if (use-region-p) (region-end) (point)))
-               (assumed-filename (if (file-remote-p buffer-file-name)
-                                     (concat (getenv "HOME") "/" (file-name-nondirectory buffer-file-name))
-                                   buffer-file-name)))
-           (clang-format-buffer clang-format-style assumed-filename))))
-
-     ;; Install hook to use clang-format on save
-     (add-hook 'before-save-hook 'clang-format-buffer-smart nil t)
-     (add-hook 'c++-mode-hook
-               (lambda () (add-hook 'before-save-hook clang-format-buffer-smart nil 'local)))
-
-     (defun qq/toggle-clang-format-save ()
-       "Enable/disable performing clang-format on saving a file"
-       (interactive)
-       (if qq/clang-format-save
-           (progn
-             (setq qq/clang-format-save nil)
-             (message "Disable performing clang-format on file save"))
-         (progn
-           (setq qq/clang-format-save t)
-           (message "Enable performing clang-format on file save"))))
-   #+END_SRC
-
-   #+BEGIN_SRC emacs-lisp
-     (defun my-clang-format-region ()
-       (interactive)
-       (let ((start (if (use-region-p) (region-beginning) (point)))
-             (end (if (use-region-p) (region-end) (point)))
-             (assumed-filename (if (file-remote-p buffer-file-name)
-                                   (concat (getenv "HOME") "/" (file-name-nondirectory buffer-file-name))
-                                 buffer-file-name)))
-         (clang-format-region start end clang-format-style assumed-filename)))
-   #+END_SRC
 **** Minor modes
 
    #+BEGIN_SRC emacs-lisp
      (eldoc-mode)
-     (ggtags-mode 1)
-     (require 'dap-lldb)
-     (require 'dap-gdb-lldb)
-     (setq dap-auto-configure-features '(sessions locals controls tooltip))
+     ;; (ggtags-mode 1)
+     ;; (require 'dap-lldb)
+     ;; (require 'dap-gdb-lldb)
+     ;; (setq dap-auto-configure-features '(sessions locals controls tooltip))
 
-     (dap-mode 1)
+     ;; (dap-mode 1)
 
      ;; The modes below are optional
 
-     (dap-ui-mode 1)
+     ;; (dap-ui-mode 1)
 
      ;; enables folding support
-     (hs-minor-mode 1)
+     ;; (hs-minor-mode 1)
      ;; enables mouse hover support
-     (dap-tooltip-mode 1)
+     ;; (dap-tooltip-mode 1)
      ;; use tooltips for mouse hover
      ;; if it is not enabled `dap-mode' will use the minibuffer.
-     (tooltip-mode 1)
+     ;; (tooltip-mode 1)
      ;; displays floating panel with debug buttons
      ;; requies emacs 26+
-     (dap-ui-controls-mode 1)
+     ;; (dap-ui-controls-mode 1)
 
      ;; Highlights suspicious C and C++ constructions
-     (global-cwarn-mode 1)
-     (modern-c++-font-lock-mode)
+     ;; (global-cwarn-mode 1)
+     ;; (modern-c++-font-lock-mode)
 
-     (setq-local dash-docs-docsets '("C" "C++"))
+     ;; (setq-local dash-docs-docsets '("C" "C++"))
      ;; slow
      ;;(flycheck-mode)
      ;;(setq flycheck-gcc-language-standard "c++11")
@@ -6208,39 +6189,6 @@ TODO: Cause issue with ggtags
    #+BEGIN_SRC emacs-lisp
      (setq auto-mode-alist (cons '("\\.h$"   . c++-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.ipp$" . c++-mode) auto-mode-alist))
-   #+END_SRC
-
-**** Highlight C++ member function
-Highlight only member function calls in =c++-mode=, for examples
-Object o;
-o.getName();
-getName();
-
-Here only o.getName() will get highlighted.
-
-#+begin_src emacs-lisp
-  (defface font-lock-method-call-face
-    '((t . (:foreground "NavajoWhite2")))
-    "Face to display method calls in.")
-  (font-lock-add-keywords 'c++-mode
-                          `((,(concat
-                               "\\<[_a-zA-Z][_a-zA-Z0-9]*\\>"       ; Object identifier
-                               "\\s *"                              ; Optional white space
-                               "\\(?:\\.\\|->\\)"                   ; Member access
-                               "\\s *"                              ; Optional white space
-                               "\\<\\([_a-zA-Z][_a-zA-Z0-9]*\\)\\>" ; Member identifier
-                               "\\s *"                              ; Optional white space
-                               "(")                                 ; Paren for method invocation
-                             1 'font-lock-method-call-face t)))
-#+end_src
-
-**** No indentation within namespace block
-
-   #+BEGIN_SRC emacs-lisp
-     (defun qq/c-setup ()
-       (modern-c++-font-lock-global-mode t)
-       (c-set-offset 'innamespace [0]))
-     (add-hook 'c++-mode-hook 'qq/c-setup)
    #+END_SRC
 
 **** Automatically adding object name
@@ -6344,6 +6292,17 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
                #'(lambda()
                    (mixed-pitch-mode 0)
                    ))
+   #+END_SRC
+
+** Bitbake
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'bb-mode)
+     (setq auto-mode-alist (cons '("\\.bb$" . bb-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.inc$" . bb-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.bbappend$" . bb-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.bbclass$" . bb-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.conf$" . bb-mode) auto-mode-alist))
    #+END_SRC
 
 ** Lua
@@ -7106,6 +7065,14 @@ To use this function, simply highlight a region you want to align and run M-x al
      <<gen-keys(moda="lead", tname=evil_std_keys)>>
      <<gen-fix(pos=")\n")>>
    #+END_SRC
+**** Evil Avy Bindings
+   Generate binding using table from [[#evil-avy-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen_normal>>
+     <<gen-keys(moda="lead", tname=evil_avy_keys)>>
+     <<gen-fix(pos=")\n")>>
+   #+END_SRC
 
 *** Evil Motion Bindings
    Generate binding using table from [[#evil-motion-binding][here]]
@@ -7241,6 +7208,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="evil", tname=lsp_browser_keys)>>
    #+END_SRC
 
+*** Evil Deadgrep Mode Bindings
+   Generate binding using table from [[#evil-deadgrep-mode-binding][here]]
+
+   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="evil", tname=deadgrep_mode_keys)>>
+   #+END_SRC
+
 *** Evil Web Mode Bindings
    Generate binding using table from [[#evil-web-mode-binding][here]]
 
@@ -7248,17 +7222,8 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<gen-keys(moda="evil", tname=web_mode_keys)>>
    #+END_SRC
 
-*** Evil Ag Bindings
-   Generate binding using table from [[#evil-ag-binding][here]]
-
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="add-hook 'ag-mode-hook\n(lambda()")>>
-     <<gen-keys(moda="evil", tname=evil_ag_keys)>>
-     <<gen-fix(pos="))\n")>>
-   #+END_SRC
-
 *** Evil Dired Bindings
-   Generate binding using table from [[#evil-dired-binding][here]]
+   Generate binding using table from [[#evil-dired-bindings][here]]
 
     #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_dired_keys)>>

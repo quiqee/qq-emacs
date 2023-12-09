@@ -166,6 +166,10 @@ alias sf='fasd -sif'     # interactive file selection
 alias j='fasd_cd -d'     # cd, same functionality as j in autojump
 alias jj='fasd_cd -d -i' # cd with interactive selection
 
+# reverse ssh tunnel, use this command @senja.dtached.net: ssh -p 2022 localhost
+alias reverse_ssh='ssh -fNT -R 2022:localhost:22 senja.dtached.net'
+alias reverse_nx='ssh -fNT -R 4044:localhost:4000 senja.dtached.net'
+
 export EDITOR=vi
 
 if [ "$0" = "/usr/sbin/lightdm-session" -a "$DESKTOP_SESSION" = "i3" ]; then
