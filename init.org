@@ -313,25 +313,26 @@ It will be faster to disable them here before they've been initialized.
                dired-filter
                dired-rainbow
                dired-avfs   ; require installation of avfs in the OS (apt install avfs)
-               all-the-icons-completion
-               all-the-icons-dired
+               ;; all-the-icons-completion
+               ;; all-the-icons-dired
                nerd-icons
+               nerd-icons-completion
+               nerd-icons-dired
                                              ;tramp-container
-               dirvish
-
                general
                treesit-auto
 
                ibuffer-vc
 
                (vertico builtin)             ; use default package-install instead of quelpa
+               (vertico-posframe :fetcher git :url "https://github.com/tumashu/vertico-posframe.git")
                marginalia
                consult
                consult-projectile
                consult-project-extra
                consult-flycheck
                orderless
-               mini-frame
+               ;mini-frame
                embark
                embark-consult
 
@@ -2691,6 +2692,56 @@ Use conf-mode for git config files
      (advice-add #'vertico--format-candidate :filter-args #'+vertico-transform)
    #+end_src
 
+*** Extensions
+   #+begin_src emacs-lisp
+     (custom-set-variables
+      '(vertico-grid-separator "       ")
+      '(vertico-grid-lookahead 50)
+      '(vertico-buffer-display-action '(display-buffer-reuse-window)) ; Default
+      '(vertico-multiform-categories                                  ; Choose a multiform
+        '((file reverse)
+          (consult-grep buffer)
+          (consult-location)
+          (imenu buffer)
+          (library reverse indexed)
+          (org-roam-node reverse indexed)
+          (t reverse)
+          ))
+      '(vertico-multiform-commands
+        '(("flyspell-correct-*" grid reverse)
+          (org-refile grid reverse indexed)
+          (consult-yank-pop indexed)
+          (consult-flycheck)
+          (consult-lsp-diagnostics)
+          )))
+   #+end_src
+
+*** Postframe
+   #+begin_src emacs-lisp
+     (require 'vertico-posframe)
+
+     (vertico-posframe-mode 1)
+
+     (defun ct/posframe-poshandler-frame-center-eyelevel (info)
+       "Posframe position handler to put the posframe at eye level,
+     horizontally centered. Top position is fixed to avoid jittering
+     when filtering.
+
+     INFO can be found in docstring of `posframe-show'."
+       (cons (- (/ (- (plist-get info :parent-frame-width) 0) 2)
+                (/ (plist-get info :posframe-width) 2))
+             (- (/ (plist-get info :parent-frame-height) 6)
+                (/ vertico-posframe-min-height 2))))
+
+     (setq vertico-posframe-border-width 4
+           vertico-posframe-min-height 3
+           vertico-posframe-max-width 100  ;; Don't go too wide on ultrawide monitors
+           vertico-posframe-poshandler #'ct/posframe-poshandler-frame-center-eyelevel)
+   #+end_src
+
+   #+RESULTS:
+   : ct/posframe-poshandler-frame-center-eyelevel
+
 *** Multiform-mode
    #+begin_src emacs-lisp
      ;; Enable vertico-multiform
@@ -2745,10 +2796,10 @@ Use conf-mode for git config files
       '(marginalia-align 'right)
       '(marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
    #+end_src
-*** All the Icons Completion
+*** Nerd Icons Completion
    #+begin_src emacs-lisp
-     (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
-     (all-the-icons-completion-mode)
+     (nerd-icons-completion-mode)
+     (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)
    #+end_src
 
 *** Orderless
@@ -2763,6 +2814,21 @@ Use conf-mode for git config files
      (setq completion-styles '(orderless basic)
            completion-category-defaults nil
            completion-category-overrides '((file (styles partial-completion))))
+   #+end_src
+*** Working with Tramp
+   Workaround for problem with =tramp= hostname completions. This overrides
+   the completion style specifically for remote files! See
+   https://github.com/minad/vertico#tramp-hostname-completion
+   #+begin_src emacs-lisp
+(defun kb/basic-remote-try-completion (string table pred point)
+  (and (vertico--remote-p string)
+       (completion-basic-try-completion string table pred point)))
+(defun kb/basic-remote-all-completions (string table pred point)
+  (and (vertico--remote-p string)
+       (completion-basic-all-completions string table pred point)))
+(add-to-list 'completion-styles-alist
+             '(basic-remote           ; Name of `completion-style'
+               kb/basic-remote-try-completion kb/basic-remote-all-completions nil))
    #+end_src
 *** Advice
 add prefixes (i.e. in the left fringe) and arrow character on the currently selected candidate
@@ -2827,6 +2893,7 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
       | Leader Combo | Description                                              | Command                   |
       | SPC          | Vertico M-x version                                      | 'execute-extended-command |
       | "."          | Forward to 'find file'                                   | 'find-file                |
+      | /            | Show search history                                      | 'consult-isearch-history  |
       | b c          |                                                          | 'selectrum-switch-buffer+ |
       | h a          |                                                          | 'consult-apropos          |
       | b b          | Show list of supported colors in a frame                 | 'consult-buffer           |
@@ -3015,18 +3082,18 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
     :END:
    #+TBLNAME: embark_keys
       | Combo | Description                | Command      |
-      | C-;   | Apply embark-act on target | 'embark-act  |
-      | C-.   |                            | 'embark-dwim |
+      | <f3>  | Apply embark-act on target | 'embark-act  |
+      | <f4>  |                            | 'embark-dwim |
 
 **** Links: [[Embark Bindings][Embark Bindings]]                                     :ignore:
 ** Mini-Frame
    #+begin_src emacs-lisp
-     (mini-frame-mode)
-     (custom-set-variables
-      '(mini-frame-show-parameters qq/mini-frame))
-     (setq mini-frame-ignore-commands '(evil-ex-search-forward evil-ex eval-expression)
-           mini-frame-color-shift-step 10
-           mini-frame-internal-border-color "#444444")
+     ;; (mini-frame-mode)
+     ;; (custom-set-variables
+     ;;  '(mini-frame-show-parameters qq/mini-frame))
+     ;; (setq mini-frame-ignore-commands '(evil-ex-search-forward evil-ex eval-expression)
+     ;;       mini-frame-color-shift-step 10
+     ;;       mini-frame-internal-border-color "#444444")
    #+end_src
 
 ** Tree-Sitter
@@ -3038,6 +3105,9 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
      (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
      (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
      (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+
+     (custom-set-variables '(c-ts-mode-indent-offset 4))
+
      (setq treesit-language-source-alist
            '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
              (c . ("https://github.com/tree-sitter/tree-sitter-c"))
@@ -3750,9 +3820,9 @@ Make sure avfs is installed and its daemon is running (=mountavfs=)
    #+begin_src emacs-lisp
      (setq dired-listing-switches "-alh")
    #+end_src
-*** Enable All The Icons Dired
+*** Enable Nerd Icons Dired
    #+begin_src emacs-lisp
-     (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+     (add-hook 'dired-mode-hook #'nerd-icons-dired-mode)
    #+end_src
 
 *** Evil Binding
@@ -6131,6 +6201,7 @@ TODO: Cause issue with ggtags
 
    #+BEGIN_SRC emacs-lisp
      (eldoc-mode)
+     (lsp-deferred)
      ;; (ggtags-mode 1)
      ;; (require 'dap-lldb)
      ;; (require 'dap-gdb-lldb)
