@@ -299,6 +299,7 @@ It will be faster to disable them here before they've been initialized.
             cmake-font-lock
             eldoc-cmake
 
+            posframe
             company
             company-c-headers
             company-box
@@ -326,7 +327,7 @@ It will be faster to disable them here before they've been initialized.
 
             ibuffer-vc
 
-            (vertico builtin)             ; use default package-install instead of quelpa
+            (vertico :fetcher git :url "https://github.com/minad/vertico.git")             ; use default package-install instead of quelpa
             (vertico-posframe :fetcher git :url "https://github.com/tumashu/vertico-posframe.git")
             marginalia
             consult
@@ -555,7 +556,7 @@ required from *emacs*.
    key information and have it updated wherever necessary. First, we need to
    create custom macros.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defmacro bind (&rest commands)
        "Convience macro which creates a lambda interactive command."
        `(lambda ()
@@ -572,14 +573,14 @@ required from *emacs*.
      (unless (display-graphic-p)
        (global-set-key [mouse-4] (bind (scroll-down 1)))
        (global-set-key [mouse-5] (bind (scroll-up 1))))
-   #+END_SRC
+#+END_SRC
 
 
    We need to turn the mode on here so that we can map keys further below. We
    lower the delay so that chords are not triggered too easily.
 
    #+NAME: gen-keys
-   #+BEGIN_SRC emacs-lisp :var tname=1 :var mvar="" :var mmap="" :var moda="" :results output :tangle no :exports none :colnames yes
+#+BEGIN_SRC emacs-lisp :var tname=1 :var mvar="" :var mmap="" :var moda="" :results output :tangle no :exports none :colnames yes
      (mapcar (lambda (l)
                (unless (string-match "^<[[:digit:]]+>$" (format "%s" (car l)))
                  (let* ((key (car l))
@@ -618,17 +619,17 @@ required from *emacs*.
                          (princ (format "(%s %s)\n" def command)) ))
                      ))))
              tname)
-   #+END_SRC
+#+END_SRC
 
    Utility function for keys generation, this portion will add pre/post code
 
    #+NAME: gen-fix
-   #+BEGIN_SRC emacs-lisp :var pre="" :var pos="" :result output :tangle no :exports none :colnames yes
+#+BEGIN_SRC emacs-lisp :var pre="" :var pos="" :result output :tangle no :exports none :colnames yes
      (let* ((beg (format "%s" pre))
             (las (format "%s" pos)))
        (if (string< "" beg) (princ (format "(%s" beg))
          (princ las)))
-   #+END_SRC
+#+END_SRC
 
 ** Site-Specific
 *** Common
@@ -717,32 +718,34 @@ required from *emacs*.
 
 *** Linux Desktop
 
- #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defvar qq/system-name system-name)
      (cond
-      ((or (string-equal qq/system-name "eagle") (string-equal qq/system-name "bullseye") (string-equal qq/system-name "z390-manjaro"))
+      ((or (string-equal qq/system-name "eagle") (string-equal qq/system-name "bullseye"))
        (progn
- #+END_SRC
+#+END_SRC
 
 **** Fonts
 
 #+begin_src emacs-lisp
-     (custom-theme-set-faces
-      'user
+  (custom-theme-set-faces
+   'user
 
-      '(variable-pitch ((t (:family "Cabin"
-                                    :height 1.3))))
-      '(fixed-pitch ((t ( :family "PragmataPro"
-                          :slant normal
-                          :weight normal
-                          :height 1.0
-                          :width normal)))))
+   '(variable-pitch ((t (:family "Cabin"
+                                 :height 1.3))))
+   '(fixed-pitch ((t ( :family "PragmataPro"
+                       :slant normal
+                       :weight normal
+                       :height 1.0
+                       :width normal)))))
 
-     ;; Setting the default general font
-     (set-face-attribute 'default nil
-                         :family "PragmataPro"
-                         :height 105
-                         )
+  ;; Setting the default general font
+  (set-face-attribute 'default nil
+                      :family "PragmataPro"
+                      :height 105
+                      )
+  (defvar qq/modeline-font-height 100)
+
 #+end_src
 
 **** Dash docsets path
@@ -762,7 +765,7 @@ required from *emacs*.
 
 **** Gerrit Identitiy
 #+BEGIN_SRC emacs-lisp
-     (defvar qq/gerrit-creds "fpribadi@gitgerrit-01.greenwavereality.eu")
+     (defvar qq/gerrit-creds "fikri.pribadi@softing.com")
 #+END_SRC
 
 **** LibClang path
@@ -894,17 +897,34 @@ required from *emacs*.
 #+BEGIN_SRC emacs-lisp
      ))
 #+END_SRC
-*** GwsEmb
+*** Z390 Manjaro
 
 #+BEGIN_SRC emacs-lisp
-      ((string-equal qq/system-name "fikri-OptiPlex-5040") ; Mac OS X
+      ((string-equal qq/system-name "z390-manjaro") ; Mac OS X
        (progn
-         (message "GWS Embbeded")
+         (message "Senja Manjaro")
 #+END_SRC
 
 **** Fonts
 
 #+begin_src emacs-lisp
+  (custom-theme-set-faces
+   'user
+
+   '(variable-pitch ((t (:family "Cabin"
+                                 :height 1.2))))
+   '(fixed-pitch ((t ( :family "PragmataPro"
+                       :slant normal
+                       :weight normal
+                       :height 1.1
+                       :width normal)))))
+
+  ;; Setting the default general font
+  (set-face-attribute 'default nil
+                      :family "PragmataPro"
+                      :height 138
+                      )
+  (defvar qq/modeline-font-height 140)
 #+end_src
 
 **** Ccls Executables
@@ -1013,7 +1033,7 @@ required from *emacs*.
    Emacs is in idle. So this is great for stuff you eventually want to load,
    but is not a high priority.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (dolist (feature
               '(
                 auto-compile          ; auto-compile .el files
@@ -1021,63 +1041,63 @@ required from *emacs*.
                 saveplace
                 ))
        (require feature))
-   #+END_SRC
+#+END_SRC
 
 *** Backups
 **** Set up some directories to keep backups and tell emacs to use it
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defvar autosave-dir
        (concat qq/cache-directory "backups/"))
      (defun auto-save-file-name-p (filename)
        (string-match "^#.*#$" (file-name-nondirectory filename)))
-   #+END_SRC
+#+END_SRC
 
 **** Set up file naming convention to use for backup files
    For more info refer [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Auto-Save-Files.html][here]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun make-auto-save-file-name ()
        (concat autosave-dir
                (if buffer-file-name
                    (concat "#" (file-name-nondirectory buffer-file-name) "#")
                  (expand-file-name
           (concat "#%" (buffer-name) "#")))))
-   #+END_SRC
+#+END_SRC
 
 **** Always copy files when backing up to avoid breaking symlinks:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq backup-by-copying t)
-   #+END_SRC
+#+END_SRC
 
 **** Delete old versions automatically, and keep a limited number around:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq delete-old-versions t
            kept-new-versions 2
            kept-old-versions 2
            vc-cvs-stay-local nil
-   #+END_SRC
+#+END_SRC
 
 **** Finally, use version numbers in the filenames:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            version-control t)
-   #+END_SRC
+#+END_SRC
 
 *** Custom variables
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defvar best-gc-cons-threshold (* 32 1024 1024) "Best default gc threshold value (5 MB). Shouldn't be too big.")
-   #+END_SRC
+#+END_SRC
 
 *** Emacs Garbage Collector
    Once startup complete decrease threshold to 5 MB
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
      (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 32 1024 1024))))
-   #+end_src
+#+end_src
 
 *** Trailing whitespace
    Ideally, I don’t want to leave trailing whitespace in files I touch, But sometimes,
@@ -1087,7 +1107,7 @@ required from *emacs*.
    So I created a simple mode to toggle a hook that enable/disable deleting trailing
    whitespace after every line when saving a file:
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
      (defvar qq/delete-trailing-whitespace t
        "Non-nil will enable deleting trailing whitespace during file save operation.")
 
@@ -1107,11 +1127,11 @@ required from *emacs*.
          (progn
            (setq qq/delete-trailing-whitespace t)
            (message "Trailing whitespace will be IGNORED on file save"))))
-   #+end_src
+#+end_src
 
 *** Setq
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq default-input-method "TeX"                   ; Use TeX when toggeling input method.
            doc-view-continuous t                        ; At page edge goto next/previous.
            global-mark-ring-max 128
@@ -1120,37 +1140,37 @@ required from *emacs*.
            sentence-end-double-space nil
            save-interprogram-paste-before-kill t
            history-delete-duplicates t
-   #+END_SRC
+#+END_SRC
 
 **** Startup behaviour
    Inhibit some of those annoying startup display.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            inhibit-splash-screen t
            inhibit-startup-echo-area-message t
            inhibit-startup-message t                    ; No splash screen please.
            initial-scratch-message nil                 ; Clean scratch buffer.
-   #+END_SRC
+#+END_SRC
 
 **** Auto split vertically
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            split-height-threshold 0
            split-width-threshold nil
-   #+END_SRC
+#+END_SRC
 
 **** Better scrolling
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            scroll-conservatively 9999
            scroll-preserve-screen-position t
-   #+END_SRC
+#+END_SRC
 
 **** Activate default value of =C= or =R= commands to another dired window.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            ;dired-dwim-target t
-   #+END_SRC
+#+END_SRC
 
 **** Echo commands quicker than the default 1 second
 
@@ -1203,12 +1223,12 @@ required from *emacs*.
 
 **** Better buffer names for duplicates
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            uniquify-buffer-name-style 'reverse
            uniquify-separator "|"
            uniquify-ignore-buffers-re "^\\*" ; leave special buffers alone
            uniquify-after-kill-buffer-p t
-   #+END_SRC
+#+END_SRC
 
 **** Understand the more common sentence
 By default, Emacs thinks a sentence is a full-stop followed by 2 spaces. Let’s make it full-stop and 1 space.
@@ -1228,24 +1248,24 @@ sentence-end-double-space nil
    file is readable before saving its buffer position - potentially very slow if
    you use NFS.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            save-place-forget-unreadable-files nil
-   #+END_SRC
+#+END_SRC
 
 **** Read Process Output
   Increase the amount of data which Emacs reads from the process. Again the
   emacs default is too low 4k considering that the some of the language server
   responses are in 800k - 3M range.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      read-process-output-max (* 1024 1024) ;; 1mb
-   #+END_SRC
+#+END_SRC
 
 **** Other Temporary files
    To avoid file system clutter we put all auto saved files in a single
    directory
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      abbrev-file-name
         (concat qq/cache-directory "abbrev_defs") ; cache for abbrev_defs
      save-place-file
@@ -1304,41 +1324,41 @@ sentence-end-double-space nil
         qq/cache-directory                        ; auto-save tramp files
 
      delete-auto-save-files t
-   #+END_SRC
+#+END_SRC
 
    #+RESULTS:
    : t
 
 **** Don't want to answer yes everytime
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            save-abbrevs 'silently
-   #+END_SRC
+#+END_SRC
 
 **** Don't display if there's no function to display
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            which-func-unknown ""
-   #+END_SRC
+#+END_SRC
 
 **** Interval between save in seconds
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            savehist-autosave-interval 60
-   #+END_SRC
+#+END_SRC
 
 **** Redisplay is bit too slow
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      jit-lock-defer-time 0
      fast-but-imprecise-scrolling t
-   #+END_SRC
+#+END_SRC
 
 **** Autosave bookmark on each change
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            bookmark-save-flag 1
-   #+END_SRC
+#+END_SRC
 
 **** Most UNIX tools work best when there’s a trailing newline on all files.
 
@@ -1348,9 +1368,9 @@ sentence-end-double-space nil
 
 **** Re-builder, nice interactive tool for building regular expressions
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
            reb-re-syntax 'string)                       ; fix backslash madness
-   #+END_SRC
+#+END_SRC
 
 *** Setq-Defaults
    Some variables are buffer-local, so changing them using =setq= will only
@@ -1359,64 +1379,64 @@ sentence-end-double-space nil
 
 **** Maximum line width.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq-default fill-column 99
-   #+END_SRC
+#+END_SRC
 
 **** Use spaces instead of tabs.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    indent-tabs-mode nil
-   #+END_SRC
+#+END_SRC
 
 **** Line Spacing (in pixels)
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    line-spacing nil
-   #+END_SRC
+#+END_SRC
 
 **** Default-tab
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    tab-width 4
-   #+END_SRC
+#+END_SRC
 
 **** Split verticaly by default.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    split-width-threshold 100
-   #+END_SRC
+#+END_SRC
 
 **** Savehist history length
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    history-length 1000
-   #+END_SRC
+#+END_SRC
 
 **** Proced
    Display all processes, not just my own processes
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    proced-filter 'all
-   #+END_SRC
+#+END_SRC
 
 **** Auto rescan buffer contents
    Automatically rescan the buffer contents so that new jump targets appear in
    the menu as they are added
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
                    imenu-auto-rescan t)
-   #+END_SRC
+#+END_SRC
 
 *** Remember cursor position
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (if (version< emacs-version "25.0")
          (progn
            (require 'saveplace)
            (setq-default save-place t))
        (save-place-mode 1))
-   #+END_SRC
+#+END_SRC
 
 *** Turn on auto-fill mode in text buffers
 
@@ -1477,21 +1497,21 @@ j*** Local =compile-command=
    Answering /yes/ and /no/ to each question from Emacs can be tedious, a
    single /y/ or /n/ will suffice.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (fset 'yes-or-no-p 'y-or-n-p)
-   #+END_SRC
+#+END_SRC
 
 *** Automatically revert =doc-view= buffers when the file changes on disk.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'doc-view-mode-hook 'auto-revert-mode)
-   #+END_SRC
+#+END_SRC
 
 *** Hook for find-file
    this will check for large file set it to read only,
    display trailing whitespace and enable visual-line-mode
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/find-file-check-large-file ()
        (when (> (buffer-size) (* 2048 2048))
          (setq buffer-read-only t)
@@ -1503,11 +1523,11 @@ j*** Local =compile-command=
                                  (qq/find-file-check-large-file)
                                  (visual-line-mode)
                                  (setq show-trailing-whitespace t)))
-   #+END_SRC
+#+END_SRC
 
 *** Leave scratch buffers alone
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/do-not-kill-scratch-buffer ()
        (if (member (buffer-name (current-buffer)) '("*scratch*" "*Messages*"))
            (progn
@@ -1515,12 +1535,12 @@ j*** Local =compile-command=
              nil)
          t))
      (add-hook 'kill-buffer-query-functions 'qq/do-not-kill-scratch-buffer)
-   #+END_SRC
+#+END_SRC
 
 *** UTF-8
    Set =utf-8= as preferred coding system.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (set-selection-coding-system 'utf-8)
      (prefer-coding-system 'utf-8)
      (set-language-environment "UTF-8")
@@ -1528,13 +1548,13 @@ j*** Local =compile-command=
      (set-terminal-coding-system 'utf-8)
      (set-keyboard-coding-system 'utf-8)
      (setq locale-coding-system 'utf-8)
-   #+END_SRC
+#+END_SRC
 
    Treat clipboard input as UTF-8 string first; compound text next, etc.
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (when (display-graphic-p)
        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-   #+END_SRC
+#+END_SRC
 
 *** Start emacs @fullscreen
    #+begin_src emacs-lisp
@@ -1552,15 +1572,15 @@ j*** Local =compile-command=
 *** Theme
    Change the color-theme to =moe-theme= (downloaded using =package=).
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (load-theme 'quickbeans t)
-   #+END_SRC
+#+END_SRC
 
 **** Theme customization
    Added/modify some color for some minor/major mode that I use
 
 ***** smartparens
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (custom-set-faces
          '(sp-show-pair-match-face ((t (
                          :inherit nil
@@ -1587,25 +1607,25 @@ j*** Local =compile-command=
                          :inherit nil
                          :foreground "#000000"
                          :background "#ff6347"))))
-   #+END_SRC
+#+END_SRC
 ***** which-func-mode
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
          '(which-func  ((t (:foreground "#87d7af"))))
      )
-   #+END_SRC
+#+END_SRC
 
 *** Transparency
    95% transparency is nice.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (set-frame-parameter (selected-frame) 'alpha '(95 . 95))
      (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
-   #+END_SRC
+#+END_SRC
 
 *** Modeline
    Using [[https://github.com/seagle0128/doom-modeline][doom-modeline]].
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'doom-modeline)
      (doom-modeline-def-modeline 'qq-simple-line
        '(bar modals workspace-name window-number buffer-position matches buffer-info remote-host minor-modes)
@@ -1615,20 +1635,20 @@ j*** Local =compile-command=
 
      (setq doom-modeline-minor-modes t
            doom-modeline-bar-width 4)
-     (set-face-attribute 'mode-line nil :height 100)
-     (set-face-attribute 'mode-line-inactive nil :height 100)
+     (set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+     (set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
      (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
      (doom-modeline-mode 1)
 
-   #+END_SRC
+#+END_SRC
 
 **** Minions Mode
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'minions)
      (minions-mode 1)
      (after minions-mode
        (setq minions-mode-line-lighter ""))
-   #+END_SRC
+#+END_SRC
 
 **** Filename display mode
    Determines the style used by `doom-modeline-buffer-file-name'.
@@ -1651,27 +1671,27 @@ j*** Local =compile-command=
    If you are expereicing the laggy issue, especially while editing remote files
    with tramp, please try `file-name' style.
    Please refer to https://github.com/bbatsov/projectile/issues/657.
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq doom-modeline-buffer-file-name-style 'buffer-name)
-   #+END_SRC
+#+END_SRC
 
 *** Highlight
    Enable highlighting similar word under the cursor (point)
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(setq idle-highlight-idle-time 0.3)
      ;(add-hook 'prog-mode-hook 'idle-highlight-mode)
-   #+END_SRC
+#+END_SRC
 
    Highlight current line mode
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (global-hl-line-mode)
-   #+END_SRC
+#+END_SRC
 
 *** Emoji font support
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun --set-emoji-font (frame)
        "Adjust the font settings of FRAME so Emacs can display emoji properly."
        (if (eq system-type 'darwin)
@@ -1685,23 +1705,23 @@ j*** Local =compile-command=
      ;; Hook for when a frame is created with emacsclient
      ;; see https://www.gnu.org/software/emacs/manual/html_node/elisp/Creating-Frames.html
      (add-hook 'after-make-frame-functions '--set-emoji-font)
-   #+END_SRC
+#+END_SRC
 
 *** Fix italics
    Make the italics show as actual italics. For some unknown reason, the below
    is needed to render the italics in org-mode. The issue could be related to
    the fonts in use. But having this doesn't hurt regardless.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (set-face-attribute 'italic nil :inherit nil :slant 'italic)
-   #+END_SRC
+#+END_SRC
 *** PragmataPro Ligatures
    Displaying sequences of characters as fancy characters or symbols
    for example, showing -> as →
 
    This only work for Pragmata Pro fonts, details [[https://www.reddit.com/r/emacs/comments/4sm6fa/how_to_enable_pragmatapro_ligatures/][here]].
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; PRETTIFY SYMBOLS (with Pragmata Pro)
      (defun setup-pragmata-ligatures ()
        (setq prettify-symbols-alist
@@ -1875,7 +1895,7 @@ j*** Local =compile-command=
              csv-mode-hook
              prog-mode-hook))
      (global-prettify-symbols-mode +1)
-   #+END_SRC
+#+END_SRC
 
 *** Frame Scaling / Zooming
   The keybindings for this are C+M+- and C+M+=.
@@ -1889,7 +1909,7 @@ j*** Local =compile-command=
    advice makes =eval-last-sexp= (bound to =C-x C-e=) replace the sexp with
    the value.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
    (defadvice eval-last-sexp (around replace-sexp (arg) activate)
      "Replace sexp when called with a prefix argument."
      (if arg
@@ -1899,27 +1919,27 @@ j*** Local =compile-command=
            (backward-kill-sexp)
            (forward-sexp))
        ad-do-it))
-   #+END_SRC
+#+END_SRC
 
    When interactively changing the theme (using =M-x load-theme=), the
    current custom theme is not disabled. This often gives weird-looking
    results; we can advice =load-theme= to always disable themes currently
    enabled themes.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defadvice load-theme
        (before disable-before-load (theme &optional no-confirm no-enable) activate)
        (mapc 'disable-theme custom-enabled-themes))
-   #+END_SRC
+#+END_SRC
 
 ** Windows layout
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(customize-set-variable 'display-buffer-base-action
      ;                        '((display-buffer-reuse-window display-buffer-same-window)
      ;                          (reusable-frames . t)))
 
      ;(customize-set-variable 'even-window-sizes nil)     ; avoid resizing
-   #+END_SRC
+#+END_SRC
 
 ** Modes
 *** Disabled Modes
@@ -1927,20 +1947,20 @@ j*** Local =compile-command=
    particularly useful. We create a list of these modes, and disable all of
    these.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
    (dolist (mode
             '(tool-bar-mode       ; No toolbars, more room for text.
               scroll-bar-mode     ; No scroll bars either.
               menu-bar-mode       ; same for menu bar
               blink-cursor-mode)) ; The blinking cursor gets old.
      (funcall mode 0))
-   #+END_SRC
+#+END_SRC
 
 *** Enabled Modes
    Let's apply the same technique for enabling modes that are disabled by
    default.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
           (dolist (mode
                    '(abbrev-mode                ; E.g. sopl -> System.out.println.
                      column-number-mode         ; Show column number in mode line.
@@ -1970,15 +1990,15 @@ j*** Local =compile-command=
      ;;     (eval-after-load 'auto-compile
      ;;       '((auto-compile-on-save-mode)))   ; compile .el files on save.
 
-   #+END_SRC
+#+END_SRC
 
 *** =hungry-delete-mode=
    Makes =backspace= and =C-d= erase /all/ consecutive white space in a given
    direction (instead of just one). Use it everywhere.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (global-hungry-delete-mode)
-   #+END_SRC
+#+END_SRC
 
 *** Recentf
    Plenty editors (e.g. Vim) have the feature of saving minibuffer
@@ -1987,16 +2007,16 @@ j*** Local =compile-command=
    Enabling Recentf mode, the file open includes a submenu containing a list
    of recently opened files.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (savehist-mode +1)
      (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
      (recentf-mode +1)
-   #+END_SRC
+#+END_SRC
 
    After evaluating the following code the directories visited through dired
    buffers will also be put to recentf
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (after 'recentf
      '(progn
      (defun recentf-track-opened-file ()
@@ -2015,16 +2035,16 @@ j*** Local =compile-command=
               (recentf-remove-if-non-kept buff-name))))
 
      (add-hook 'dired-after-readin-hook 'recentf-track-opened-file)))
-   #+END_SRC
+#+END_SRC
 
 *** Column mode editing
    Provide ways to ways to insert sequence of numbers easily.
    One reason I enable this mode.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq cua-enable-cua-keys nil)
      (cua-mode)
-   #+END_SRC
+#+END_SRC
 
 *** If you change buffer, or focus, disable the current buffer's mark:
 
@@ -2035,7 +2055,7 @@ j*** Local =compile-command=
 *** Fringe
    Set fringe width on each side to 12 and add few indications
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (fringe-mode 8)
 
      ; Indicate where a buffer stars and stops
@@ -2059,52 +2079,52 @@ j*** Local =compile-command=
         `(fringe ((t (:background ,qq/fringe-background-color))))))
 
      (add-hook 'after-init-hook #'qq/set-fringe-background)
-   #+END_SRC
+#+END_SRC
 
 *** =ediff=
 [[https://www.gnu.org/software/emacs/manual/html_mono/ediff.html][   ediff]] is a full-featured visual diff and merge tool, built into Emacs.
    Make sure that the window split is always side-by-side:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (csetq ediff-split-window-function 'split-window-horizontally)
-   #+END_SRC
+#+END_SRC
 
    Ignore whitespace changes:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     ; (setq ediff-diff-options "-w")
-   #+END_SRC
+#+END_SRC
 
    Only ever use one set of windows in one frame:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
-   #+END_SRC
+#+END_SRC
 **** Restoring the windows after =Ediff= quits
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (winner-mode)
      (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
-   #+END_SRC
+#+END_SRC
 *** =tramp=
    [[https://www.emacswiki.org/emacs/TrampMode][=tramp=]] lets you edit files remotely from your local Emacs which is useful
    because it lets you have all the default configuration. Let’s make sure the
    default protocol is =ssh=.
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq tramp-default-method "sshx"
            enable-remote-dir-locals t)
-   #+END_SRC
+#+END_SRC
 **** Backup remote files locally to stop autosave pain
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq tramp-backup-directory (concat qq/cache-directory "backups"))
      (unless (file-directory-p tramp-backup-directory)
        (make-directory tramp-backup-directory))
      (if (file-accessible-directory-p tramp-backup-directory)
          (setq tramp-auto-save-directory tramp-backup-directory)
        (error "Cannot write to ~/.emacs-backup"))
-   #+END_SRC
+#+END_SRC
 **** Tramp remote sudo
 Don't backup su and sudo files
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq backup-enable-predicate
            (lambda (name)
              (and (normal-backup-enable-predicate name)
@@ -2112,11 +2132,11 @@ Don't backup su and sudo files
                    (let ((method (file-remote-p name 'method)))
                      (when (stringp method)
                        (member method '("su" "sudo"))))))))
-   #+END_SRC
+#+END_SRC
 *** Ibuffer customization
 **** Use human readable size column (from [[http://www.emacswiki.org/emacs/IbufferMode#toc12][coldnew]])
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (define-ibuffer-column size-h
        (:name "Size")
        (cond
@@ -2130,27 +2150,27 @@ Don't backup su and sudo files
                               " " (vc-status 16 16 :left)
                               " " filename-and-process)
                         (mark " " (name 16 -1) " " filename)))
-   #+END_SRC
+#+END_SRC
 
 **** Settings
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq
       ibuffer-default-sorting-mode 'filename/process
       ibuffer-eliding-string "…"
       ibuffer-expert t
       ibuffer-compile-formats t
       ibuffer-show-empty-filter-groups nil)
-   #+END_SRC
+#+END_SRC
 **** Evil initial state
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (after 'evil (evil-set-initial-state 'ibuffer-mode 'normal))
-   #+END_SRC
+#+END_SRC
 
 **** 'Default' Filter groups
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq ibuffer-saved-filter-groups
                (quote (("default"
                         ("c++" (mode . c++-mode))
@@ -2192,11 +2212,11 @@ Don't backup su and sudo files
                                  (mode . help-mode)
                                  (mode . Man-mode)))
                         ("*buffer*" (name . "\\*.*\\*"))))))
-   #+END_SRC
+#+END_SRC
 
 **** Choose between two filter group options
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defvar qq/ibuffer-use-vc-groups t
        "Use filter groups detected from vc root when non-nil.
                 This will be done with `ibuffer-vc-set-filter-groups-by-vc-root'
@@ -2217,7 +2237,7 @@ Don't backup su and sudo files
          (ibuffer-switch-to-saved-filter-groups "default")))
 
      (add-hook 'ibuffer-mode-hook 'qq/ibuffer-setup)
-   #+END_SRC
+#+END_SRC
 
 **** Keybinding
     :PROPERTIES:
@@ -2245,7 +2265,7 @@ Don't backup su and sudo files
 *** Minibuffer
 **** Enable paredit in lisp related minibuffer
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 ;      (defvar paredit-minibuffer-commands '(eval-expression
 ;                                           pp-eval-expression
 ;                                           eval-expression-with-eldoc
@@ -2257,13 +2277,13 @@ Don't backup su and sudo files
 ;       "Enable paredit during lisp-related minibuffer commands."
 ;       (if (memq this-command paredit-minibuffer-commands)
 ;           (paredit-mode flag)))
-   #+end_src
+#+end_src
 
 **** Proper gc threshold when minibuffer active. Lower it after minibuffer exit
 
    [[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/]]
 
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
      (defun qq/minibuffer-setup-hook ()
        ;; Use paredit in the minibuffer
        ;(conditionally-paredit-mode 1)
@@ -2278,100 +2298,100 @@ Don't backup su and sudo files
 
      (add-hook 'minibuffer-setup-hook #'qq/minibuffer-setup-hook)
      (add-hook 'minibuffer-exit-hook #'qq/minibuffer-exit-hook)
-   #+end_src
+#+end_src
 
 **** file-name-shadow-properties
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
      (setq file-name-shadow-properties
            '(invisible t))
-   #+end_src
+#+end_src
 
 *** =conf-mode=
    Use conf-mode for .gitignore files
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-to-list 'auto-mode-alist '("\\.gitignore\\'" . conf-mode))
-   #+END_SRC
+#+END_SRC
 
 Use conf-mode for git config files
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-to-list 'auto-mode-alist
                   '("\\.gitconfig\\'" . conf-mode))
      (add-to-list 'auto-mode-alist
                   (cons (concat (regexp-quote (f-join ".git" "config")) "\\'")
                         'conf-mode))
-   #+END_SRC
+#+END_SRC
 *** PDF-Tools
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (pdf-loader-install)
-   #+END_SRC
+#+END_SRC
 
 *** WoMan
 **** Use most of the window width
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq woman-fill-frame t)
      (setq woman-use-topic-at-point t)
      (setq woman-use-topic-at-point-default t)
-   #+END_SRC
+#+END_SRC
 
 *** Whitespace-mode
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq whitespace-style (quote
                              (face spaces trailing tabs newline space-mark tab-mark newline-mark)))
-   #+END_SRC
+#+END_SRC
 
 *** Display Line Numbers
    Add a toggle function for toggling relative line number
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/toggle-line-numbers ()
        "Toggle Evil search mode between symbol search or word search"
        (interactive)
        (setq display-line-numbers (if (eq display-line-numbers 'relative) 'default 'relative)))
-   #+END_SRC
+#+END_SRC
 
 *** GUD
 **** Use gdb-many-windows by default
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq gdb-many-windows t
            gdb-show-main t)
-   #+END_SRC
+#+END_SRC
 
 **** Turn on tooltip-mode
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/gud-hooks ()
        (gud-tooltip-mode 1))
 
      (add-hook 'gud-mode-hook 'qq/gud-hooks)
-   #+END_SRC
+#+END_SRC
 
 *** Undo Tree
 **** Settings
 
-   #+BEGIN_SRC emacs-lisp
-     (autoload 'undo-tree-save-history-hook "undo-tree.el" nil t)
-     (autoload 'undo-tree-load-history-hook "undo-tree.el" nil t)
-     (setq
-           undo-tree-visualizer-timestamps t            ; show timestamps
-           undo-tree-visualizer-diff t                  ; show diff
-           undo-tree-auto-save-history t)               ; Save undo history between sessions.
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp
+     ;; (autoload 'undo-tree-save-history-hook "undo-tree.el" nil t)
+     ;; (autoload 'undo-tree-load-history-hook "undo-tree.el" nil t)
+     ;; (setq
+     ;;       undo-tree-visualizer-timestamps t            ; show timestamps
+     ;;       undo-tree-visualizer-diff t                  ; show diff
+     ;;       undo-tree-auto-save-history t)               ; Save undo history between sessions.
+#+END_SRC
 
 **** Evil visual line wrapping breaks undo-tree keybindings
 
-   #+BEGIN_SRC emacs-lisp
-     (add-hook 'undo-tree-visualizer-mode-hook
-               (lambda ()
-                 (set (make-local-variable 'input-method-function) nil)
-                 (set (make-variable-buffer-local 'global-hl-line-mode) nil)
-                 (visual-line-mode -1)))
+#+BEGIN_SRC emacs-lisp
+  ;; (add-hook 'undo-tree-visualizer-mode-hook
+  ;;           (lambda ()
+  ;;             (set (make-local-variable 'input-method-function) nil)
+  ;;             (set (make-variable-buffer-local 'global-hl-line-mode) nil)
+  ;;             (visual-line-mode -1)))
 
-     (after 'evil
-         (evil-set-initial-state 'undo-tree-visualizer-mode 'emacs))
-   #+END_SRC
+  ;; (after 'evil
+  ;;     (evil-set-initial-state 'undo-tree-visualizer-mode 'emacs))
+#+END_SRC
 
 **** Keybinding
     :PROPERTIES:
@@ -2390,27 +2410,27 @@ Use conf-mode for git config files
 ***** Links: [[Undo-tree Bindings][Undo-tree Bindings]]                              :ignore:
 **** Persistent undo-tree history across emacs sessions
 
-   #+BEGIN_SRC emacs-lisp
-     (setq qq/undo-tree-history-dir (let ((dir (concat qq/cache-directory
-                                                         "undo-tree-history/")))
-                                        (make-directory dir :parents)
-                                        dir))
-     (setq undo-tree-history-directory-alist `((".*" . ,qq/undo-tree-history-dir)))
+#+BEGIN_SRC emacs-lisp
+     ;; (setq qq/undo-tree-history-dir (let ((dir (concat qq/cache-directory
+     ;;                                                     "undo-tree-history/")))
+     ;;                                    (make-directory dir :parents)
+     ;;                                    dir))
+     ;; (setq undo-tree-history-directory-alist `((".*" . ,qq/undo-tree-history-dir)))
 
-     (add-hook 'write-file-functions #'undo-tree-save-history-hook)
-     (add-hook 'find-file-hook #'undo-tree-load-history-hook)
-   #+END_SRC
+     ;; (add-hook 'write-file-functions #'undo-tree-save-history-hook)
+     ;; (add-hook 'find-file-hook #'undo-tree-load-history-hook)
+#+END_SRC
 **** Enable undo-tree
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; (global-undo-tree-mode 1)
-   #+END_SRC
+#+END_SRC
 
 *** =which-function-mode=
    This mode will show current function name. the code below will show it in HeaderLine
    (cause problem with evil-scroll-down)
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (which-function-mode)
 
      ;(setq mode-line-format (delete (assoc 'which-func-mode
@@ -2421,7 +2441,7 @@ Use conf-mode for git config files
      ;    (setq mode-line-format (delete (assoc 'which-func-mode
      ;                                          mode-line-format) mode-line-format)
      ;          header-line-format which-func-header-line-format)))
-   #+END_SRC
+#+END_SRC
 
 ** Keybindings
     Unbind some unused global-key
@@ -3102,40 +3122,40 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 ** Tree-Sitter
 #+begin_src emacs-lisp
 
-     (add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
-     (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-     (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-     (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
-     (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
-     (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  (add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 
-     (custom-set-variables '(c-ts-mode-indent-offset 4))
+  (custom-set-variables '(c-ts-mode-indent-offset 4))
 
-     (setq treesit-language-source-alist
-           '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-             (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-             (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-             (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-             (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-             (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-             (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-             (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-             (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-             (make . ("https://github.com/alemuller/tree-sitter-make"))
-             (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-             (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-             (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-             (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-             (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-             (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-             (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-             (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-             (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
-     (require 'treesit)
-     (setq treesit-font-lock-level 4)
-                                             ;(require 'treesit-auto)
-                                             ;(global-treesit-auto-mode)
-                                             ;(setq treesit-auto-install 'prompt)
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (make . ("https://github.com/alemuller/tree-sitter-make"))
+          (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
+  (require 'treesit)
+  (setq treesit-font-lock-level 4)
+  (require 'treesit-auto)
+  (global-treesit-auto-mode)
+  (setq treesit-auto-install 'prompt)
 #+end_src
 
 ** Mode-line-bell
@@ -4392,7 +4412,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 ** Lsp-mode
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/lsp-deferred-if-supported ()
        "Runlsp-deferred' if it's a supported mode."
        (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
@@ -4405,26 +4425,26 @@ Git-gutter doesn’t play nice with TRAMP remotes
        (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
        (require 'dap-cpptools)
        (yas-global-mode))
-   #+END_SRC
+#+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
   session, for example. It can cause a great performance hit.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
     (setq lsp-log-io nil) ; if set to true can cause a performance hit
-   #+END_SRC
+#+END_SRC
 
 *** Ccls
    A C/C++/Objective-C language server supporting multi-million line C++ code-bases, powered by libclang.
    [[https://github.com/MaskRay/emacs-ccls][emacs-ccls]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(require 'ccls)
      ;(setq ccls-executable qq/ccls-binary)
-   #+END_SRC
+#+END_SRC
 
 *** Clangd
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq lsp-clients-clangd-executable qq/clangd-binary)
 
      (setq lsp-clients-clangd-args '(
@@ -4460,10 +4480,10 @@ Git-gutter doesn’t play nice with TRAMP remotes
                                      ;; Number of async workers used by clangd. Background index also uses this many workers.
                                      "-j=3"
                                      ))
-   #+END_SRC
+#+END_SRC
 
 *** Lsp-UI
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq lsp-ui-doc-enable t
            lsp-ui-doc-position 'at-point
            lsp-ui-doc-max-height 70
@@ -4497,7 +4517,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (add-hook 'lsp-ui-mode-hook
                (bind
                 (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
-   #+END_SRC
+#+END_SRC
 
 *** =lsp-ui-peek= Binding
     :PROPERTIES:
@@ -4550,7 +4570,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
 
 *** Settings
 **** Enable =org-mode=
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'org)
      (require 'org-eldoc)
      (require 'org-indent)
@@ -4561,13 +4581,13 @@ Git-gutter doesn’t play nice with TRAMP remotes
      (require 'ox-extra)
      (ox-extras-activate '(ignore-headlines))
      (add-to-list 'org-src-lang-modes '("napkin-puml" . plantuml))
-   #+END_SRC
+#+END_SRC
 
 **** =setq=
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq
-   #+END_SRC
+#+END_SRC
 
 ***** Default directory
    Org mode operates from a directory. You need a directory to store all your
@@ -4575,9 +4595,9 @@ Git-gutter doesn’t play nice with TRAMP remotes
    it is useful to set this location to help in capturing and archiving org files
    effectively.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-directory qq/org-folder
-   #+END_SRC
+#+END_SRC
 ***** Elipsis appearance
 my collection of org-ellipsis candidate symbols
 
@@ -4603,73 +4623,73 @@ my collection of org-ellipsis candidate symbols
 
     …, ▼, ↴, , ∞, ⬎, ⤷, ⤵
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-ellipsis "»"
      org-columns-ellipses "…"
-   #+END_SRC
+#+END_SRC
 
 ***** Press =RET= follow links
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-return-follows-link t
-   #+END_SRC
+#+END_SRC
 ***** refile-target
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-refile-targets '((nil :maxlevel . 9)
                           (org-agenda-files :maxlevel . 9))
-   #+END_SRC
+#+END_SRC
 ***** Markup
    Org mode has its own [[https://orgmode.org/manual/Markup.html][markup syntax]] but seeing the [[https://orgmode.org/manual/Emphasis-and-monospace.html#Emphasis-and-monospace][emphasis markers]] is distracting. I prefer to hide it.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-hide-emphasis-markers t
-   #+END_SRC
+#+END_SRC
 ***** Minimal outline
    Remove all the "*" but the last one for [[https://orgmode.org/org.html#Headlines][headline]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;org-superstar-remove-leading-stars t
      org-hide-leading-stars t
      ;org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")
-   #+END_SRC
+#+END_SRC
 ***** Image
    The GUI Emacs has the ability to display images. But if the image is pretty
    large, it displays the whole thing. Let’s restrict it from doing that.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-image-actual-width '(500)
-   #+END_SRC
+#+END_SRC
 
    set inline image to auto display
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-startup-with-inline-images t
-   #+END_SRC
+#+END_SRC
 
 ***** Editing code block
      Pressing =E= will cause a new popup window and hide current window layout.
      Reuse current window instead of popup a new one
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-src-window-setup 'current-window
-   #+END_SRC
+#+END_SRC
 ***** Native font-lock
    When editing org-files with source-blocks, we want the source blocks to
    be themed as they would in their native mode.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-src-fontify-natively t
      org-edit-src-content-indentation 2
-   #+END_SRC
+#+END_SRC
 
 ***** Default note file
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-default-notes-file "organizer.org"
-   #+END_SRC
+#+END_SRC
 ***** Capture templates
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-capture-templates
      '(("t" "Todo" entry (file+headline qq/inbox-org-file "TODO")
         "* TODO %?\n%U\n%a\n")
@@ -4679,29 +4699,29 @@ my collection of org-ellipsis candidate symbols
         "* MEETING %? :MEETING:\n%U")
        ("j" "Journal" entry (file+datetree (concat org-directory "/journal.org"))
         "* %?\n%U\n"))
-   #+END_SRC
+#+END_SRC
 
 ***** Indentation
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-startup-indented t
      org-indent-indentation-per-level 3
      org-src-tab-acts-natively t
-   #+END_SRC
+#+END_SRC
 
 ***** Enable logging when tasks are complete.
    This puts a time-stamp on the completed task. Since I usually am doing quite
    a few things at once, I added the INPROGRESS keyword and made the color blue.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-log-done t
      org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
      org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold)))
-   #+END_SRC
+#+END_SRC
 
 ***** Allow changing between todo stats directly by hotkey
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-use-fast-todo-selection t
      org-treat-S-cursor-todo-selection-as-state-change nil
      org-todo-keywords
@@ -4714,13 +4734,13 @@ my collection of org-ellipsis candidate symbols
         ("TODO" ("WAITING") ("CANCELLED"))
         ("NEXT" ("WAITING") ("CANCELLED"))
         ("DONE" ("WAITING") ("CANCELLED")))
-   #+END_SRC
+#+END_SRC
 
 ***** org-agenda
    The [[https://orgmode.org/manual/Agenda-Views.html][agenda view]] is an amazing way to search your org files for tags, TODOs,
    keywords, and even view deadlines. It requires that org files be added to it.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-agenda-files (list
                        (concat qq/org-folder "blog.org")
                        (concat qq/org-folder "errands.org")
@@ -4728,18 +4748,18 @@ my collection of org-ellipsis candidate symbols
                        (concat qq/org-folder "ledger.org")
                        (concat qq/org-folder "notes.org")
                        (concat qq/org-folder "fun.org"))
-   #+END_SRC
+#+END_SRC
 
    Then, a smaller part of org is the way it shows the [[https://orgmode.org/manual/Deadlines-and-scheduling.html][deadlines]] of all the
    TODOs and show them in a view that spans a fortnight. It can be set it
    weekly, monthly or daily too.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-deadline-warning-days 7
      org-agenda-span 'fortnight
      org-agenda-skip-scheduled-if-deadline-is-shown t
      org-agenda-show-log t
-   #+END_SRC
+#+END_SRC
 
 ***** Tagging
 
@@ -4747,7 +4767,7 @@ my collection of org-ellipsis candidate symbols
    and notes. You can select the tags with a single letter (the letter after “?”
    in the following code).
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      org-tag-alist (quote (("article"   . ?a) ;; temporary
                            ("books"     . ?b)
                            ("courses"   . ?c) ;; temporary
@@ -4774,7 +4794,7 @@ my collection of org-ellipsis candidate symbols
                            ("work"      . ?w)
                            ("noexport"  . ?x)
                            ("cash"      . ?$)))
-   #+END_SRC
+#+END_SRC
 ***** Capture
    Capture is an amazing tool. It was the final push to Org and I use it many
    times per day. First, we have to setup the capture templates. Templates is
@@ -4965,15 +4985,15 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
 **** Change =org-directory= location
    And ensure the folder exist.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq org-directory qq/org-folder)
      (unless (file-exists-p org-directory)
        (make-directory org-directory))
-   #+END_SRC
+#+END_SRC
 
 **** Font Settings
 ;; Increase the size of various headings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; (set-face-attribute 'org-document-title nil :font "Cantarell" :weight 'bold :height 1.6)
      ;; (dolist (face '((org-level-1 . 1.4)
      ;;                 (org-level-2 . 1.3)
@@ -4984,9 +5004,9 @@ Netflix?: %^{netflix? Yes/No}\nGenre: %^{genre}\nDescription:\n%?"  ; template
      ;;                 (org-level-7 . 1.15)
      ;;                 (org-level-8 . 1.15)))
      ;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
-   #+END_SRC
+#+END_SRC
 Ensure that anything that should be fixed-pitch in Org files appears that way
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
      ;; (set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
      ;; (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
@@ -4996,63 +5016,63 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      ;; (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
      ;; (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
      ;; (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-   #+END_SRC
+#+END_SRC
 **** Hooks
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'org-mode-hook (lambda ()
-   #+END_SRC
+#+END_SRC
 
 ***** Enable bulleted lists
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (org-bullets-mode 1)
-   #+END_SRC
+#+END_SRC
 ***** Enable =writegood-mode=
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (writegood-mode)
-   #+END_SRC
+#+END_SRC
 
 ***** Enable =org-abbrev=
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (abbrev-mode 1)
-   #+END_SRC
+#+END_SRC
 
 ***** Enable =org-modern-indent-mode=
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (org-modern-indent-mode 90)
-   #+END_SRC
+#+END_SRC
 
 ***** Enable flyspell and rainbow-mode
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (when (or (executable-find "aspell")
                (executable-find "ispell")
                (executable-find "hunspell"))
        (flyspell-mode))
      (rainbow-mode)
-   #+END_SRC
+#+END_SRC
 ***** End of hook
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ))
-   #+END_SRC
+#+END_SRC
 
 ***** Evil integration
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (after 'evil
          (add-hook 'org-capture-mode-hook 'evil-insert-state))
-   #+END_SRC
+#+END_SRC
 
 **** Block Templates
   These templates enable you to type things like <el and then hit Tab to expand
   the template. More documentation can be found at the Org Mode Easy Templates
   documentation page.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; This is needed as of Org 9.2
      (require 'org-tempo)
 
@@ -5063,13 +5083,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (add-to-list 'org-structure-template-alist '("py" . "src python"))
      (add-to-list 'org-structure-template-alist '("yaml" . "src yaml"))
      (add-to-list 'org-structure-template-alist '("json" . "src json"))
-   #+END_SRC
+#+END_SRC
 
 **** Enable =markdown= export
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (require 'ox-md nil t)
-   #+END_SRC
+#+END_SRC
 
 *** org-habit
    I have several habits that I also track. In order to take full advantage of
@@ -5079,7 +5099,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    specifies where the graph should start. The default is too low and cuts off a
    lot, so I start it at 80 characters.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'org)
      (require 'org-habit)
      (add-to-list 'org-modules "org-habit")
@@ -5088,11 +5108,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
            org-habit-graph-column 80
            org-habit-show-habits-only-for-today t
            org-habit-show-all-today t)
-   #+END_SRC
+#+END_SRC
 
 *** org-roam
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'org-roam)
      (setq org-roam-db-location (concat qq/cache-directory "org-roam.db")
            org-roam-completion-everywhere t
@@ -5104,18 +5124,18 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (require 'org-roam-dailies)
      (org-roam-db-autosync-mode)
      (org-roam-setup)
-   #+END_SRC
+#+END_SRC
 
 **** Fast note insertion for a smoother writing flow
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
  (defun org-roam-node-insert-immediate (arg &rest args)
   (interactive "P")
   (let ((args (cons arg args))
         (org-roam-capture-templates (list (append (car org-roam-capture-templates)
                                                   '(:immediate-finish t)))))
     (apply #'org-roam-node-insert args)))
-   #+END_SRC
+#+END_SRC
 
 *** org-babel
    org-babel is a feature inside of org-mode that makes this document possible.
@@ -5123,13 +5143,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    proper font-locking. It also allows you to extract and execute code. It isn't
    aware of Clojure by default, so the following sets that up.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'ob)
-   #+END_SRC
+#+END_SRC
 
 **** Default languages accepted
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (org-babel-do-load-languages
       'org-babel-load-languages
       '((shell      . t)
@@ -5144,53 +5164,53 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
         (css        . t)
         (C          . t)
         (plantuml   . t)))
-   #+END_SRC
+#+END_SRC
 
 **** Graphviz support
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-to-list 'org-src-lang-modes (quote ("dot". graphviz-dot)))
-   #+END_SRC
+#+END_SRC
 
 **** PlantUML support
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
      (setq org-plantuml-jar-path
              (concat user-emacs-directory "extern/org/plantuml.jar"))
-   #+END_SRC
+#+END_SRC
 
 **** ditaa support
    There's no substitute for real drawings, but it's nice to be able to sketch
    things out and produce a picture right from org-mode. This sets up ditaa for
    execution from inside a babel block.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq org-ditaa-jar-path
            (concat user-emacs-directory "extern/org/ditaa0_9.jar"))
-   #+END_SRC
+#+END_SRC
 
 **** Just Evaluate It
    I'm normally fine with having my code automatically evaluated.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq org-confirm-babel-evaluate nil)
-   #+END_SRC
+#+END_SRC
 
 **** Display inline image after execution
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'org-babel-after-execute-hook (lambda ()
                                                (condition-case nil
                                                    (org-display-inline-images)
                                                  (error nil)))
                'append)
-   #+END_SRC
+#+END_SRC
 
 *** org-abbrev
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (define-skeleton skel-org-block-elisp
        "Insert an emacs-lisp block"
        ""
@@ -5226,11 +5246,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        "#+HTML: <strong><i>"str"</i></strong>")
 
      (define-abbrev org-mode-abbrev-table "fname" "" 'skel-org-html-file-name)
-   #+END_SRC
+#+END_SRC
 
 *** org-modern
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; Add frame borders and window dividers
                                              ;(modify-all-frames-parameters
                                              ; '((right-divider-width . 40)
@@ -5510,7 +5530,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    [[https://github.com/bbatsov/projectile]]
 
 *** Settings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (projectile-global-mode)
      (setq projectile-tags-command "gtags")
      (setq projectile-enable-caching t)
@@ -5527,7 +5547,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      (add-to-list 'projectile-globally-ignored-files ".gitignore")
      (add-to-list 'projectile-globally-ignored-files ".gitattributes")
      (add-to-list 'projectile-globally-ignored-directories ".cquery_cached_index")
-   #+END_SRC
+#+END_SRC
 
 *** Keybinding
     :PROPERTIES:
@@ -5642,21 +5662,21 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    Launch shell/term within emacs
 
 *** Add color to shell & eshell
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
      (add-hook 'eshell-preoutput-filter-functions
                'ansi-color-filter-apply)
-   #+END_SRC
+#+END_SRC
 
 *** Highlight some text based on regexp (useful to see "OK" or warnings):
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(add-hook 'shell-mode-hook (lambda () (highlight-regexp "\\[OK\\]" "hi-green-b")))
-   #+END_SRC
+#+END_SRC
 
 *** Make URLs clickable
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'shell-mode-hook (lambda () (goto-address-mode )))
-   #+END_SRC
+#+END_SRC
 
 *** Make file paths clickable
    Every line representing a path to a file will be colorized and made
@@ -5664,35 +5684,35 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    compilation-mode (specially useful when compiling a program or running
    tests):
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
-   #+END_SRC
+#+END_SRC
 
 *** Shell completion with a nice menu à la zsh
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'shell-mode-hook #'company-mode)
      (define-key shell-mode-map (kbd "TAB") #'company-manual-begin)
-   #+END_SRC
+#+END_SRC
 
 *** Change directory with =ido= and =fasd=
    In shell-mode, use ido-completion to cd to any directory already visited
    once. Choices are based on frequency and recency. We use the fasd command
    line utility: [[https://github.com/clvv/fasd]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'fasd-shell)
      (add-hook 'shell-mode-hook 'fasd-shell-mode)
-   #+END_SRC
+#+END_SRC
 
 *** Find files with fasd
    An Emacs extension to integrate Fasd.
 
    [[https://framagit.org/steckerhalter/emacs-fasd][https://framagit.org/steckerhalter/emacs-fasd]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (global-fasd-mode 1)
      (setq fasd-enable-initial-prompt nil)  ;; don't ask for first query but fire fuzzy completion straight away.
-   #+END_SRC
+#+END_SRC
 
 **** Evil Keybinding
     :PROPERTIES:
@@ -5704,12 +5724,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
       | f d               | Find file using fasd | 'fasd-find-file |
 ***** Links: [[Normal FASD Bindings][Normal FASD Bindings]]                               :ignore:
 *** Shared and persistent history
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'shell-mode-hook 'my-shell-mode-hook)
      (defun my-shell-mode-hook ()
        (setq comint-input-ring-file-name "~/.bash_history")  ;; or bash_history
        (comint-read-input-ring t))
-   #+END_SRC
+#+END_SRC
 
 *** shell-here
    Open a shell buffer in (or relative to) default-directory, e.g. whatever
@@ -5719,9 +5739,9 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
    [[https://github.com/ieure/shell-here]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (define-key (current-global-map) "\C-c!" 'shell-here)
-   #+END_SRC
+#+END_SRC
 
 *** ansi-term
    =ansi-term= is a terminal emulator written in Emacs Lisp. It’s more like a
@@ -5729,14 +5749,14 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
 **** Force ansi-term to be UTF-8 after it launches
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defadvice ansi-term (after bw/advise-ansi-term-coding-system activate)
        (set-process-coding-system 'utf-8-unix 'utf-8-unix))
-   #+END_SRC
+#+END_SRC
 
 **** When exiting a terminal buffer (either with exit or EOF), automatically kill the buffer
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defadvice term-sentinel (around bw/advice-term-sentinel (proc msg) activate)
        (if (memq (process-status proc) '(signal exit))
            (let ((buffer (process-buffer proc)))
@@ -5744,7 +5764,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
              (kill-buffer buffer))
          ad-do-it))
      (ad-activate 'term-sentinel)
-   #+END_SRC
+#+END_SRC
 **** Stop asking which shell program to use
 
    #+begin_src emacs-lisp
@@ -5833,12 +5853,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 *** Serial terminal
 **** For serial port, default to 115200 b/s instead of 9600
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq serial-speed-history
            '("115200" ;; Given twice because 115200 b/s is the most common speed
              "1200" "2400" "4800" "9600" "14400" "19200"
              "28800" "38400" "57600" "115200"))
-   #+END_SRC
+#+END_SRC
 
 **** Calling function
    =eterm-color= is the TERM used by Emacs when using =M-x term RET=
@@ -5846,7 +5866,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    On Debian-based systems you administer, you can =apt-get install
    ncurses-term=, which includes /usr/share/terminfo/e/eterm-color.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/serial-term-1 ()
        (interactive)
        (serial-term qq/serial-port1 115200)
@@ -5857,25 +5877,25 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        (serial-term "/dev/ttyUSB1" 115200)
        (term-send-string (get-buffer-process (current-buffer))
                          "export TERM=eterm-color\nclear\n"))
-   #+END_SRC
+#+END_SRC
 
 **** Toggle u-boot auto stop
    Usefull if there are more than one serial terminal open. From [[https://www.fitzsim.org/blog/?p=44][here]].
 
    First, a variable to to keep track of whether the mode is enabled or not.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;; Detect U-Boot autoboot prompt and stop it.
      (defvar u-boot-stop-autoboot-mode nil
        "Non-nil if term-mode should prevent U-Boot from autobooting.
      Use the function u-boot-toggle-stop-autoboot-mode to toggle.")
-   #+END_SRC
+#+END_SRC
 
    Then the advice itself. It jacks into the term-emulate-terminal process
    filter to detect the U-Boot autoboot prompt, then sends a newline in
    response.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defadvice term-emulate-terminal
        (before u-boot-maybe-stop-autoboot activate disable)
        (with-current-buffer (process-buffer proc)
@@ -5883,11 +5903,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
            (message "U-Boot autoboot stopped in buffer %s"
                     (buffer-name (current-buffer)))
            (term-send-raw-string "\n"))))
-   #+END_SRC
+#+END_SRC
 
    And finally a function to toggle the advice on and off.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun u-boot-toggle-stop-autoboot-mode ()
        "Toggle whether or not term-mode should interrupt U-Boot autoboot."
        (interactive)
@@ -5904,12 +5924,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
            (ad-activate 'term-emulate-terminal)
            (setq u-boot-stop-autoboot-mode t)
            (message "U-Boot autoboot will be interrupted"))))
-   #+END_SRC
+#+END_SRC
 
 **** Hook to update window size
    Pre-condition is to be in a serial term process buffer
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/serial-term-update-window-size ()
        "Change process window size."
        (interactive)
@@ -5936,14 +5956,14 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
        ;; in case of error one can try to use stty:
        ;; sudo stty -F/dev/ttyS0 cols 180
        )
-   #+END_SRC
+#+END_SRC
 
    Add this hook as buffer local, so it runs once per window as opposed to
    once per frame
 
    -- [[http://stackoverflow.com/a/11255996/951426]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/serial-term-mode-hook ()
        (when (and (derived-mode-p 'term-mode)
                   (eq (process-type nil) 'serial))
@@ -5951,24 +5971,24 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
                    'qq/serial-term-update-window-size nil t)))
 
      (add-hook 'shell-mode-hook 'qq/serial-term-mode-hook)
-   #+END_SRC
+#+END_SRC
 
 **** Remap =ESC= key
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'term-mode-hook
                (lambda ()
                  (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode)
                  (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
-   #+END_SRC
+#+END_SRC
 
 ** VTerm
 *** Settings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (autoload 'multi-vterm "multi-vterm.el" nil t)
      (setq vterm-kill-buffer-on-exit t
            vterm-max-scrollback 50000)
-   #+END_SRC
+#+END_SRC
 
 *** Evil Binding
     :PROPERTIES:
@@ -5991,10 +6011,10 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    Add highlight column guides on indentation
 
 *** Settings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (custom-set-variables
       '(highlight-indent-guides-method 'bitmap))
-   #+END_SRC
+#+END_SRC
 
 ** Which key
    Show keybindings.
@@ -6002,7 +6022,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    [[https://github.com/justbur/emacs-which-key]]
 
 *** Init
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'which-key)
      (which-key-mode)
      ;(which-key-setup-side-window-right-bottom)
@@ -6025,35 +6045,35 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
      ;just so you can read your hyrda function titles in C-m m
      ;(setq-default which-key-show-docstrings nil)
      (setq-default which-key-max-description-length 50)
-   #+END_SRC
+#+END_SRC
 
    location of which-key window. valid values: top, bottom, left, right,
    or a list of any of the two. If it's a list, which-key will always try
    the first location first. It will go to the second location if there is
    not enough room to display any keys in the first location
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(setq which-key-side-window-location 'bottom)
-   #+END_SRC
+#+END_SRC
 
    max width of which-key window, when displayed at left or right.
    valid values: number of columns (integer), or percentage out of current
    frame's width (float larger than 0 and smaller than 1)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(setq which-key-side-window-max-width 0.33)
-   #+END_SRC
+#+END_SRC
 
    max height of which-key window, when displayed at top or bottom.
    valid values: number of lines (integer), or percentage out of current
    frame's height (float larger than 0 and smaller than 1)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(setq which-key-side-window-max-height 0.33)
-   #+END_SRC
+#+END_SRC
 
 *** Replacements for how KEY is replaced when which-key displays
    KEY → FUNCTION
    Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq which-key-key-replacement-alist
            '(("<\\([[:alnum:]-]+\\)>" . "\\1")
              ("left"                . "◀")
@@ -6064,13 +6084,13 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
              ("\\`DEL\\'"             . "BS") ; backspace key
              ("next"                . "PgDn")
              ("prior"               . "PgUp")))
-   #+END_SRC
+#+END_SRC
 
 *** Use cool unicode characters if available
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;(add-to-list 'which-key-description-replacement-alist '("\\`calc-" . "🖩-"))
-   #+END_SRC
+#+END_SRC
 
 *** Change what string to display for a given *complete* key binding
    Eg: After =C-x=, display =8 → +unicode= instead of =8 → +prefix=
@@ -6098,16 +6118,16 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     "C-c /"   "engine-mode-map"
     "C-c C-v" "org-babel"
     "C-x 8 0" "ZWS")
-   #+END_SRC
+#+END_SRC
 
 ** Window numbering mode
    Number window shortcuts for emacs
 
    [[https://github.com/nschum/window-numbering.el]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 ;     (window-numbering-mode)
-   #+END_SRC
+#+END_SRC
 
 * Languages
 ** General
@@ -6147,27 +6167,27 @@ Some general settings that should apply to all programming mode. Highlight
 *** Compilation behaviour
 **** Scroll down compilation messages
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq compilation-scroll-output t)
-   #+END_SRC
+#+END_SRC
 
 **** Scroll to first error
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq compilation-scroll-output 'first-error)
-   #+END_SRC
+#+END_SRC
 
 **** Kill compilation without reconfirmation
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq compilation-always-kill t)
-   #+END_SRC
+#+END_SRC
 
 **** Unconditionally save all buffer before compiling
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq compilation-ask-about-save nil)
-   #+END_SRC
+#+END_SRC
 
 *** Custom command
 
@@ -6186,20 +6206,20 @@ Some general settings that should apply to all programming mode. Highlight
 *** ANSI-escape coloring in compilation-mode
    =M-x compile= has some issues with ansi color codes. This fixes it. Found at [[http://stackoverflow.com/questions/3072648/cucumbers-ansi-colors-messing-up-emacs-compilation-buffer][StackOverflow]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'ansi-color)
      (defun colorize-compilation-buffer ()
        (let ((inhibit-read-only t))
          (ansi-color-apply-on-region (point-min) (point-max))))
      (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
-   #+END_SRC
+#+END_SRC
 
 *** Bury compilation buffer
 If compilation is successful namely neither errors nor warnings, the compilation
 buffer will disappear after 1 second. Stolen from [[http://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close/11059012#11059012][stackoverflow]]
 
 TODO: Cause issue with ggtags
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/bury-compile-buffer-if-successful (buffer string)
        "Bury a compilation buffer if succeeded without warnings "
        (alert string :title (buffer-name buffer))
@@ -6215,7 +6235,7 @@ TODO: Cause issue with ggtags
                              (delete-window (get-buffer-window (get-buffer "*compilation*"))))
                            buffer)))
      ;(add-hook 'compilation-finish-functions 'qq/bury-compile-buffer-if-successful)
-   #+END_SRC
+#+END_SRC
 
 ** C and its derivative
 *** Common
@@ -6223,7 +6243,7 @@ TODO: Cause issue with ggtags
    (C, C++, Java, etc...). I like being able to quickly compile using =C-c C-c=
    (instead of =M-x compile=).
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/c-mode-init ()
        ;; (qq/lsp-deferred-if-supported)
        (fset 'c-indent-region 'clang-format-region)
@@ -6232,7 +6252,7 @@ TODO: Cause issue with ggtags
        (local-set-key (kbd "C-c C-c") 'compile)
        ;; To re-format c code. use C-x h M-C-\ (this puts the region around
        ;; the entire buffer, and then runs the indent-region command).
-   #+END_SRC
+#+END_SRC
 
 **** Underscore "_" is not a word character
    An underscore "_" is a word character in Vim. This means that word-motions
@@ -6243,13 +6263,13 @@ TODO: Cause issue with ggtags
    Modifying its entry in the syntax-table will make the underscore to be
    recognized as word character:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (modify-syntax-entry ?_ "w")
-   #+END_SRC
+#+END_SRC
 
 **** Minor modes
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (eldoc-mode)
      (lsp-deferred)
      ;; (ggtags-mode 1)
@@ -6292,30 +6312,30 @@ TODO: Cause issue with ggtags
 
      ; enable spell check in comment area
      (flyspell-prog-mode)
-   #+END_SRC
+#+END_SRC
 
 **** End
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      )
      (add-hook 'c-mode-hook 'qq/c-mode-init)
      (add-hook 'c-mode-hook 'qq/c-mode-init)
      (add-hook 'c++-mode-hook 'qq/c-mode-init)
      (add-hook 'c++-ts-mode-hook 'qq/c-mode-init)
-   #+END_SRC
+#+END_SRC
 
 *** C++
 **** Set C++ mode for *.h and *.ipp files (instead of plain-old C mode)
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq auto-mode-alist (cons '("\\.h$"   . c++-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.ipp$" . c++-mode) auto-mode-alist))
-   #+END_SRC
+#+END_SRC
 
 **** Automatically adding object name
    From http://oremacs.com/2015/01/15/c++-smart-dot/
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defconst c++-var-regex "[A-Za-z][A-Za-z0-9_]*"
        "The regex for C++ variable name.")
 
@@ -6348,7 +6368,7 @@ TODO: Cause issue with ggtags
            (insert "."))))
      (eval-after-load "cc-mode"
        `(define-key c++-mode-map "." 'c++-smart-dot))
-   #+END_SRC
+#+END_SRC
 
 *** Java
 Some statements in Java appear often, and become tedious to write
@@ -6408,27 +6428,27 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
 ** CSV
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'csv-mode-hook
                #'(lambda()
                    (mixed-pitch-mode 0)
                    ))
-   #+END_SRC
+#+END_SRC
 
 ** Bitbake
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'bb-mode)
      (setq auto-mode-alist (cons '("\\.bb$" . bb-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.inc$" . bb-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.bbappend$" . bb-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.bbclass$" . bb-mode) auto-mode-alist))
      (setq auto-mode-alist (cons '("\\.conf$" . bb-mode) auto-mode-alist))
-   #+END_SRC
+#+END_SRC
 
 ** Lua
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq lua-indent-nested-block-content-align nil)
      (setq lua-indent-close-paren-align nil)
 
@@ -6438,14 +6458,14 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 
      (advice-add #'lua-calculate-indentation-block-modifier
                  :around #'lua-at-most-one-indent)
-   #+END_SRC
+#+END_SRC
 
 ** Lisp
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
      (add-hook 'lisp-interaction-mode-hook 'eldoc-mode)
-   #+END_SRC
+#+END_SRC
 
 ** Docker
 Associate Dockerfile with =docker-mode=.
@@ -6456,7 +6476,7 @@ Associate Dockerfile with =docker-mode=.
 
 ** Web/CSS/Javascript/Json
 *** Hooks
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/js2-mode-hook ()
        (npm-mode t)
        (prettier-js-mode)
@@ -6465,10 +6485,10 @@ Associate Dockerfile with =docker-mode=.
      (add-hook 'js2-mode-hook 'qq/js2-mode-hook)
      (add-hook 'css-mode-hook 'prettier-js-mode)
      (add-hook 'web-mode-hook 'prettier-js-mode)
-   #+END_SRC
+#+END_SRC
 
 *** Settings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'web-mode)
      (setq indium-chrome--default-data-dir (concat qq/cache-directory "indium-chrome-profile"))
      (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
@@ -6495,7 +6515,7 @@ Associate Dockerfile with =docker-mode=.
              js2-idle-timer-delay 0
              js2-mode-show-parse-errors nil
              js2-mode-show-strict-warnings nil))
-   #+END_SRC
+#+END_SRC
 **** Associate a content type
 web-mode.el can deal with many content types: html, xml, javascript, jsx, json, css. This was needed to edit *.js.erb files for example: js files that embed ruby blocks.
 
@@ -6504,7 +6524,7 @@ e.g. you want to associate *.api files with web-mode.
 
 The var web-mode-content-types-alist can be used to associate a file path with a content type
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-to-list 'auto-mode-alist '("\\.api\\'" . web-mode))
      (add-to-list 'auto-mode-alist '("/some/react/path/.*\\.js[x]?\\'" . web-mode))
 
@@ -6512,66 +6532,66 @@ The var web-mode-content-types-alist can be used to associate a file path with a
            '(("json" . "/some/path/.*\\.api\\'")
              ("xml"  . "/other/path/.*\\.api\\'")
              ("jsx"  . "/some/react/path/.*\\.js[x]?\\'")))
-   #+END_SRC
+#+END_SRC
 
 **** Customize Settings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/web-mode-hook ()
        "Hooks for Web mode."
        (setq web-mode-markup-indent-offset 2)
-   #+END_SRC
+#+END_SRC
 HTML element offset indentation
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-markup-indent-offset 2)
-   #+END_SRC
+#+END_SRC
 CSS offset indentation
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-css-indent-offset 2)
-   #+END_SRC
+#+END_SRC
 Script/code offset indentation (for JavaScript, Java, PHP, Ruby, Go, VBScript, Python, etc.)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-code-indent-offset 2)
-   #+END_SRC
+#+END_SRC
 Left padding
 For <style> parts
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-style-padding 1)
-   #+END_SRC
+#+END_SRC
 For <script> parts
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-script-padding 1)
-   #+END_SRC
+#+END_SRC
 For multi-line blocks
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-block-padding 0)
-   #+END_SRC
+#+END_SRC
 Comments
 You can choose to comment with server comment instead of client (HTML/CSS/Js) comment with
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-comment-style 2)
-   #+END_SRC
+#+END_SRC
 Auto-pairing
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-enable-auto-pairing t)
-   #+END_SRC
+#+END_SRC
 CSS colorization
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-enable-css-colorization t)
-   #+END_SRC
+#+END_SRC
 Block face: can be used to set blocks background and default foreground (see web-mode-block-face)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-enable-block-face t)
-   #+END_SRC
+#+END_SRC
 Part face: can be used to set parts background and default foreground (see web-mode-script-face and web-mode-style-face which inheritate from web-mode-part-face)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-enable-part-face t)
-   #+END_SRC
+#+END_SRC
 Comment keywords (see web-mode-comment-keyword-face)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-enable-comment-interpolation t)
-   #+END_SRC
+#+END_SRC
 Heredoc (cf. PHP strings) fontification (when the identifier is <<<EOTHTML or <<<EOTJAVASCRIPT)
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
        (setq web-mode-enable-heredoc-fontification t)
      )
      (add-hook 'web-mode-hook  'qq/web-mode-hook)
@@ -6588,19 +6608,19 @@ Heredoc (cf. PHP strings) fontification (when the identifier is <<<EOTHTML or <<
 ** Markdown
 *** Turn off =electric-indent-mode= in markdown buffers
 =electric-indent-mode= has a bad interaction with =markdown-mode=, so we disable it in markdown buffers only.
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'markdown-mode-hook
                (apply-partially #'electric-indent-local-mode 0))
-   #+END_SRC
+#+END_SRC
 
 ** Python
 *** Default Python interpreter
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq python-shell-interpreter "python3")
-   #+END_SRC
+#+END_SRC
 
 *** Make electric-indent-mode and python-mode play nice
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun python-newline-and-indent ()
        "Custom python indentation function.
 
@@ -6625,10 +6645,10 @@ Heredoc (cf. PHP strings) fontification (when the identifier is <<<EOTHTML or <<
      (defun turn-off-electric-indent-local-mode ()
        (electric-indent-local-mode 0))
      (add-hook 'python-mode-hook #'turn-off-electric-indent-local-mode)
-   #+END_SRC
+#+END_SRC
 ** Sh-Mode
 *** Settings
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq sh-basic-offset 2
            sh-indentation 2)
 
@@ -6636,18 +6656,18 @@ Heredoc (cf. PHP strings) fontification (when the identifier is <<<EOTHTML or <<
        (flyspell-prog-mode)
        (flycheck-mode))
      (add-hook 'sh-mode-hook 'qq/sh-mode-init)
-   #+END_SRC
+#+END_SRC
 *** Make scripts executable on save
 If a file begins with a shebang (i.e. “#!”), make it executable after saving it.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'after-save-hook
                'executable-make-buffer-file-executable-if-script-p)
-   #+END_SRC
+#+END_SRC
 *** Associate .zsh files with zshell in =sh-mode=
    Emacs sh-mode doesn’t automatically associate *.zsh with zsh. This enables that. It also enables it for a few other zsh-related files.
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (autoload 'sh-set-shell "sh-script.el" nil t)
      ;; Files ending in .zsh
      (add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
@@ -6659,13 +6679,13 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
                   (string-match-p "\\.zsh\\(rc\\|env\\|\\'\\)" buffer-file-name))
          (sh-set-shell "zsh")))
      (add-hook 'sh-mode-hook 'sh-mode-set-zsh-by-file-name)
-   #+END_SRC
+#+END_SRC
 ** NXML
 *** To have files automatically loaded with nxml-mode with various file extensions
 
    [[https://www.emacswiki.org/emacs/NxmlMode]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'nxml-mode)
 
      (add-to-list 'auto-mode-alist
@@ -6676,11 +6696,11 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
 
      (fset 'xml-mode 'nxml-mode)
      (require 'rng-loc nil t)
-   #+END_SRC
+#+END_SRC
 
 *** Settings
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (add-hook 'nxml-mode-hook
                (lambda ()
                  (display-line-numbers-mode)
@@ -6696,13 +6716,13 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
                  (setq nxml-char-ref-display-glyph-flag nil) ; glyph is hidden
                  (setq tab-width 4)
                  ))
-   #+END_SRC
+#+END_SRC
 
 *** Pretty printing xml region
 
    [[https://sinewalker.wordpress.com/2008/06/26/pretty-printing-xml-with-emacs-nxml-mode/]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq-pp-xml-region (begin end)
        "Pretty format XML markup in region. The function inserts linebreaks
      to separate tags that have nothing but whitespace between them.  It
@@ -6714,12 +6734,12 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
            (while (search-forward-regexp "\>[ \\t]*\<" nil t)
              (backward-char) (insert "\n"))
            (indent-region begin end)))
-   #+END_SRC
+#+END_SRC
 
 *** Where am I?
    To show current xpath in echo area, use the following function:
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun nxml-where ()
        "Display the hierarchy of XML elements the point is on as a
      path. from http://www.emacswiki.org/emacs/NxmlMode"
@@ -6740,13 +6760,13 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
              (if (called-interactively-p t)
                  (message "/%s" (mapconcat 'identity path "/"))
                (format "/%s" (mapconcat 'identity path "/")))))))
-   #+END_SRC
+#+END_SRC
 
 *** Folding with HideShow
 
    [[http://stackoverflow.com/questions/944614/emacs-does-hideshow-work-with-xml-mode-sgml-mode]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (autoload 'hs-show-block "hideshow.el" nil t)
      (autoload 'hs-hide-level "hideshow.el" nil t)
      (add-to-list 'hs-special-modes-alist
@@ -6766,18 +6786,18 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
        '(progn
           (define-key nxml-mode-map (kbd "C-m") 'lgfang-toggle-level)
           (define-key nxml-mode-map [mouse-3] 'lgfang-toggle-level)))
-   #+END_SRC
+#+END_SRC
 *** Enable nxml-mode when the user starts typing an xml document
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (setq magic-mode-alist
            (cons '("<\\?xml " . nxml-mode)
                 magic-mode-alist))
-   #+END_SRC
+#+END_SRC
 
 *** Rebind '>', so that it automatically inserts a closing xml tag (if appropriate)
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/nxml-end-tag ()
        (interactive)
        (if (eq (face-at-point) 'default)
@@ -6791,11 +6811,11 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
                (lambda ()
                  ;; rebind > to close the current tag
                  (define-key nxml-mode-map ">" 'qq/nxml-end-tag)))
-   #+END_SRC
+#+END_SRC
 
 *** Color scheme
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ; (set-face-foreground 'nxml-attribute-local-name-face "#3387cc")
      ; (set-face-foreground 'nxml-attribute-colon-face "#e28964")
      ; (set-face-foreground 'nxml-attribute-prefix-face "#cf6a4c")
@@ -6812,12 +6832,12 @@ If a file begins with a shebang (i.e. “#!”), make it executable after saving
      ; (set-face-foreground 'nxml-tag-delimiter-face "#cda869")
      ; (set-face-foreground 'nxml-tag-slash-face "#cda869")
      ; (set-face-foreground 'nxml-text-face "#ddd")
-   #+END_SRC
+#+END_SRC
 
 * Recipes
 ** Add =sort-words= command
 Emacs has a command to sort lines, but not to sort words in a region
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun sort-words (reverse beg end)
        "Sort words in region alphabetically, in REVERSE if negative.
      Prefixed with negative \\[universal-argument], sorts in reverse.
@@ -6828,47 +6848,47 @@ Emacs has a command to sort lines, but not to sort words in a region
      See `sort-regexp-fields'."
        (interactive "*P\nr")
        (sort-regexp-fields reverse "\\w+" "\\&" beg end))
-  #+END_SRC
+#+END_SRC
 ** Switch to Editing a File with SUDO
    Taken from [[http://irreal.org/blog/?p=4883][here]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/find-file-as-sudo ()
        (interactive)
        (let ((file-name (buffer-file-name)))
          (when file-name
            (find-alternate-file (concat "/sudo::" file-name)))))
-   #+END_SRC
+#+END_SRC
 
 ** unfill-paragraph function
    Unfilling  a paragraph joins all the lines in a paragraph into a single line.
 
    [[https://www.emacswiki.org/emacs/UnfillParagraph]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      ;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
      (defun qq/unfill-paragraph ()
        "Takes a multi-line paragraph and makes it into a single line of text."
        (interactive)
        (let ((fill-column (point-max)))
          (fill-paragraph nil)))
-   #+END_SRC
+#+END_SRC
 
 ** Coloring regions with ANSI color codes
 [[http://unix.stackexchange.com/a/19505/57923]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun ansi-color-apply-on-region-int (beg end)
        "Colorize using the ANSI color codes."
        (interactive "r")
        (ansi-color-apply-on-region beg end))
-   #+END_SRC
+#+END_SRC
 
 ** Diff two regions
    Step 1: Select a region and `M-x diff-region-tag-selected-as-a'
    Step 2: Select another region and `M-x diff-region-compare-with-b'
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun diff-region-format-region-boundary (b e)
        "Make sure lines are selected and B is less than E"
        (let (tmp rlt)
@@ -6952,11 +6972,11 @@ Emacs has a command to sort lines, but not to sort words in a region
              (if (and fb (file-exists-p fb))
                  (delete-file fb)))
          (message "Please select region at first!")))
-   #+END_SRC
+#+END_SRC
 ** Narrow or widen region
    See [[https://gist.github.com/mwfogleman/95cc60c87a9323876c6c]]
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun narrow-or-widen-dwim ()
        "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."
        (interactive)
@@ -6964,26 +6984,26 @@ Emacs has a command to sort lines, but not to sort words in a region
              ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
              ((equal major-mode 'org-mode) (org-narrow-to-subtree))
              (t (error "Please select a region to narrow to"))))
-   #+END_SRC
+#+END_SRC
 ** Open the =init.org= file
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/open-init-config ()
        "Opens the configuration file from anywhere"
        (interactive)
        (find-file (concat user-emacs-directory "init.org")))
-   #+END_SRC
+#+END_SRC
 ** Show current buffer full path in minibuffer
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun qq/show-file-name ()
        "Show the full path file name in the minibuffer."
        (interactive)
        (message (buffer-file-name)))
-   #+END_SRC
+#+END_SRC
 ** Inline PlantUML image
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'iimage)
      (autoload 'iimage-mode "iimage" "Support Inline image minor mode." t)
      (autoload 'turn-on-iimage-mode "iimage" "Turn on Inline image minor mode." t)
@@ -7014,17 +7034,17 @@ Emacs has a command to sort lines, but not to sort words in a region
                                 (* (window-width (selected-window)) (frame-char-width))
                                 file file))
          (reload-image-at-point)))
-   #+END_SRC
+#+END_SRC
 
 ** Aligning Columns
 https://blog.lambda.cx/posts/emacs-align-columns/
 
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (defun align-non-space (BEG END)
        "Align non-space columns in region BEG END."
        (interactive "r")
        (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))
-   #+END_SRC
+#+END_SRC
 
  Let's walk through what's going on here.
 
@@ -7063,17 +7083,17 @@ To use this function, simply highlight a region you want to align and run M-x al
 * Bindings :noexport:
    Generate all the bindings here.
 ** Setup
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (require 'general)
      (general-evil-setup t)
-   #+END_SRC
+#+END_SRC
 *** Leader key
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
      (general-create-definer qq-leader-def
        :prefix "SPC"
        :non-normal-prefix "C-SPC"
        :global-prefix "C-SPC")
-   #+END_SRC
+#+END_SRC
 *** Macros
    #+name: gen_emacs
    #+begin_src emacs-lisp :tangle no
@@ -7110,322 +7130,322 @@ To use this function, simply highlight a region you want to align and run M-x al
 
 ** Global Bindings
 *** Start
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_emacs>>
-   #+END_SRC
+#+END_SRC
 
 *** Basic Bindings
    Generate binding using table from [[#default-key-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=std_keys)>>
-   #+END_SRC
+#+END_SRC
 *** Embark Bindings
    Generate binding using table from [[#normal-embark-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=embark_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** Persp-mode Bindings
    Binding code generation for [[#persp-key-binding][this]] table
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(moda="lead", tname=persp_combo)>>
-   #+END_SRC
+#+END_SRC
 
 *** End
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** Vterm Bindings
    Generate binding using table from [[#global-vterm-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :keymaps 'vterm-mode-map")>>
      <<gen-keys(moda="lead", tname=vterm_mode_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 ** =lsp-ui-peek= Bindings
    Generate binding using table from [[#lsp-ui-peek-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :keymaps 'lsp-ui-peek-mode-map")>>
      <<gen-keys(moda="lead", tname=lsp_ui_peek_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 ** =shrface= Bindings
    Generate binding using table from [[#shrface-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :keymaps 'eww-mode-map")>>
      <<gen-keys(moda="lead", tname=shrface_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 ** Evil Bindings
 *** Start
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after 'evil")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Global Bindings
    Generate binding using table from [[#evil-global-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_emacs>>
      <<gen-keys(moda="lead", tname=evil_global_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Normal Bindings
    Generate binding using table from [[#evil-normal-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_normal>>
      <<gen-keys(moda="lead", tname=evil_std_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 **** Evil Avy Bindings
    Generate binding using table from [[#evil-avy-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_normal>>
      <<gen-keys(moda="lead", tname=evil_avy_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Motion Bindings
    Generate binding using table from [[#evil-motion-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_motion>>
      <<gen-keys(moda="lead", tname=evil_motion_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Visual Bindings
    Generate binding using table from [[#evil-visual-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen_visual>>
      <<gen-keys(moda="lead", tname=evil_visual_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Ex Bindings
    Generate binding using table from [[#evil-ex-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="xvil", tname=evil_ex_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil BS Bindings
    Generate binding using table from [[#evil-bs-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'bs-mode-map")>>
      <<gen-keys(moda="lead", tname=evil_bs_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Normal Leader Bindings
 **** Start
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<leader_normal>>
-   #+END_SRC
+#+END_SRC
 
 **** Evil Leader Bindings
 Generate binding using table from [[#evil-leader-binding][here]]
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=evil_leader_keys)>>
-   #+END_SRC
+#+END_SRC
 **** Evil Magit Bindings
    Generate binding using table from [[#evil-magit-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=evil_magit_keys)>>
-   #+END_SRC
+#+END_SRC
 
 **** Normal Vertico Bindings
    Generate binding using table from [[#normal-vertico-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=normal_vertico_keys)>>
-   #+END_SRC
+#+END_SRC
 
 **** Normal FASD Bindings
    Generate binding using table from [[#normal-fasd-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=normal_fasd_keys)>>
-   #+END_SRC
+#+END_SRC
 
 **** Normal Persp Bindings
    Generate binding using table from [[#normal-persp-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=normal_persp_keys)>>
-   #+END_SRC
+#+END_SRC
 
 **** Normal LSP Bindings
    Generate binding using table from [[#normal-lsp-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=normal_lsp_keys)>>
-   #+END_SRC
+#+END_SRC
 
 **** End
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Visual Leader Bindings
 **** Start
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<leader_visual>>
-   #+END_SRC
+#+END_SRC
 
 **** Visual Vertico Bindings
    Generate binding using table from [[#visual-vertico-binding][here]]
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=visual_vertico_keys)>>
-   #+END_SRC
+#+END_SRC
 **** End
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil iBuffer Bindings
    Generate binding using table from [[#evil-ibuffer-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'ibuffer-mode-map")>>
      <<gen-keys(moda="lead", tname=evil_ibuffer_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Projectile Bindings
    Generate binding using table from [[#evil-projectile-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="after 'projectile")>>
      <<leader_normal>>
      <<gen-keys(moda="lead", tname=evil_projectile_keys)>>
      <<gen-fix(pos="))\n")>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil CC Mode Bindings
    Generate binding using table from [[#evil-cc-mode-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=cc_mode_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil LSP Browser Bindings
    Binding code generation for [[#lsp-browser-binding][this]] table
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(moda="evil", tname=lsp_browser_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Deadgrep Mode Bindings
    Generate binding using table from [[#evil-deadgrep-mode-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=deadgrep_mode_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Web Mode Bindings
    Generate binding using table from [[#evil-web-mode-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=web_mode_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** Evil Dired Bindings
    Generate binding using table from [[#evil-dired-bindings][here]]
 
-    #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_dired_keys)>>
-    #+END_SRC
+#+END_SRC
 
 *** Evil Org Bindings
    Generate binding using table from [[#evil-org-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="evil", tname=evil_org_keys)>>
-   #+END_SRC
+#+END_SRC
 
 *** End
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** Compilation Buffer Map Bindings
    Generate binding using table from  [[evil-compile-bufer][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'compilation-mode-map")>>
      <<gen-keys(moda="lead", tname=evil_compile_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** Vertico Map Bindings
    Generate binding using table from [[#vertico-map-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :states 'insert\n :keymaps 'vertico-map")>>
      <<gen-keys(moda="lead", tname=vertico_map_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** PDFTools Bindings
    Binding code generation for [[#pdftools-bindings][this]] table
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-fix(pre="add-hook 'pdf-view-mode-hook\n(lambda()")>>
      <<gen-keys(moda="evil", tname=pdftools-evil-keys)>>
      <<gen-keys(mmap="t", tname=pdftools-keys)>>
      <<gen-fix(pos="))\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** GitTimemachine Bindings
    Binding code generation for [[#gittimemachine-bindings][this]] table
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-keys(moda="evil", tname=gittimemachine-evil-keys)>>
      <<gen-fix(pos="\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** Org Mode Bindings
    =org_keys= table is [[#orgmode-key-binding][here]].
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=org_keys)>>
-   #+END_SRC
+#+END_SRC
 
 ** Recipes Bindings
    =recipes_keys= table is [[#recipes-binding][here]].
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(tname=recipes_keys)>>
-   #+END_SRC
+#+END_SRC
 
 ** Company Bindings
    Binding code generation for [[#company-binding][this]] table
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :result silent
      <<gen-fix(pre="general-define-key\n :keymaps 'company-active-map")>>
      <<gen-keys(moda="lead", tname=company_keys)>>
      <<gen-fix(pos=")\n")>>
-   #+END_SRC
+#+END_SRC
 
 ** Undo-tree Bindings
    Generate binding using table from [[#undo-tree-binding][here]]
 
-   #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
-     <<gen-fix(pre="eval-after-load 'undo-tree\n'(with-no-warnings\n(general-define-key\n :states 'normal\n :keymaps 'undo-tree-visualizer-mode-map")>>
-     <<gen-keys(moda="lead", tname=undo_tree_keys)>>
-     <<gen-fix(pos=")))\n")>>
-   #+END_SRC
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     ;; <<gen-fix(pre="eval-after-load 'undo-tree\n'(with-no-warnings\n(general-define-key\n :states 'normal\n :keymaps 'undo-tree-visualizer-mode-map")>>
+     ;; <<gen-keys(moda="lead", tname=undo_tree_keys)>>
+     ;; <<gen-fix(pos=")))\n")>>
+#+END_SRC
