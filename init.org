@@ -6875,6 +6875,15 @@ Emacs has a command to sort lines, but not to sort words in a region
          (fill-paragraph nil)))
 #+END_SRC
 
+** Add ANSI-Color on buffer
+
+#+BEGIN_SRC emacs-lisp
+  (defun ansi-color-on-buffer ()
+    "..."
+    (interactive)
+    (ansi-color-apply-on-region (point-min) (point-max)))
+#+END_SRC
+
 ** Coloring regions with ANSI color codes
 [[http://unix.stackexchange.com/a/19505/57923]]
 
