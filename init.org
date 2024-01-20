@@ -635,22 +635,23 @@ required from *emacs*.
 *** Common
 **** Fonts
 #+begin_src emacs-lisp
-     (custom-theme-set-faces
-      'user
+  (custom-theme-set-faces
+   'user
 
-      '(variable-pitch ((t (:family "Cabin"
-                                    :height 1.3))))
-      '(fixed-pitch ((t ( :family "PragmataPro"
-                          :slant normal
-                          :weight normal
-                          :height 1.1
-                          :width normal)))))
+   '(variable-pitch ((t (:family "Cabin"
+                                 :height 1.1))))
+   '(fixed-pitch ((t ( :family "PragmataPro"
+                       :slant normal
+                       :weight normal
+                       :height 1.1
+                       :width normal)))))
 
-     ;; Setting the default general font
-     (set-face-attribute 'default nil
-                         :family "PragmataPro"
-                         :height 140
-                         )
+  ;; Setting the default general font
+  (set-face-attribute 'default nil
+                      :family "PragmataPro"
+                      :height 140
+                      )
+  (defvar qq/modeline-font-height 100)
 #+end_src
 
 **** Ccls Executables
@@ -728,24 +729,22 @@ required from *emacs*.
 **** Fonts
 
 #+begin_src emacs-lisp
-  (custom-theme-set-faces
-   'user
+     (custom-theme-set-faces
+      'user
 
-   '(variable-pitch ((t (:family "Cabin"
-                                 :height 1.3))))
-   '(fixed-pitch ((t ( :family "PragmataPro"
-                       :slant normal
-                       :weight normal
-                       :height 1.0
-                       :width normal)))))
+      '(variable-pitch ((t (:family "Cabin"
+                                    :height 1.1))))
+      '(fixed-pitch ((t ( :family "PragmataPro"
+                          :slant normal
+                          :weight normal
+                          :height 1.0
+                          :width normal)))))
 
-  ;; Setting the default general font
-  (set-face-attribute 'default nil
-                      :family "PragmataPro"
-                      :height 105
-                      )
-  (defvar qq/modeline-font-height 100)
-
+     ;; Setting the default general font
+     (set-face-attribute 'default nil
+                         :family "PragmataPro"
+                         :height 88
+                         )
 #+end_src
 
 **** Dash docsets path
@@ -5663,9 +5662,11 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
 *** Add color to shell & eshell
 #+BEGIN_SRC emacs-lisp
-     (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-     (add-hook 'eshell-preoutput-filter-functions
-               'ansi-color-filter-apply)
+  (require 'ansi-color)
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  (add-hook 'eshell-preoutput-filter-functions
+            'ansi-color-filter-apply)
+
 #+END_SRC
 
 *** Highlight some text based on regexp (useful to see "OK" or warnings):
