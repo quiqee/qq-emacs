@@ -289,7 +289,7 @@ It will be faster to disable them here before they've been initialized.
             (csv-mode builtin)
             (auctex builtin)              ; integrated environment for *TeX*
             (rainbow-mode builtin)        ; colorized color code in file
-            undo-fu                       ; Treat undo history as a tree
+            undo-fu-session               ; save undo history
             (vundo :fetcher git :url "https://github.com/casouri/vundo.git")
             (bug-hunter builtin)
 
@@ -3736,12 +3736,15 @@ kill unused buffers in the background
       | y h    |                                     | 'cliphist-paste-item                     |
       | y u    |                                     | 'cliphist-select-item                    |
 **** Links: [[Evil Leader Bindings][Evil Leader Bindings]]                                     :ignore:
-** Undo-fu
+** Undo-fu-session & Vundo
 
 #+begin_src emacs-lisp
-     (setq undo-limit 67108864) ; 64mb.
-     (setq undo-strong-limit 100663296) ; 96mb.
-     (setq undo-outer-limit 1006632960) ; 960mb.
+  (require 'undo-fu-session)
+  (undo-fu-session-global-mode)
+  (setq undo-fu-session-directory (concat user-emacs-directory ".cache/undo-session/"))
+
+  (setq vundo-glyph-alist vundo-unicode-symbols)
+
 #+end_src
 ** Deadgrep
 
@@ -6430,11 +6433,26 @@ Associate =.mm=-files with =objc-mode= instead of =nroff-mode=.
 ** CSV
 
 #+BEGIN_SRC emacs-lisp
-     (add-hook 'csv-mode-hook
-               #'(lambda()
-                   (mixed-pitch-mode 0)
-                   ))
+
+  (setq auto-mode-alist (cons '("\\.csv$"   . csv-mode) auto-mode-alist))
+
+  (add-hook 'csv-mode-hook
+            #'(lambda()
+                (set-default 'truncate-lines t)
+                (mixed-pitch-mode 0)
+                (csv-align-mode 1)
+                (csv-header-line)
+                ))
+
 #+END_SRC
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: evil-csv-mode-binding
+    :END:
+   #+TBLNAME: csv_mode_keys
+      | Combo | Mode         | Evil Mode | Description | Command          |
+      | TAB   | csv-mode-map | normal    |             | 'csv-tab-command |
+**** Links: [[Evil CSV Mode Bindings][Evil CSV Mode Bindings]]                                     :ignore:
 
 ** Bitbake
 
@@ -6650,13 +6668,14 @@ Heredoc (cf. PHP strings) fontification (when the identifier is <<<EOTHTML or <<
 ** Sh-Mode
 *** Settings
 #+BEGIN_SRC emacs-lisp
-     (setq sh-basic-offset 2
-           sh-indentation 2)
+  (setq sh-basic-offset 2
+        sh-indentation 2)
 
-     (defun qq/sh-mode-init ()
-       (flyspell-prog-mode)
-       (flycheck-mode))
-     (add-hook 'sh-mode-hook 'qq/sh-mode-init)
+  (defun qq/sh-mode-init ()
+    (flyspell-prog-mode)
+    (flycheck-mode))
+
+  (add-hook 'sh-mode-hook 'qq/sh-mode-init)
 #+END_SRC
 *** Make scripts executable on save
 If a file begins with a shebang (i.e. “#!”), make it executable after saving it.
@@ -7343,6 +7362,13 @@ Generate binding using table from [[#evil-leader-binding][here]]
      <<leader_normal>>
      <<gen-keys(moda="lead", tname=evil_projectile_keys)>>
      <<gen-fix(pos="))\n")>>
+#+END_SRC
+
+*** Evil CSV Mode Bindings
+   Generate binding using table from [[#evil-csv-mode-binding][here]]
+
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="evil", tname=csv_mode_keys)>>
 #+END_SRC
 
 *** Evil CC Mode Bindings
