@@ -32,7 +32,7 @@ filedata = re.sub("data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux
 filedata = re.sub("/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-mx8mm-fslc-linux/eagle-system/1.0-r0/usr/include/c\+\+/9\.2\.0", "/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-mx8mm-fslc-linux/eagle-system/1.0-r0/recipe-sysroot/usr/include/c++/9.2.0", filedata, flags = re.M)
 filedata = re.sub("/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/eagle-common/0.1-r0/usr/include/c\+\+/9\.2\.0", "/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/eagle-common/0.1-r0/recipe-sysroot/usr/include/c++/9.2.0", filedata, flags = re.M)
 filedata = re.sub("/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/post-process/1.0-r0/usr/include/c\+\+/9\.2\.0", "/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/post-process/1.0-r0/recipe-sysroot/usr/include/c++/9.2.0", filedata, flags = re.M)
-filedata = re.sub("/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/mwapp/v0.1.28-f00e8c0-r0/usr/include/c\+\+/9\.2\.0", "/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/mwapp/v0.1.28-f00e8c0-r0/recipe-sysroot/usr/include/c++/9.2.0", filedata, flags = re.M)
+filedata = re.sub("(/data/vest-linux/my_softing_eaglet/tmp/work/aarch64-fslc-linux/mwapp/v\\d\\.\\d\.\\d\\d-\\S+-r0/)usr/include/c\\+\\+/9\\.2\\.0", r"\1recipe-sysroot/usr/include -I\1recipe-sysroot/usr/include/c++/9.2.0", filedata, flags = re.M)
 #filedata = re.sub("usr/include/c\+\+/9\.2\.0", "recipe-sysroot/usr/include/c++/9.2.0", filedata, flags = re.M)
 
 # Write the file out again
