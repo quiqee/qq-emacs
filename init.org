@@ -228,6 +228,7 @@ It will be faster to disable them here before they've been initialized.
             (org-contrib builtin)    ; Outline-based notes management and organizer
             org-roam
             org-bullets
+            (org-phscroll :fetcher git :url "https://github.com/misohena/phscroll.git")
             ob-napkin
                                           ;org-pdfview
                                           ;org-sidebar
@@ -4590,16 +4591,17 @@ Git-gutter doesn’t play nice with TRAMP remotes
 *** Settings
 **** Enable =org-mode=
 #+BEGIN_SRC emacs-lisp
-     (require 'org)
-     (require 'org-eldoc)
-     (require 'org-indent)
-     (require 'org-bullets)
-     (require 'org-modern-indent)
-     ; (require 'org-superstar)
-     (require 'ob-napkin)
-     (require 'ox-extra)
-     (ox-extras-activate '(ignore-headlines))
-     (add-to-list 'org-src-lang-modes '("napkin-puml" . plantuml))
+  (require 'org)
+  (require 'org-eldoc)
+  (require 'org-indent)
+  (require 'org-bullets)
+  (require 'org-modern-indent)
+  ; (require 'org-superstar)
+  (require 'ob-napkin)
+  (require 'ox-extra)
+  (require 'org-phscroll)
+  (ox-extras-activate '(ignore-headlines))
+  (add-to-list 'org-src-lang-modes '("napkin-puml" . plantuml))
 #+END_SRC
 
 **** =setq=
@@ -5039,7 +5041,7 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 **** Hooks
 
 #+BEGIN_SRC emacs-lisp
-     (add-hook 'org-mode-hook (lambda ()
+  (add-hook 'org-mode-hook (lambda ()
 #+END_SRC
 
 ***** Enable bulleted lists
@@ -5063,6 +5065,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
 #+BEGIN_SRC emacs-lisp
      (org-modern-indent-mode 90)
+#+END_SRC
+
+***** Enable =org-phscoll=
+
+#+BEGIN_SRC emacs-lisp
+     (org-phscroll-mode)
 #+END_SRC
 
 ***** Enable flyspell and rainbow-mode
