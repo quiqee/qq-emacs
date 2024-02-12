@@ -3676,6 +3676,7 @@ kill unused buffers in the background
       | h M    | Describe macros                     | 'helpful-macros                          |
       | h f    | Display full doc on a function      | 'helpful-callable                        |
       | h c    | Describe interactive function       | 'helpful-command                         |
+      | h g    | Display all available keybindings   | 'general-describe-keybindings            |
       | h F    | Display properties of a face        | 'describe-face                           |
       | h v    | Display full doc of a variable      | 'helpful-variable                        |
       | h l    | Find Emacs Lisp source of a library | 'find-library                            |
@@ -3743,9 +3744,25 @@ kill unused buffers in the background
   (undo-fu-session-global-mode)
   (setq undo-fu-session-directory (concat user-emacs-directory ".cache/undo-session/"))
 
-  (setq vundo-glyph-alist vundo-unicode-symbols)
+  (after 'vundo
+    (setq vundo-glyph-alist vundo-unicode-symbols))
 
 #+end_src
+*** Vundo Binding
+    :PROPERTIES:
+    :CUSTOM_ID: global-vundo-binding
+    :END:
+   #+TBLNAME: vundo_mode_keys
+      | Combo    | Description                                | Command                |
+      | <escape> |                                            | 'vundo-quit            |
+      | l        |                                            | 'vundo-forward         |
+      | h        |                                            | 'vundo-backward        |
+      | j        |                                            | 'vundo-next            |
+      | k        |                                            | 'vundo-previous        |
+      | p        |                                            | 'vundo-goto-last-saved |
+      | n        |                                            | 'vundo-goto-next-saved |
+**** Links: [[Vundo Bindings][Vundo Bindings]]                                     :ignore:
+
 ** Deadgrep
 
 #+begin_src emacs-lisp
@@ -7194,6 +7211,14 @@ To use this function, simply highlight a region you want to align and run M-x al
 #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :keymaps 'vterm-mode-map")>>
      <<gen-keys(moda="lead", tname=vterm_mode_keys)>>
+     <<gen-fix(pos=")\n")>>
+#+END_SRC
+** Vundo Bindings
+   Generate binding using table from [[#global-vundo-binding][here]]
+
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-fix(pre="general-define-key\n :keymaps 'vundo-mode-map")>>
+     <<gen-keys(moda="lead", tname=vundo_mode_keys)>>
      <<gen-fix(pos=")\n")>>
 #+END_SRC
 ** =lsp-ui-peek= Bindings
