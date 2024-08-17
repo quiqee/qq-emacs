@@ -203,7 +203,6 @@ It will be faster to disable them here before they've been initialized.
             async
             auto-dim-other-buffers
             crux
-                                          ;emojify
 
             mixed-pitch
 
@@ -1629,7 +1628,7 @@ j*** Local =compile-command=
      (require 'doom-modeline)
      (doom-modeline-def-modeline 'qq-simple-line
        '(bar modals workspace-name window-number buffer-position matches buffer-info remote-host minor-modes)
-       '(word-count selection-info misc-info major-mode process vcs lsp checker))
+       '(word-count selection-info misc-info major-mode process vcs lsp))
      (defun setup-custom-doom-modeline ()
        (doom-modeline-set-modeline 'qq-simple-line 'default))
 
@@ -3401,7 +3400,7 @@ kill unused buffers in the background
               '((minibuffer-inactive-mode . emacs)
                 (ag-mode . normal)
                 (ggtags-global-mode . emacs)
-                (grep-mode . emacs)
+                (grep-mode . normal)
                 (Info-mode . normal)
                 (term-mode . insert)
                 (vterm-mode . emacs)
@@ -3410,6 +3409,7 @@ kill unused buffers in the background
                 (log-edit-mode . emacs)
                 (vc-log-edit-mode . emacs)
                 (magit-log-edit-mode . emacs)
+                (log-view-mode . normal)
                 ;(inf-ruby-mode . emacs)
                 ;(direx:direx-mode . emacs)
                 ;(yari-mode . emacs)
@@ -4364,18 +4364,20 @@ Git-gutter doesn’t play nice with TRAMP remotes
       | g d               |             | 'magit-diff-unstaged              |
       | g i               |             | 'blamer-show-posframe-commit-info |
       | g f               |             | 'magit-file-dispatch              |
+      | g g               |             | 'magit-dispatch                   |
       | g j               |             | 'git-gutter:next-hunk             |
       | g k               |             | 'git-gutter:previous-hunk         |
       | g L               |             | 'vc-print-log                     |
       | g l               |             | 'magit-log-buffer-file            |
       | g m               |             | 'qq/git-messenger-show            |
+      | g o               |             | 'magit-log                        |
       | g p               |             | 'git-gutter:stage-hunk            |
       | g r               |             | 'git-gutter:revert-hunk           |
       | g s               |             | 'magit-status                     |
       | g t               |             | 'git-timemachine                  |
       | g u               |             | 'git-gutter:toggle                |
       | g w               |             | 'full-magit-mode                  |
-      | g x               |             | 'vc-next-action                   |
+      | g x               |             | 'magit-list-repositories          |
       | g v               |             | 'git-gutter:set-start-revision    |
 **** Links: [[Evil Magit Bindings][Evil Magit Bindings]]                                     :ignore:
 *** Git Timemachine keybindings
@@ -6922,10 +6924,10 @@ Emacs has a command to sort lines, but not to sort words in a region
 ** Add ANSI-Color on buffer
 
 #+BEGIN_SRC emacs-lisp
-  (defun ansi-color-on-buffer ()
-    "..."
+  (defun display-ansi-colors ()
     (interactive)
-    (ansi-color-apply-on-region (point-min) (point-max)))
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max))))
 #+END_SRC
 
 ** Coloring regions with ANSI color codes
