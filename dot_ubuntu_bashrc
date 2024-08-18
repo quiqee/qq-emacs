@@ -187,6 +187,10 @@ PANEL_FONT_FAMILY="-*-terminus-medium-r-normal-*-12-*-*-*-c-*-*-1"
 export PANEL_FIFO PANEL_HEIGHT PANEL_FONT_FAMILY
 
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export LANGUAGE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
 
 stty -ixon    # allow forward search in BASH
 #eval `ssh-agent`

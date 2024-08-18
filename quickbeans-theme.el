@@ -502,7 +502,7 @@ The theme has to be reloaded after changing anything in this group."
    `(rainbow-delimiters-depth-8-face     ((,class (:foreground ,quickbeans-white-8))))
    `(rainbow-delimiters-depth-9-face     ((,class (:foreground ,quickbeans-white-9))))
 ;;;;; Region
-   `(region                              ((,class (:background ,quickbeans-purple-3))))
+   `(region                              ((,class (:background ,quickbeans-grey-2 :box (:line-width (-1 . -1) :color ,quickbeans-blue-1)))))
 ;;;;; SHM
    `(shm-current-face                    ((,class (:background ,quickbeans-grey-4))))
    `(shm-quarantine-face                 ((,class (:background ,quickbeans-red-4))))

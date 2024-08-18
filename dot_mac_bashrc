@@ -123,6 +123,8 @@ add-sshkey() {
   cat ~/.ssh/id_rsa.pub | ssh $1 'cat >> ~/.ssh/authorized_keys'
 }
 
+export PATH=$HOME/.local/bin:/opt/homebrew/bin:$PATH
+
 eval "$(fasd --init auto)"
 
 fasd_cache="$HOME/.fasd-init-bash"
@@ -141,11 +143,9 @@ alias sd='fasd -sid'     # interactive directory selection
 alias sf='fasd -sif'     # interactive file selection
 alias j='fasd_cd -d'     # cd, same functionality as j in autojump
 alias jj='fasd_cd -d -i' # cd with interactive selection
-alias master='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc482/ppc_bin:$PATH'
-alias nine='export PATH=$HOME/.bin:$HOME/toolchains/ppc405_gcc462/bin:$PATH'
-alias axon='export PATH=$HOME/.bin:$HOME/toolchains/arm-cortex-a9_linaro-gcc47/bin:$PATH'
 alias rosetta='ps -p `fuser /usr/libexec/rosetta/runtime 2> /dev/null`'
 alias vin='vim -u NONE'
+alias ssnx='ssh -L 4044:127.0.0.1:4044 -N -f imac'
 
 export EDITOR=vi
 
@@ -172,8 +172,9 @@ fi
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/opt/openssl/lib/pkgconfig
 #export YACC=/usr/local/opt/bison/bin/bison
-export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 # Added by ~/.emacs.d/install.sh
-export PATH=$HOME/.local/bin:$PATH
 alias emacs="emacs -nw"
+export COLIMA_VM="default"
+export COLIMA_VM_SOCKET="${HOME}/.colima/${COLIMA_VM}/docker.sock"
+export DOCKER_HOST="unix://${COLIMA_VM_SOCKET}"
