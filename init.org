@@ -219,6 +219,7 @@ It will be faster to disable them here before they've been initialized.
             perspective
             plantuml-mode
             format-all
+            dts-mode
 
             ;; Org
                                           ;org-superstar                 ; show org bullet as Unicode character
@@ -328,7 +329,7 @@ It will be faster to disable them here before they've been initialized.
 
             ibuffer-vc
 
-            (vertico :fetcher git :url "https://github.com/minad/vertico.git")             ; use default package-install instead of quelpa
+            vertico
             (vertico-posframe :fetcher git :url "https://github.com/tumashu/vertico-posframe.git")
             marginalia
             consult
@@ -2812,9 +2813,29 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 #+begin_src emacs-lisp
   (setq consult-narrow-key "<") ;; (kbd "C-+")
 #+end_src
+*** ripgrep
+#+begin_src emacs-lisp
+  (defun consult-ripgrep-up-directory ()
+    (interactive)
+    (let ((parent-dir (file-name-directory (directory-file-name default-directory))))
+      (when parent-dir
+        (run-at-time 0 nil
+                     #'consult-ripgrep
+                     parent-dir
+                     (ignore-errors
+                       (buffer-substring-no-properties
+                        (1+ (minibuffer-prompt-end)) (point-max))))))
+    (minibuffer-quit-recursive-edit))
+
+  (after 'consult
+  (consult-customize
+   consult-ripgrep
+   :keymap (let ((map (make-sparse-keymap)))
+             (define-key map (kbd "M-l") #'consult-ripgrep-up-directory)
+             map))
+#+end_src
 *** cpp
 #+begin_src emacs-lisp
-     (after 'consult
      (defvar  cpp-source
        (list :name     "CPP Buffer"
              :category 'buffer
@@ -3985,16 +4006,11 @@ SLOW!!!
    Remove default bindings
 
 #+BEGIN_SRC emacs-lisp
-  (define-key git-timemachine-mode-map (kbd "w") nil)
-  (define-key git-timemachine-mode-map (kbd "W") nil)
-  (define-key git-timemachine-mode-map (kbd "?") nil)
-  (define-key git-timemachine-mode-map (kbd "b") nil)
-  (define-key git-timemachine-mode-map (kbd "c") nil)
-  (define-key git-timemachine-mode-map (kbd "g") nil)
-  (define-key git-timemachine-mode-map (kbd "n") nil)
-  (define-key git-timemachine-mode-map (kbd "p") nil)
-  (define-key git-timemachine-mode-map (kbd "q") nil)
-  (define-key git-timemachine-mode-map (kbd "t") nil)
+  (eval-after-load 'git-timemachine
+    '(progn
+       (evil-make-overriding-map git-timemachine-mode-map 'normal)
+       ;; force update evil keymaps after git-timemachine-mode loaded
+       (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)))
 #+END_SRC
 
 *** blamer
@@ -4365,10 +4381,10 @@ Git-gutter doesn’t play nice with TRAMP remotes
            lsp-ui-sideline-enable t
 
            lsp-ui-sideline-ignore-duplicate t
-           lsp-ui-sideline-show-code-actions t
+           lsp-ui-sideline-show-code-actions nil
            lsp-ui-sideline-show-diagnostics t
-           lsp-ui-sideline-show-hover t
-           lsp-ui-sideline-show-symbol t)
+           lsp-ui-sideline-show-hover nil
+           lsp-ui-sideline-show-symbol nil)
 
      (add-hook 'lsp-ui-mode-hook
                (bind
