@@ -240,6 +240,11 @@ It will be faster to disable them here before they've been initialized.
                                           ;smart-mode-line
             smartparens                   ; Minor mode for Emacs that deals with parens pairs
 
+            casual
+            casual-avy
+            casual-symbol-overlay
+            symbol-overlay
+
             ;; Term
             multi-term
             vterm
@@ -291,6 +296,7 @@ It will be faster to disable them here before they've been initialized.
             (csv-mode builtin)
             (auctex builtin)              ; integrated environment for *TeX*
             (rainbow-mode builtin)        ; colorized color code in file
+            undo-fu
             undo-fu-session               ; save undo history
             (vundo :fetcher git :url "https://github.com/casouri/vundo.git")
             (bug-hunter builtin)
@@ -600,6 +606,8 @@ required from *emacs*.
                                     (format "general-def 'normal %s \"%s\"" mvar key))
                                    ((string= (format "%s" moda) "evilmap")
                                     (format "general-def '%s %s \"%s\"" (nth 1 l) mvar key))
+                                   ((string= (format "%s" moda) "noevil")
+                                    (format "general-def %s \"%s\"" (nth 1 l) key))
                                    ((string= (format "%s" moda) "evil")
                                     (format "general-def '%s %s \"%s\"" (nth 2 l) (nth 1 l) key))
                                    ((string= (format "%s" moda) "lead")
@@ -644,16 +652,16 @@ required from *emacs*.
     '(fixed-pitch ((t ( :family "PragmataPro Liga"
                         :slant normal
                         :weight normal
-                        :height 160
+                        :height 88
                         :width normal)))))
 
   ;; Setting the default general font
   (set-face-attribute 'default nil
                       :family "PragmataPro Liga"
-                      :height 160
+                      :height 88
                       )
-  (defvar qq/modeline-font-height 160)
-  (set-frame-font "PragmataPro Liga 16" nil t)
+  (defvar qq/modeline-font-height 120)
+  (set-frame-font "PragmataPro Liga 8" nil t)
 #+end_src
 
 **** Ccls Executables
@@ -1940,6 +1948,19 @@ Displaying sequences of characters as fancy characters or symbols
      (winner-mode)
      (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
+*** Info
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'Info-mode-hook #'scroll-lock-mode)
+#+END_SRC
+
+*** Imenu
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'markdown-mode-hook #'imenu-add-menubar-index)
+  (add-hook 'makefile-mode-hook #'imenu-add-menubar-index)
+  (add-hook 'prog-mode-hook #'imenu-add-menubar-index)
+  (add-hook 'org-mode-hook #'imenu-add-menubar-index)
+#+END_SRC
+
 *** =tramp=
    [[https://www.emacswiki.org/emacs/TrampMode][=tramp=]] lets you edit files remotely from your local Emacs which is useful
    because it lets you have all the default configuration. Let’s make sure the
@@ -1990,12 +2011,13 @@ Don't backup su and sudo files
 **** Settings
 
 #+BEGIN_SRC emacs-lisp
-     (setq
-      ibuffer-default-sorting-mode 'filename/process
-      ibuffer-eliding-string "…"
-      ibuffer-expert t
-      ibuffer-compile-formats t
-      ibuffer-show-empty-filter-groups nil)
+  (add-hook 'ibuffer-mode-hook #'ibuffer-auto-mode)
+  (setq
+   ibuffer-default-sorting-mode 'filename/process
+   ibuffer-eliding-string "…"
+   ibuffer-expert t
+   ibuffer-compile-formats t
+   ibuffer-show-empty-filter-groups nil)
 #+END_SRC
 **** Evil initial state
 
@@ -2095,6 +2117,11 @@ Don't backup su and sudo files
       | d         |                     | 'ibuffer-mark-for-delete              |
       | C-d       |                     | 'ibuffer-mark-for-delete-backwards    |
       | x         |                     | 'ibuffer-do-kill-on-deletion-marks    |
+      | {         |                     | #'ibuffer-backwards-next-marked       |
+      | }         |                     | #'ibuffer-forward-next-marked         |
+      | [         |                     | #'ibuffer-backward-filter-group       |
+      | ]         |                     | #'ibuffer-forward-filter-group        |
+      | $         |                     | #'ibuffer-toggle-filter-group         |
       | q         |                     | 'quit-window                          |
 ***** Links: [[Evil iBuffer Bindings][Evil iBuffer Bindings]]                           :ignore:
 *** Minibuffer
@@ -2283,6 +2310,13 @@ Use conf-mode for git config files
     #+begin_src emacs-lisp
       (dolist (key '("\M-l" "\M-k"))
         (global-unset-key key))
+    #+end_src
+
+    Rebind =C-g= to =Escape= key
+    #+begin_src emacs-lisp
+      (global-set-key (kbd "<escape>") 'keyboard-quit)
+      (after 'magit
+        (define-key transient-map (kbd "<escape>") 'transient-quit-one))
     #+end_src
 
 *** Default Binding
@@ -2815,6 +2849,7 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 #+end_src
 *** ripgrep
 #+begin_src emacs-lisp
+  (require 'consult)
   (defun consult-ripgrep-up-directory ()
     (interactive)
     (let ((parent-dir (file-name-directory (directory-file-name default-directory))))
@@ -2827,7 +2862,6 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
                         (1+ (minibuffer-prompt-end)) (point-max))))))
     (minibuffer-quit-recursive-edit))
 
-  (after 'consult
   (consult-customize
    consult-ripgrep
    :keymap (let ((map (make-sparse-keymap)))
@@ -2836,6 +2870,7 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 #+end_src
 *** cpp
 #+begin_src emacs-lisp
+  (after 'consult
      (defvar  cpp-source
        (list :name     "CPP Buffer"
              :category 'buffer
@@ -2964,6 +2999,49 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
       | <f4>  |                            | 'embark-dwim |
 
 **** Links: [[Embark Bindings][Embark Bindings]]                                     :ignore:
+** Casual Suite
+*** Init
+#+begin_src emacs-lisp
+#+end_src
+
+*** Keybinding
+    :PROPERTIES:
+    :CUSTOM_ID: casual-suite-binding
+    :END:
+   #+TBLNAME: casual_suite_keys
+      | Combo | Mode                    | Description                                          | Command                                 |
+      | C-o   | org-agenda-mode-map     |                                                      | #'casual-agenda-tmenu                   |
+      | M-j   | org-agenda-mode-map     |                                                      | #'org-agenda-clock-goto                 |
+      | J     | org-agenda-mode-map     |                                                      | #'bookmark-jump                         |
+      | C-o   | bookmark-bmenu-mode-map |                                                      | #'casual-bookmarks-tmenu                |
+      | J     | bookmark-bmenu-mode-map |                                                      | #'bookmark-jump                         |
+      | C-o   | calc-mode-map           |                                                      | #'casual-calc-tmenu                     |
+      | C-o   | calc-alg-map            |                                                      | #'casual-calc-tmenu                     |
+      | C-o   | calendar-mode-map       |                                                      | #'casual-calendar                       |
+      | C-o   | dired-mode-map          |                                                      | #'casual-dired-tmenu                    |
+      | s     | dired-mode-map          |                                                      | #'casual-dired-sort-by-tmenu            |
+      | /     | dired-mode-map          |                                                      | #'casual-dired-search-replace-tmenu     |
+      | C-o   | ibuffer-mode-map        |                                                      | #'casual-ibuffer-tmenu                  |
+      | F     | ibuffer-mode-map        |                                                      | #'casual-ibuffer-filter-tmenu           |
+      | s     | ibuffer-mode-map        |                                                      | #'casual-ibuffer-sortby-tmenu           |
+      | C-o   | image-mode-map          |                                                      | #'casual-image-tmenu                    |
+      | C-o   | Info-mode-map           |                                                      | #'casual-info-tmenu                     |
+      | M-[   | Info-mode-map           | Use web-browser history navigation bindings          | #'Info-history-back                     |
+      | M-]   | Info-mode-map           |                                                      | #'Info-history-forward                  |
+      | p     | Info-mode-map           | Bind p and n to paragraph navigation                 | #'casual-info-browse-backward-paragraph |
+      | n     | Info-mode-map           |                                                      | #'casual-info-browse-forward-paragraph  |
+      | h     | Info-mode-map           | Bind h and l to move to previous and next nodes      | #'Info-prev                             |
+      | l     | Info-mode-map           |                                                      | #'Info-next                             |
+      | j     | Info-mode-map           | Bind j and k to move to next and previous references | #'Info-next-reference                   |
+      | k     | Info-mode-map           |                                                      | #'Info-prev-reference                   |
+      | /     | Info-mode-map           | Bind / to search                                     | #'Info-search                           |
+      | B     | Info-mode-map           | Set bookmark                                         | #'bookmark-set                          |
+      | C-o   | isearch-mode-map        |                                                      | #'casual-isearch-tmenu                  |
+      | C-o   | reb-mode-map            |                                                      | #'casual-re-builder-tmenu               |
+      | C-o   | reb-lisp-mode-map       |                                                      | #'casual-re-builder-tmenu               |
+      | C-o   | symbol-overlay-map      |                                                      | #'casual-symbol-overlay-tmenu           |
+
+**** Links: [[Casual Bindings][Casual Bindings]]                                :ignore:
 ** Mini-Frame
 #+begin_src emacs-lisp
      ;; (mini-frame-mode)
@@ -3397,28 +3475,31 @@ kill unused buffers in the background
     :CUSTOM_ID: evil-normal-binding
     :END:
    #+TBLNAME: evil_std_keys
-      | Combo | Description                                | Command                                              |
-      |-------+--------------------------------------------+------------------------------------------------------|
-      | C-b   | Scroll one page up                         | 'evil-scroll-up                                      |
-      | C-f   | Scroll one page down                       | 'evil-scroll-down                                    |
-      | [ SPC | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
-      | ] SPC | Insert empty line below current line       | (bind (evil-insert-newline-below) (forward-line -1)) |
-      | [ e   | Move current line up one line              | (kbd "ddkP")                                         |
-      | ] e   | Move current line down one line            | (kbd "ddp")                                          |
-      | [ b   | Jump to the previous buffer                | 'previous-buffer                                     |
-      | ] b   | Jump to the next buffer                    | 'next-buffer                                         |
-      | [ q   | Jump to the previous error                 | 'previous-error                                      |
-      | ] q   | Jump to the next error                     | 'next-error                                          |
-      | C-j   | Navigate cursor to the lower window        | 'windmove-down                                       |
-      | C-k   | Navigate cursor to the upper window        | 'windmove-up                                         |
-      | C-h   | Navigate cursor to the window on the left  | 'windmove-left                                       |
-      | C-l   | Navigate cursor to the window on the right | 'windmove-right                                      |
-      | C-a   | Increment number at cursor                 | 'evil-numbers/inc-at-pt                              |
-      | "-"   | Decrement number at cursor                 | 'evil-numbers/dec-at-pt                              |
-      | Y     |                                            | (kbd "y$")                                           |
-      | g ]   |                                            | 'ggtags-find-definition                              |
-      | g [   |                                            | 'ggtags-find-reference                               |
-      | g p   |                                            | 'hydra-projectile/body                               |
+      | Combo   | Description                                | Command                                              |
+      |---------+--------------------------------------------+------------------------------------------------------|
+      | C-b     | Scroll one page up                         | 'evil-scroll-up                                      |
+      | C-f     | Scroll one page down                       | 'evil-scroll-down                                    |
+      | [ SPC   | Insert empty line above current line       | (bind (evil-insert-newline-above) (forward-line))    |
+      | ] SPC   | Insert empty line below current line       | (bind (evil-insert-newline-below) (forward-line -1)) |
+      | [ e     | Move current line up one line              | (kbd "ddkP")                                         |
+      | ] e     | Move current line down one line            | (kbd "ddp")                                          |
+      | [ b     | Jump to the previous buffer                | 'previous-buffer                                     |
+      | ] b     | Jump to the next buffer                    | 'next-buffer                                         |
+      | [ q     | Jump to the previous error                 | 'previous-error                                      |
+      | ] q     | Jump to the next error                     | 'next-error                                          |
+      | C-j     | Navigate cursor to the lower window        | 'windmove-down                                       |
+      | C-k     | Navigate cursor to the upper window        | 'windmove-up                                         |
+      | C-h     | Navigate cursor to the window on the left  | 'windmove-left                                       |
+      | C-l     | Navigate cursor to the window on the right | 'windmove-right                                      |
+      | C-a     | Increment number at cursor                 | 'evil-numbers/inc-at-pt                              |
+      | "-"     | Decrement number at cursor                 | 'evil-numbers/dec-at-pt                              |
+      | Y       |                                            | (kbd "y$")                                           |
+      | g ]     |                                            | 'ggtags-find-definition                              |
+      | g [     |                                            | 'ggtags-find-reference                               |
+      | g SPC   |                                            | 'symbol-overlay-put                                  |
+      | g S-SPC |                                            | 'symbol-overlay-remove-all                           |
+      | g >     |                                            | 'symbol-overlay-switch-forward                       |
+      | g <     |                                            | 'symbol-overlay-switch-backward                      |
 ***** Links: [[Evil Normal Bindings][Evil Normal Bindings]]                            :ignore:
 **** Motion Mode Binding
     :PROPERTIES:
@@ -3546,8 +3627,9 @@ kill unused buffers in the background
       | E i    |                                     | 'emoji-insert                            |
       | E E    |                                     | 'emoji-recent                            |
       | ?      |                                     | 'which-key-show-top-level                |
-      | q      |                                     | 'evil-window-delete                      |
+      | o      |                                     | #'casual-editkit-main-tmenu              |
       | P      |                                     | 'package-list-packages                   |
+      | q      |                                     | 'evil-window-delete                      |
       | R      | Restart emacs                       | 'restart-emacs                           |
       | r 1    |                                     | 'qq/serial-term-1                        |
       | r 2    |                                     | 'qq/serial-term-2                        |
@@ -3597,8 +3679,13 @@ kill unused buffers in the background
 
 #+begin_src emacs-lisp
   (require 'undo-fu-session)
-  (undo-fu-session-global-mode)
   (setq undo-fu-session-directory (concat user-emacs-directory ".cache/undo-session/"))
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (undo-fu-session-global-mode)
+
+  (setq undo-limit 80000000)
+  (setq undo-strong-limit 120000000)
+  (setq undo-outer-limit 1200000000)
 
   (after 'vundo
     (setq vundo-glyph-alist vundo-unicode-symbols))
@@ -3943,6 +4030,7 @@ TODO: add option to remove mode and add directly to the  binding
       | g b   |                                 | 'avy-goto-word       |
       | g z   |                                 | 'avy-goto-char-timer |
       | g s   |                                 | 'avy-goto-char       |
+      | g c   | open casual-avy                 | #'casual-avy-tmenu   |
 **** Links: [[Evil Avy Bindings][Evil Avy Bindings]]                                     :ignore:
 ** Git/Magit
 *** Settings
@@ -4285,18 +4373,19 @@ Git-gutter doesn’t play nice with TRAMP remotes
 ** Lsp-mode
    Language Server Protocol support for Emacs. [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
 #+BEGIN_SRC emacs-lisp
-     (defun qq/lsp-deferred-if-supported ()
-       "Runlsp-deferred' if it's a supported mode."
-       (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
+  (defun qq/lsp-deferred-if-supported ()
+    "Runlsp-deferred' if it's a supported mode."
+    (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
 
-     (setq lsp-keymap-prefix "s-g")
-     (after 'lsp-mode
-       (setq lsp-completion-provider :capf
-             lsp-session-file (concat qq/cache-directory "lsp-session-v1")
-             lsp-auto-guess-root t)
-       (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-       (require 'dap-cpptools)
-       (yas-global-mode))
+  (setq lsp-keymap-prefix "s-g")
+  (setq lsp-enable-symbol-highlighting nil)
+  (after 'lsp-mode
+    (setq lsp-completion-provider :capf
+          lsp-session-file (concat qq/cache-directory "lsp-session-v1")
+          lsp-auto-guess-root t)
+    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+    (require 'dap-cpptools)
+    (yas-global-mode))
 #+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
@@ -5428,10 +5517,10 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: evil-projectile-binding
     :END:
    #+TBLNAME: evil_projectile_keys
-      | Combo | Description | Command                                                                    |
-      |-------+-------------+----------------------------------------------------------------------------|
-      | f a   |             | (lambda () (interactive) (call-interactively 'projectile-find-other-file)) |
-      | ,     |             | 'projectile-find-file                                                      |
+      | Combo | Description | Command               |
+      |-------+-------------+-----------------------|
+      | f a   |             | 'ff-get-other-file    |
+      | ,     |             | 'projectile-find-file |
 **** Links: [[Evil Projectile Bindings][Evil Projectile Bindings]]                                      :ignore:
 ** Perspective
 *** Settings
@@ -7068,6 +7157,13 @@ To use this function, simply highlight a region you want to align and run M-x al
      <<gen-keys(moda="lead", tname=vterm_mode_keys)>>
      <<gen-fix(pos=")\n")>>
 #+END_SRC
+** Casual Bindings
+   Generate binding using table from [[#casual-suite-binding][here]]
+
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="noevil", tname=casual_suite_keys)>>
+#+END_SRC
+
 ** Vundo Bindings
    Generate binding using table from [[#global-vundo-binding][here]]
 
