@@ -240,6 +240,7 @@ It will be faster to disable them here before they've been initialized.
                                           ;smart-mode-line
             smartparens                   ; Minor mode for Emacs that deals with parens pairs
 
+            char-menu
             casual
             casual-avy
             casual-symbol-overlay
@@ -285,6 +286,7 @@ It will be faster to disable them here before they've been initialized.
             dockerfile-mode
             docker
             docker-compose-mode
+            (treesit-fold :fetcher git :url "https://github.com/emacs-tree-sitter/treesit-fold.git")
 
             ;; Shell
             fasd
@@ -652,16 +654,16 @@ required from *emacs*.
     '(fixed-pitch ((t ( :family "PragmataPro Liga"
                         :slant normal
                         :weight normal
-                        :height 88
+                        :height 98
                         :width normal)))))
 
   ;; Setting the default general font
   (set-face-attribute 'default nil
                       :family "PragmataPro Liga"
-                      :height 88
+                      :height 98
                       )
   (defvar qq/modeline-font-height 120)
-  (set-frame-font "PragmataPro Liga 8" nil t)
+  (set-frame-font "PragmataPro Liga 9" nil t)
 #+end_src
 
 **** Ccls Executables
@@ -744,7 +746,7 @@ required from *emacs*.
 
       '(variable-pitch ((t (:family "Cabin"
                                     :height 1.1))))
-      '(fixed-pitch ((t ( :family "PragmataPro"
+      '(fixed-pitch ((t ( :family "PragmataPro Liga"
                           :slant normal
                           :weight normal
                           :height 1.0
@@ -752,8 +754,8 @@ required from *emacs*.
 
      ;; Setting the default general font
      (set-face-attribute 'default nil
-                         :family "PragmataPro"
-                         :height 88
+                         :family "PragmataPro Liga"
+                         :height 98
                          )
 #+end_src
 
@@ -1141,14 +1143,14 @@ required from *emacs*.
 *** Setq
 
 #+BEGIN_SRC emacs-lisp
-     (setq default-input-method "TeX"                   ; Use TeX when toggeling input method.
-           doc-view-continuous t                        ; At page edge goto next/previous.
-           global-mark-ring-max 128
-           ring-bell-function 'ignore                   ; Quiet.
-           mark-ring-max 64
-           sentence-end-double-space nil
-           save-interprogram-paste-before-kill t
-           history-delete-duplicates t
+  (setq default-input-method "TeX"                   ; Use TeX when toggeling input method.
+        doc-view-continuous t                        ; At page edge goto next/previous.
+        global-mark-ring-max 128
+        ring-bell-function 'ignore                   ; Quiet.
+        mark-ring-max 64
+        sentence-end-double-space nil
+        save-interprogram-paste-before-kill t
+        history-delete-duplicates t
 #+END_SRC
 
 **** Startup behaviour
@@ -1731,13 +1733,306 @@ Displaying sequences of characters as fancy characters or symbols
    This only work for Pragmata Pro fonts, details [[https://www.reddit.com/r/emacs/comments/4sm6fa/how_to_enable_pragmatapro_ligatures/][here]].
 
 #+BEGIN_SRC emacs-lisp
-  (require 'pragmatapro-lig)
+    ;; (require 'pragmatapro-lig)
 
-  ;; Enable pragmatapro-lig-mode for specific modes
-  ;; (add-hook 'text-mode-hook 'pragmatapro-lig-mode)
-  ;; (add-hook 'prog-mode-hook 'pragmatapro-lig-mode)
-  ;; or globally
-  (pragmatapro-lig-global-mode)
+    ;; Enable pragmatapro-lig-mode for specific modes
+    ;; (add-hook 'text-mode-hook 'pragmatapro-lig-mode)
+    ;; (add-hook 'prog-mode-hook 'pragmatapro-lig-mode)
+    ;; or globally
+    ;; (pragmatapro-lig-global-mode)
+    (setq prettify-symbols-unprettify-at-point 'right-edge)
+
+    (defconst pragmatapro-prettify-symbols-alist
+      (mapcar (lambda (s)
+                `(,(car s)
+                  .
+                  ,(vconcat
+                    (apply 'vconcat
+                           (make-list
+                            (- (length (car s)) 1)
+                            (vector (decode-char 'ucs #X0020) '(Br . Bl))))
+                    (vector (decode-char 'ucs (cadr s))))))
+              '(("[INFO ]"    #XE280)
+                ("[WARN ]"    #XE281)
+                ("[PASS ]"    #XE282)
+                ("[VERBOSE]"  #XE283)
+                ("[KO]"       #XE284)
+                ("[OK]"       #XE285)
+                ("[PASS]"     #XE286)
+                ("[ERROR]"    #XE2C0)
+                ("[DEBUG]"    #XE2C1)
+                ("[INFO]"     #XE2C2)
+                ("[WARN]"     #XE2C3)
+                ("[WARNING]"  #XE2C4)
+                ("[ERR]"      #XE2C5)
+                ("[FATAL]"    #XE2C6)
+                ("[TRACE]"    #XE2C7)
+                ("[FIXME]"    #XE2C8)
+                ("[TODO]"     #XE2C9)
+                ("[BUG]"      #XE2CA)
+                ("[NOTE]"     #XE2CB)
+                ("[HACK]"     #XE2CC)
+                ("[MARK]"     #XE2CD)
+                ("[FAIL]"     #XE2CE)
+                ("# ERROR"    #XE2F0)
+                ("# DEBUG"    #XE2F1)
+                ("# INFO"     #XE2F2)
+                ("# WARN"     #XE2F3)
+                ("# WARNING"  #XE2F4)
+                ("# ERR"      #XE2F5)
+                ("# FATAL"    #XE2F6)
+                ("# TRACE"    #XE2F7)
+                ("# FIXME"    #XE2F8)
+                ("# TODO"     #XE2F9)
+                ("# BUG"      #XE2FA)
+                ("# NOTE"     #XE2FB)
+                ("# HACK"     #XE2FC)
+                ("# MARK"     #XE2FD)
+                ("# FAIL"     #XE2FE)
+                ("// ERROR"   #XE2E0)
+                ("// DEBUG"   #XE2E1)
+                ("// INFO"    #XE2E2)
+                ("// WARN"    #XE2E3)
+                ("// WARNING" #XE2E4)
+                ("// ERR"     #XE2E5)
+                ("// FATAL"   #XE2E6)
+                ("// TRACE"   #XE2E7)
+                ("// FIXME"   #XE2E8)
+                ("// TODO"    #XE2E9)
+                ("// BUG"     #XE2EA)
+                ("// NOTE"    #XE2EB)
+                ("// HACK"    #XE2EC)
+                ("// MARK"    #XE2ED)
+                ("// FAIL"    #XE2EE)
+                ("!="         #X100140)
+                ("!=="        #X100141)
+                ("!=="        #X100142)
+                ("!≡"         #X100143)
+                ("!≡≡"        #X100144)
+                ("#("         #X10014C)
+                ("#_"         #X10014D)
+                ("#{"         #X10014E)
+                ("#?"         #X10014F)
+                ("##"         #X100150)
+                ("#_("        #X100151)
+                ("#["         #X100152)
+                ("%="         #X100160)
+                ("&%"         #X10016C)
+                ("&&"         #X10016D)
+                ("&+"         #X10016E)
+                ("&-"         #X10016F)
+                ("&/"         #X100170)
+                ("&="         #X100171)
+                ("&&&"        #X100172)
+                ("$>"         #X10017A)
+                ("(|"         #X100180)
+                ("*>"         #X100186)
+                ("++"         #X10018C)
+                ("+++"        #X10018D)
+                ("+="         #X10018E)
+                ("+>"         #X10018F)
+                ("++="        #X100190)
+                ("--"         #X1001A0)
+                ("-<"         #X1001A1)
+                ("-<<"        #X1001A2)
+                ("-="         #X1001A3)
+                ("->"         #X1001A4)
+                ("->>"        #X1001A5)
+                ("---"        #X1001A6)
+                ("-->"        #X1001A7)
+                ("-+-"        #X1001A8)
+                ("-\\/"       #X1001A9)
+                ("-|>"        #X1001AA)
+                ("-<|"        #X1001AB)
+                ("->-"        #X1001AC)
+                ("-<-"        #X1001AD)
+                ("-|"         #X1001AE)
+                ("-||"        #X1001AF)
+                ("-|:"        #X1001B0)
+                (".="         #X1001B9)
+                ("//="        #X1001D4)
+                ("/="         #X1001D5)
+                ("/=="        #X1001D6)
+                ("/-\\"       #X1001D7)
+                ("/-:"        #X1001D8)
+                ("/->"        #X1001D9)
+                ("/=>"        #X1001DA)
+                ("/-<"        #X1001DB)
+                ("/=<"        #X1001DC)
+                ("/=:"        #X1001DD)
+                (":="         #X1001EC)
+                (":≡"         #X1001ED)
+                (":=>"        #X1001EE)
+                (":-\\"       #X1001EF)
+                (":=\\"       #X1001F0)
+                (":-/"        #X1001F1)
+                (":=/"        #X1001F2)
+                (":-|"        #X1001F3)
+                (":=|"        #X1001F4)
+                (":|-"        #X1001F5)
+                (":|="        #X1001F6)
+                ("<$>"        #X100200)
+                ("<*"         #X100201)
+                ("<*>"        #X100202)
+                ("<+>"        #X100203)
+                ("<-"         #X100204)
+                ("<<="        #X100205)
+                ("<=>"        #X100207)
+                ("<>"         #X100208)
+                ("<|>"        #X100209)
+                ("<<-"        #X10020A)
+                ("<|"         #X10020B)
+                ("<=<"        #X10020C)
+                ("<~"         #X10020D)
+                ("<~~"        #X10020E)
+                ("<<~"        #X10020F)
+                ("<$"         #X100210)
+                ("<+"         #X100211)
+                ("<!>"        #X100212)
+                ("<@>"        #X100213)
+                ("<#>"        #X100214)
+                ("<%>"        #X100215)
+                ("<^>"        #X100216)
+                ("<&>"        #X100217)
+                ("<?>"        #X100218)
+                ("<.>"        #X100219)
+                ("</>"        #X10021A)
+                ("<\\>"       #X10021B)
+                ("<\">"       #X10021C)
+                ("<:>"        #X10021D)
+                ("<~>"        #X10021E)
+                ("<**>"       #X10021F)
+                ("<<^"        #X100220)
+                ("<="         #X100221)
+                ("<->"        #X100222)
+                ("<!--"       #X100223)
+                ("<--"        #X100224)
+                ("<~<"        #X100225)
+                ("<==>"       #X100226)
+                ("<|-"        #X100227)
+                ("<||"        #X100228)
+                ("<<|"        #X100229)
+                ("<-<"        #X10022A)
+                ("<-->"       #X10022B)
+                ("<<=="       #X10022C)
+                ("<=="        #X10022D)
+                ("<-\\"       #X10022E)
+                ("<-/"        #X10022F)
+                ("<=\\"       #X100230)
+                ("<=/"        #X100231)
+                ("=<<"        #X100240)
+                ("=="         #X100241)
+                ("==="        #X100242)
+                ("==>"        #X100243)
+                ("=>"         #X100244)
+                ("=~"         #X100245)
+                ("=>>"        #X100246)
+                ("=~="        #X100247)
+                ("==>>"       #X100248)
+                ("=>="        #X100249)
+                ("=<="        #X10024A)
+                ("=<"         #X10024B)
+                ("==<"        #X10024C)
+                ("=<|"        #X10024D)
+                ("=/="        #X10024F)
+                ("=/<"        #X100250)
+                ("=|"         #X100251)
+                ("=||"        #X100252)
+                ("=|:"        #X100253)
+                (">-"         #X100260)
+                (">>-"        #X100262)
+                (">>="        #X100263)
+                (">=>"        #X100264)
+                (">>^"        #X100265)
+                (">>|"        #X100266)
+                (">!="        #X100267)
+                (">->"        #X100268)
+                (">=="        #X100269)
+                (">="         #X10026A)
+                (">/="        #X10026B)
+                (">-|"        #X10026C)
+                (">=|"        #X10026D)
+                (">-\\"       #X10026E)
+                (">=\\"       #X10026F)
+                (">-/"        #X100270)
+                (">=/"        #X100271)
+                (">λ="        #X100272)
+                ("?."         #X10027F)
+                ("^="         #X100283)
+                ("^<<"        #X100288)
+                ("^>>"        #X100289)
+                ("\\="        #X100294)
+                ("\\=="       #X100295)
+                ("\\/="       #X100296)
+                ("\\-/"       #X100297)
+                ("\\-:"       #X100298)
+                ("\\->"       #X100299)
+                ("\\=>"       #X10029A)
+                ("\\-<"       #X10029B)
+                ("\\=<"       #X10029C)
+                ("\\=:"       #X10029D)
+                ("|="         #X1002A9)
+                ("|>="        #X1002AA)
+                ("|>"         #X1002AB)
+                ("|+|"        #X1002AC)
+                ("|->"        #X1002AD)
+                ("|-->"       #X1002AE)
+                ("|=>"        #X1002AF)
+                ("|==>"       #X1002B0)
+                ("|>-"        #X1002B1)
+                ("|<<"        #X1002B2)
+                ("||>"        #X1002B3)
+                ("|>>"        #X1002B4)
+                ("|-"         #X1002B5)
+                ("||-"        #X1002B6)
+                ("||="        #X1002B7)
+                ("|)"         #X1002B8)
+                ("|]"         #X1002B9)
+                ("|-:"        #X1002BA)
+                ("|=:"        #X1002BB)
+                ("|-<"        #X1002BC)
+                ("|=<"        #X1002BD)
+                ("|--<"       #X1002BE)
+                ("|==<"       #X1002BF)
+                ("~="         #X1002CA)
+                ("~>"         #X1002CB)
+                ("~~>"        #X1002CC)
+                ("~>>"        #X1002CD)
+                ("[["         #X1002CF)
+                ("[|"         #X1002D0)
+                ("_|_"        #X1002D7)
+                ("]]"         #X1002E0)
+                ("≡≡"         #X1002F3)
+                ("≡≡≡"        #X1002F4)
+                ("≡:≡"        #X1002F5)
+                ("≡/"         #X1002F6)
+                ("≡/≡"        #X1002F7)
+                )))
+
+    (defun add-pragmatapro-prettify-symbols-alist ()
+      (setq prettify-symbols-alist pragmatapro-prettify-symbols-alist))
+
+    ;; enable prettified symbols on comments
+    (defun setup-compose-predicate ()
+      (setq prettify-symbols-compose-predicate
+            (defun my-prettify-symbols-default-compose-p (start end _match)
+              "Same as `prettify-symbols-default-compose-p', except compose symbols in comments as well."
+              (let* ((syntaxes-beg (if (memq (char-syntax (char-after start)) '(?w ?_))
+                                       '(?w ?_) '(?. ?\\)))
+                     (syntaxes-end (if (memq (char-syntax (char-before end)) '(?w ?_))
+                                       '(?w ?_) '(?. ?\\))))
+                (not (or (memq (char-syntax (or (char-before start) ?\s)) syntaxes-beg)
+                         (memq (char-syntax (or (char-after end) ?\s)) syntaxes-end)
+                         (nth 3 (syntax-ppss))))))))
+
+    ;; main hook fn, just add to text-mode/prog-mode
+    (defun prettify-hook ()
+      (add-pragmatapro-prettify-symbols-alist)
+      (setup-compose-predicate)
+      (prettify-symbols-mode t))
+
+    (add-hook 'prog-mode-hook #'prettify-hook)
+    (add-hook 'text-mode-hook #'prettify-hook)
 #+END_SRC
 
 *** Frame Scaling / Zooming
@@ -2168,6 +2463,44 @@ Don't backup su and sudo files
            '(invisible t))
 #+end_src
 
+**** Minibuffer completion
+***** Recursive
+Interrupt doing something in the minibuffer with another minibuffer-using operation
+
+#+BEGIN_SRC emacs-lisp
+  (setq enable-recursive-minibuffers t
+#+END_SRC
+
+***** Completion auto help
+The value 'always means always show the *Completions* buffer when trying to complete; other options include nil and 'lazy.
+
+#+BEGIN_SRC emacs-lisp
+     completion-auto-help 'always
+#+END_SRC
+
+***** Completion max height
+Controls how many lines high the *Completions* buffer should be.
+
+#+BEGIN_SRC emacs-lisp
+     completions-max-height 20
+#+END_SRC
+
+***** Completion format
+Put all completions in one column.
+
+#+BEGIN_SRC emacs-lisp
+     completions-format 'one-column
+#+END_SRC
+
+***** Completion auto select
+Controls when to jump to the *Completions* buffer automatically. The 'second-tab option is nice:
+the first TAB opens the *Completions* buffer, and if you want to select something from the list,
+you just hit TAB again.
+
+#+BEGIN_SRC emacs-lisp
+     completion-auto-select 'second-tab)
+#+END_SRC
+
 *** =conf-mode=
    Use conf-mode for .gitignore files
 #+BEGIN_SRC emacs-lisp
@@ -2571,8 +2904,6 @@ Use conf-mode for git config files
      (setq read-extended-command-predicate
            #'command-completion-default-include-p)
 
-     ;; Enable recursive minibuffers
-     (setq enable-recursive-minibuffers t)
      (setq completion-styles '(orderless basic)
            completion-category-overrides '((file (styles basic partial-completion))))
 
@@ -3002,6 +3333,7 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 ** Casual Suite
 *** Init
 #+begin_src emacs-lisp
+  (require 'casual-image)
 #+end_src
 
 *** Keybinding
@@ -3042,6 +3374,50 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
       | C-o   | symbol-overlay-map      |                                                      | #'casual-symbol-overlay-tmenu           |
 
 **** Links: [[Casual Bindings][Casual Bindings]]                                :ignore:
+** Char-Menu
+Char menu allows you to enter unicode characters easily. It automatically
+chooses jump keys to select the glyph you would like to use. This can be a
+nice alternative to using and memorizing prettified symbols.
+*** Init
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-s-f") #'char-menu)
+
+  (setq char-menu '("—" "‘’" "“”" "…" "«»" "–"
+                    ("Typography" "•" "©" "†" "‡" "°" "·" "§" "№" "★")
+                    ("Mathematical Operators"
+                     "∀" "∁" "∂" "∃" "∄" "∅" "∆" "∇" "∈" "∉" "∊" "∋" "∌" "∍" "∎" "∏"
+                     "∐" "∑" "−" "∓" "∔" "∕" "∖" "∗" "∘" "∙" "√" "∛" "∜" "∝" "∞" "∟"
+                     "∠" "∡" "∢" "∣" "∤" "∥" "∦" "∧" "∨" "∩" "∪" "∫" "∬" "∭" "∮" "∯"
+                     "∰" "∱" "∲" "∳" "∴" "∵" "∶" "∷" "∸" "∹" "∺" "∻" "∼" "∽" "∾" "∿"
+                     "≀" "≁" "≂" "≃" "≄" "≅" "≆" "≇" "≈" "≉" "≊" "≋" "≌" "≍" "≎" "≏"
+                     "≐" "≑" "≒" "≓" "≔" "≕" "≖" "≗" "≘" "≙" "≚" "≛" "≜" "≝" "≞" "≟"
+                     "≠" "≡" "≢" "≣" "≤" "≥" "≦" "≧" "≨" "≩" "≪" "≫" "≬" "≭" "≮" "≯"
+                     "≰" "≱" "≲" "≳" "≴" "≵" "≶" "≷" "≸" "≹" "≺" "≻" "≼" "≽" "≾" "≿"
+                     "⊀" "⊁" "⊂" "⊃" "⊄" "⊅" "⊆" "⊇" "⊈" "⊉" "⊊" "⊋" "⊌" "⊍" "⊎" "⊏"
+                     "⊐" "⊑" "⊒" "⊓" "⊔" "⊕" "⊖" "⊗" "⊘" "⊙" "⊚" "⊛" "⊜" "⊝" "⊞" "⊟"
+                     "⊠" "⊡" "⊢" "⊣" "⊤" "⊥" "⊦" "⊧" "⊨" "⊩" "⊪" "⊫" "⊬" "⊭" "⊮" "⊯"
+                     "⊰" "⊱" "⊲" "⊳" "⊴" "⊵" "⊶" "⊷" "⊸" "⊹" "⊺" "⊻" "⊼" "⊽" "⊾" "⊿"
+                     "⋀" "⋁" "⋂" "⋃" "⋄" "⋅" "⋆" "⋇" "⋈" "⋉" "⋊" "⋋" "⋌" "⋍" "⋎" "⋏"
+                     "⋐" "⋑" "⋒" "⋓" "⋔" "⋕" "⋖" "⋗" "⋘" "⋙" "⋚" "⋛" "⋜" "⋝" "⋞" "⋟"
+                     "⋠" "⋡" "⋢" "⋣" "⋤" "⋥" "⋦" "⋧" "⋨" "⋩" "⋪" "⋫" "⋬" "⋭" "⋮" "⋯"
+                     "⋰" "⋱" "⋲" "⋳" "⋴" "⋵" "⋶" "⋷" "⋸" "⋹" "⋺" "⋻" "⋼" "⋽" "⋾" "⋿")
+                    ("Superscripts & Subscripts"
+                     "⁰" "ⁱ"   "⁴" "⁵" "⁶" "⁷" "⁸" "⁹" "⁺" "⁻" "⁼" "⁽" "⁾" "ⁿ"
+                     "₀" "₁" "₂" "₃" "₄" "₅" "₆" "₇" "₈" "₉" "₊" "₋" "₌" "₍₎"
+                     "ₐ" "ₑ" "ₒ" "ₓ" "ₔ" "ₕ" "ₖ" "ₗ" "ₘ" "ₙ" "ₚ" "ₛ" "ₜ")
+                    ("Arrows"     "←" "→" "↑" "↓" "⇐" "⇒" "⇑" "⇓")
+                    ("Greek"      "α" "β" "Y" "δ" "ε" "ζ" "η" "θ" "ι" "κ" "λ" "μ"
+                     "ν" "ξ" "ο" "π" "ρ" "σ" "τ" "υ" "φ" "χ" "ψ" "ω")
+                    ("Enclosed Alphanumerics"
+                     "①" "②" "③" "④" "⑤" "⑥" "⑦" "⑧" "⑨" "Ⓐ" "Ⓑ" "Ⓒ" "Ⓓ" "Ⓔ" "Ⓕ" "Ⓖ"
+                     "Ⓗ" "Ⓘ" "Ⓙ" "Ⓚ" "Ⓛ" "Ⓜ" "Ⓝ" "Ⓞ" "Ⓟ" "Ⓠ" "Ⓡ" "Ⓢ" "Ⓣ" "Ⓤ" "Ⓥ" "Ⓦ"
+                     "Ⓧ" "Ⓨ" "Ⓩ" "ⓐ" "ⓑ" "ⓒ" "ⓓ" "ⓔ" "ⓕ" "ⓖ" "ⓗ" "ⓘ" "ⓙ" "ⓚ" "ⓛ" "ⓜ"
+                     "ⓝ" "ⓞ" "ⓟ" "ⓠ" "ⓡ" "ⓢ" "ⓣ" "ⓤ" "ⓥ" "ⓦ" "ⓧ" "ⓨ" "ⓩ" "⓪")
+                    ("Annotations"
+                     "      " "      " "     " "     " "        " "    " "      " "      "
+                     "      " "     " "    " "     " "     " "     ")))
+#+end_src
+
 ** Mini-Frame
 #+begin_src emacs-lisp
      ;; (mini-frame-mode)
@@ -3053,41 +3429,88 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 #+end_src
 
 ** Tree-Sitter
+*** Init
 #+begin_src emacs-lisp
   (add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
-  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(ruby-mode . ruby-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  (dolist (mapping
+           '((python-mode . python-ts-mode)
+             (css-mode . css-ts-mode)
+             (typescript-mode . typescript-ts-mode)
+             (js-mode . typescript-ts-mode)
+             (js2-mode . typescript-ts-mode)
+             (c-mode . c-ts-mode)
+             (c++-mode . c++-ts-mode)
+             (c-or-c++-mode . c-or-c++-ts-mode)
+             (bash-mode . bash-ts-mode)
+             (css-mode . css-ts-mode)
+             (json-mode . json-ts-mode)
+             (js-json-mode . json-ts-mode)
+             (sh-mode . bash-ts-mode)
+             (sh-base-mode . bash-ts-mode)))
+    (add-to-list 'major-mode-remap-alist mapping))
 
   (custom-set-variables '(c-ts-mode-indent-offset 4))
 
-  (setq treesit-language-source-alist
-        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-          (make . ("https://github.com/alemuller/tree-sitter-make"))
-          (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
-          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-          (php . ("https://github.com/tree-sitter/tree-sitter-php"))
-          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "typescript/src" "typescript"))
-          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
+  (defun qq/setup-install-grammars ()
+    "Install Tree-sitter grammars if they are absent."
+    (interactive)
+    (dolist (grammar
+             '((css . ("https://github.com/tree-sitter/tree-sitter-css" "master"))
+               (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+               (make . ("https://github.com/alemuller/tree-sitter-make"))
+               (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml" "ocaml/src" "ocaml"))
+               (php . ("https://github.com/tree-sitter/tree-sitter-php"))
+               (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+               (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+               (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+               (zig . ("https://github.com/GrayJack/tree-sitter-zig"))
+               (bash "https://github.com/tree-sitter/tree-sitter-bash")
+               (html . ("https://github.com/tree-sitter/tree-sitter-html" "master"))
+               (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+               (json . ("https://github.com/tree-sitter/tree-sitter-json" "master"))
+               (python . ("https://github.com/tree-sitter/tree-sitter-python" "master"))
+               (go "https://github.com/tree-sitter/tree-sitter-go" "master")
+               (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+               (make "https://github.com/alemuller/tree-sitter-make")
+               (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+               (cmake "https://github.com/uyha/tree-sitter-cmake")
+               (c "https://github.com/tree-sitter/tree-sitter-c")
+               (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+               (toml "https://github.com/tree-sitter/tree-sitter-toml")
+               (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+               (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "master"))
+               (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+      (add-to-list 'treesit-language-source-alist grammar)
+      ;; Only install `grammar' if we don't already have it
+      ;; installed. However, if you want to *update* a grammar then
+      ;; this obviously prevents that from happening.
+      (unless (treesit-language-available-p (car grammar))
+        (treesit-install-language-grammar (car grammar)))))
+
   (require 'treesit)
   (setq treesit-font-lock-level 4)
   (require 'treesit-auto)
   (global-treesit-auto-mode)
   (setq treesit-auto-install 'prompt)
+  (qq/setup-install-grammars)
+#+end_src
+
+*** =treesit-fold=
+#+begin_src emacs-lisp
+  (require treesit-fold)
+  ;; (custom-set-variables
+  ;;  '(treesit-fold-indicators-fringe 'right-fringe)
+  ;;  '(treesit-fold-line-count-format "… %d lines …")
+  ;;  '(treesit-fold-line-count-show t))
+  ;; (global-treesit-fold-mode 1)
+  ;; (global-treesit-fold-indicators-mode 1)
+
 #+end_src
 
 ** Mode-line-bell
@@ -3818,6 +4241,7 @@ TODO: add option to remove mode and add directly to the  binding
    #+TBLNAME: evil_dired_keys
       | Combo         | Mode           | Evil Mode       | Description                 | Command                                  |
       | <tab>         | dired-mode-map | (visual normal) |                             | 'dired-subtree-toggle                    |
+      | /             | dired-mode-map | (normal)        |                             | #'casual-dired-search-replace-tmenu      |
       | q             | dired-mode-map | (normal)        |                             | 'quit-window                             |
       | nn            | dired-mode-map | (normal)        | dired-narrow operation      | 'dired-narrow                            |
       | nx            | dired-mode-map | (normal)        |                             | 'dired-narrow-regexp                     |
@@ -3893,6 +4317,7 @@ TODO: add option to remove mode and add directly to the  binding
       | K             | dired-mode-map | (normal)        |                             | 'dired-do-kill-lines                     |
       | r             | dired-mode-map | (normal)        |                             | 'dired-do-redisplay                      |
       | m             | dired-mode-map | (normal)        |                             | 'dired-mark                              |
+      | s             | dired-mode-map | (normal)        |                             | #'casual-dired-sort-by-tmenu             |
       | t             | dired-mode-map | (normal)        |                             | 'dired-toggle-marks                      |
       | u             | dired-mode-map | (normal)        | also "*u"                   | 'dired-unmark                            |
       | W             | dired-mode-map | (normal)        |                             | 'browse-url-of-dired-file                |
@@ -3923,6 +4348,7 @@ TODO: add option to remove mode and add directly to the  binding
       | M-s f M-C-s   | dired-mode-map | (normal)        |                             | 'dired-isearch-filenames-regexp          |
       | g?            | dired-mode-map | (normal)        | misc                        | 'dired-summary                           |
       | <delete>      | dired-mode-map | (normal)        |                             | 'dired-unmark-backward                   |
+      | C-o           | dired-mode-map | (normal)        |                             | #'casual-dired-tmenu                     |
       | C-t d         | dired-mode-map | (normal)        | thumbnail manipulation      | 'image-dired-display-thumbs              |
       | C-t t         | dired-mode-map | (normal)        | (image-dired)               | 'image-dired-tag-files                   |
       | C-t r         | dired-mode-map | (normal)        |                             | 'image-dired-delete-tag                  |
@@ -4035,19 +4461,20 @@ TODO: add option to remove mode and add directly to the  binding
 ** Git/Magit
 *** Settings
 #+BEGIN_SRC emacs-lisp
-     (require 'magit)
-     (setq magit-diff-options '("--histogram"))
-     (setq magit-push-always-verify nil)
-     (setq magit-stage-all-confirm nil)
-     (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)
-     (setq magit-bury-buffer-function 'magit-restore-window-configuration)
-     (setq transient-history-file (concat qq/cache-directory "transient_hist.el"))
+  (require 'magit)
+  (setq magit-diff-options '("--histogram"))
+  (setq magit-push-always-verify nil)
+  (setq magit-stage-all-confirm nil)
+  (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)
+  (setq magit-bury-buffer-function 'magit-restore-window-configuration)
+  (setq transient-history-file (concat qq/cache-directory "transient_hist.el"))
+  (setopt magit-format-file-function #'magit-format-file-nerd-icons)
 
-     (define-minor-mode full-magit-mode
-       "" :lighter " Full Magit Status Buffer Mode" :global t
-       (if full-magit-mode
-           (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
-         (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)))
+  (define-minor-mode full-magit-mode
+    "" :lighter " Full Magit Status Buffer Mode" :global t
+    (if full-magit-mode
+        (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+      (setq magit-display-buffer-function #'magit-display-buffer-fullcolumn-most-v1)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -5517,10 +5944,10 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
     :CUSTOM_ID: evil-projectile-binding
     :END:
    #+TBLNAME: evil_projectile_keys
-      | Combo | Description | Command               |
-      |-------+-------------+-----------------------|
-      | f a   |             | 'ff-get-other-file    |
-      | ,     |             | 'projectile-find-file |
+      | Combo | Description | Command                     |
+      |-------+-------------+-----------------------------|
+      | f a   |             | 'projectile-find-other-file |
+      | ,     |             | 'projectile-find-file       |
 **** Links: [[Evil Projectile Bindings][Evil Projectile Bindings]]                                      :ignore:
 ** Perspective
 *** Settings
@@ -5941,10 +6368,12 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 **** Remap =ESC= key
 
 #+BEGIN_SRC emacs-lisp
-     (add-hook 'term-mode-hook
-               (lambda ()
-                 (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode)
-                 (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
+  (add-hook 'term-mode-hook
+            (lambda ()
+              (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode)
+              (define-key term-raw-map (kbd "<escape>")
+                          (lambda () (interactive) (term-send-raw-string "\e")))
+              (define-key term-raw-map (kbd "C-c C-j") 'term-line-mode)))
 #+END_SRC
 
 ** VTerm
@@ -6235,55 +6664,55 @@ TODO: Cause issue with ggtags
 **** Minor modes
 
 #+BEGIN_SRC emacs-lisp
-     (eldoc-mode)
-     (lsp-deferred)
-     ;; (ggtags-mode 1)
-     ;; (require 'dap-lldb)
-     ;; (require 'dap-gdb-lldb)
-     ;; (setq dap-auto-configure-features '(sessions locals controls tooltip))
+  (eldoc-mode)
+  (lsp-deferred)
+  (treesit-fold-mode)
+  ;; (ggtags-mode 1)
+  ;; (require 'dap-lldb)
+  ;; (require 'dap-gdb-lldb)
+  ;; (setq dap-auto-configure-features '(sessions locals controls tooltip))
 
-     ;; (dap-mode 1)
+  ;; (dap-mode 1)
 
-     ;; The modes below are optional
+  ;; The modes below are optional
 
-     ;; (dap-ui-mode 1)
+  ;; (dap-ui-mode 1)
 
-     ;; enables folding support
-     ;; (hs-minor-mode 1)
-     ;; enables mouse hover support
-     ;; (dap-tooltip-mode 1)
-     ;; use tooltips for mouse hover
-     ;; if it is not enabled `dap-mode' will use the minibuffer.
-     ;; (tooltip-mode 1)
-     ;; displays floating panel with debug buttons
-     ;; requies emacs 26+
-     ;; (dap-ui-controls-mode 1)
+  ;; enables folding support
+  ;; (hs-minor-mode 1)
+  ;; enables mouse hover support
+  ;; (dap-tooltip-mode 1)
+  ;; use tooltips for mouse hover
+  ;; if it is not enabled `dap-mode' will use the minibuffer.
+  ;; (tooltip-mode 1)
+  ;; displays floating panel with debug buttons
+  ;; requies emacs 26+
+  ;; (dap-ui-controls-mode 1)
 
-     ;; Highlights suspicious C and C++ constructions
-     ;; (global-cwarn-mode 1)
-     ;; (modern-c++-font-lock-mode)
+  ;; Highlights suspicious C and C++ constructions
+  ;; (global-cwarn-mode 1)
+  ;; (modern-c++-font-lock-mode)
 
-     ;; (setq-local dash-docs-docsets '("C" "C++"))
-     ;; slow
-     ;;(flycheck-mode)
-     ;;(setq flycheck-gcc-language-standard "c++11")
-     ;;(flycheck-select-checker 'c/c++-gcc)
-     ;;;(setq flycheck-clang-language-standard "c++11")
-     ;;;(setq flycheck-clang-standard-library "libc++")
-     ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
+  ;; (setq-local dash-docs-docsets '("C" "C++"))
+  ;; slow
+  ;;(flycheck-mode)
+  ;;(setq flycheck-gcc-language-standard "c++11")
+  ;;(flycheck-select-checker 'c/c++-gcc)
+    ;;;(setq flycheck-clang-language-standard "c++11")
+    ;;;(setq flycheck-clang-standard-library "libc++")
+    ;;;(setq semantic-idle-scheduler-max-buffer-size 0)
 
-     ;(define-key c-mode-map  [(control tab)] 'company-complete)
-     ;(define-key c++-mode-map  [(control tab)] 'company-complete)
+                                          ;(define-key c-mode-map  [(control tab)] 'company-complete)
+                                          ;(define-key c++-mode-map  [(control tab)] 'company-complete)
 
-     ; enable spell check in comment area
-     (flyspell-prog-mode)
+                                          ; enable spell check in comment area
+  (flyspell-prog-mode)
 #+END_SRC
 
 **** End
 
 #+BEGIN_SRC emacs-lisp
      )
-     (add-hook 'c-mode-hook 'qq/c-mode-init)
      (add-hook 'c-mode-hook 'qq/c-mode-init)
      (add-hook 'c++-mode-hook 'qq/c-mode-init)
      (add-hook 'c++-ts-mode-hook 'qq/c-mode-init)
@@ -6293,8 +6722,8 @@ TODO: Cause issue with ggtags
 **** Set C++ mode for *.h and *.ipp files (instead of plain-old C mode)
 
 #+BEGIN_SRC emacs-lisp
-     (setq auto-mode-alist (cons '("\\.h$"   . c++-mode) auto-mode-alist))
-     (setq auto-mode-alist (cons '("\\.ipp$" . c++-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.h$"   . c++-ts-mode) auto-mode-alist))
+     (setq auto-mode-alist (cons '("\\.ipp$" . c++-ts-mode) auto-mode-alist))
 #+END_SRC
 
 **** Automatically adding object name
@@ -6454,7 +6883,7 @@ Associate Dockerfile with =docker-mode=.
   (add-to-list 'auto-mode-alist '("\\Dockerfile\\'" . dockerfile-mode))
 #+END_SRC
 
-** Web/CSS/Javascript/Json
+** Web/CSS/Javascript/Json/Dockerfile
 *** Hooks
 #+BEGIN_SRC emacs-lisp
      (defun qq/js2-mode-hook ()
@@ -6465,36 +6894,47 @@ Associate Dockerfile with =docker-mode=.
      (add-hook 'js2-mode-hook 'qq/js2-mode-hook)
      (add-hook 'css-mode-hook 'prettier-js-mode)
      (add-hook 'web-mode-hook 'prettier-js-mode)
+     (add-hook 'js-ts-mode-hook 'prettier-js-mode)
 #+END_SRC
 
 *** Settings
 #+BEGIN_SRC emacs-lisp
-     (require 'web-mode)
-     (setq indium-chrome--default-data-dir (concat qq/cache-directory "indium-chrome-profile"))
-     (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (require 'web-mode)
+  (setq indium-chrome--default-data-dir (concat qq/cache-directory "indium-chrome-profile"))
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . js-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'"  . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.mjs\\'" . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.mts\\'" . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.cjs\\'" . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.ts\\'"  . typescript-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.json\\'" .  json-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.Dockerfile\\'" . dockerfile-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.prisma\\'" . prisma-ts-mode))
 
-     (setq auto-mode-alist (cons '("\\.js$"   . rjsx-mode) auto-mode-alist))
-     (setq auto-mode-alist (cons '("\\.jsx$" . rjsx-mode) auto-mode-alist))
-     (setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
-     (custom-set-variables '(prettier-js-args '(
-                                                "--trailing-comma" "all"
-                                                "--bracket-spacing" "false"
-                                                "--print-width" "80"
-                                                )))
-     (after 'js2-mode
-       (setq js-indent-level 2
-             js-switch-indent-offset 2
-             js2-highlight-level 3
-             js2-idle-timer-delay 0
-             js2-mode-show-parse-errors nil
-             js2-mode-show-strict-warnings nil))
+  ;; (setq auto-mode-alist (cons '("\\.js$"   . rjsx-mode) auto-mode-alist))
+  ;; (setq auto-mode-alist (cons '("\\.jsx$" . rjsx-mode) auto-mode-alist))
+  (setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
+  (custom-set-variables '(prettier-js-args '(
+                                             "--trailing-comma" "all"
+                                             "--bracket-spacing" "false"
+                                             "--print-width" "80"
+                                             )))
+  (after 'js2-mode
+    (setq js-indent-level 2
+          js-switch-indent-offset 2
+          js2-highlight-level 3
+          js2-idle-timer-delay 0
+          js2-mode-show-parse-errors nil
+          js2-mode-show-strict-warnings nil))
 #+END_SRC
 **** Associate a content type
 web-mode.el can deal with many content types: html, xml, javascript, jsx, json, css. This was needed to edit *.js.erb files for example: js files that embed ruby blocks.
