@@ -210,7 +210,7 @@ It will be faster to disable them here before they've been initialized.
             multiple-cursors              ; Multiple cursors for Emacs.
             (pragmatapro-lig :fetcher file :path "~/Dropbox/Personal/Fonts/pragmatapro-lig.el")
             (bitwarden :repo "seanfarley/emacs-bitwarden" :fetcher github)
-
+            (aidermacs :repo "MatthewZMD/aidermacs" :fetcher github)
 
             ;; Modes
             smerge-mode
@@ -3563,6 +3563,21 @@ nice alternative to using and memorizing prettified symbols.
 #+begin_src emacs-lisp
   (bitwarden-auth-source-enable)
 #+end_src
+
+** Aidermacs
+#+begin_src emacs-lisp
+  (aidermacs-setup-minor-mode)
+#+end_src
+
+***  KeyBinding
+    :PROPERTIES:
+    :CUSTOM_ID: aidermacs-key-binding
+    :END:
+   #+TBLNAME: aider_keys
+      | Combo | Description                   | Command                   |
+      |-------+-------------------------------+---------------------------|
+      | s-a   | show aidermacs transient menu | 'aidermacs-transient-menu |
+**** Links: [[Aidermacs Bindings]]                                     :ignore:
 
 ** Mode-line-bell
 #+begin_src emacs-lisp
@@ -7620,6 +7635,12 @@ To use this function, simply highlight a region you want to align and run M-x al
 
 #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-keys(moda="lead", tname=std_keys)>>
+#+END_SRC
+*** Aidermacs Bindings
+   Generate binding using table from [[#aidermacs-key-binding][here]]
+
+#+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
+     <<gen-keys(moda="lead", tname=aider_keys)>>
 #+END_SRC
 *** Embark Bindings
    Generate binding using table from [[#normal-embark-binding][here]]
