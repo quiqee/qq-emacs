@@ -3572,7 +3572,7 @@ nice alternative to using and memorizing prettified symbols.
 
 *** Combobulate
 #+begin_src emacs-lisp
-  (combobulate-key-prefix "SPC V")
+  (setq combobulate-key-prefix (kbd "SPC V")) ; Example: Set prefix to "C-c o"
 
   (dolist (mode '(python-ts-mode-hook
                   js-ts-mode-hook
@@ -3593,9 +3593,10 @@ nice alternative to using and memorizing prettified symbols.
 
 ** Apheleia
 #+begin_src emacs-lisp
-  (setf (alist-get 'prettier-json apheleia-formatters)
-        '("prettier" "--stdin-filepath" filepath))
-  (apheleia-global-mode +1))
+  (after 'apheleia
+    (setf (alist-get 'prettier-json apheleia-formatters)
+          '("prettier" "--stdin-filepath" filepath))
+    (apheleia-global-mode +1))
 
 #+end_src
 
@@ -4904,7 +4905,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
     "Runlsp-deferred' if it's a supported mode."
     (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
 
-  (setq lsp-use-plists t))
+  (setq lsp-use-plists t)
   (after 'lsp-mode
     (setq lsp-completion-provider :capf
           lsp-session-file (concat qq/cache-directory "lsp-session-v1")
@@ -5048,6 +5049,7 @@ https://github.com/blahgeek/emacs-lsp-booster
 
 *** Lsp-tailwindcss
 #+BEGIN_SRC emacs-lisp
+  (require 'lsp-tailwindcss)
   (setq lsp-tailwindcss-add-on-mode t)
   (dolist (tw-major-mode
            '(css-mode
