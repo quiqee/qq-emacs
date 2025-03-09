@@ -4950,7 +4950,7 @@ Git-gutter doesn’t play nice with TRAMP remotes
           lsp-semantic-tokens-enable nil           ; Related to highlighting, and we defer to treesitter
           )
     (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-    (require 'dap-cpptools)
+    ;; (require 'dap-cpptools)
     (yas-global-mode))
 
 #+END_SRC
