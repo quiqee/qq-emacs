@@ -35,25 +35,32 @@
 Increase the garbage collection threshold to 500 MB to ease startup
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     ;; -*- lexical-binding: t -*-
+  ;; -*- lexical-binding: t -*-
 
-     (setq gc-cons-threshold (* 500 1024 1024))
+  (setq gc-cons-threshold (* 500 1024 1024))
+#+END_SRC
+
+**** LSP-Mode 
+lsp-mode can be compiled in 2 modes plist and hash-table based lsp-use-plists flag. plists provide
+better performance in deserialization and also put less presure than hash-tables.
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+  (setenv "LSP_USE_PLISTS" "true")
 #+END_SRC
 
 **** Emacs JIT
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (setq comp-speed 2)
-     (setq native-comp-async-report-warnings-errors nil)
+  (setq comp-speed 2)
+  (setq native-comp-async-report-warnings-errors nil)
 #+END_SRC
 
    Add a cache-directory root folder for compiled .eln files
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (when (boundp 'native-comp-eln-load-path)
-       (setcar native-comp-eln-load-path
-               (expand-file-name "eln-cache/" (format "%s%s" user-emacs-directory ".cache/"))))
+  (when (boundp 'native-comp-eln-load-path)
+    (setcar native-comp-eln-load-path
+            (expand-file-name "eln-cache/" (format "%s%s" user-emacs-directory ".cache/"))))
 
-     (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-async-report-warnings-errors nil)
 #+END_SRC
 
 **** Disable package-enable-at-startup
@@ -62,15 +69,15 @@ Increase the garbage collection threshold to 500 MB to ease startup
    Emacs from doing it early!
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (setq package-enable-at-startup nil)
+  (setq package-enable-at-startup nil)
 #+END_SRC
 
 **** Unset file-name-handler-alist
 Every file opened and loaded by Emacs will run through this list to check for a proper handler for the file, but during startup, it won’t need any of them.
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (defvar file-name-handler-alist-original file-name-handler-alist)
-     (setq file-name-handler-alist nil)
+  (defvar file-name-handler-alist-original file-name-handler-alist)
+  (setq file-name-handler-alist nil)
 #+END_SRC
 
 **** Disable site-run-file
@@ -82,15 +89,15 @@ Every file opened and loaded by Emacs will run through this list to check for a 
 It will be faster to disable them here before they've been initialized.
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (menu-bar-mode -1)
-     (unless (and (display-graphic-p) (eq system-type 'darwin))
-       (push '(menu-bar-lines . 0) default-frame-alist))
-     (push '(tool-bar-lines . 0) default-frame-alist)
-     (push '(vertical-scroll-bars) default-frame-alist)
+  (menu-bar-mode -1)
+  (unless (and (display-graphic-p) (eq system-type 'darwin))
+    (push '(menu-bar-lines . 0) default-frame-alist))
+  (push '(tool-bar-lines . 0) default-frame-alist)
+  (push '(vertical-scroll-bars) default-frame-alist)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
-     (provide 'early-init)
+  (provide 'early-init)
 #+END_SRC
 *** Compile
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/bin/compile.el
@@ -276,7 +283,8 @@ It will be faster to disable them here before they've been initialized.
             helpful
 
             ;; Languages major modes
-            prettier-js
+            ;; prettier-js
+            apheleia
             lua-mode
             js-doc
             rjsx-mode
@@ -357,6 +365,7 @@ It will be faster to disable them here before they've been initialized.
             lsp-mode
             lsp-ui
             lsp-treemacs
+            (lsp-tailwindcss :repo "merrickluo/lsp-tailwindcss" :fetcher github)
             ccls
                                           ;lsp-sourcekit
             vlf
@@ -399,6 +408,8 @@ It will be faster to disable them here before they've been initialized.
             (tempbuf :fetcher url :url "http://www.emacswiki.org/emacs/download/tempbuf.el" )
 
             expand-region
+            (combobulate :repo "mickeynp/combobulate" :fetcher github)
+
 
             ;; vim emulator
             evil
@@ -3559,9 +3570,33 @@ nice alternative to using and memorizing prettified symbols.
 
 #+end_src
 
+*** Combobulate
+#+begin_src emacs-lisp
+  (combobulate-key-prefix "SPC V")
+
+  (dolist (mode '(python-ts-mode-hook
+                  js-ts-mode-hook
+                  go-mode-hook
+                  html-ts-mode-hook
+                  css-ts-mode-hook
+                  yaml-ts-mode-hook
+                  typescript-ts-mode-hook
+                  json-ts-mode-hook
+                  tsx-ts-mode-hook))
+    (add-hook mode (lambda () (combobulate-mode 1))))
+#+end_src
+
 ** Bitwarden
 #+begin_src emacs-lisp
   (bitwarden-auth-source-enable)
+#+end_src
+
+** Apheleia
+#+begin_src emacs-lisp
+  (setf (alist-get 'prettier-json apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (apheleia-global-mode +1))
+
 #+end_src
 
 ** Aidermacs
@@ -4142,7 +4177,6 @@ kill unused buffers in the background
       | t g    |                                     | 'gdb-many-windows                        |
       | t w    |                                     | 'other-frame                             |
       | u      |                                     | 'vundo                                   |
-      | V      |                                     | (bind (term "vim"))                      |
       | v d    |                                     | 'gdb                                     |
       | v k    |                                     | 'gud-kill-yes                            |
       | v r    |                                     | 'gud-remove                              |
@@ -4870,15 +4904,55 @@ Git-gutter doesn’t play nice with TRAMP remotes
     "Runlsp-deferred' if it's a supported mode."
     (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
 
-  (setq lsp-keymap-prefix "s-g")
-  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-use-plists t))
   (after 'lsp-mode
     (setq lsp-completion-provider :capf
           lsp-session-file (concat qq/cache-directory "lsp-session-v1")
-          lsp-auto-guess-root t)
+          lsp-auto-guess-root t
+          lsp-keymap-prefix "s-g"                          ; Prefix for LSP actions
+          lsp-diagnostics-provider :flycheck
+          lsp-keep-workspace-alive nil                     ; Close LSP server if all project buffers are closed
+          lsp-idle-delay 0.5                               ; Debounce timer for `after-change-function'
+          ;; core
+          lsp-enable-xref t                                ; Use xref to find references
+          lsp-auto-configure t                             ; Used to decide between current active servers
+          lsp-eldoc-enable-hover t                         ; Display signature information in the echo area
+          lsp-enable-dap-auto-configure t                  ; Debug support
+          lsp-enable-file-watchers nil
+          lsp-enable-folding nil                           ; I disable folding since I use origami
+          lsp-enable-imenu t
+          lsp-enable-indentation nil                       ; I use prettier
+          lsp-enable-links nil                             ; No need since we have `browse-url'
+          lsp-enable-on-type-formatting nil                ; Prettier handles this
+          lsp-enable-suggest-server-download t             ; Useful prompt to download LSP providers
+          lsp-enable-symbol-highlighting t                 ; Shows usages of symbol at point in the current buffer
+          lsp-enable-text-document-color nil               ; This is Treesitter's job
+
+          ;; completion
+          lsp-completion-enable t
+          lsp-completion-enable-additional-text-edit t     ; Ex: auto-insert an import for a completion candidate
+          lsp-enable-snippet t                             ; Important to provide full JSX completion
+          lsp-completion-show-kind t                       ; Optional
+          ;; headerline
+          lsp-headerline-breadcrumb-enable t               ; Optional, I like the breadcrumbs
+          lsp-headerline-breadcrumb-enable-diagnostics nil ; Don't make them red, too noisy
+          lsp-headerline-breadcrumb-enable-symbol-numbers nil
+          lsp-headerline-breadcrumb-icons-enable nil
+          ;; modeline
+          lsp-modeline-code-actions-enable nil     ; Modeline should be relatively clean
+          lsp-modeline-diagnostics-enable nil      ; Already supported through `flycheck'
+          lsp-modeline-workspace-status-enable nil ; Modeline displays "LSP" when lsp-mode is enabled
+          lsp-signature-doc-lines 1                ; Don't raise the echo area. It's distracting
+          lsp-eldoc-render-all nil                 ; This would be very useful if it would respect `lsp-signature-doc-lines', currently it's distracting
+          ;; lens
+          lsp-lens-enable nil                      ; Optional, I don't need it
+          ;; semantic
+          lsp-semantic-tokens-enable nil           ; Related to highlighting, and we defer to treesitter
+          )
     (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
     (require 'dap-cpptools)
     (yas-global-mode))
+
 #+END_SRC
 *** Logging
   Make sure lsp-log-io is nil. You might have forgotten it after a debugging
@@ -4936,41 +5010,101 @@ Git-gutter doesn’t play nice with TRAMP remotes
                                      ))
 #+END_SRC
 
+*** Lsp Booster
+https://github.com/blahgeek/emacs-lsp-booster
+
+#+BEGIN_SRC emacs-lisp
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+              (setcar orig-result command-from-exec-path))
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+#+END_SRC
+
+*** Lsp-tailwindcss
+#+BEGIN_SRC emacs-lisp
+  (setq lsp-tailwindcss-add-on-mode t)
+  (dolist (tw-major-mode
+           '(css-mode
+             css-ts-mode
+             typescript-mode
+             typescript-ts-mode
+             tsx-ts-mode
+             js2-mode
+             js-ts-mode
+             clojure-mode))
+    (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode))
+#+END_SRC
+
 *** Lsp-UI
 #+BEGIN_SRC emacs-lisp
-     (setq lsp-ui-doc-enable t
-           lsp-ui-doc-position 'at-point
-           lsp-ui-doc-max-height 70
-           lsp-ui-doc-max-width 120
-           lsp-ui-doc-header t
-           lsp-ui-doc-include-signature t
-           lsp-ui-doc-use-childframe t
+  (setq lsp-ui-doc-enable t
+        lsp-ui-doc-position 'at-point
+        lsp-ui-doc-max-height 70
+        lsp-ui-doc-max-width 120
+        lsp-ui-doc-header t
+        lsp-ui-doc-include-signature t
+        lsp-ui-doc-use-childframe t
 
-           ;; If this is true then you can't see the docs in terminal
-           lsp-ui-doc-use-webkit nil
-           lsp-ui-flycheck-enable t
+        ;; If this is true then you can't see the docs in terminal
+        lsp-ui-doc-use-webkit nil
+        lsp-ui-flycheck-enable t
 
-           lsp-ui-imenu-enable t
-           lsp-ui-imenu-kind-position 'left
+        lsp-ui-imenu-enable t
+        lsp-ui-imenu-kind-position 'left
 
-           lsp-ui-peek-enable t
-           lsp-ui-peek-fontify 'on-demand ;; never, on-demand, or always
-           lsp-ui-peek-list-width 50
-           lsp-ui-peek-peek-height 20
-           lsp-ui-peek-show-directory t
+        lsp-ui-peek-enable t
+        lsp-ui-peek-fontify 'on-demand ;; never, on-demand, or always
+        lsp-ui-peek-list-width 50
+        lsp-ui-peek-peek-height 20
+        lsp-ui-peek-show-directory t
 
-                                             ;inline right flush docs
-           lsp-ui-sideline-enable t
+                                          ;inline right flush docs
+        lsp-ui-sideline-enable t
 
-           lsp-ui-sideline-ignore-duplicate t
-           lsp-ui-sideline-show-code-actions nil
-           lsp-ui-sideline-show-diagnostics t
-           lsp-ui-sideline-show-hover nil
-           lsp-ui-sideline-show-symbol nil)
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-sideline-show-code-actions nil
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil      ; Sideline used only for diagnostics
+        lsp-ui-sideline-diagnostic-max-lines 20 ; 20 lines since typescript errors can be quite big
+        lsp-ui-sideline-show-symbol nil)
 
-     (add-hook 'lsp-ui-mode-hook
-               (bind
-                (setq-local evil-lookup-func #'lsp-ui-doc-glance)))
+  (add-hook 'lsp-ui-mode-hook
+            (bind
+             (progn
+               (lsp-ui-doc-show
+                lsp-ui-doc-glance)
+               (setq-local
+                lsp-ui-doc-enable t
+                evil-lookup-func #'lsp-ui-doc-glance ; Makes K in evil-mode toggle the doc for symbol at point
+                lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
+                lsp-ui-doc-include-signature t       ; Show signature
+                lsp-ui-doc-position 'at-point ))))
 #+END_SRC
 
 *** =lsp-ui-peek= Binding
@@ -4991,11 +5125,12 @@ Git-gutter doesn’t play nice with TRAMP remotes
 (define-key lsp-ui-peek-mode-map (kbd "<prior>") #'lsp-ui-peek--select-prev-file)
 (define-key lsp-ui-peek-mode-map (kbd "<next>") #'lsp-ui-peek--select-next-file)
    #+TBLNAME: lsp_browser_keys
-      | Combo | Mode                  | Evil Mode       | Description | Command                        |
-      |-------+-----------------------+-----------------+-------------+--------------------------------|
-      | q     | lsp-browser-mode-map  | normal          |             | 'quit-window                   |
-      | q     | lsp-ui-imenu-mode-map | normal          |             | 'lsp-ui-imenu--kill            |
-      | TAB   | lsp-browser-mode-map  | normal          |             | 'widget-forward                |
+      | Combo | Mode                  | Evil Mode | Description | Command             |
+      |-------+-----------------------+-----------+-------------+---------------------|
+      | q     | lsp-browser-mode-map  | normal    |             | 'quit-window        |
+      | q     | lsp-ui-imenu-mode-map | normal    |             | 'lsp-ui-imenu--kill |
+      | TAB   | lsp-browser-mode-map  | normal    |             | 'widget-forward     |
+      | z g   | lsp-mode-map          | normal    |             | 'lsp-ui-doc-glance  |
 **** Links: [[Evil LSP Browser Bindings][Evil LSP Browser Bindings]]                                     :ignore:
 *** Normal Keybinding
     :PROPERTIES:
@@ -6954,13 +7089,13 @@ Associate Dockerfile with =docker-mode=.
 #+BEGIN_SRC emacs-lisp
      (defun qq/js2-mode-hook ()
        (npm-mode t)
-       (prettier-js-mode)
+       ;; (prettier-js-mode)
        (indium-interaction-mode)
        (setq-local dash-docs-docsets '("React" "JavaScript" "jQuery")))
      (add-hook 'js2-mode-hook 'qq/js2-mode-hook)
-     (add-hook 'css-mode-hook 'prettier-js-mode)
-     (add-hook 'web-mode-hook 'prettier-js-mode)
-     (add-hook 'js-ts-mode-hook 'prettier-js-mode)
+     ;; (add-hook 'css-mode-hook 'prettier-js-mode)
+     ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+     ;; (add-hook 'js-ts-mode-hook 'prettier-js-mode)
 #+END_SRC
 
 *** Settings
@@ -6989,11 +7124,11 @@ Associate Dockerfile with =docker-mode=.
   ;; (setq auto-mode-alist (cons '("\\.js$"   . rjsx-mode) auto-mode-alist))
   ;; (setq auto-mode-alist (cons '("\\.jsx$" . rjsx-mode) auto-mode-alist))
   (setq auto-mode-alist (cons '("\\.json$" . json-mode) auto-mode-alist))
-  (custom-set-variables '(prettier-js-args '(
-                                             "--trailing-comma" "all"
-                                             "--bracket-spacing" "false"
-                                             "--print-width" "80"
-                                             )))
+  ;; (custom-set-variables '(prettier-js-args '(
+  ;;                                            "--trailing-comma" "all"
+  ;;                                            "--bracket-spacing" "false"
+  ;;                                            "--print-width" "80"
+  ;;                                            )))
   (after 'js2-mode
     (setq js-indent-level 2
           js-switch-indent-offset 2
