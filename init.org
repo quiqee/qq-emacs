@@ -215,7 +215,7 @@ It will be faster to disable them here before they've been initialized.
 
             move-text                     ; Move current line or region with M-up or M-down
             multiple-cursors              ; Multiple cursors for Emacs.
-            (pragmatapro-lig :fetcher file :path "~/Dropbox/Personal/Fonts/pragmatapro-lig.el")
+            (pragmatapro-lig :fetcher file :path "~/SeaDrive/My Libraries/Personal/Fonts/pragmatapro-lig.el")
             (bitwarden :repo "seanfarley/emacs-bitwarden" :fetcher github)
             (aidermacs :repo "MatthewZMD/aidermacs" :fetcher github)
 
@@ -657,33 +657,40 @@ required from *emacs*.
 
 ** Site-Specific
 *** Linux Work Desktop
-
+**** Begin
 #+BEGIN_SRC emacs-lisp
-     (defvar qq/system-name system-name)
-     (cond
-      ((or (string-equal qq/system-name "eagle") (string-equal qq/system-name "bullseye"))
-       (progn
+  (defvar qq/system-name system-name)
+  (cond
+   ((or (string-equal qq/system-name "eagle") (string-equal qq/system-name "bullseye"))
+    (progn
 #+END_SRC
 
 **** Fonts
 
 #+begin_src emacs-lisp
-     (custom-theme-set-faces
-      'user
+  (custom-theme-set-faces
+   'user
 
-      '(variable-pitch ((t (:family "Cabin"
-                                    :height 1.1))))
-      '(fixed-pitch ((t ( :family "PragmataPro Liga"
-                          :slant normal
-                          :weight normal
-                          :height 1.0
-                          :width normal)))))
+   '(variable-pitch ((t (:family "Cabin"
+                                 :height 1.1))))
+   '(fixed-pitch ((t ( :family "PragmataPro Liga"
+                       :slant normal
+                       :weight normal
+                       :height 1.0
+                       :width normal)))))
 
-     ;; Setting the default general font
-     (set-face-attribute 'default nil
-                         :family "PragmataPro Liga"
-                         :height 98
-                         )
+  (defvar qq/modeline-font-height 120)
+  ;; Setting the default general font
+  (set-face-attribute 'default nil
+                      :family "PragmataPro Liga"
+                      :height 88
+                      )
+#+end_src
+
+**** Shell program
+
+#+begin_src emacs-lisp
+  (setq qq/shell-prog "/usr/bin/bash")
 #+end_src
 
 **** Default Org files folder
@@ -754,6 +761,7 @@ required from *emacs*.
 #+END_SRC
 
 *** Mac @home
+**** Begin
 #+BEGIN_SRC emacs-lisp
       ((string-equal system-type "darwin") ; Mac OS X
        (progn
@@ -920,7 +928,7 @@ required from *emacs*.
      ))
 #+END_SRC
 *** Z390 Manjaro
-
+**** Begin
 #+BEGIN_SRC emacs-lisp
       ((string-equal qq/system-name "z390-manjaro") ; Mac OS X
        (progn
@@ -978,7 +986,7 @@ required from *emacs*.
 #+END_SRC
 
 *** Work Laptop
-
+**** Begin
 #+BEGIN_SRC emacs-lisp
      ((or (string-equal qq/system-name "fikri-ThinkPad-E14-Gen-2")
           (string-equal qq/system-name "ThinkPad-E440")) ; Lenovo Thinkpad
@@ -1029,6 +1037,7 @@ required from *emacs*.
 #+END_SRC
 
 *** Other Sites
+**** Begin
 #+BEGIN_SRC emacs-lisp
       (t ; Default
        (progn
@@ -3560,13 +3569,13 @@ nice alternative to using and memorizing prettified symbols.
 
 *** =treesit-fold=
 #+begin_src emacs-lisp
-  ;; (require treesit-fold)
-  ;; (custom-set-variables
-  ;;  '(treesit-fold-indicators-fringe 'right-fringe)
-  ;;  '(treesit-fold-line-count-format "… %d lines …")
-  ;;  '(treesit-fold-line-count-show t))
-  ;; (global-treesit-fold-mode 1)
-  ;; (global-treesit-fold-indicators-mode 1)
+  (require 'treesit-fold)
+  (custom-set-variables
+   '(treesit-fold-indicators-fringe 'right-fringe)
+   '(treesit-fold-line-count-format "… %d lines …")
+   '(treesit-fold-line-count-show t))
+  (global-treesit-fold-mode 1)
+  (global-treesit-fold-indicators-mode 1)
 
 #+end_src
 
@@ -3603,6 +3612,10 @@ nice alternative to using and memorizing prettified symbols.
 ** Aidermacs
 #+begin_src emacs-lisp
   (aidermacs-setup-minor-mode)
+  (setq aidermacs-default-model "r1")
+  (setq aidermacs-use-architect-mode t)
+  (setq aidermacs-architect-model "o1-mini") ; default
+  (setq aidermacs-editor-model "deepseek/deepseek-chat") ;; defaults to aidermacs-default-model
 #+end_src
 
 ***  KeyBinding
@@ -5099,8 +5112,7 @@ https://github.com/blahgeek/emacs-lsp-booster
   (add-hook 'lsp-ui-mode-hook
             (bind
              (progn
-               (lsp-ui-doc-show
-                lsp-ui-doc-glance)
+               (lsp-ui-doc-show)
                (setq-local
                 lsp-ui-doc-enable t
                 evil-lookup-func #'lsp-ui-doc-glance ; Makes K in evil-mode toggle the doc for symbol at point
