@@ -1188,14 +1188,19 @@ required from *emacs*.
 *** Custom variables
 
 #+BEGIN_SRC emacs-lisp
-     (defvar best-gc-cons-threshold (* 32 1024 1024) "Best default gc threshold value (5 MB). Shouldn't be too big.")
+     (defvar best-gc-cons-threshold (* 100 1024 1024) "Best default gc threshold value (100 MB). Shouldn't be too big.")
 #+END_SRC
 
 *** Emacs Garbage Collector
-   Once startup complete decrease threshold to 5 MB
+   Once startup complete decrease threshold to 100 MB
 
 #+begin_src emacs-lisp
-     (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 32 1024 1024))))
+  (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 100 1024 1024))))
+  ;; Run garbage collection when Emacs is idle
+  (run-with-idle-timer 2 t #'garbage-collect)
+  (add-hook 'focus-out-hook #'garbage-collect)
+  ;; Reduce rendering work
+  (setq inhibit-compacting-font-caches t)  ;; Don't compact font caches during GC
 #+end_src
 
 *** Trailing whitespace
@@ -1449,8 +1454,20 @@ sentence-end-double-space nil
 **** Redisplay is bit too slow
 
 #+BEGIN_SRC emacs-lisp
-     jit-lock-defer-time 0
-     fast-but-imprecise-scrolling t
+  redisplay-dont-pause t ;; Don't pause during redisplay
+  ;; Optimize redisplay performance
+  bidi-paragraph-direction 'left-to-right
+  bidi-display-reordering nil
+  redisplay-dont-pause t
+  jit-lock-defer-time 0.05
+  fast-but-imprecise-scrolling t
+  inhibit-compacting-font-caches t
+  ;; Reduce work in visible area
+  cursor-in-non-selected-windows nil
+  highlight-nonselected-windows nil
+
+  ;; For more complex buffers
+  idle-update-delay 1.0 ;; Default is shorter
 #+END_SRC
 
 **** Autosave bookmark on each change
@@ -2118,9 +2135,6 @@ Displaying sequences of characters as fancy characters or symbols
       (add-pragmatapro-prettify-symbols-alist)
       (setup-compose-predicate)
       (prettify-symbols-mode t))
-
-    (add-hook 'prog-mode-hook #'prettify-hook)
-    (add-hook 'text-mode-hook #'prettify-hook)
 #+END_SRC
 
 *** Frame Scaling / Zooming
@@ -2336,12 +2350,15 @@ Displaying sequences of characters as fancy characters or symbols
   (add-hook 'Info-mode-hook #'scroll-lock-mode)
 #+END_SRC
 
+*** Eldoc
+#+BEGIN_SRC emacs-lisp
+  (setq eldoc-idle-delay 1.0) ;; Increase eldoc delay
+#+END_SRC
+
 *** Imenu
 #+BEGIN_SRC emacs-lisp
   (add-hook 'markdown-mode-hook #'imenu-add-menubar-index)
   (add-hook 'makefile-mode-hook #'imenu-add-menubar-index)
-  (add-hook 'prog-mode-hook #'imenu-add-menubar-index)
-  (add-hook 'org-mode-hook #'imenu-add-menubar-index)
 #+END_SRC
 
 *** =tramp=
@@ -2589,6 +2606,14 @@ you just hit TAB again.
      completion-auto-select 'second-tab)
 #+END_SRC
 
+*** Compilation mode
+   Set vertical line mode
+#+BEGIN_SRC emacs-lisp
+  ;; Enable word wrapping in compilation buffers
+  (add-hook 'compilation-mode-hook (lambda ()
+                                     (visual-line-mode 1)))
+#+END_SRC
+
 *** =conf-mode=
    Use conf-mode for .gitignore files
 #+BEGIN_SRC emacs-lisp
@@ -2628,10 +2653,10 @@ Use conf-mode for git config files
    Add a toggle function for toggling relative line number
 
 #+BEGIN_SRC emacs-lisp
-     (defun qq/toggle-line-numbers ()
-       "Toggle Evil search mode between symbol search or word search"
-       (interactive)
-       (setq display-line-numbers (if (eq display-line-numbers 'relative) 'default 'relative)))
+  (defun qq/toggle-line-numbers ()
+    "Toggle Evil search mode between symbol search or word search"
+    (interactive)
+    (setq display-line-numbers (if (eq display-line-numbers 'relative) 'default 'relative)))
 #+END_SRC
 
 *** GUD
@@ -2781,7 +2806,7 @@ Use conf-mode for git config files
 **** Weight by frequency
 
 #+BEGIN_SRC emacs-lisp
-     (setq company-transformers '(company-sort-by-occurrence))
+  (setq company-transformers '(company-sort-by-occurrence))
 #+END_SRC
 **** Align annotations
 
@@ -2807,10 +2832,10 @@ Use conf-mode for git config files
 ;     (setq company-emoji-insert-unicode nil)
 #+END_SRC
 
-**** No delay in showing suggestions.
+**** Slight delay in showing suggestions.
 
 #+BEGIN_SRC emacs-lisp
-     (setq company-idle-delay 0)
+     (setq company-idle-delay 0.5)
 #+END_SRC
 
 **** Icons Margins
@@ -2828,7 +2853,7 @@ Use conf-mode for git config files
 **** Minimum prefix length for idle completion
 
 #+BEGIN_SRC emacs-lisp
-     (setq company-minimum-prefix-length 2)
+     (setq company-minimum-prefix-length 3)
      (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 #+END_SRC
 
@@ -3393,19 +3418,19 @@ Hides *completion* buffers for =tmm-menubar= and =fap-menu=
 ** Embark
 *** Init
 #+begin_src emacs-lisp
-     ;; Optionally replace the key help with a completing-read interface
-     (setq prefix-help-command #'embark-prefix-help-command)
-     ;; Hide the mode line of the Embark live/completions buffers
-     (add-to-list 'display-buffer-alist
-                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                    nil
-                    (window-parameters (mode-line-format . none))))
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
 #+end_src
 
 *** Embark-Consult
 
 #+begin_src emacs-lisp
-     (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode)
+  (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode)
 #+end_src
 
 *** Keybinding
@@ -3574,8 +3599,8 @@ nice alternative to using and memorizing prettified symbols.
    '(treesit-fold-indicators-fringe 'right-fringe)
    '(treesit-fold-line-count-format "… %d lines …")
    '(treesit-fold-line-count-show t))
-  (global-treesit-fold-mode 1)
-  (global-treesit-fold-indicators-mode 1)
+  ;; (global-treesit-fold-mode 1)
+  ;; (global-treesit-fold-indicators-mode 1)
 
 #+end_src
 
@@ -4645,19 +4670,18 @@ SLOW!!!
 *** blamer
 
 #+BEGIN_SRC emacs-lisp
-     (require 'blamer)
-     (custom-set-variables
-      '(blamer-idle-time 1.0)
-      '(blamer-min-offset 10))
-     (setq blamer-view 'overlay-right
-           blamer-type 'posframe-popup
-           blamer-max-commit-message-length 80
-           blamer-max-lines 30
-           blamer-author-formatter " ✎ [%s] - "
-           blamer-commit-formatter "● %s ● ")
+  (require 'blamer)
+  (custom-set-variables
+   '(blamer-idle-time 1.0)   ;; Increase delay before showing blame info
+   '(blamer-min-offset 70))  ;; Only show blame for lines with this much space
+  (setq blamer-view 'overlay-right
+        blamer-type 'posframe-popup
+        blamer-max-commit-message-length 80
+        blamer-max-lines 30
+        blamer-author-formatter " ✎ [%s] - "
+        blamer-commit-formatter "● %s ● ")
 
-     (set-face-attribute 'blamer-face nil :foreground "#E46876" :height 90 :italic t)
-     (global-blamer-mode 1)
+  (set-face-attribute 'blamer-face nil :foreground "#E46876" :height 90 :italic t)
 #+END_SRC
 
 *** git-gutter-fringe
@@ -4880,14 +4904,13 @@ Git-gutter doesn’t play nice with TRAMP remotes
 ** Beacon
 
    #+begin_src emacs-lisp
-     (beacon-mode 1)
+     ;; (beacon-mode 1)
    #+end_src
 
 ** Format-All
 
    #+begin_src emacs-lisp
      (add-hook 'format-all-mode-hook 'format-all-ensure-formatter)
-     (add-hook 'prog-mode-hook 'format-all-mode)
    #+end_src
 
 ** =svg-tag-mode=
@@ -5080,8 +5103,9 @@ https://github.com/blahgeek/emacs-lsp-booster
 #+BEGIN_SRC emacs-lisp
   (setq lsp-ui-doc-enable t
         lsp-ui-doc-position 'at-point
+        lsp-ui-doc-delay 2.0  ;; Increase delay before showing documentation
         lsp-ui-doc-max-height 70
-        lsp-ui-doc-max-width 120
+        lsp-ui-doc-max-width 100
         lsp-ui-doc-header t
         lsp-ui-doc-include-signature t
         lsp-ui-doc-use-childframe t
@@ -5111,14 +5135,12 @@ https://github.com/blahgeek/emacs-lsp-booster
 
   (add-hook 'lsp-ui-mode-hook
             (bind
-             (progn
-               (lsp-ui-doc-show)
-               (setq-local
-                lsp-ui-doc-enable t
-                evil-lookup-func #'lsp-ui-doc-glance ; Makes K in evil-mode toggle the doc for symbol at point
-                lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
-                lsp-ui-doc-include-signature t       ; Show signature
-                lsp-ui-doc-position 'at-point ))))
+             (setq-local
+              lsp-ui-doc-enable t
+              evil-lookup-func #'lsp-ui-doc-glance ; Makes K in evil-mode toggle the doc for symbol at point
+              lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
+              lsp-ui-doc-include-signature t       ; Show signature
+              lsp-ui-doc-position 'at-point )))
 #+END_SRC
 
 *** =lsp-ui-peek= Binding
@@ -6259,8 +6281,6 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
    #+begin_src emacs-lisp
      (autoload 'yas-reload-all "yasnippet.el" nil t)
      (yas-reload-all)
-     (add-hook 'prog-mode-hook #'yas-minor-mode)
-     (add-hook 'org-mode-hook #'yas-minor-mode)
    #+end_src
 
 ** Shell/Term/Fasd
@@ -6632,28 +6652,32 @@ Ensure that anything that should be fixed-pitch in Org files appears that way
 
 *** Init
 #+BEGIN_SRC emacs-lisp
-     (require 'which-key)
-     (which-key-mode)
-     ;(which-key-setup-side-window-right-bottom)
-     ;(which-key-setup-minibuffer)
+  (require 'which-key)
+  (which-key-mode)
+  ;;(which-key-setup-side-window-right-bottom)
+  ;;(which-key-setup-minibuffer)
 
-     ;;(set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
+  ;;(set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
 
-     ;(setq which-key-special-keys nil)
-     ;(setq which-key-popup-type 'side-window)
-     ;(setq which-key-popup-type 'frame)
-     ;;(setq which-key-popup-type 'minibuffer)
-     (setq which-key-max-display-columns 5)
-     ; max width of which-key frame: number of columns (an integer)
-     ;(setq which-key-frame-max-width 140)
-     ; max height of which-key frame: number of lines (an integer)
-     ;(setq which-key-frame-max-height 120)
-     ;this is supposed to improve speed with custom fonts
-     (setq which-key-allow-imprecise-window-fit t)
-     (setq which-key-sort-order 'which-key-local-then-key-order)
-     ;just so you can read your hyrda function titles in C-m m
-     ;(setq-default which-key-show-docstrings nil)
-     (setq-default which-key-max-description-length 50)
+  ;; Reduce frequency of idle timers
+  (setq which-key-idle-delay 2.0)  ;; Increase from 1.0s
+  (setq which-func-update-interval 3.0)  ;; Increase delay for which-function updates
+
+  ;;(setq which-key-special-keys nil)
+  ;;(setq which-key-popup-type 'side-window)
+  ;;(setq which-key-popup-type 'frame)
+  ;;(setq which-key-popup-type 'minibuffer)
+  (setq which-key-max-display-columns 5)
+  ;; max width of which-key frame: number of columns (an integer)
+  ;;(setq which-key-frame-max-width 140)
+  ;; max height of which-key frame: number of lines (an integer)
+  ;;(setq which-key-frame-max-height 120)
+  ;;this is supposed to improve speed with custom fonts
+  (setq which-key-allow-imprecise-window-fit t)
+  (setq which-key-sort-order 'which-key-local-then-key-order)
+  ;;just so you can read your hyrda function titles in C-m m
+  ;;(setq-default which-key-show-docstrings nil)
+  (setq-default which-key-max-description-length 50)
 #+END_SRC
 
    location of which-key window. valid values: top, bottom, left, right,
@@ -6750,17 +6774,27 @@ Some general settings that should apply to all programming mode. Highlight
      nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
             1 '((:foreground "orange") (:weight bold)) t))))
 
+  (add-hook 'text-mode-hook #'prettify-hook)
+  (add-hook 'org-mode-hook #'imenu-add-menubar-index)
+  (add-hook 'org-mode-hook #'yas-minor-mode)
+
+
   (add-hook 'prog-mode-hook
             #'(lambda()
                 (display-line-numbers-mode)
+                (prettify-hook)
+                (imenu-add-menubar-index)
+                (blamer-mode 1)
+                (format-all-mode 1)
+                (yas-minor-mode)
                 (qq/add-watchwords)
                 ;; (rainbow-delimiters-mode) ; WARNING: if scrolling is slow, turn this off
                 (highlight-indent-guides-mode)
                 (set-face-background 'highlight-indent-guides-odd-face "darkgray")
                 (set-face-background 'highlight-indent-guides-even-face "dimgray")
                 (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
-                ;(smart-tabs-insinuate 'c++ 'c 'javascript)
-                ;(color-identifiers-mode t))
+                                          ;(smart-tabs-insinuate 'c++ 'c 'javascript)
+                                          ;(color-identifiers-mode t))
                 ))   ; WARNING: if scrolling is slow, turn this off
 #+end_src
 
@@ -8056,7 +8090,7 @@ Generate binding using table from [[#evil-leader-binding][here]]
 #+END_SRC
 
 ** Compilation Buffer Map Bindings
-   Generate binding using table from  [[evil-compile-bufer][here]]
+   Generate binding using table from  [[Compilation Buffer Binding][here]]
 
 #+BEGIN_SRC emacs-lisp :exports none :noweb yes :results silent
      <<gen-fix(pre="general-define-key\n :states 'normal\n :keymaps 'compilation-mode-map")>>
