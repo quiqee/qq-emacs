@@ -1,4 +1,4 @@
-;;; quickbeans-theme.el --- quickbeans theme for GNU Emacs 24 (deftheme)
+;;; quickbeans-theme.el --- quickbeans theme for GNU Emacs 24 (deftheme) -*- lexical-binding: t -*-
 
 ;; Author: Adam Olsen <arolsen@gmail.com>
 ;; URL: <https://github.com/synic/quickbeans-emacs>
@@ -70,7 +70,7 @@ The theme has to be reloaded after changing anything in this group."
 (let* ((class '((class color) (min-colors 89)))
        ;;                                            GUI       TER
        (quickbeans-fg         (if (display-graphic-p) "#cccccc" "#cccccc"))
-       (quickbeans-bg         (if (display-graphic-p) "#1c1c1c" "#1c1c1c"))
+       (quickbeans-bg         (if (display-graphic-p) "#001517" "#001517"))
        (quickbeans-grey-0     (if (display-graphic-p) "#1f1f1f" "#1f1f1f"))
        (quickbeans-grey-1     (if (display-graphic-p) "#112433" "#112433"))
        (quickbeans-grey-2     (if (display-graphic-p) "#222222" "#222222"))
@@ -79,17 +79,19 @@ The theme has to be reloaded after changing anything in this group."
        (quickbeans-grey-5     (if (display-graphic-p) "#444444" "#444444"))
        (quickbeans-grey-6     (if (display-graphic-p) "#7f7f7f" "#7f7f7f"))
        (quickbeans-grey-7     (if (display-graphic-p) "#888888" "#888888"))
-                                        ;(quickbeans-grey-8     (if (display-graphic-p) "#EBDBB2" "color-223"))
        (quickbeans-grey-8     (if (display-graphic-p) "#AAAAAA" "color-223"))
+       (quickbeans-grey-9     (if (display-graphic-p) "#000e0f" "#000e0f"))
 
        (quickbeans-emphasis   (if (display-graphic-p) "#f8f8f0" "#f8f8f0"))
        (quickbeans-purple-0   (if (display-graphic-p) "#ff73fd" "#ff73fd"))
        (quickbeans-purple-1   (if (display-graphic-p) "#cd00cd" "#cd00cd"))
        (quickbeans-purple-2   (if (display-graphic-p) "#a40073" "#a40073"))
-       (quickbeans-purple-3   (if (display-graphic-p) "#540063" "#540063"))
+       (quickbeans-purple-3   (if (display-graphic-p) "#3f014a" "#3f014a"))
        (quickbeans-purple-4   (if (display-graphic-p) "#474e90" "#474e90"))
        (quickbeans-purple-5   (if (display-graphic-p) "#202025" "#202025"))
        (quickbeans-purple-6   (if (display-graphic-p) "#af83ad" "#af83ad"))
+       (quickbeans-purple-7   (if (display-graphic-p) "#fc92e5" "#fc92e5"))
+
        (quickbeans-blue-0     (if (display-graphic-p) "#8197bf" "#8197bf"))
        (quickbeans-blue-1     (if (display-graphic-p) "#8fbfdc" "#8fbfdc"))
        (quickbeans-blue-2     (if (display-graphic-p) "#b2e2fe" "#b2e2fe"))
@@ -170,6 +172,8 @@ The theme has to be reloaded after changing anything in this group."
    `(ansi-color-bright-blue              ((,class (:foreground ,quickbeans-blue-9))))
    `(ansi-color-bright-magenta           ((,class (:foreground ,quickbeans-red-10))))
    `(ansi-color-bright-cyan              ((,class (:foreground ,quickbeans-blue-8))))
+;;;;; Auto-Dim-Other-Buffers
+   `(auto-dim-other-buffers              ((,class (:foreground ,quickbeans-grey-6 :background "#122"))))
 ;;;;; Company
    `(company-preview-common              ((,class (:foreground unspecified :background ,quickbeans-purple-4))))
    `(company-scrollbar-bg                ((,class (:background ,quickbeans-grey-1))))
@@ -222,8 +226,11 @@ The theme has to be reloaded after changing anything in this group."
    `(diredp-dir-name                     ((,class (:foreground ,quickbeans-blue-2))))
    `(diredp-write-priv                   ((,class (:foreground ,quickbeans-blue-0 :background ,quickbeans-bg))))
 ;;;;; Doom-modeline
-   `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-yellow-1 :weight bold))))
-   `(mode-line-active                    ((,class (:inherit mode-line :background ,quickbeans-blue-6))))
+   `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-purple-0 :weight bold))))
+   `(doom-modeline-bar                   ((,class (:background ,quickbeans-red-8 :weight bold))))
+;;;;; Modeline
+   `(mode-line-active                    ((,class (:inherit mode-line :foreground ,quickbeans-fg :background ,quickbeans-blue-6))))
+   `(mode-line-inactive                  ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-grey-1))))
 ;;;;; Emmet
    `(emmet-preview-output                ((,class (:background ,quickbeans-purple-4))))
 ;;;;; Elixir
@@ -240,6 +247,11 @@ The theme has to be reloaded after changing anything in this group."
    `(eshell-ls-symlink                   ((,class (:weight normal :foreground ,quickbeans-purple-1))))
 ;;;;; Evil
    `(evil-visual-mark-face               ((,class (:weight ultra-bold :box ,quickbeans-blue-0 :foreground ,quickbeans-green-7))))
+;;;;; Evil Quickscope
+   `(evil-quickscope-first-face          ((,class (:inherit nil :underline ,quickbeans-purple-0 :background unspecified :foreground unspecified))))
+   `(evil-quickscope-second-face         ((,class (:inherit nil :underline '(:style wave) :background unspecified :foreground unspecified))))
+;;;;; Fancy Compilation
+   `(fancy-compilation-complete-success-face  ((,class (:background ,quickbeans-bg :foreground ,quickbeans-fg :bold t))))
 ;;;;; FCI Ruler
    ;; As of now, this does nothing, because fci-rule-color is not a face yet.
    `(fci-rule-color                      ((,class (:foreground ,quickbeans-grey-4 :background ,quickbeans-grey-4))))
@@ -248,18 +260,18 @@ The theme has to be reloaded after changing anything in this group."
    `(font-lock-comment-face              ((,class (:slant italic :foreground ,quickbeans-grey-7))))
    `(font-lock-constant-face             ((,class (:foreground ,quickbeans-blue-5))))
    `(font-lock-doc-face                  ((,class (:foreground ,quickbeans-green-5))))
-   `(font-lock-number-face               ((,class (:foreground ,quickbeans-yellow-1))))
+   `(font-lock-number-face               ((,class (:foreground ,quickbeans-orange-0 :bold t))))
    `(font-lock-function-name-face        ((,class (:foreground ,quickbeans-blue-9))))
    `(font-lock-keyword-face              ((,class (:foreground ,quickbeans-blue-0))))
-   `(font-lock-bracket-face              ((,class (:foreground ,quickbeans-red-10 :bold t))))
+   `(font-lock-bracket-face              ((,class (:foreground ,quickbeans-blue-1 :bold t))))
    `(font-lock-operator-face             ((,class (:foreground ,quickbeans-blue-5))))
    `(font-lock-delimiter-face            ((,class (:foreground ,quickbeans-green-7))))
    `(font-lock-preprocessor-face         ((,class (:foreground ,quickbeans-fg))))
-   `(font-lock-string-face               ((,class (:foreground ,quickbeans-yellow-2))))
+   `(font-lock-string-face               ((,class (:foreground ,quickbeans-white-9))))
    `(font-lock-type-face                 ((,class (:foreground ,quickbeans-blue-2))))
    `(font-lock-variable-name-face        ((,class (:foreground ,quickbeans-green-1))))
    `(font-lock-variable-use-face         ((,class (:foreground ,quickbeans-blue-8))))
-   `(font-lock-property-use-face         ((,class (:foreground ,quickbeans-green-6))))
+   `(font-lock-property-use-face         ((,class (:foreground ,quickbeans-green-1))))
    `(font-lock-warning-face              ((,class (:foreground ,quickbeans-red-10 :bold t))))
    `(font-lock-regexp-grouping-construct ((,class (:foreground ,quickbeans-yellow-3 :bold t))))
    `(font-lock-regexp-grouping-backslash ((,class (:foreground ,quickbeans-red-1 :bold t))))
@@ -286,8 +298,8 @@ The theme has to be reloaded after changing anything in this group."
    `(helm-ff-directory                   ((,class (:foreground ,quickbeans-blue-2))))
    `(helm-ff-executable                  ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; Highlight
-   `(highlight                           ((,class (:background ,quickbeans-grey-5))))
-   `(hl-line                             ((,class (:inherit unspecified :background ,quickbeans-bg :underline ,quickbeans-purple-4))))
+   `(highlight                           ((,class (:background ,quickbeans-grey-1))))
+   `(hl-line                             ((,class (:inherit unspecified :underline ,quickbeans-purple-4))))
 ;;;;; hi-lock
    `(hi-blue                             ((,class (:background ,quickbeans-blue-4 :foreground ,quickbeans-grey-1))))
    `(hi-green                            ((,class (:background ,quickbeans-green-4 :foreground ,quickbeans-grey-1))))
@@ -330,12 +342,15 @@ The theme has to be reloaded after changing anything in this group."
 ;;;;; Linum
    `(linum                               ((,class (:foreground ,quickbeans-grey-3 :background ,quickbeans-grey-0))))
 ;;;;; Display line numbers
-   `(line-number                         ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-grey-0))))
+   `(line-number                         ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-grey-1))))
    `(line-number-current-line            ((,class (:foreground ,quickbeans-fg :background ,quickbeans-bg))))
 ;;;;; Ediff
    `(ediff-even-diff-A                   ((,class (:background ,quickbeans-grey-2 :foreground ,quickbeans-fg))))
    `(ediff-even-diff-B                   ((,class (:background ,quickbeans-grey-3 :foreground ,quickbeans-fg))))
    `(ediff-even-diff-C                   ((,class (:background ,quickbeans-grey-3 :foreground ,quickbeans-fg))))
+   `(ediff-fine-diff-A                   ((,class (:background ,quickbeans-purple-2 :foreground ,quickbeans-white-1))))
+   `(ediff-fine-diff-B                   ((,class (:background ,quickbeans-green-1 :foreground ,quickbeans-bg))))
+   `(ediff-fine-diff-C                   ((,class (:background ,quickbeans-orange-1 :foreground ,quickbeans-bg))))
    `(ediff-odd-diff-A                    ((,class (:background ,quickbeans-grey-2 :foreground ,quickbeans-fg))))
    `(ediff-odd-diff-B                    ((,class (:background ,quickbeans-grey-3 :foreground ,quickbeans-fg))))
    `(ediff-odd-diff-C                    ((,class (:background ,quickbeans-grey-5 :foreground ,quickbeans-fg))))
@@ -463,9 +478,6 @@ The theme has to be reloaded after changing anything in this group."
    `(match                               ((,class (:background ,quickbeans-red-4))))
 ;;;;; Minibuffer
    `(minibuffer-prompt                   ((,class (:foreground ,quickbeans-yellow-3))))
-;;;;; Modeline
-   `(mode-line                           ((,class (:foreground ,quickbeans-fg :background ,quickbeans-grey-3))))
-   `(mode-line-inactive                  ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-grey-2))))
 ;;;;; NeoTree
    `(neo-dir-link-face                   ((,class (:foreground ,quickbeans-blue-0))))
    `(neo-file-link-face                  ((,class (:foreground ,quickbeans-fg))))
@@ -474,21 +486,32 @@ The theme has to be reloaded after changing anything in this group."
    `(org-date                            ((,class (:foreground ,quickbeans-blue-0))))
    `(org-document-title                  ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-4 :foreground ,quickbeans-red-9))))
    `(org-done                            ((,class (:foreground ,quickbeans-green-2))))
-   `(org-level-1                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-4 :foreground ,quickbeans-orange-0))))
-   `(org-level-2                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-3 :foreground ,quickbeans-green-5))))
-   `(org-level-3                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-3 :foreground ,quickbeans-yellow-0))))
-   `(org-level-4                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-3 :foreground ,quickbeans-red-0))))
-   `(org-level-5                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-orange-0))))
-   `(org-level-6                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-green-0))))
-   `(org-level-7                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-red-7))))
-   `(org-level-8                         ((,class (:inherit variable-pitch :height ,quickbeans-height-plus-2 :foreground ,quickbeans-blue-0))))
+   `(org-level-1                         ((,class (:inherit variable-pitch :foreground ,quickbeans-orange-0))))
+   `(org-level-2                         ((,class (:inherit variable-pitch :foreground ,quickbeans-green-5))))
+   `(org-level-3                         ((,class (:inherit variable-pitch :foreground ,quickbeans-yellow-0))))
+   `(org-level-4                         ((,class (:inherit variable-pitch :foreground ,quickbeans-red-0))))
+   `(org-level-5                         ((,class (:inherit variable-pitch :foreground ,quickbeans-orange-0))))
+   `(org-level-6                         ((,class (:inherit variable-pitch :foreground ,quickbeans-green-0))))
+   `(org-level-7                         ((,class (:inherit variable-pitch :foreground ,quickbeans-red-7))))
+   `(org-level-8                         ((,class (:inherit variable-pitch :foreground ,quickbeans-blue-0))))
    `(org-link                            ((,class (:foreground ,quickbeans-blue-1))))
    `(org-special-keyword                 ((,class (:foreground ,quickbeans-blue-0))))
    `(org-table                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-orange-0))))
    `(org-todo                            ((,class (:foreground ,quickbeans-red-1))))
-   `(org-block                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-emphasis :background ,quickbeans-grey-0))))
-   `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
-   `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-2 :slant italic))))
+   `(org-block                           ((,class (:inherit 'fixed-pitch :foreground ,quickbeans-emphasis :background ,quickbeans-grey-9))))
+   `(org-block-begin-line                ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-1 :slant italic))))
+   `(org-block-end-line                  ((,class (:foreground ,quickbeans-grey-7 :background ,quickbeans-grey-1 :slant italic))))
+   `(org-code                            ((,class (:inherit (shadow fixed-pitch)))))
+   `(org-document-info                   ((,class (:foreground ,quickbeans-orange-1))))
+   `(org-document-info-keyword           ((,class (:inherit (shadow fixed-pitch)))))
+   `(org-indemt                          ((,class (:inherit (org-hide fixed-pitch)))))
+   `(org-link                            ((,class (:foreground "royal blue" :underline t))))
+   `(org-meta-line                       ((,class (:inherit (font-lock-comment-face fixed-pitch)))))
+   `(org-property-value                  ((,class (:inherit 'fixed-pitch))) t)
+   `(org-special-keyword                 ((,class (:inherit (font-lock-comment-face fixed-pitch)))))
+   `(org-tag                             ((,class (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+   `(org-verbatim                        ((,class (:inherit (shadow fixed-pitch)))))
+
 ;;;;; Perspective
    `(persp-selected-face                 ((,class (:foreground ,quickbeans-yellow-1))))
 ;;;;; Rainbow Delimiter
@@ -502,7 +525,7 @@ The theme has to be reloaded after changing anything in this group."
    `(rainbow-delimiters-depth-8-face     ((,class (:foreground ,quickbeans-white-8))))
    `(rainbow-delimiters-depth-9-face     ((,class (:foreground ,quickbeans-white-9))))
 ;;;;; Region
-   `(region                              ((,class (:background ,quickbeans-grey-2 :box (:line-width (-1 . -1) :color ,quickbeans-blue-1)))))
+   `(region                              ((,class (:background ,quickbeans-purple-3))))
 ;;;;; SHM
    `(shm-current-face                    ((,class (:background ,quickbeans-grey-4))))
    `(shm-quarantine-face                 ((,class (:background ,quickbeans-red-4))))
