@@ -252,6 +252,7 @@ The theme has to be reloaded after changing anything in this group."
    `(evil-quickscope-second-face         ((,class (:inherit nil :underline '(:style wave) :background unspecified :foreground unspecified))))
 ;;;;; Fancy Compilation
    `(fancy-compilation-complete-success-face  ((,class (:background ,quickbeans-bg :foreground ,quickbeans-fg :bold t))))
+   `(fancy-compilation-complete-error-face  ((,class (:background ,quickbeans-red-8 :foreground ,quickbeans-fg :bold t))))
 ;;;;; FCI Ruler
    ;; As of now, this does nothing, because fci-rule-color is not a face yet.
    `(fci-rule-color                      ((,class (:foreground ,quickbeans-grey-4 :background ,quickbeans-grey-4))))

@@ -173,6 +173,7 @@ Modern Emacs configuration with comprehensive package integration, evil mode, an
 - **[[*Claude Code][claude-code]]**: Claude AI integration with seamless Emacs workflow and project isolation
 
 *** Additional Tools
+- **[[*Undo-Fu Package][undo-fu]]**: Simple, stable undo system for Evil mode with linear undo/redo behavior
 - **[[*Undo-Fu-Session][undo-fu-session]]**: Persistent undo history across Emacs sessions
 - **[[*Vundo][vundo]]**: Modern visual undo system with tree-like interface
 - **[[*PDF Tools][pdf-tools]]**: Superior PDF viewing in Emacs
@@ -905,6 +906,11 @@ Embark contextual action keybindings. → [[*Embark Package][Generated Code]]
 | <f7> | embark-dwim| Embark do-what-I-mean        |
 | <f8> | embark-act | Apply embark-act on target   |
 
+#+NAME: embark-file-keys
+| Key | Command                  | Description               |
+|-----+--------------------------+---------------------------|
+| D   | qq/duplicate-file-buffer | Duplicate existing buffer |
+
 *** Org Mode Keybindings Table
 Org-mode keybindings. → [[*Org Mode Keybindings][Generated Code]]
 
@@ -932,7 +938,7 @@ Complete vim emulation with modern undo system and extensive configuration. → 
       evil-magic 'very-magic
       evil-want-C-u-delete t
       evil-want-C-u-scroll t
-      evil-undo-system 'undo-redo
+      evil-undo-system 'undo-fu
       evil-respect-visual-line-mode t
       hs-minor-mode-map nil)
 #+END_SRC
@@ -956,6 +962,18 @@ Complete vim emulation with modern undo system and extensive configuration. → 
                    #'evil-change
                    #'evil-delete
                    #'evil-replace)
+
+;; Make Evil search history available to consult-isearch-history
+(advice-add 'evil-ex-search :after
+            (lambda (&rest _)
+              (when (boundp 'evil-ex-search-pattern)
+                (add-to-history 'search-ring (car evil-ex-search-pattern)))))
+
+;; Make Evil search history persistent across sessions
+(setq evil-search-persistent-history t)
+(add-to-list 'savehist-additional-variables 'evil-ex-search-history)
+(add-to-list 'savehist-additional-variables 'evil-search-forward-history)
+(add-to-list 'savehist-additional-variables 'evil-search-backward-history)
 #+END_SRC
 
 *** General.el Configuration
@@ -1020,7 +1038,7 @@ Provides evil keybindings for org-mode with additional org-specific functionalit
   (evil-org-set-key-theme '(navigation insert textobjects additional calendar)))
 
 ;; Enable evil-org-mode for org-mode buffers
-:hook (org-mode . (lambda () evil-org-mode))
+:hook (org-mode . evil-org-mode)
 #+END_SRC
 
 *** Evil Surround
@@ -3391,6 +3409,15 @@ Project management and navigation. → [[*Projectile Package][Generated Code]]
 
 ** Additional Tools
 *** Undo System
+**** Undo-Fu
+Undo replacement for Emacs. → [[*Undo-Fu Package][Generated Code]]
+
+***** Undo-Fu Configuration Block
+#+NAME: undo-fu-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; No additional configuration needed - evil will use this automatically
+#+END_SRC
+
 **** Undo-Fu-Session
 Persistent undo history across Emacs sessions, maintaining undo trees between restarts. → [[*Undo-Fu-Session Package][Generated Code]]
 
@@ -4165,21 +4192,6 @@ Convert multi-line paragraph into single line (opposite of fill-paragraph). → 
 Duplicates the buffer and its associated file. → [[*Recipes Code][Generated Code]]
 #+NAME: duplicate-buffer-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-(defun qq/duplicate-file-buffer ()
-  "Duplicate the current buffer and its associated file, with overwrite confirmation."
-  (interactive)
-  (let* ((file (buffer-file-name)))
-    (if (not file)
-        (user-error "Current buffer is not visiting a file")
-      (let* ((default-name (concat (file-name-sans-extension file)
-                                   "-copy."
-                                   (file-name-extension file)))
-             (new-file (read-file-name "Duplicate to: " nil nil nil default-name)))
-        (when (and (file-exists-p new-file)
-                   (not (yes-or-no-p (format "File %s exists. Overwrite? " new-file))))
-          (user-error "Aborted: file already exists"))
-        (copy-file file new-file t)
-        (find-file new-file)))))
 #+END_SRC
 
 *** Diff Two Regions
@@ -5092,11 +5104,14 @@ Flexible completion matching styles for advanced filtering. → [[*Orderless][Co
 ** Embark Package
 Contextual actions on completion targets with flexible keybindings. → [[*Embark][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-(use-package embark
-  :config
-  <<embark-config>>
-  :bind (
-         <<gen-keys(mode="bind", tname=embark-keys)>>))
+<<gen-use-pkg(package="embark")>>
+<<embark-config>>
+:general
+(
+ <<gen-keys(mode="general", tname=embark-keys)>>)
+(:keymaps '(embark-buffer-map embark-file-map)
+          <<gen-keys(mode="general", tname=embark-file-keys)>>)
+<<gen-pkg-end()>>
 #+END_SRC
 
 ** Embark-Consult Package
@@ -5522,6 +5537,14 @@ Diagram support in org-babel using napkin markup language. → [[*Ob Napkin][Con
 
 ** Additional Tools
 *** Undo System Packages
+**** Undo-Fu Package
+Simple, stable undo system for Evil mode with linear undo/redo behavior. → [[*Undo-Fu][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="undo-fu")>>
+<<undo-fu-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
 **** Undo-Fu-Session Package
 Persistent undo history across Emacs sessions for better editing continuity. → [[*Undo-Fu-Session][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
