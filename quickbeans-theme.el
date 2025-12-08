@@ -35,7 +35,8 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(deftheme quickbeans "The jellybeans color theme")
+;;; Code:
+(deftheme quickbeans "The jellybeans color theme.")
 
 (defgroup quickbeans nil
   "Quickbeans theme options.
@@ -119,6 +120,7 @@ The theme has to be reloaded after changing anything in this group."
        (quickbeans-orange-0   (if (display-graphic-p) "#ffb964" "#ffb964"))
        (quickbeans-orange-1   (if (display-graphic-p) "#ff8c00" "#ebbd87"))
        (quickbeans-orange-2   (if (display-graphic-p) "#b78521" "#b78521"))
+       (quickbeans-orange-3   (if (display-graphic-p) "#703a01" "#703a01"))
        (quickbeans-red-0      (if (display-graphic-p) "#cb8165" "#cb8165"))
        (quickbeans-red-1      (if (display-graphic-p) "#cf6a4c" "#cf6a4c"))
        (quickbeans-red-2      (if (display-graphic-p) "#de5577" "#de5577"))
@@ -130,6 +132,8 @@ The theme has to be reloaded after changing anything in this group."
        (quickbeans-red-8      (if (display-graphic-p) "#fc0d1b" "#fc0d1b"))
        (quickbeans-red-9      (if (display-graphic-p) "#ffccdd" "#ffdddd"))
        (quickbeans-red-10     (if (display-graphic-p) "#ffb6c1" "#ffb6c1"))
+       (quickbeans-red-11     (if (display-graphic-p) "#361212" "#361212"))
+       (quickbeans-red-12     (if (display-graphic-p) "#75024f" "#75024f"))
        (quickbeans-white-1    (if (display-graphic-p) "#eeeee0" "#eeeee0"))
        (quickbeans-white-2    (if (display-graphic-p) "#cdcdc1" "#cdcdc1"))
        (quickbeans-white-3    (if (display-graphic-p) "#eee8cd" "#eee8cd"))
@@ -229,7 +233,7 @@ The theme has to be reloaded after changing anything in this group."
    `(doom-modeline-buffer-modified       ((,class (:foreground ,quickbeans-purple-0 :weight bold))))
    `(doom-modeline-bar                   ((,class (:background ,quickbeans-red-8 :weight bold))))
 ;;;;; Modeline
-   `(mode-line-active                    ((,class (:inherit mode-line :foreground ,quickbeans-fg :background ,quickbeans-blue-6))))
+   `(mode-line-active                    ((,class (:inherit mode-line :foreground ,quickbeans-fg :background ,quickbeans-red-12))))
    `(mode-line-inactive                  ((,class (:foreground ,quickbeans-grey-6 :background ,quickbeans-grey-1))))
 ;;;;; Emmet
    `(emmet-preview-output                ((,class (:background ,quickbeans-purple-4))))
@@ -530,6 +534,8 @@ The theme has to be reloaded after changing anything in this group."
 ;;;;; SHM
    `(shm-current-face                    ((,class (:background ,quickbeans-grey-4))))
    `(shm-quarantine-face                 ((,class (:background ,quickbeans-red-4))))
+;;;;; Show paren
+   `(show-paren-match                    ((,class (:background ,quickbeans-red-11))))
 ;;;;; Smerge
    `(smerge-markers                      ((,class (:foreground ,quickbeans-yellow-3 :background ,quickbeans-grey-0))))
    `(smerge-refined-change               ((,class (:foreground ,quickbeans-green-5))))

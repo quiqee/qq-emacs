@@ -7,6 +7,18 @@
 * About
 Modern Emacs configuration with comprehensive package integration, evil mode, and productivity-focused tools. This configuration uses literate programming with org-babel, noweb templating for code generation, and systematic keybinding management.
 
+** Applying Changes
+After editing =init.org=, you need to tangle (export) the changes to =init.el=:
+
+- **Modern Method (Recommended)**: Press =C-c r= to save, tangle, and reload automatically
+- **Legacy Method**: Run =~/.emacs.d/bin/tangle= then restart Emacs or reload configuration
+
+The configuration auto-retangles on save with notifications.
+
+*** Debugging Configuration
+- **Toggle Package On/Off**: Press =C-c z= on any heading to toggle =:tangle no= property (disables that package)
+- **Restart Emacs**: Press =SPC x r= to restart Emacs and test configuration changes
+
 ** Core Architecture
 - **Literate Programming**: Configuration written in org-mode with babel tangling
 - **Package Management**: straight.el with use-package for declarative configuration
@@ -1352,13 +1364,27 @@ Language Server Protocol support providing IDE-like features including auto-comp
   (general-def 'visual lsp-mode :definer 'minor-mode "SPC m" lsp-command-map)
   )
 
+;; Configure TypeScript language server
+(with-eval-after-load 'lsp-mode
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection
+                     (lambda () (list "/home/fikri/.local/bin/typescript-language-server" "--stdio")))
+    :major-modes '(typescript-ts-mode typescript-mode js-ts-mode javascript-mode)
+    :server-id 'typescript-language-server
+    :priority 1)))
+
 ;; Helper function for conditional LSP loading
 (defun qq/lsp-deferred-if-supported ()
-  "Run lsp-deferred if it's a supported mode."
-  (unless (derived-mode-p 'emacs-lisp-mode) (lsp-deferred)))
+  "Run lsp-deferred if it's a supported mode and not a TRAMP buffer."
+  (unless (or (derived-mode-p 'emacs-lisp-mode)
+              (file-remote-p default-directory))
+    (lsp-deferred)))
 
 :hook
-(php-mode . lsp-deferred)
+(php-mode . qq/lsp-deferred-if-supported)
+(typescript-ts-mode . qq/lsp-deferred-if-supported)
+(js-ts-mode . qq/lsp-deferred-if-supported)
 (lsp-mode . evil-normalize-keymaps)
 (lsp-mode . lsp-enable-which-key-integration)
 #+END_SRC
@@ -1677,18 +1703,8 @@ Code formatting for C/C++ using clang-format. → [[*Clang Format Package][Gener
 ****** Clang Format Configuration Block
 #+NAME: clang-format-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure clang-format
+;; Configure clang-format (formatting handled by apheleia)
 (setq clang-format-style "file")
-
-;; Add hooks for automatic formatting
-(add-hook 'c-mode-hook
-          (lambda () (add-hook 'before-save-hook 'clang-format-buffer nil 'local)))
-(add-hook 'c++-mode-hook
-          (lambda () (add-hook 'before-save-hook 'clang-format-buffer nil 'local)))
-(add-hook 'c-ts-mode-hook
-          (lambda () (add-hook 'before-save-hook 'clang-format-buffer nil 'local)))
-(add-hook 'c++-ts-mode-hook
-          (lambda () (add-hook 'before-save-hook 'clang-format-buffer nil 'local)))
 #+END_SRC
 
 **** Additional Languages
@@ -1786,7 +1802,8 @@ Universal code formatter supporting multiple languages with consistent formattin
 #+NAME: format-all-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Enable format-all for automatic code formatting
-(add-hook 'prog-mode-hook #'format-all-ensure-formatter)
+(add-hook 'format-all-mode-hook 'format-all-ensure-formatter)
+
 
 ;; Optional: format on save
 ;; (add-hook 'prog-mode-hook #'format-all-mode)
@@ -3393,6 +3410,12 @@ Project management and navigation. → [[*Projectile Package][Generated Code]]
 (setq projectile-cache-file (concat qq/cache-directory "projectile.cache")
       projectile-known-projects-file (concat qq/cache-directory "projectile-bookmarks.eld"))
 
+;; TRAMP exclusion - prevent hangs on remote files
+(setq projectile-mode-line "Projectile")
+(defadvice projectile-project-root (around ignore-remote activate)
+  (unless (file-remote-p default-directory)
+    ad-do-it))
+
 ;; Global ignores
 (add-to-list 'projectile-globally-ignored-files ".tern-port")
 (add-to-list 'projectile-globally-ignored-files "GTAGS")
@@ -4754,7 +4777,10 @@ User interface enhancements for LSP mode. → [[*LSP UI][Configuration]]
 <<gen-pkg-end()>>
 #+END_SRC
 
-*** DAP Mode Package
+*** DAP Mode Package :ignore:
+:PROPERTIES:
+:header-args: :tangle no
+:END:
 Debug Adapter Protocol support for debugging. → [[*DAP Mode][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="dap-mode", after="lsp-mode")>>
@@ -5255,7 +5281,10 @@ Shell environment setup for proper PATH and environment variables. → [[*Exec P
 <<gen-pkg-end()>>
 #+END_SRC
 
-** Auto Dim Other Buffers Package
+** Auto Dim Other Buffers Package :ignore:
+:PROPERTIES:
+:header-args: :tangle no
+:END:
 Dim inactive buffers to focus on current work. → [[*Auto Dim Other Buffers][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="auto-dim-other-buffers")>>
