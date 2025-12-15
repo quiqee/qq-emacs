@@ -182,7 +182,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*Eat][eat]]**: Terminal emulator written in Emacs Lisp with eshell integration
 - **[[*Shell Here][shell-here]]**: Convenient functions to open shell in current directory
 - **[[*Docker][docker]]**: Docker interface for container management
-- **[[*Claude Code][claude-code]]**: Claude AI integration with seamless Emacs workflow and project isolation
+- **[[*Claude Code][claude-code]]**: Emacs interface for Claude Code CLI with terminal integration and error fixing
 
 *** Additional Tools
 - **[[*Undo-Fu Package][undo-fu]]**: Simple, stable undo system for Evil mode with linear undo/redo behavior
@@ -574,23 +574,15 @@ Docker container management keybindings. → [[*General Package][Generated Code]
 *** Claude Code Leader Key Bindings
 Claude Code AI integration keybindings. → [[*General Package][Generated Code]]
 #+NAME: claude-code-keys
-| Key | Command                             | Description                                       |
-|-----+-------------------------------------+---------------------------------------------------|
-| a r | claude-code-ide-menu                | Open transient menu with all Claude Code commands |
-| a s | claude-code-ide-emacs-tools-setup   | Set up built-in MCP tools (e.g. xref, project)    |
-| a d | claude-code-ide                     | Start Claude Code for the current project         |
-| a q | claude-code-ide-continue            | Continue most recent conversation in directory    |
-| a w | claude-code-ide-resume              | Resume Claude Code with previous conversation     |
-| a e | claude-code-ide-stop                | Stop Claude Code for the current project          |
-| a b | claude-code-ide-switch-to-buffer    | Switch to project’s Claude buffer                 |
-| a l | claude-code-ide-list-sessions       | List all active Claude Code sessions and switch   |
-| a g | claude-code-ide-check-status        | Check if Claude Code CLI is installed and working |
-| a i | claude-code-ide-insert-at-mentioned | Send selected text to Claude prompt               |
-| a x | claude-code-ide-send-escape         | Send escape key to Claude terminal                |
-| a n | claude-code-ide-insert-newline      | Insert newline in Claude prompt (sends \ + Enter) |
-| a t | claude-code-ide-toggle              | Toggle visibility of Claude Code window           |
-| a b | claude-code-ide-show-debug          | Show the debug buffer with WebSocket messages     |
-| a f | claude-code-ide-clear-debug         | Clear the debug buffer                            |
+| Key | Command                        | Description                     |
+|-----+--------------------------------+---------------------------------|
+| a a | claude-code-transient          | Open Claude transient menu      |
+| a c | claude-code                    | Start Claude Code               |
+| a s | claude-code-send               | Send command to Claude          |
+| a r | claude-code-send-region        | Send region to Claude           |
+| a . | claude-code-fix-error-at-point | Fix error at point with Claude  |
+| a t | claude-code-toggle             | Toggle Claude window visibility |
+| a / | claude-code-slash-commands     | Send slash command to Claude    |
 
 *** Org Mode Leader Key Bindings
 Org-mode document and task management keybindings. → [[*General Package][Generated Code]]
@@ -2001,6 +1993,12 @@ Eat (Emulate A Terminal) is a terminal emulator for Emacs written in Emacs Lisp.
 ;; Enable evil integration
 (add-to-list 'evil-emacs-state-modes 'eat-mode)
 
+;; Add evil normal mode keybindings for eat
+(with-eval-after-load 'eat
+  (evil-define-key 'normal eat-mode-map
+    "p" 'eat-yank
+    "P" 'eat-yank))
+
 ;; Integration with eshell
 (add-hook 'eshell-load-hook #'eat-eshell-mode)
 (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
@@ -2677,6 +2675,7 @@ Popup window management for temporary buffers with one-key access, providing int
       '(;; Right-side popup buffers
         ("\\*Messages\\*" . right-side)
         ("\\*scratch\\*" . right-side)
+        ("\\*claude:.*\\*" . right-side)
         ;; Split-below buffers
         (compilation-mode . split-below)
         ;; Default popup buffers
@@ -2698,6 +2697,15 @@ Popup window management for temporary buffers with one-key access, providing int
 (popper-mode +1)
 (popper-echo-mode +1)
 
+;; Explicit display-buffer rule for Claude Code buffers
+(add-to-list 'display-buffer-alist
+             '("\\*claude:.*\\*"
+               (display-buffer-reuse-window display-buffer-in-side-window)
+               (side . right)
+               (slot . 0)
+               (window-width . 100)
+               (window-parameters . ((no-delete-other-windows . t)))))
+
 ;; Helper functions to toggle different popper categories
 (defun qq/popper-toggle-right-side ()
   "Toggle popper buffer on the right side of frame."
@@ -2718,7 +2726,9 @@ Popup window management for temporary buffers with one-key access, providing int
   (let ((popper-display-function 'qq/popper-display-at-frame-right)
         (right-side-buffers '("*Messages*" "*scratch*")))
     (if-let ((current-buffers (seq-filter (lambda (buf)
-                                            (member (buffer-name buf) right-side-buffers))
+                                            (let ((name (buffer-name buf)))
+                                              (or (member name right-side-buffers)
+                                                  (string-match-p "\\*claude:.*\\*" name))))
                                           (popper--get-reference-buffers))))
         (popper-cycle)
       (message "No right-side popup buffers available"))))
@@ -2862,12 +2872,23 @@ Discoverable transient interfaces for common Emacs tools, providing an intuitive
 #+END_SRC
 
 ** Claude Code
-Claude AI integration with seamless Emacs workflow and project isolation, providing real-time buffer sync and intelligent MCP server integration. → [[*Claude Code Package][Generated Code]]
+Emacs interface for Claude Code CLI with terminal integration and error fixing capabilities. → [[*Claude Code Package][Generated Code]]
 
 *** Claude Code Configuration Block
+#+NAME: claude-code-custom
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+#+END_SRC
+
 #+NAME: claude-code-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-(claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
+  ;; (setq claude-code-terminal-backend 'vterm)
+
+  ;; Optional: Customize newline behavior
+  ;; (setq claude-code-newline-style 'shift-return-to-send)
+  (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
+  (monet-mode 1)
+
+  (claude-code-mode)
 #+END_SRC
 
 ** Corfu
@@ -5319,9 +5340,14 @@ Discoverable transient interfaces for common Emacs tools. → [[*Casual Suite][C
 ** Claude Code Package
 Claude AI integration with seamless Emacs workflow and project isolation. → [[*Claude Code][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-  <<gen-use-pkg(package="claude-code-ide", strght_gh="manzaltu/claude-code-ide.el")>>
-  <<claude-code-config>>
-  <<gen-pkg-end()>>
+<<gen-use-pkg(package="inheritenv", strght_gh="purcell/inheritenv")>>
+<<gen-pkg-end()>>
+<<gen-use-pkg(package="monet", strght_gh="stevemolitor/monet")>>
+<<gen-pkg-end()>>
+<<gen-use-pkg(package="claude-code", strght_gh="stevemolitor/claude-code.el")>>
+<<claude-code-config>>
+<<claude-code-custom>>
+<<gen-pkg-end()>>
 #+END_SRC
 
 ** Corfu Package
