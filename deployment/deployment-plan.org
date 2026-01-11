@@ -1,0 +1,1405 @@
+#+TITLE: Emacs Multi-Machine Deployment with Ansible
+#+AUTHOR: Deployment Strategy Documentation
+#+DATE: 2025-12-08
+#+OPTIONS: toc:3 num:3
+#+PROPERTY: header-args :mkdirp yes
+#+STARTUP: overview
+
+* How to Use This Document
+
+This is a *literate programming* document that contains both documentation and code for your Ansible deployment setup.
+
+** Tangling the Files
+
+To generate all Ansible files from this document:
+
+*** From Emacs
+1. Open this file in Emacs
+2. Press ~C-c C-v t~ (or ~M-x org-babel-tangle~)
+3. All code blocks will be tangled to their respective files
+
+*** From Command Line
+#+BEGIN_SRC bash :tangle no
+# Tangle all files from this document
+cd deployment  # Navigate to deployment folder first
+emacs --batch --eval "(require 'ob-tangle)" \
+      --eval "(org-babel-tangle-file \"deployment-plan.org\")"
+#+END_SRC
+
+** Generated Files
+
+After tangling, the entire ~ansible/~ directory will be generated:
+- ~ansible/dependencies.yaml~ - Dependency manifest
+- ~ansible/playbook.yml~ - Main Ansible playbook
+- ~ansible/roles/*/tasks/main.yml~ - All role task files
+- ~ansible/sync.sh~ - Convenience wrapper script
+
+**Note:** The ~ansible/~ directory is auto-generated and should be in ~.gitignore~.
+
+** Workflow
+
+1. *Edit this file* (~deployment/deployment-plan.org~) to update documentation or Ansible configuration
+2. *Tangle* (~C-c C-v t~) to generate the entire ~ansible/~ directory
+3. *Run* ~cd deployment/ansible && ./sync.sh~ to deploy changes
+4. *Make executable*: ~chmod +x deployment/ansible/sync.sh~ (after first tangle)
+
+This keeps your documentation and configuration in perfect sync!
+
+* Overview
+
+This document outlines a hybrid Ansible + dependency manifest approach for managing Emacs configuration across multiple machines (Mac + Linux).
+
+** Problem Statement
+
+Current workflow challenges:
+1. ~install.sh~ is fragile and breaks across different OS environments
+2. Adding packages to ~init.org~ may require system dependencies (LSP servers, fonts, tools)
+3. Need to sync configuration + dependencies across Mac @home + multiple Linux machines @work
+4. Want both initial deployment AND ongoing synchronization with same tool
+
+** Solution: Ansible + Dependency Manifest
+
+- *Declarative dependencies*: ~dependencies.yaml~ explicitly lists all required packages, LSP servers, fonts
+- *Idempotent deployment*: Ansible handles OS differences and safe re-runs
+- *Single workflow*: Same command for fresh machines and updates
+- *Explicit tracking*: Know exactly what each machine needs
+
+** Key Benefits
+
+| Feature             | Current (install.sh)   | Proposed (Ansible)     |
+|---------------------+------------------------+------------------------|
+| Cross-platform      | Manual OS detection    | Automatic              |
+| Idempotent          | No (breaks on re-run)  | Yes (safe re-run)      |
+| Dependency tracking | Implicit in script     | Explicit in YAML       |
+| Error handling      | Shell script fragility | Robust Ansible modules |
+| Ongoing sync        | N/A                    | Same tool              |
+| Rollback            | No                     | Via git + re-run       |
+
+* Architecture
+
+** Design Principles
+
+1. *Separation of Concerns*
+   - ~dependencies.yaml~: WHAT you need (data)
+   - Ansible playbooks: HOW to install it (logic)
+   - ~init.org~: Emacs configuration (unchanged)
+
+2. *Idempotency*
+   - Safe to run multiple times
+   - Only changes what's needed
+   - Won't break existing setup
+
+3. *OS Abstraction*
+   - Single dependency declaration
+   - Ansible handles Mac (homebrew) vs Linux (apt/dnf/pacman)
+
+4. *Incremental Migration*
+   - Can migrate from ~install.sh~ gradually
+   - Test on one machine before rollout
+
+** Workflow Comparison
+
+*** Current Workflow
+#+BEGIN_EXAMPLE
+# Machine A
+edit init.org → add package → C-c r → test
+
+# Machine B (later)
+git pull
+~/.emacs.d/bin/tangle
+# Breaks if missing system dependency!
+# Manual: sudo apt install clangd (or was it pip? npm?)
+#+END_EXAMPLE
+
+*** Proposed Workflow
+#+BEGIN_EXAMPLE
+# Machine A
+edit init.org → add package
+edit dependencies.yaml → add system deps
+C-c r → test
+git commit && git push
+
+# Machine B (later)
+git pull
+ansible-playbook -i localhost, playbook.yml
+# All dependencies installed automatically
+# Emacs config tangled and ready
+#+END_EXAMPLE
+
+* Directory Structure
+
+** Proposed Layout
+
+#+BEGIN_SRC fundamental
+qq-emacs/                          # Your existing repo
+├── init.org                       # Main Emacs config (unchanged)
+├── init.el                        # Tangled output (unchanged)
+├── install.sh                     # Legacy (keep for reference)
+├── CLAUDE.md                      # Repository docs
+├── README.org                     # User-facing docs
+│
+├── deployment/                    # Deployment automation (NEW)
+│   ├── deployment-plan.org       # This file - deployment documentation
+│   ├── Dockerfile                # Docker test environment
+│   ├── test-docker.sh            # Docker testing script
+│   ├── TESTING.md                # Testing documentation
+│   │
+│   └── ansible/                  # Auto-generated from deployment-plan.org (in .gitignore)
+│       ├── playbook.yml          # Main playbook entry point
+│       ├── dependencies.yaml     # Declarative dependency manifest
+│       ├── sync.sh               # Convenience wrapper script
+│       ├── inventory.ini         # Your machines (optional)
+│       │
+│       ├── roles/                # Ansible roles (modular)
+│       │   ├── emacs/           # Emacs installation
+│       │   │   └── tasks/main.yml
+│       │   │
+│       │   ├── system-packages/  # System package installation
+│       │   │   └── tasks/main.yml
+│       │   │
+│       │   ├── lsp-servers/      # Language server installation
+│       │   │   └── tasks/main.yml
+│       │   │
+│       │   ├── fonts/            # Font installation
+│       │   │   └── tasks/main.yml
+│       │   │
+│       │   └── emacs-config/     # Config symlinking & tangling
+│       │       └── tasks/main.yml
+│       │
+│       └── group_vars/           # OS-specific variables (optional)
+│           ├── all.yml          # Common to all machines
+│           ├── darwin.yml       # Mac-specific overrides
+│           └── linux.yml        # Linux-specific overrides
+│
+└── bin/                          # Your existing scripts (optional)
+    ├── tangle
+    └── compile.el
+#+END_SRC
+
+** File Responsibilities
+
+| File/Directory                             | Purpose                                           |
+|--------------------------------------------+---------------------------------------------------|
+| ~deployment/deployment-plan.org~             | This file - deployment documentation & code       |
+| ~deployment/Dockerfile~                      | Docker test environment specification             |
+| ~deployment/test-docker.sh~                  | Script for Docker testing workflow                |
+| ~deployment/ansible/playbook.yml~            | Main entry point, orchestrates all roles          |
+| ~deployment/ansible/dependencies.yaml~       | Declarative manifest of ALL dependencies          |
+| ~deployment/ansible/sync.sh~                 | Convenience wrapper for deployment                |
+| ~deployment/ansible/roles/emacs/~            | Install Emacs itself (version-specific)           |
+| ~deployment/ansible/roles/system-packages/~  | Install system tools (ripgrep, fd, git, etc.)     |
+| ~deployment/ansible/roles/lsp-servers/~      | Install language servers (clangd, pyright, etc.)  |
+| ~deployment/ansible/roles/fonts/~            | Install required fonts                            |
+| ~deployment/ansible/roles/emacs-config/~     | Symlink config, tangle init.org                   |
+| ~deployment/ansible/group_vars/~             | OS-specific variable overrides (optional)         |
+
+* Key Files Detailed
+
+** dependencies.yaml
+
+This is the *single source of truth* for what your Emacs setup needs.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/dependencies.yaml
+---
+# Emacs version to install
+emacs:
+  version: "29.4"
+  compile_from_source: false  # Set true if you need native-comp on Linux
+
+# System packages required
+system_packages:
+  # Common across all OS
+  common:
+    - name: git
+      description: "Version control"
+    - name: ripgrep
+      description: "Fast grep for project searching"
+    - name: fd-find
+      description: "Fast find alternative"
+    - name: sqlite3
+      description: "Required for org-roam"
+    - name: cmake
+      description: "Build tool for some packages"
+    - name: libtool
+      description: "Required for vterm"
+    - name: curl
+      description: "HTTP client"
+    - name: graphviz
+      description: "Graph visualization for PlantUML diagrams"
+
+  # macOS-specific packages
+  darwin:
+    - name: coreutils
+      description: "GNU core utilities"
+    - name: llvm
+      description: "Clang/LLVM for development"
+    - name: imagemagick
+      description: "Image processing"
+
+  # Linux-specific packages
+  linux:
+    - name: build-essential  # Debian/Ubuntu
+      description: "Build tools"
+    - name: libvterm-dev
+      description: "vterm terminal emulator"
+    - name: libjansson-dev
+      description: "JSON parsing (LSP)"
+
+# Programming language runtimes
+runtimes:
+  - name: node
+    version: "20"
+    description: "JavaScript runtime for LSP servers"
+  - name: python3
+    version: "3.11"
+    description: "Python runtime"
+  - name: rustup
+    description: "Rust toolchain"
+
+# LSP servers
+lsp_servers:
+  - name: typescript-language-server
+    install_method: npm
+    package: typescript-language-server
+    description: "TypeScript/JavaScript LSP"
+
+  - name: pyright
+    install_method: pip
+    package: pyright
+    description: "Python LSP"
+
+  - name: clangd
+    install_method: package  # System package manager
+    package:
+      darwin: llvm  # Included in llvm on Mac
+      debian: clangd
+      fedora: clang-tools-extra
+    description: "C/C++ LSP"
+
+  - name: rust-analyzer
+    install_method: rustup
+    package: rust-analyzer
+    description: "Rust LSP"
+
+  - name: bash-language-server
+    install_method: npm
+    package: bash-language-server
+    description: "Bash LSP"
+
+  - name: yaml-language-server
+    install_method: npm
+    package: yaml-language-server
+    description: "YAML LSP"
+
+  - name: vscode-langservers-extracted
+    install_method: npm
+    package: vscode-langservers-extracted
+    description: "HTML/CSS/JSON LSP"
+
+# Formatters and linters
+formatters:
+  - name: prettier
+    install_method: npm
+    package: prettier
+    description: "Code formatter for web languages"
+
+  - name: black
+    install_method: pip
+    package: black
+    description: "Python formatter"
+
+  - name: shellcheck
+    install_method: package
+    package: shellcheck
+    description: "Shell script linter"
+
+  - name: shfmt
+    install_method: package
+    package:
+      darwin: shfmt
+      linux: shfmt
+    description: "Shell script formatter"
+
+# Fonts
+fonts:
+  - name: JetBrains Mono Nerd Font
+    darwin: font-jetbrains-mono-nerd-font
+    linux_url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip"
+    description: "Primary coding font with icons"
+
+  - name: Iosevka Nerd Font
+    darwin: font-iosevka-nerd-font
+    linux_url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/Iosevka.zip"
+    description: "Alternative monospace font"
+
+# Optional: Site-specific requirements
+site_specific:
+  # Your Mac at home (darwin)
+  darwin:
+    additional_packages:
+      - name: aspell
+        description: "Spell checker"
+
+  # Work Linux machines
+  work_linux:
+    additional_packages:
+      - name: openjdk-17-jdk
+        description: "Java for work projects"
+
+# Emacs config tangling
+tangle:
+  source: "{{ ansible_env.HOME }}/Documents/git/qq-emacs/init.org"
+  target: "{{ ansible_env.HOME }}/.emacs.d/init.el"
+  command: "{{ ansible_env.HOME }}/.emacs.d/bin/tangle"
+#+END_SRC
+
+** playbook.yml
+
+Main Ansible playbook entry point.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/playbook.yml
+---
+- name: Deploy Emacs Configuration
+  hosts: localhost
+  connection: local
+
+  vars_files:
+    - dependencies.yaml
+
+  vars:
+    ansible_become_password: "{{ lookup('env', 'BECOME_PASSWORD') | default(omit) }}"
+
+  pre_tasks:
+    - name: Detect OS and set facts
+      set_fact:
+        os_family: "{{ ansible_os_family }}"
+        is_darwin: "{{ ansible_os_family == 'Darwin' }}"
+        is_linux: "{{ ansible_os_family != 'Darwin' }}"
+
+    - name: Display deployment info
+      debug:
+        msg: |
+          Deploying Emacs configuration
+          OS: {{ ansible_os_family }}
+          Distribution: {{ ansible_distribution | default('N/A') }}
+          Home: {{ ansible_env.HOME }}
+
+  roles:
+    - role: system-packages
+      tags: [system, packages]
+
+    - role: emacs
+      tags: [emacs, install]
+
+    - role: lsp-servers
+      tags: [lsp, development]
+
+    - role: fonts
+      tags: [fonts, ui]
+
+    - role: emacs-config
+      tags: [config, dotfiles]
+
+  post_tasks:
+    - name: Deployment complete
+      debug:
+        msg: |
+          ✓ Emacs deployment complete!
+
+          Next steps:
+          1. Restart Emacs or run: emacs --daemon
+          2. Verify config: C-c r in init.org
+
+          To update later:
+          ansible-playbook -i localhost, playbook.yml
+#+END_SRC
+
+** roles/system-packages/tasks/main.yml
+
+Handles OS-specific package installation.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/roles/system-packages/tasks/main.yml
+---
+# Note: All variables come from dependencies.yaml loaded at playbook level
+# No need for separate OS-specific vars files
+
+- name: Install common system packages (macOS)
+  homebrew:
+    name: "{{ item.name }}"
+    state: present
+  loop: "{{ system_packages.common }}"
+  when: ansible_os_family == "Darwin"
+
+- name: Install Darwin-specific packages
+  homebrew:
+    name: "{{ item.name }}"
+    state: present
+  loop: "{{ system_packages.darwin }}"
+  when: ansible_os_family == "Darwin"
+
+- name: Update apt cache (Debian/Ubuntu)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install common system packages (Debian/Ubuntu)
+  apt:
+    name: "{{ item.name }}"
+    state: present
+  become: yes
+  loop: "{{ system_packages.common }}"
+  when: ansible_os_family == "Debian"
+
+- name: Install Linux-specific packages (Debian/Ubuntu)
+  apt:
+    name: "{{ item.name }}"
+    state: present
+  become: yes
+  loop: "{{ system_packages.linux }}"
+  when: ansible_os_family == "Debian"
+
+- name: Install packages (Fedora/RedHat)
+  dnf:
+    name: "{{ item.name }}"
+    state: present
+  become: yes
+  loop: "{{ system_packages.common }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Install packages (Arch)
+  pacman:
+    name: "{{ item.name }}"
+    state: present
+  become: yes
+  loop: "{{ system_packages.common }}"
+  when: ansible_os_family == "Archlinux"
+#+END_SRC
+
+** roles/emacs/tasks/main.yml
+
+Installs Emacs itself.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/roles/emacs/tasks/main.yml
+---
+- name: Check if Emacs is already installed
+  command: which emacs
+  register: emacs_installed
+  ignore_errors: yes
+  changed_when: false
+
+- name: Get installed Emacs version
+  command: emacs --version
+  register: emacs_version_check
+  when: emacs_installed.rc == 0
+  changed_when: false
+  ignore_errors: yes
+
+- name: Install Emacs (macOS)
+  homebrew:
+    name: emacs-plus@29
+    state: present
+    options:
+      - with-native-comp
+      - with-modern-icon
+  when:
+    - ansible_os_family == "Darwin"
+    - emacs_installed.rc != 0 or emacs.version not in emacs_version_check.stdout
+
+- name: Add Emacs PPA (Ubuntu)
+  apt_repository:
+    repo: ppa:kelleyk/emacs
+    state: present
+  become: yes
+  when:
+    - ansible_distribution == "Ubuntu"
+    - emacs_installed.rc != 0
+
+- name: Install Emacs (Ubuntu)
+  apt:
+    name: emacs29
+    state: present
+  become: yes
+  when:
+    - ansible_distribution == "Ubuntu"
+    - emacs_installed.rc != 0
+
+- name: Install Emacs (Fedora)
+  dnf:
+    name: emacs
+    state: present
+  become: yes
+  when:
+    - ansible_os_family == "RedHat"
+    - emacs_installed.rc != 0
+
+- name: Install Emacs (Arch)
+  pacman:
+    name: emacs
+    state: present
+  become: yes
+  when:
+    - ansible_os_family == "Archlinux"
+    - emacs_installed.rc != 0
+
+- name: Ensure .emacs.d directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.emacs.d"
+    state: directory
+    mode: '0755'
+
+- name: Ensure .emacs.d/bin directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.emacs.d/bin"
+    state: directory
+    mode: '0755'
+#+END_SRC
+
+** roles/lsp-servers/tasks/main.yml
+
+Installs language servers based on dependency manifest.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/roles/lsp-servers/tasks/main.yml
+---
+- name: Ensure Node.js is available for npm installs
+  command: which node
+  register: node_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install npm-based LSP servers
+  npm:
+    name: "{{ item.package }}"
+    global: yes
+    state: present
+  loop: "{{ lsp_servers }}"
+  when:
+    - item.install_method == "npm"
+    - node_check.rc == 0
+
+- name: Ensure Python3 pip is available
+  command: which pip3
+  register: pip_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Check which pip packages are already installed
+  command: pip3 show "{{ item.package }}"
+  loop: "{{ lsp_servers + formatters }}"
+  when: item.install_method == "pip"
+  register: pip_packages_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install pip-based LSP servers
+  pip:
+    name: "{{ item.item.package }}"
+    state: present
+    executable: pip3
+    extra_args: --break-system-packages
+  loop: "{{ pip_packages_check.results }}"
+  when:
+    - item.item is defined
+    - item.item.install_method == "pip"
+    - item.rc != 0
+    - pip_check.rc == 0
+
+- name: Install package-based LSP servers (macOS)
+  homebrew:
+    name: "{{ item.package.darwin | default(item.package) }}"
+    state: present
+  loop: "{{ lsp_servers }}"
+  when:
+    - item.install_method == "package"
+    - ansible_os_family == "Darwin"
+
+- name: Install package-based LSP servers (Debian/Ubuntu)
+  apt:
+    name: "{{ item.package.debian | default(item.package) }}"
+    state: present
+  become: yes
+  loop: "{{ lsp_servers }}"
+  when:
+    - item.install_method == "package"
+    - ansible_os_family == "Debian"
+
+- name: Install formatters (npm)
+  npm:
+    name: "{{ item.package }}"
+    global: yes
+    state: present
+  loop: "{{ formatters }}"
+  when:
+    - item.install_method == "npm"
+    - node_check.rc == 0
+
+
+- name: Install formatters (package)
+  homebrew:
+    name: "{{ item.package.darwin | default(item.package) }}"
+    state: present
+  loop: "{{ formatters }}"
+  when:
+    - item.install_method == "package"
+    - ansible_os_family == "Darwin"
+#+END_SRC
+
+** roles/fonts/tasks/main.yml
+
+Installs fonts across different OS.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/roles/fonts/tasks/main.yml
+---
+- name: Install fonts (macOS)
+  homebrew_cask:
+    name: "{{ item.darwin }}"
+    state: present
+  loop: "{{ fonts }}"
+  when: ansible_os_family == "Darwin"
+
+- name: Ensure fonts directory exists (Linux)
+  file:
+    path: "{{ ansible_env.HOME }}/.local/share/fonts"
+    state: directory
+    mode: '0755'
+  when: ansible_os_family != "Darwin"
+
+- name: Download and install fonts (Linux)
+  block:
+    - name: Create temp directory for fonts
+      tempfile:
+        state: directory
+        suffix: fonts
+      register: fonts_temp_dir
+
+    - name: Download font archives
+      get_url:
+        url: "{{ item.linux_url }}"
+        dest: "{{ fonts_temp_dir.path }}/{{ item.name | replace(' ', '') }}.zip"
+      loop: "{{ fonts }}"
+      when:
+        - item.linux_url is defined
+        - fonts_temp_dir.path is defined
+
+    - name: Extract fonts
+      unarchive:
+        src: "{{ fonts_temp_dir.path }}/{{ item.name | replace(' ', '') }}.zip"
+        dest: "{{ ansible_env.HOME }}/.local/share/fonts"
+        remote_src: yes
+      loop: "{{ fonts }}"
+      when:
+        - item.linux_url is defined
+        - fonts_temp_dir.path is defined
+
+    - name: Update font cache
+      command: fc-cache -fv
+      changed_when: false
+
+  when: ansible_os_family != "Darwin"
+  always:
+    - name: Clean up temp directory
+      file:
+        path: "{{ fonts_temp_dir.path }}"
+        state: absent
+      when:
+        - fonts_temp_dir is defined
+        - fonts_temp_dir.path is defined
+#+END_SRC
+
+** roles/emacs-config/tasks/main.yml
+
+Syncs configuration and tangles init.org.
+
+#+BEGIN_SRC yaml :tangle deployment/ansible/roles/emacs-config/tasks/main.yml
+---
+- name: Check if qq-emacs repo exists
+  stat:
+    path: "{{ ansible_env.HOME }}/Documents/git/qq-emacs/.git"
+  register: repo_exists
+
+- name: Ensure qq-emacs repo is cloned
+  git:
+    repo: "git@github.com:yourusername/qq-emacs.git"  # Update with your repo
+    dest: "{{ ansible_env.HOME }}/Documents/git/qq-emacs"
+    update: yes
+    version: master
+    accept_hostkey: yes
+  register: git_clone
+  when: not repo_exists.stat.exists
+
+- name: Create symlink for init.org (if not already tangled in place)
+  file:
+    src: "{{ ansible_env.HOME }}/Documents/git/qq-emacs/init.org"
+    dest: "{{ ansible_env.HOME }}/.emacs.d/init.org"
+    state: link
+  when: tangle.source != (ansible_env.HOME ~ "/.emacs.d/init.org")
+
+- name: Tangle init.org to generate init.el
+  shell: |
+    emacs --batch \
+      --eval "(setq org-confirm-babel-evaluate nil)" \
+      --eval "(require 'ob-tangle)" \
+      --eval '(org-babel-tangle-file "{{ ansible_env.HOME }}/Documents/git/qq-emacs/init.org")'
+  args:
+    chdir: "{{ ansible_env.HOME }}/Documents/git/qq-emacs"
+  register: tangle_result
+  changed_when: "'Tangled' in tangle_result.stdout or tangle_result.stdout != ''"
+
+- name: Display tangle results
+  debug:
+    var: tangle_result.stdout_lines
+  when: tangle_result.stdout_lines is defined
+#+END_SRC
+
+** ansible/sync.sh
+
+Convenience wrapper for running Ansible.
+
+#+BEGIN_SRC bash :tangle deployment/ansible/sync.sh :shebang "#!/usr/bin/env bash"
+# Emacs configuration sync script
+# Wrapper around ansible-playbook for convenience
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ANSIBLE_DIR="$SCRIPT_DIR"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Check if ansible is installed
+if ! command -v ansible-playbook &> /dev/null; then
+    echo -e "${RED}Error: ansible-playbook not found${NC}"
+    echo "Install Ansible first:"
+    echo "  macOS: brew install ansible"
+    echo "  Ubuntu: sudo apt install ansible"
+    echo "  Fedora: sudo dnf install ansible"
+    exit 1
+fi
+
+# Parse arguments
+TAGS="${1:-all}"
+VERBOSE=""
+
+if [[ "${2:-}" == "-v" ]]; then
+    VERBOSE="-vv"
+fi
+
+echo -e "${GREEN}Running Emacs configuration sync...${NC}"
+echo "Tags: $TAGS"
+echo ""
+
+# Run ansible-playbook
+cd "$ANSIBLE_DIR"
+ansible-playbook \
+    -i localhost, \
+    --connection=local \
+    ${TAGS:+--tags "$TAGS"} \
+    $VERBOSE \
+    playbook.yml
+
+echo ""
+echo -e "${GREEN}Sync complete!${NC}"
+echo ""
+echo "Next steps:"
+echo "  - Restart Emacs: killall emacs && emacs --daemon"
+echo "  - Or reload config: M-x load-file RET ~/.emacs.d/init.el"
+#+END_SRC
+
+* Usage Workflows
+
+** Testing with Docker (Recommended First Step)
+
+Before deploying to real machines, test your Ansible playbook in a safe, isolated Docker environment.
+
+*** Why Test with Docker?
+
+- *Safe sandbox*: Won't break your actual system if something goes wrong
+- *Clean environment*: Tests from scratch to catch missing dependencies
+- *Reproducibility*: Ensures the playbook works on different systems
+- *Fast iteration*: Quickly test changes without affecting real machines
+- *CI/CD ready*: Can be integrated into automated testing pipelines
+
+*** Prerequisites
+
+Docker must be installed on your system:
+
+#+BEGIN_SRC bash
+# Check if Docker is installed
+docker --version
+
+# If not installed:
+# Ubuntu: sudo apt install docker.io
+# Mac: brew install --cask docker
+# Or download from https://www.docker.com/
+#+END_SRC
+
+*** Available Commands
+
+The ~test-docker.sh~ script provides several commands:
+
+| Command  | Purpose                                              |
+|----------+------------------------------------------------------|
+| ~build~    | Build the Docker test image (Ubuntu 24.04 + Emacs)  |
+| ~test~     | Dry-run: validate playbook without making changes   |
+| ~deploy~   | Actually run the playbook in Docker                 |
+| ~dev~      | Deploy + interactive shell with GUI support         |
+| ~run~      | Interactive shell only (no deployment)              |
+| ~clean~    | Remove Docker container and image                   |
+
+*** Testing Workflow
+
+*Step 1: Build the Docker image* (one-time setup)
+
+#+BEGIN_SRC bash
+./test-docker.sh build
+#+END_SRC
+
+This creates an Ubuntu 24.04 container with:
+- Emacs 31 (compiled from source with native-comp)
+- Ansible, Python, Node.js, npm
+- Build tools and common dependencies
+- LSP servers and formatters pre-installed
+
+*Step 2: Run dry-run test* (recommended first)
+
+#+BEGIN_SRC bash
+./test-docker.sh test
+#+END_SRC
+
+This runs Ansible in check mode (~--check~):
+- Validates playbook syntax
+- Shows what *would* change without actually changing anything
+- Catches errors before real deployment
+- Quick validation (~30 seconds)
+
+*Step 3: Run actual deployment* (optional)
+
+#+BEGIN_SRC bash
+./test-docker.sh deploy
+#+END_SRC
+
+This runs the playbook for real in Docker:
+- Installs all packages and dependencies
+- Tangles init.org → init.el
+- Sets up complete .emacs.d
+- Takes 5-10 minutes (downloads fonts, compiles packages)
+
+*Step 4: Interactive testing with GUI* (optional)
+
+#+BEGIN_SRC bash
+./test-docker.sh dev
+#+END_SRC
+
+This runs deployment then drops into interactive shell with X11 forwarding:
+- Full deployment runs first
+- Drops into bash shell
+- Can launch GUI Emacs: ~emacs &~
+- Can test configuration interactively
+- Supports X11 forwarding through XWayland (on Wayland hosts)
+
+*** Example: Testing a Change
+
+#+BEGIN_EXAMPLE
+# 1. Make changes to deployment-plan.org
+vim deployment-plan.org
+
+# 2. Quick validation
+./test-docker.sh test
+
+# 3. If validation passes, test actual deployment
+./test-docker.sh deploy
+
+# 4. (Optional) Test GUI interactively
+./test-docker.sh dev
+# Inside container:
+emacs &
+# Test your config, verify everything works
+# Exit when done: Ctrl+D
+
+# 5. Commit and deploy to real machines
+git add deployment-plan.org
+git commit -m "Update Ansible playbook"
+git push
+#+END_EXAMPLE
+
+*** Troubleshooting
+
+**** GUI doesn't work in dev mode
+
+#+BEGIN_SRC bash
+# Enable X11 access for Docker
+xhost +local:docker
+
+# Then run dev again
+./test-docker.sh dev
+#+END_SRC
+
+**** Build fails or image needs rebuild
+
+#+BEGIN_SRC bash
+# Clean up old image and rebuild
+./test-docker.sh clean
+./test-docker.sh build
+#+END_SRC
+
+**** Container state persists between runs
+
+Docker uses ~--rm~ flag, so containers are automatically deleted on exit.
+Each run starts fresh - this is intentional for testing purposes.
+
+*** What Gets Tested?
+
+The Docker test environment validates:
+- ✓ System package installation (apt/homebrew)
+- ✓ LSP server installation (npm, pip)
+- ✓ Font installation and extraction
+- ✓ Ansible playbook syntax and logic
+- ✓ init.org tangling process
+- ✓ Cross-platform compatibility (test on Linux even if you use Mac)
+
+*** What Doesn't Get Tested?
+
+- Site-specific configurations (machine-specific paths, fonts)
+- SSH key setup and Git authentication
+- macOS-specific features (if testing on Linux Docker)
+- Real hardware integration (clipboard, native fonts, etc.)
+
+** Initial Deployment (Fresh Machine)
+
+*** Step 1: Install Ansible
+
+#+BEGIN_SRC bash
+# macOS
+brew install ansible
+
+# Ubuntu/Debian
+sudo apt update && sudo apt install ansible
+
+# Fedora
+sudo dnf install ansible
+
+# Arch
+sudo pacman -S ansible
+#+END_SRC
+
+*** Step 2: Clone Repository
+
+#+BEGIN_SRC bash
+mkdir -p ~/Documents/git
+cd ~/Documents/git
+git clone git@github.com:yourusername/qq-emacs.git
+cd qq-emacs
+#+END_SRC
+
+*** Step 3: Tangle and Run Deployment
+
+#+BEGIN_SRC bash
+# First tangle deployment-plan.org to generate ansible/
+cd ~/Documents/git/qq-emacs/deployment
+emacs --batch --eval "(require 'ob-tangle)" \
+      --eval "(org-babel-tangle-file \"deployment-plan.org\")"
+
+# Make sync.sh executable
+chmod +x ansible/sync.sh
+
+# Run full deployment
+cd ansible && ./sync.sh
+
+# Or run ansible-playbook directly
+cd ansible
+ansible-playbook -i localhost, playbook.yml
+#+END_SRC
+
+*** Step 4: Verify
+
+#+BEGIN_SRC bash
+# Check Emacs installed
+emacs --version
+
+# Start Emacs daemon
+emacs --daemon
+
+# Open Emacs
+emacsclient -c
+#+END_SRC
+
+** Ongoing Sync Workflow
+
+*** Scenario: Added New Package to init.org
+
+#+BEGIN_EXAMPLE
+# On Machine A (where you made changes)
+
+1. Edit init.org
+   - Add package configuration
+
+2. If package needs system dependencies:
+   - Edit deployment/ansible/dependencies.yaml
+   - Add LSP server / font / tool
+
+3. Test locally:
+   C-c r  # Tangle and reload
+
+4. Commit and push:
+   git add init.org deployment/ansible/dependencies.yaml
+   git commit -m "Add package X with dependencies"
+   git push
+
+# On Machine B, C, D (other machines)
+
+1. Pull changes:
+   cd ~/Documents/git/qq-emacs
+   git pull
+
+2. Tangle deployment-plan.org to regenerate ansible/:
+   cd deployment
+   C-c C-v t  # Or: emacs --batch ... (see above)
+
+3. Run sync:
+   cd ansible && ./sync.sh
+   # This installs new dependencies and tangles config
+
+4. Restart Emacs:
+   killall emacs
+   emacs --daemon
+#+END_EXAMPLE
+
+** Partial Updates
+
+You can run specific parts using Ansible tags:
+
+#+BEGIN_SRC bash
+cd ~/Documents/git/qq-emacs/deployment/ansible
+
+# Only update system packages
+./sync.sh packages
+
+# Only update LSP servers
+./sync.sh lsp
+
+# Only retangle config (no installations)
+./sync.sh config
+
+# Only install fonts
+./sync.sh fonts
+
+# Multiple tags
+ansible-playbook -i localhost, --tags "lsp,fonts" playbook.yml
+#+END_SRC
+
+** Dry Run (Check What Would Change)
+
+#+BEGIN_SRC bash
+cd ansible
+ansible-playbook -i localhost, --check playbook.yml
+#+END_SRC
+
+* Migration from install.sh
+
+** Migration Strategy
+
+Incremental migration in phases:
+
+*** Phase 1: Setup Ansible Structure
+- Create ~ansible/~ directory structure
+- Create ~dependencies.yaml~ from install.sh analysis
+- Create basic playbook and roles
+- Test on one machine
+
+*** Phase 2: Parallel Running
+- Keep ~install.sh~ functional
+- Run Ansible alongside for testing
+- Compare results
+- Fix any discrepancies
+
+*** Phase 3: Switch Over
+- Update documentation to use Ansible
+- Archive ~install.sh~ (don't delete immediately)
+- Train muscle memory on ~./bin/sync.sh~
+
+*** Phase 4: Cleanup
+- Remove ~install.sh~ after 1-2 months
+- Full commitment to Ansible workflow
+
+** Extracting Dependencies from install.sh
+
+Analyze your current ~install.sh~ to populate ~dependencies.yaml~:
+
+#+BEGIN_SRC bash
+# Review install.sh
+cat install.sh
+
+# Look for:
+# 1. brew install / apt install → system_packages
+# 2. npm install -g → lsp_servers (npm)
+# 3. pip install → lsp_servers (pip)
+# 4. Font downloads → fonts
+# 5. Emacs compilation flags → emacs.compile_from_source
+#+END_SRC
+
+Map each installation to the appropriate section in ~dependencies.yaml~.
+
+* Advanced Topics
+
+** Site-Specific Configurations
+
+For machine-specific differences (fonts, paths, etc.), use Ansible's inventory and group_vars:
+
+*** ansible/inventory.ini
+
+#+BEGIN_SRC ini
+[darwin]
+localhost ansible_connection=local
+
+[work_linux]
+localhost ansible_connection=local
+
+[home_linux]
+localhost ansible_connection=local
+#+END_SRC
+
+*** deployment/ansible/group_vars/darwin.yml
+
+#+BEGIN_SRC yaml
+---
+site_specific_font: "JetBrains Mono"
+site_specific_font_size: 14
+
+emacs_path: "/opt/homebrew/bin/emacs"
+#+END_SRC
+
+*** deployment/ansible/group_vars/work_linux.yml
+
+#+BEGIN_SRC yaml
+---
+site_specific_font: "Iosevka"
+site_specific_font_size: 12
+
+additional_packages:
+  - openjdk-17-jdk
+  - maven
+#+END_SRC
+
+** Handling Native Compilation
+
+If you need Emacs with native compilation:
+
+#+BEGIN_SRC yaml
+# dependencies.yaml
+emacs:
+  version: "29.4"
+  compile_from_source: true
+  native_comp: true
+  configure_flags:
+    - --with-native-compilation
+    - --with-json
+    - --with-tree-sitter
+#+END_SRC
+
+Then in ~roles/emacs/tasks/main.yml~, add tasks for source compilation.
+
+** Secrets Management
+
+For private configurations (API keys, tokens):
+
+1. *Don't commit secrets to git*
+2. Use Ansible Vault for sensitive vars:
+
+#+BEGIN_SRC bash
+cd ~/Documents/git/qq-emacs/deployment
+
+# Encrypt sensitive file
+ansible-vault encrypt ansible/secrets.yml
+
+# Run playbook with vault
+cd ansible
+ansible-playbook -i localhost, --ask-vault-pass playbook.yml
+#+END_SRC
+
+3. Or use environment variables:
+
+#+BEGIN_SRC yaml
+# In playbook
+vars:
+  github_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+#+END_SRC
+
+** CI/CD Integration
+
+Test your Ansible playbook in CI:
+
+#+BEGIN_SRC yaml
+# .github/workflows/test-deployment.yml
+name: Test Ansible Deployment
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Ansible
+        run: sudo apt install -y ansible
+
+      - name: Run playbook (check mode)
+        run: |
+          cd ansible
+          ansible-playbook -i localhost, --check playbook.yml
+#+END_SRC
+
+* Maintenance
+
+** Updating Dependencies
+
+When upstream packages change versions:
+
+#+BEGIN_SRC bash
+# Update dependencies.yaml with new versions
+cd ~/Documents/git/qq-emacs
+vim deployment/ansible/dependencies.yaml
+
+# Run sync to apply updates
+cd deployment/ansible && ./sync.sh
+
+# Commit the version bump
+git add deployment/ansible/dependencies.yaml
+git commit -m "Bump LSP server versions"
+#+END_SRC
+
+** Troubleshooting
+
+Common issues and solutions:
+
+*** Ansible command not found
+#+BEGIN_SRC bash
+# Install Ansible (see Initial Deployment)
+brew install ansible  # macOS
+sudo apt install ansible  # Ubuntu
+#+END_SRC
+
+*** Permission denied during package install
+#+BEGIN_SRC bash
+# May need to configure sudo password
+export ANSIBLE_BECOME_PASSWORD=your_password
+./bin/sync.sh
+
+# Or use --ask-become-pass
+ansible-playbook -i localhost, --ask-become-pass playbook.yml
+#+END_SRC
+
+*** Emacs tangle fails
+#+BEGIN_SRC bash
+# Ensure tangle script is executable
+chmod +x ~/.emacs.d/bin/tangle
+
+# Run tangle manually to see errors
+~/.emacs.d/bin/tangle
+#+END_SRC
+
+*** LSP server not found after install
+#+BEGIN_SRC bash
+# Check PATH includes npm/pip global bin
+echo $PATH
+
+# May need to add to shell rc:
+export PATH="$HOME/.local/bin:$PATH"  # pip
+export PATH="/usr/local/bin:$PATH"    # npm
+#+END_SRC
+
+** Ansible Best Practices
+
+1. *Idempotency*: Always design tasks to be safe to re-run
+2. *Tags*: Use tags for selective execution
+3. *Variables*: Keep configuration data in vars, not tasks
+4. *Handlers*: Use handlers for actions that should run once at the end
+5. *Documentation*: Comment complex tasks
+
+* Next Steps
+
+** Immediate Actions
+
+1. [ ] Review this plan and ask questions
+2. [ ] Approve approach
+3. [ ] Create ~ansible/~ directory structure
+4. [ ] Analyze ~install.sh~ to extract dependencies
+5. [ ] Create ~dependencies.yaml~
+6. [ ] Implement basic playbook
+7. [ ] Test on one machine
+8. [ ] Rollout to other machines
+
+** Future Enhancements
+
+- Add support for additional OS (Arch, Fedora)
+- Integrate dotfile management for other tools
+- Add automated testing for deployment
+- Create machine-specific profiles
+- Add rollback mechanism
+- Integrate with home-manager for Nix users (optional)
+
+* References
+
+** Ansible Documentation
+- [[https://docs.ansible.com/ansible/latest/index.html][Ansible Documentation]]
+- [[https://docs.ansible.com/ansible/latest/user_guide/playbooks.html][Playbooks Intro]]
+- [[https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html][Best Practices]]
+
+** Example Ansible Dotfile Projects
+- [[https://github.com/geerlingguy/mac-dev-playbook][Jeff Geerling's Mac Dev Playbook]]
+- [[https://github.com/thoughtbot/laptop][Thoughtbot Laptop]]
+
+** Related Tools
+- [[https://www.ansible.com/][Ansible]]
+- [[https://nixos.org/manual/nix/stable/][Nix Package Manager]]
+- [[https://github.com/nix-community/home-manager][home-manager]]
+
+* Appendix
+
+** Comparison Matrix
+
+| Aspect            | Current (install.sh) | Proposed (Ansible)    |
+|-------------------+----------------------+-----------------------|
+| Complexity        | Low (bash script)    | Medium (YAML + roles) |
+| Maintainability   | Hard (fragile bash)  | Good (declarative)    |
+| Cross-platform    | Manual detection     | Built-in              |
+| Idempotent        | No                   | Yes                   |
+| Testable          | Difficult            | Easy (check mode)     |
+| Documentation     | Comments in script   | Self-documenting YAML |
+| Learning curve    | Low                  | Medium                |
+| Time to implement | Already done         | 4-6 hours initial     |
+| Long-term value   | Low                  | High                  |
+
+** Decision Criteria
+
+Choose Ansible if:
+- ✓ You have 2+ machines to manage
+- ✓ You frequently sync configurations
+- ✓ install.sh is breaking
+- ✓ You want explicit dependency tracking
+- ✓ You value idempotency
+- ✓ You're okay with initial time investment
+
+Stick with install.sh if:
+- ✗ Only one machine
+- ✗ Rarely sync configurations
+- ✗ install.sh works perfectly
+- ✗ Don't want to learn Ansible
+
+** Glossary
+
+- *Idempotent*: Can be run multiple times without changing result after first run
+- *Playbook*: Ansible's YAML file defining desired state
+- *Role*: Reusable unit of Ansible tasks
+- *Task*: Single action in Ansible (install package, copy file, etc.)
+- *Handler*: Task that runs once at the end if triggered
+- *Inventory*: List of machines Ansible manages
+- *Facts*: System information Ansible gathers automatically
+- *Module*: Ansible's built-in functions (apt, homebrew, copy, etc.)
+- *Tag*: Label for selective task execution
+- *Vault*: Ansible's encryption for sensitive data

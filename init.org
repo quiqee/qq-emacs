@@ -1783,7 +1783,7 @@ Diagram-as-code support for PlantUML with syntax highlighting and preview. → [
 #+NAME: plantuml-mode-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Configure PlantUML
-(setq plantuml-jar-path (concat user-emacs-directory "extern/org/plantuml.jar"))
+(setq plantuml-jar-path (concat qq/cache-directory "extern/org/plantuml.jar"))
 (setq plantuml-default-exec-mode 'jar)
 #+END_SRC
 
@@ -3175,6 +3175,16 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
    (clojure . t)
    (lua . t)
    (haskell . t)))
+
+;; Configure PlantUML for org-babel
+(setq org-plantuml-jar-path (concat qq/cache-directory "extern/org/plantuml.jar"))
+(setq org-plantuml-exec-mode 'jar)  ; Options: 'jar 'server 'executable
+;; (setq org-plantuml-exec-mode 'server)  ; Options: 'jar 'server 'executable
+(setq org-plantuml-server-url "https://www.plantuml.com/plantuml")  ; Use public server (or run local)
+(setq org-plantuml-args '("-charset" "UTF-8" "-DPLANTUML_LIMIT_SIZE=8192"))
+
+;; Automatically redisplay inline images after executing code blocks
+(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 #+END_SRC
 
 *** Org Modern
