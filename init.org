@@ -2172,20 +2172,20 @@ A performant and minimalistic completion UI. → [[*Vertico Package][Generated C
 ;; Enable savehist for vertico-repeat
 (savehist-mode +1)
 
-;; Enable vertico multiform mode
-(vertico-multiform-mode)
+;; Enable vertico multiform mode - DISABLED: Let vertico-posframe handle multiform setup
+;; (vertico-multiform-mode)
 
 (setq vertico-grid-separator "       "
       vertico-grid-lookahead 50
       vertico-buffer-display-action '(display-buffer-reuse-window) ; Default
-      vertico-multiform-categories                                  ; Choose a multiform
-      '((file reverse)
-        (consult-grep buffer)
-        (consult-location)
-        (imenu buffer)
-        (library reverse indexed)
-        (org-roam-node reverse indexed)
-        (t reverse))
+      ;; vertico-multiform-categories - DISABLED: Conflicts with vertico-posframe settings
+      ;; '((file reverse)
+      ;;   (consult-grep buffer)
+      ;;   (consult-location)
+      ;;   (imenu buffer)
+      ;;   (library reverse indexed)
+      ;;   (org-roam-node reverse indexed)
+      ;;   (t reverse))
       vertico-multiform-commands
       '(("flyspell-correct-*" grid reverse)
         (org-refile grid reverse indexed)
@@ -2219,9 +2219,6 @@ Floating posframe display for vertico completion UI with customizable positionin
 **** Vertico Posframe Configuration Block
 #+NAME: vertico-posframe-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Enable vertico-posframe mode
-(vertico-posframe-mode 1)
-
 (defun qq/posframe-poshandler-frame-center-eyelevel (info)
   "Posframe position handler to put the posframe at eye level,
           horizontally centered. Top position is fixed to avoid jittering
@@ -2255,6 +2252,12 @@ Floating posframe display for vertico completion UI with customizable positionin
       vertico-posframe-poshandler 'qq/posframe-poshandler-frame-center-eyelevel
       vertico-posframe-parameters '((left-fringe . 8)
                                     (right-fringe . 8)))
+
+;; Enable multiform mode with posframe settings (must be done after setting vertico-multiform-categories)
+(vertico-multiform-mode 1)
+
+;; Enable vertico-posframe mode
+(vertico-posframe-mode 1)
 #+END_SRC
 
 *** Marginalia
@@ -2778,11 +2781,25 @@ Get PATH and environment variables from shell for proper environment setup, espe
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Only needed on macOS where GUI apps don't inherit shell environment
 (when (memq window-system '(mac ns x))
+  ;; Ensure we use the correct shell (bash/zsh)
+  (setq exec-path-from-shell-check-startup-files nil)
+  (setq exec-path-from-shell-arguments '("-l"))
+
   (exec-path-from-shell-initialize)
 
   ;; Copy additional environment variables
   (exec-path-from-shell-copy-envs
-   '("PATH" "MANPATH" "GOPATH" "GOROOT" "NPM_TOKEN" "LC_ALL" "LANG")))
+   '("PATH" "MANPATH" "GOPATH" "GOROOT" "NPM_TOKEN" "LC_ALL" "LANG"))
+
+  ;; Explicitly add Homebrew and local bin paths if missing (M1/M2 Mac)
+  (dolist (path '("/opt/homebrew/bin"
+                  "/usr/local/bin"
+                  "/Users/fikri/.local/bin"))
+    (when (file-directory-p path)
+      (add-to-list 'exec-path path)))
+
+  ;; Update PATH environment variable to match
+  (setenv "PATH" (mapconcat 'identity exec-path path-separator)))
 #+END_SRC
 
 ** Auto Dim Other Buffers
@@ -3729,6 +3746,9 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 (set-face-attribute 'default nil :font (font-spec :family "PragmataPro Liga" :size 10.5 :weight 'regular))
 (set-face-attribute 'fixed-pitch nil :font (font-spec :family "PragmataPro Liga" :size 10.5 :weight 'regular))
 (set-face-attribute 'variable-pitch nil :font (font-spec :family "Alegreya" :height 1.0 :weight 'medium))
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
 
 #+END_SRC
 
@@ -3744,6 +3764,9 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 (defvar qq/modeline-font-height 240)
 (set-face-attribute 'default nil :family "PragmataPro Liga" :height 200)
 (set-frame-font "PragmataPro Liga 20" nil t)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
 #+END_SRC
 
 *** Arch Linux / Manjaro (archlinux, z390-manjaro)
@@ -3757,6 +3780,9 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
  '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 1.1 :width normal)))))
 (defvar qq/modeline-font-height 140)
 (set-face-attribute 'default nil :family "PragmataPro Liga" :height 108)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
 #+END_SRC
 
 *** Work Laptop (ThinkPad E14/E440)
@@ -3770,6 +3796,9 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
  '(fixed-pitch ((t (:family "PragmataPro" :slant normal :weight normal :height 1.0 :width normal)))))
 (defvar qq/modeline-font-height 120)
 (set-face-attribute 'default nil :family "PragmataPro" :height 120)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
 #+END_SRC
 
 *** Default Configuration
@@ -3784,6 +3813,9 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 (defvar qq/modeline-font-height 120)
 (set-face-attribute 'default nil :family "PragmataPro Liga" :height 98)
 (set-frame-font "PragmataPro Liga 9" nil t)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
 #+END_SRC
 
 *** End Configuration
@@ -4537,7 +4569,7 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
  ((member qq/current-system '("eagle" "Legion-U"))
   <<linux-work-config>>
   )
- ((string= qq/current-system "darwin")
+ ((eq system-type 'darwin)
   <<mac-home-config>>
   )
  ((or (string= qq/current-system "archlinux") (string= qq/current-system "z390-manjaro"))
