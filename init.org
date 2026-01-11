@@ -4644,7 +4644,7 @@ Global text scaling across all buffers for consistent font sizing. → [[*Defaul
 *** WS Butler Package
 Clean whitespace management without affecting cursor position. → [[*WS Butler][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="ws-butler", strght_gh="lewang/ws-butler")>>
+<<gen-use-pkg(package="ws-butler")>>
 <<ws-butler-config>>
 <<gen-pkg-end()>>
 #+END_SRC

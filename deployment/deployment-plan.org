@@ -188,7 +188,7 @@ qq-emacs/                          # Your existing repo
 | ~deployment/ansible/sync.sh~                 | Convenience wrapper for deployment                |
 | ~deployment/ansible/roles/emacs/~            | Install Emacs itself (version-specific)           |
 | ~deployment/ansible/roles/system-packages/~  | Install system tools (ripgrep, fd, git, etc.)     |
-| ~deployment/ansible/roles/lsp-servers/~      | Install language servers (clangd, pyright, etc.)  |
+| ~deployment/ansible/roles/lsp-servers/~      | Install LSP servers, formatters, and dev tools    |
 | ~deployment/ansible/roles/fonts/~            | Install required fonts                            |
 | ~deployment/ansible/roles/emacs-config/~     | Symlink config, tangle init.org                   |
 | ~deployment/ansible/group_vars/~             | OS-specific variable overrides (optional)         |
@@ -214,8 +214,6 @@ system_packages:
       description: "Version control"
     - name: ripgrep
       description: "Fast grep for project searching"
-    - name: fd-find
-      description: "Fast find alternative"
     - name: sqlite3
       description: "Required for org-roam"
     - name: cmake
@@ -229,21 +227,29 @@ system_packages:
 
   # macOS-specific packages
   darwin:
+    - name: fd
+      description: "Fast find alternative"
     - name: coreutils
       description: "GNU core utilities"
     - name: llvm
       description: "Clang/LLVM for development"
     - name: imagemagick
       description: "Image processing"
+    - name: pipx
+      description: "Install Python applications in isolated environments"
 
   # Linux-specific packages
   linux:
+    - name: fd-find
+      description: "Fast find alternative"
     - name: build-essential  # Debian/Ubuntu
       description: "Build tools"
     - name: libvterm-dev
       description: "vterm terminal emulator"
     - name: libjansson-dev
       description: "JSON parsing (LSP)"
+    - name: pipx
+      description: "Install Python applications in isolated environments"
 
 # Programming language runtimes
 runtimes:
@@ -320,6 +326,13 @@ formatters:
       linux: shfmt
     description: "Shell script formatter"
 
+# Development tools
+dev_tools:
+  - name: claude-code
+    install_method: npm
+    package: "@anthropic-ai/claude-code"
+    description: "Claude AI CLI for coding assistance"
+
 # Fonts
 fonts:
   - name: JetBrains Mono Nerd Font
@@ -348,9 +361,9 @@ site_specific:
 
 # Emacs config tangling
 tangle:
-  source: "{{ ansible_env.HOME }}/Documents/git/qq-emacs/init.org"
-  target: "{{ ansible_env.HOME }}/.emacs.d/init.el"
-  command: "{{ ansible_env.HOME }}/.emacs.d/bin/tangle"
+  source: "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs/init.org"
+  target: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/init.el"
+  command: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/bin/tangle"
 #+END_SRC
 
 ** playbook.yml
@@ -372,24 +385,21 @@ Main Ansible playbook entry point.
   pre_tasks:
     - name: Detect OS and set facts
       set_fact:
-        os_family: "{{ ansible_os_family }}"
-        is_darwin: "{{ ansible_os_family == 'Darwin' }}"
-        is_linux: "{{ ansible_os_family != 'Darwin' }}"
+        os_family: "{{ ansible_facts['os_family'] }}"
+        is_darwin: "{{ ansible_facts['os_family'] == 'Darwin' }}"
+        is_linux: "{{ ansible_facts['os_family'] != 'Darwin' }}"
 
     - name: Display deployment info
       debug:
         msg: |
           Deploying Emacs configuration
-          OS: {{ ansible_os_family }}
-          Distribution: {{ ansible_distribution | default('N/A') }}
-          Home: {{ ansible_env.HOME }}
+          OS: {{ ansible_facts['os_family'] }}
+          Distribution: {{ ansible_facts['distribution'] | default('N/A') }}
+          Home: {{ ansible_facts['env']['HOME'] }}
 
   roles:
     - role: system-packages
       tags: [system, packages]
-
-    - role: emacs
-      tags: [emacs, install]
 
     - role: lsp-servers
       tags: [lsp, development]
@@ -428,21 +438,21 @@ Handles OS-specific package installation.
     name: "{{ item.name }}"
     state: present
   loop: "{{ system_packages.common }}"
-  when: ansible_os_family == "Darwin"
+  when: ansible_facts['os_family'] == "Darwin"
 
 - name: Install Darwin-specific packages
   homebrew:
     name: "{{ item.name }}"
     state: present
   loop: "{{ system_packages.darwin }}"
-  when: ansible_os_family == "Darwin"
+  when: ansible_facts['os_family'] == "Darwin"
 
 - name: Update apt cache (Debian/Ubuntu)
   apt:
     update_cache: yes
     cache_valid_time: 3600
   become: yes
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Install common system packages (Debian/Ubuntu)
   apt:
@@ -450,7 +460,7 @@ Handles OS-specific package installation.
     state: present
   become: yes
   loop: "{{ system_packages.common }}"
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Install Linux-specific packages (Debian/Ubuntu)
   apt:
@@ -458,7 +468,7 @@ Handles OS-specific package installation.
     state: present
   become: yes
   loop: "{{ system_packages.linux }}"
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Install packages (Fedora/RedHat)
   dnf:
@@ -466,7 +476,7 @@ Handles OS-specific package installation.
     state: present
   become: yes
   loop: "{{ system_packages.common }}"
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts['os_family'] == "RedHat"
 
 - name: Install packages (Arch)
   pacman:
@@ -474,91 +484,17 @@ Handles OS-specific package installation.
     state: present
   become: yes
   loop: "{{ system_packages.common }}"
-  when: ansible_os_family == "Archlinux"
+  when: ansible_facts['os_family'] == "Archlinux"
 #+END_SRC
 
 ** roles/emacs/tasks/main.yml
 
-Installs Emacs itself.
-
-#+BEGIN_SRC yaml :tangle ansible/roles/emacs/tasks/main.yml
----
-- name: Check if Emacs is already installed
-  command: which emacs
-  register: emacs_installed
-  ignore_errors: yes
-  changed_when: false
-
-- name: Get installed Emacs version
-  command: emacs --version
-  register: emacs_version_check
-  when: emacs_installed.rc == 0
-  changed_when: false
-  ignore_errors: yes
-
-- name: Install Emacs (macOS)
-  homebrew:
-    name: emacs-plus@29
-    state: present
-    options:
-      - with-native-comp
-      - with-modern-icon
-  when:
-    - ansible_os_family == "Darwin"
-    - emacs_installed.rc != 0 or emacs.version not in emacs_version_check.stdout
-
-- name: Add Emacs PPA (Ubuntu)
-  apt_repository:
-    repo: ppa:kelleyk/emacs
-    state: present
-  become: yes
-  when:
-    - ansible_distribution == "Ubuntu"
-    - emacs_installed.rc != 0
-
-- name: Install Emacs (Ubuntu)
-  apt:
-    name: emacs29
-    state: present
-  become: yes
-  when:
-    - ansible_distribution == "Ubuntu"
-    - emacs_installed.rc != 0
-
-- name: Install Emacs (Fedora)
-  dnf:
-    name: emacs
-    state: present
-  become: yes
-  when:
-    - ansible_os_family == "RedHat"
-    - emacs_installed.rc != 0
-
-- name: Install Emacs (Arch)
-  pacman:
-    name: emacs
-    state: present
-  become: yes
-  when:
-    - ansible_os_family == "Archlinux"
-    - emacs_installed.rc != 0
-
-- name: Ensure .emacs.d directory exists
-  file:
-    path: "{{ ansible_env.HOME }}/.emacs.d"
-    state: directory
-    mode: '0755'
-
-- name: Ensure .emacs.d/bin directory exists
-  file:
-    path: "{{ ansible_env.HOME }}/.emacs.d/bin"
-    state: directory
-    mode: '0755'
-#+END_SRC
+NOTE: This role has been removed because Emacs must be installed BEFORE running this playbook
+(it's required to tangle deployment-plan.org). Users should install Emacs manually first.
 
 ** roles/lsp-servers/tasks/main.yml
 
-Installs language servers based on dependency manifest.
+Installs language servers, formatters, and development tools based on dependency manifest.
 
 #+BEGIN_SRC yaml :tangle ansible/roles/lsp-servers/tasks/main.yml
 ---
@@ -578,32 +514,24 @@ Installs language servers based on dependency manifest.
     - item.install_method == "npm"
     - node_check.rc == 0
 
-- name: Ensure Python3 pip is available
-  command: which pip3
-  register: pip_check
+- name: Ensure pipx is available for Python tool installs
+  command: which pipx
+  register: pipx_check
   ignore_errors: yes
   changed_when: false
 
-- name: Check which pip packages are already installed
-  command: pip3 show "{{ item.package }}"
+- name: Install pip-based LSP servers and formatters via pipx
+  command: pipx install "{{ item.package }}"
   loop: "{{ lsp_servers + formatters }}"
-  when: item.install_method == "pip"
-  register: pip_packages_check
-  ignore_errors: yes
-  changed_when: false
-
-- name: Install pip-based LSP servers
-  pip:
-    name: "{{ item.item.package }}"
-    state: present
-    executable: pip3
-    extra_args: --break-system-packages
-  loop: "{{ pip_packages_check.results }}"
   when:
-    - item.item is defined
-    - item.item.install_method == "pip"
-    - item.rc != 0
-    - pip_check.rc == 0
+    - item.install_method == "pip"
+    - pipx_check.rc == 0
+  register: pipx_install
+  changed_when: "'installed package' in pipx_install.stdout"
+  failed_when:
+    - pipx_install.rc != 0
+    - "'already seems to be installed' not in pipx_install.stderr"
+    - "'already installed' not in pipx_install.stderr"
 
 - name: Install package-based LSP servers (macOS)
   homebrew:
@@ -612,7 +540,7 @@ Installs language servers based on dependency manifest.
   loop: "{{ lsp_servers }}"
   when:
     - item.install_method == "package"
-    - ansible_os_family == "Darwin"
+    - ansible_facts['os_family'] == "Darwin"
 
 - name: Install package-based LSP servers (Debian/Ubuntu)
   apt:
@@ -622,7 +550,7 @@ Installs language servers based on dependency manifest.
   loop: "{{ lsp_servers }}"
   when:
     - item.install_method == "package"
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
 
 - name: Install formatters (npm)
   npm:
@@ -642,7 +570,26 @@ Installs language servers based on dependency manifest.
   loop: "{{ formatters }}"
   when:
     - item.install_method == "package"
-    - ansible_os_family == "Darwin"
+    - ansible_facts['os_family'] == "Darwin"
+
+- name: Install development tools (npm)
+  npm:
+    name: "{{ item.package }}"
+    global: yes
+    state: present
+  loop: "{{ dev_tools }}"
+  when:
+    - item.install_method == "npm"
+    - node_check.rc == 0
+
+- name: Install development tools (package)
+  homebrew:
+    name: "{{ item.package.darwin | default(item.package) }}"
+    state: present
+  loop: "{{ dev_tools }}"
+  when:
+    - item.install_method == "package"
+    - ansible_facts['os_family'] == "Darwin"
 #+END_SRC
 
 ** roles/fonts/tasks/main.yml
@@ -656,14 +603,14 @@ Installs fonts across different OS.
     name: "{{ item.darwin }}"
     state: present
   loop: "{{ fonts }}"
-  when: ansible_os_family == "Darwin"
+  when: ansible_facts['os_family'] == "Darwin"
 
 - name: Ensure fonts directory exists (Linux)
   file:
-    path: "{{ ansible_env.HOME }}/.local/share/fonts"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts"
     state: directory
     mode: '0755'
-  when: ansible_os_family != "Darwin"
+  when: ansible_facts['os_family'] != "Darwin"
 
 - name: Download and install fonts (Linux)
   block:
@@ -685,7 +632,7 @@ Installs fonts across different OS.
     - name: Extract fonts
       unarchive:
         src: "{{ fonts_temp_dir.path }}/{{ item.name | replace(' ', '') }}.zip"
-        dest: "{{ ansible_env.HOME }}/.local/share/fonts"
+        dest: "{{ ansible_facts['env']['HOME'] }}/.local/share/fonts"
         remote_src: yes
       loop: "{{ fonts }}"
       when:
@@ -696,7 +643,7 @@ Installs fonts across different OS.
       command: fc-cache -fv
       changed_when: false
 
-  when: ansible_os_family != "Darwin"
+  when: ansible_facts['os_family'] != "Darwin"
   always:
     - name: Clean up temp directory
       file:
@@ -713,36 +660,72 @@ Syncs configuration and tangles init.org.
 
 #+BEGIN_SRC yaml :tangle ansible/roles/emacs-config/tasks/main.yml
 ---
+- name: Ensure Documents/git directory exists
+  file:
+    path: "{{ ansible_facts['env']['HOME'] }}/Documents/git"
+    state: directory
+    mode: '0755'
+
 - name: Check if qq-emacs repo exists
   stat:
-    path: "{{ ansible_env.HOME }}/Documents/git/qq-emacs/.git"
+    path: "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs/.git"
   register: repo_exists
 
 - name: Ensure qq-emacs repo is cloned
   git:
     repo: "git@github.com:yourusername/qq-emacs.git"  # Update with your repo
-    dest: "{{ ansible_env.HOME }}/Documents/git/qq-emacs"
+    dest: "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs"
     update: yes
     version: master
     accept_hostkey: yes
   register: git_clone
   when: not repo_exists.stat.exists
 
+- name: Ensure .emacs.d directory exists
+  file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.emacs.d"
+    state: directory
+    mode: '0755'
+
+- name: Ensure .emacs.d/bin directory exists
+  file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/bin"
+    state: directory
+    mode: '0755'
+
+- name: Ensure .emacs.d/.cache directory exists
+  file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/.cache"
+    state: directory
+    mode: '0755'
+
+- name: Ensure .emacs.d/.cache/themes directory exists
+  file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/.cache/themes"
+    state: directory
+    mode: '0755'
+
+- name: Create symlink for quickbeans-theme.el
+  file:
+    src: "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs/quickbeans-theme.el"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/.cache/themes/quickbeans-theme.el"
+    state: link
+
 - name: Create symlink for init.org (if not already tangled in place)
   file:
-    src: "{{ ansible_env.HOME }}/Documents/git/qq-emacs/init.org"
-    dest: "{{ ansible_env.HOME }}/.emacs.d/init.org"
+    src: "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs/init.org"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.emacs.d/init.org"
     state: link
-  when: tangle.source != (ansible_env.HOME ~ "/.emacs.d/init.org")
+  when: tangle.source != (ansible_facts['env']['HOME'] ~ "/.emacs.d/init.org")
 
 - name: Tangle init.org to generate init.el
   shell: |
     emacs --batch \
       --eval "(setq org-confirm-babel-evaluate nil)" \
       --eval "(require 'ob-tangle)" \
-      --eval '(org-babel-tangle-file "{{ ansible_env.HOME }}/Documents/git/qq-emacs/init.org")'
+      --eval '(org-babel-tangle-file "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs/init.org")'
   args:
-    chdir: "{{ ansible_env.HOME }}/Documents/git/qq-emacs"
+    chdir: "{{ ansible_facts['env']['HOME'] }}/Documents/git/qq-emacs"
   register: tangle_result
   changed_when: "'Tangled' in tangle_result.stdout or tangle_result.stdout != ''"
 
@@ -1005,10 +988,10 @@ emacs --batch --eval "(require 'ob-tangle)" \
       --eval "(org-babel-tangle-file \"deployment-plan.org\")"
 
 # Make sync.sh executable
-chmod +x deployment/ansible/sync.sh
+chmod +x ansible/sync.sh
 
 # Run full deployment
-cd deploymnt/ansible && ./sync.sh
+cd ansible && ./sync.sh
 
 # Or run ansible-playbook directly
 cd ansible
