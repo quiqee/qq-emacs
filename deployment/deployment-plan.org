@@ -199,7 +199,7 @@ qq-emacs/                          # Your existing repo
 
 This is the *single source of truth* for what your Emacs setup needs.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/dependencies.yaml
+#+BEGIN_SRC yaml :tangle ansible/dependencies.yaml
 ---
 # Emacs version to install
 emacs:
@@ -357,7 +357,7 @@ tangle:
 
 Main Ansible playbook entry point.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/playbook.yml
+#+BEGIN_SRC yaml :tangle ansible/playbook.yml
 ---
 - name: Deploy Emacs Configuration
   hosts: localhost
@@ -418,7 +418,7 @@ Main Ansible playbook entry point.
 
 Handles OS-specific package installation.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/roles/system-packages/tasks/main.yml
+#+BEGIN_SRC yaml :tangle ansible/roles/system-packages/tasks/main.yml
 ---
 # Note: All variables come from dependencies.yaml loaded at playbook level
 # No need for separate OS-specific vars files
@@ -481,7 +481,7 @@ Handles OS-specific package installation.
 
 Installs Emacs itself.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/roles/emacs/tasks/main.yml
+#+BEGIN_SRC yaml :tangle ansible/roles/emacs/tasks/main.yml
 ---
 - name: Check if Emacs is already installed
   command: which emacs
@@ -560,7 +560,7 @@ Installs Emacs itself.
 
 Installs language servers based on dependency manifest.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/roles/lsp-servers/tasks/main.yml
+#+BEGIN_SRC yaml :tangle ansible/roles/lsp-servers/tasks/main.yml
 ---
 - name: Ensure Node.js is available for npm installs
   command: which node
@@ -649,7 +649,7 @@ Installs language servers based on dependency manifest.
 
 Installs fonts across different OS.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/roles/fonts/tasks/main.yml
+#+BEGIN_SRC yaml :tangle ansible/roles/fonts/tasks/main.yml
 ---
 - name: Install fonts (macOS)
   homebrew_cask:
@@ -711,7 +711,7 @@ Installs fonts across different OS.
 
 Syncs configuration and tangles init.org.
 
-#+BEGIN_SRC yaml :tangle deployment/ansible/roles/emacs-config/tasks/main.yml
+#+BEGIN_SRC yaml :tangle ansible/roles/emacs-config/tasks/main.yml
 ---
 - name: Check if qq-emacs repo exists
   stat:
@@ -756,7 +756,7 @@ Syncs configuration and tangles init.org.
 
 Convenience wrapper for running Ansible.
 
-#+BEGIN_SRC bash :tangle deployment/ansible/sync.sh :shebang "#!/usr/bin/env bash"
+#+BEGIN_SRC bash :tangle ansible/sync.sh :shebang "#!/usr/bin/env bash"
 # Emacs configuration sync script
 # Wrapper around ansible-playbook for convenience
 
@@ -1005,10 +1005,10 @@ emacs --batch --eval "(require 'ob-tangle)" \
       --eval "(org-babel-tangle-file \"deployment-plan.org\")"
 
 # Make sync.sh executable
-chmod +x ansible/sync.sh
+chmod +x deployment/ansible/sync.sh
 
 # Run full deployment
-cd ansible && ./sync.sh
+cd deploymnt/ansible && ./sync.sh
 
 # Or run ansible-playbook directly
 cd ansible
