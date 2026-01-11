@@ -2175,23 +2175,23 @@ A performant and minimalistic completion UI. → [[*Vertico Package][Generated C
 ;; Enable vertico multiform mode
 (vertico-multiform-mode)
 
-(vertico-grid-separator "       ")
-(vertico-grid-lookahead 50)
-(vertico-buffer-display-action '(display-buffer-reuse-window)) ; Default
-(vertico-multiform-categories                                  ; Choose a multiform
- '((file reverse)
-   (consult-grep buffer)
-   (consult-location)
-   (imenu buffer)
-   (library reverse indexed)
-   (org-roam-node reverse indexed)
-   (t reverse)))
-(vertico-multiform-commands
- '(("flyspell-correct-*" grid reverse)
-   (org-refile grid reverse indexed)
-   (consult-yank-pop indexed)
-   (consult-flycheck)
-   (consult-lsp-diagnostics)))
+(setq vertico-grid-separator "       "
+      vertico-grid-lookahead 50
+      vertico-buffer-display-action '(display-buffer-reuse-window) ; Default
+      vertico-multiform-categories                                  ; Choose a multiform
+      '((file reverse)
+        (consult-grep buffer)
+        (consult-location)
+        (imenu buffer)
+        (library reverse indexed)
+        (org-roam-node reverse indexed)
+        (t reverse))
+      vertico-multiform-commands
+      '(("flyspell-correct-*" grid reverse)
+        (org-refile grid reverse indexed)
+        (consult-yank-pop indexed)
+        (consult-flycheck)
+        (consult-lsp-diagnostics)))
 
 (defun qq/vertico-quick-embark (&optional arg)
   "Embark on candidate using quick keys."
@@ -2237,8 +2237,8 @@ Floating posframe display for vertico completion UI with customizable positionin
 ;; Configure vertico-posframe appearance
 (setq vertico-count 20
       vertico-posframe-border-width 2
-      vertico-multiform-categories
       vertico-posframe-min-height 1
+      vertico-multiform-categories
       '((file posframe
               (vertico-sort-function . vertico-sort-directories-first)
               (:keymap . vertico-directory-map))
@@ -2269,12 +2269,14 @@ Rich annotations for completion candidates in the minibuffer. → [[*Marginalia 
       marginalia-align 'right)
     (add-to-list 'marginalia-prompt-categories '("sketch" . sketch))
     (add-to-list 'marginalia-censor-variables "-api-key")
-    (cl-pushnew #'marginalia-annotate-symbol-with-alias
-          (alist-get 'command marginalia-annotator-registry))
-    (cl-pushnew #'marginalia-annotate-symbol-with-alias
-          (alist-get 'function marginalia-annotator-registry))
-    (cl-pushnew #'marginalia-annotate-symbol-with-alias
-          (alist-get 'symbol marginalia-annotator-registry))
+    ;; Note: marginalia-annotator-registry API changed in newer versions
+    ;; The following code is commented out until updated to new API
+    ;; (cl-pushnew #'marginalia-annotate-symbol-with-alias
+    ;;       (alist-get 'command marginalia-annotator-registry))
+    ;; (cl-pushnew #'marginalia-annotate-symbol-with-alias
+    ;;       (alist-get 'function marginalia-annotator-registry))
+    ;; (cl-pushnew #'marginalia-annotate-symbol-with-alias
+    ;;       (alist-get 'symbol marginalia-annotator-registry))
 
   (defun marginalia-annotate-alias (cand)
     "Annotate CAND with the function it aliases."
@@ -3734,14 +3736,14 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 #+NAME: mac-home-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 (setq qq/org-roam-base-directory "~/Documents/OrgFiles/RoamNotes/")
-;; Font configuration for Mac
+;; Font configuration for Mac (increased size for better readability)
 (custom-theme-set-faces
  'user
- '(variable-pitch ((t (:family "Iosevka Aile" :height 200))))
- '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 180 :width normal)))))
-(defvar qq/modeline-font-height 220)
-(set-face-attribute 'default nil :family "PragmataPro Liga" :height 180)
-(set-frame-font "PragmataPro Liga 18" nil t)
+ '(variable-pitch ((t (:family "Iosevka Aile" :height 220))))
+ '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 200 :width normal)))))
+(defvar qq/modeline-font-height 240)
+(set-face-attribute 'default nil :family "PragmataPro Liga" :height 200)
+(set-frame-font "PragmataPro Liga 20" nil t)
 #+END_SRC
 
 *** Arch Linux / Manjaro (archlinux, z390-manjaro)
