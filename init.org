@@ -211,13 +211,18 @@ The configuration auto-retangles on save with notifications.
 ;; Increase garbage collection threshold for faster startup
 (setq gc-cons-threshold (* 500 1024 1024))
 
+;; Optimize startup by temporarily disabling file name handlers
+(defvar file-name-handler-alist-original file-name-handler-alist)
+(setq file-name-handler-alist nil)
+
 ;; Disable package.el in favor of straight.el
 (setq package-enable-at-startup nil)
 
 ;; Disable native compilation warnings
 (setq native-comp-async-report-warnings-errors nil)
 
-(setq package-enable-at-startup nil)
+;; Set native compilation optimization level (-O2)
+(setq native-comp-speed 2)
 
 ;; Enable LSP plist mode for better performance
 (setenv "LSP_USE_PLISTS" "true")
@@ -271,10 +276,11 @@ The configuration auto-retangles on save with notifications.
 ;; Enable debug mode by default
 ;; (qq/toggle-debug)
 
-  ;;; Restore GC threshold after startup
+  ;;; Restore GC threshold and file name handlers after startup
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 16 1024 1024))))
+            (setq gc-cons-threshold (* 16 1024 1024))
+            (setq file-name-handler-alist file-name-handler-alist-original)))
 #+END_SRC
 
 ** Bootstrap straight.el
@@ -1313,6 +1319,7 @@ Language Server Protocol support providing IDE-like features including auto-comp
       lsp-eldoc-enable-hover t                         ; Display signature information in the echo area
       lsp-enable-dap-auto-configure t                  ; Debug support
       lsp-enable-file-watchers nil
+      lsp-file-watch-threshold 1500                    ; Reduce file watching overhead on large projects (if watchers enabled)
       lsp-enable-folding nil                           ; I disable folding since I use origami
       lsp-enable-imenu t
       lsp-enable-indentation nil                       ; I use prettier
@@ -1458,7 +1465,7 @@ Enhanced UI for LSP mode with sideline information, documentation popups, and im
              (not (functionp 'json-rpc-connection))  ;; native json-rpc
              (executable-find "emacs-lsp-booster"))
         (progn
-          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+          (when-let* ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
             (setcar orig-result command-from-exec-path))
           (message "Using emacs-lsp-booster for %s!" orig-result)
           (cons "emacs-lsp-booster" orig-result))
@@ -1964,12 +1971,22 @@ VTerm provides a fully-featured terminal emulator inside Emacs using libvterm. �
 #+NAME: vterm-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Configure vterm
-(setq vterm-max-scrollback 10000)
+(setq vterm-max-scrollback 100000)  ; Increased from 10000 to 100000
 (setq vterm-buffer-name-string "vterm %s")
+
+;; Enable elisp evaluation from shell via vterm-eval-cmds
+(setq vterm-eval-cmds
+      '(("find-file" find-file)
+        ("message" message)
+        ("vterm-clear-scrollback" vterm-clear-scrollback)
+        ("man" man)))
 
 ;; Keybindings for vterm
 (with-eval-after-load 'vterm
-(define-key vterm-mode-map (kbd "C-c C-t") 'vterm-copy-mode))
+  (define-key vterm-mode-map (kbd "C-c C-t") 'vterm-copy-mode)
+  (define-key vterm-mode-map (kbd "C-s") 'isearch-forward)
+  (define-key vterm-mode-map (kbd "S-<home>") 'beginning-of-buffer)
+  (define-key vterm-mode-map (kbd "S-<end>") 'end-of-buffer))
 #+END_SRC
 
 **** Multi-VTerm
@@ -2286,15 +2303,15 @@ Rich annotations for completion candidates in the minibuffer. → [[*Marginalia 
 
   (defun marginalia-annotate-alias (cand)
     "Annotate CAND with the function it aliases."
-    (when-let ((sym (intern-soft cand))
-               (alias (car (last (function-alias-p sym))))
-               (name (and (symbolp alias) (symbol-name alias))))
+    (when-let* ((sym (intern-soft cand))
+                (alias (car (last (function-alias-p sym))))
+                (name (and (symbolp alias) (symbol-name alias))))
       (format " (%s)" name)))
 
   (defun marginalia-annotate-symbol-with-alias (cand)
     "Annotate symbol CAND with its documentation string.
       Similar to `marginalia-annotate-symbol'."
-    (when-let (sym (intern-soft cand))
+    (when-let* ((sym (intern-soft cand)))
       (concat
        (marginalia-annotate-binding cand)
        (marginalia--fields
@@ -2733,7 +2750,7 @@ Popup window management for temporary buffers with one-key access, providing int
   (interactive)
   (let ((popper-display-function 'qq/popper-display-at-frame-right)
         (right-side-buffers '("*Messages*" "*scratch*")))
-    (if-let ((current-buffers (seq-filter (lambda (buf)
+    (if-let* ((current-buffers (seq-filter (lambda (buf)
                                             (let ((name (buffer-name buf)))
                                               (or (member name right-side-buffers)
                                                   (string-match-p "\\*claude:.*\\*" name))))
@@ -3136,6 +3153,25 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 ;; Archive
 (setq org-archive-location "archive/%s_archive::")
 
+;; Clock persistence - save clock history across Emacs sessions
+(setq org-clock-persist t)
+(setq org-clock-persist-file (concat qq/cache-directory "org-clock-save.el"))
+(org-clock-persistence-insinuate)
+
+;; Ensure org-clock-save.el has lexical binding cookie
+(defun qq/org-clock-save-add-lexical-binding ()
+  "Add lexical binding cookie to org-clock-save.el if missing."
+  (when (and org-clock-persist-file
+             (file-exists-p org-clock-persist-file))
+    (with-temp-buffer
+      (insert-file-contents org-clock-persist-file)
+      (goto-char (point-min))
+      (unless (looking-at "^;;;.*-\\*-.*lexical-binding:.*-\\*-")
+        (insert ";;; -*- lexical-binding: t -*-\n")
+        (write-region (point-min) (point-max) org-clock-persist-file)))))
+
+(advice-add 'org-clock-save :after #'qq/org-clock-save-add-lexical-binding)
+
 ;; Refile targets
 (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
 (setq org-refile-use-outline-path 'file)
@@ -3465,9 +3501,10 @@ Project management and navigation. → [[*Projectile Package][Generated Code]]
 
 ;; TRAMP exclusion - prevent hangs on remote files
 (setq projectile-mode-line "Projectile")
-(defadvice projectile-project-root (around ignore-remote activate)
-  (unless (file-remote-p default-directory)
-    ad-do-it))
+(advice-add 'projectile-project-root :around
+            (lambda (orig-fn &rest args)
+              (unless (file-remote-p default-directory)
+                (apply orig-fn args))))
 
 ;; Global ignores
 (add-to-list 'projectile-globally-ignored-files ".tern-port")
@@ -3501,7 +3538,7 @@ Configure Emacs built-in undo limits to prevent history loss during editing sess
 (setq revert-buffer-insert-file-contents-function
       (lambda (&rest args)
         (let ((buffer-undo-list buffer-undo-list))
-          (apply #'revert-buffer-insert-file-contents-deleting-temp-files args))))
+          (apply #'revert-buffer-insert-file-contents--default-function args))))
 #+END_SRC
 
 **** Undo-Fu
@@ -4548,9 +4585,9 @@ Disable existing themes before loading new ones. → [[*Theme Loading Protection
 #+NAME: theme-loading-protection
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Disable any existing themes before loading new ones
-(defadvice load-theme
-  (before disable-before-load (theme &optional no-confirm no-enable) activate)
-  (mapc 'disable-theme custom-enabled-themes))
+(advice-add 'load-theme :before
+            (lambda (&rest _)
+              (mapc #'disable-theme custom-enabled-themes)))
 #+END_SRC
 
 *** Theme Path Setup
@@ -4584,13 +4621,8 @@ Activate the quickbeans theme. → [[*Load Quickbeans Theme Code][Generated Code
 Custom face settings and final success message. → [[*Theme Customizations Code][Generated Code]]
 #+NAME: theme-customizations
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Smartparens face customizations
+;; which-func face customization
 (custom-set-faces
- '(sp-show-pair-match-face ((t (:inherit nil :background "#282828" :bold t :foreground "#ffffff"))))
- '(sp-pair-overlay-face ((t (:inherit nil :background nil :foreground "#7cfc00"))))
- '(sp-wrap-overlay-face ((t (:inherit nil :background nil :foreground "#ff4500"))))
- '(sp-wrap-tag-overlay-face ((t (:inherit nil :background nil :foreground "#ff1493"))))
- '(sp-show-pair-enclosing ((t (:inherit nil :foreground "#000000" :background "#ff6347"))))
  '(which-func ((t (:foreground "#87d7af")))))
 
 ;; Success message

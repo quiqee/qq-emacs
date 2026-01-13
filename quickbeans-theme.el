@@ -540,8 +540,11 @@ The theme has to be reloaded after changing anything in this group."
    `(smerge-markers                      ((,class (:foreground ,quickbeans-yellow-3 :background ,quickbeans-grey-0))))
    `(smerge-refined-change               ((,class (:foreground ,quickbeans-green-5))))
 ;;;;; SmartParens
-   `(sp-pair-overlay-face                ((((class color) (min-colors 89)) (:background ,quickbeans-grey-2))))
-   `(sp-show-pair-match-face             ((((class color) (min-colors 89)) (:background ,quickbeans-grey-5))))
+   `(sp-pair-overlay-face                ((,class (:background unspecified :foreground "#7cfc00"))))
+   `(sp-wrap-overlay-face                ((,class (:background unspecified :foreground "#ff4500"))))
+   `(sp-wrap-tag-overlay-face            ((,class (:background unspecified :foreground "#ff1493"))))
+   `(sp-show-pair-match-face             ((,class (:background "#282828" :foreground "#ffffff" :weight bold))))
+   `(sp-show-pair-enclosing              ((,class (:background "#ff6347" :foreground "#000000"))))
 ;;;;; Spaceline
    `(spaceline-evil-normal               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-orange-2))))
    `(spaceline-evil-motion               ((,class (:foreground ,quickbeans-bg :background ,quickbeans-purple-2))))
