@@ -1,4 +1,4 @@
-#+TITLE: Emacs Configuration
+#+TITLE: Emacs Configurations
 #+AUTHOR: QuiQee
 #+DATE: <2025-01-15 Wed>
 #+PROPERTY: header-args :tangle ~/.emacs.d/init.el
@@ -185,7 +185,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*Claude Code][claude-code]]**: Emacs interface for Claude Code CLI with terminal integration and error fixing
 
 *** Additional Tools
-- **[[*Undo-Fu Package][undo-fu]]**: Simple, stable undo system for Evil mode with linear undo/redo behavior
+- **[[*Undo-Fu][undo-fu]]**: Simple, stable undo system for Evil mode with linear undo/redo behavior
 - **[[*Undo-Fu-Session][undo-fu-session]]**: Persistent undo history across Emacs sessions
 - **[[*Vundo][vundo]]**: Modern visual undo system with tree-like interface
 - **[[*PDF Tools][pdf-tools]]**: Superior PDF viewing in Emacs
@@ -216,6 +216,8 @@ The configuration auto-retangles on save with notifications.
 
 ;; Disable native compilation warnings
 (setq native-comp-async-report-warnings-errors nil)
+
+(setq package-enable-at-startup nil)
 
 ;; Enable LSP plist mode for better performance
 (setenv "LSP_USE_PLISTS" "true")
@@ -942,6 +944,7 @@ Complete vim emulation with modern undo system and extensive configuration. → 
       evil-magic 'very-magic
       evil-want-C-u-delete t
       evil-want-C-u-scroll t
+      evil-want-fine-undo t
       evil-undo-system 'undo-fu
       evil-respect-visual-line-mode t
       hs-minor-mode-map nil)
@@ -3482,6 +3485,25 @@ Project management and navigation. → [[*Projectile Package][Generated Code]]
 
 ** Additional Tools
 *** Undo System
+**** Undo Limits
+Configure Emacs built-in undo limits to prevent history loss during editing sessions. → [[*Undo Limits Configuration][Generated Code]]
+
+***** Undo Limits Configuration Block
+#+NAME: undo-limits-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Increase undo limits to prevent history loss
+;; Default limits are very conservative and can cause undo history to be discarded
+(setq undo-limit 80000000         ; 80MB (default: ~160KB)
+      undo-strong-limit 120000000 ; 12MB (default: ~240KB)
+      undo-outer-limit 240000000) ; 120MB (default: ~24MB)
+
+;; Prevent auto-revert from clearing undo
+(setq revert-buffer-insert-file-contents-function
+      (lambda (&rest args)
+        (let ((buffer-undo-list buffer-undo-list))
+          (apply #'revert-buffer-insert-file-contents-deleting-temp-files args))))
+#+END_SRC
+
 **** Undo-Fu
 Undo replacement for Emacs. → [[*Undo-Fu Package][Generated Code]]
 
@@ -3519,13 +3541,47 @@ Superior PDF viewing in Emacs, much better than the default doc-view mode. → [
 ***** PDF Tools Configuration Block
 #+NAME: pdf-tools-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-  ;; Configure pdf-tools for better PDF viewing
-  ;; Install epdfinfo on first PDF open (deferred installation)
-  (setq pdf-view-continuous t)
-  (setq pdf-annot-activate-created-annotations t)
-  (setq pdf-view-midnight-colors '("#ffffff" . "#000000"))
-  ;; Load pdf-tools without installing (binary already built)
-  (pdf-tools-install :no-query)
+;; Configure pdf-tools for better PDF viewing
+;; Install epdfinfo on first PDF open (deferred installation)
+(setq pdf-view-continuous t)
+(setq pdf-annot-activate-created-annotations t)
+;; (setq pdf-view-midnight-colors '("#ffffff" . "#000000"))
+;; Load pdf-tools without installing (binary already built)
+(pdf-tools-install :no-query)
+
+(require 'whole-line-or-region)
+(defun pdf-view-init ()
+  "Enable dark theme and disable while-line-or-region to free keybindings."
+  ;; (pdf-view-midnight-minor-mode)
+  (require 'pdf-virtual)
+  (whole-line-or-region-local-mode -1))
+
+;; more fine-grained zooming; +/- 10% instead of default 25%
+(setopt pdf-view-resize-factor 1.1)
+;; Improve font rending to avoid blurry font's on high-dpi displays
+(setopt pdf-view-use-scaling t)
+;; Always use midnight-mode and almost same color as default font.
+;; Just slightly brighter background to see the page boarders
+;;(pdf-tools-enable-minor-modes)
+(setopt pdf-view-midnight-colors '("#c6c6c6" . "#363636"))
+(setopt pdf-outline-imenu-use-flat-menus t)
+
+
+:hook ((pdf-view-mode . pdf-view-init)
+       (pdf-view-mode . pdf-history-minor-mode)
+       (pdf-view-mode . pdf-isearch-minor-mode)
+       (pdf-view-mode . pdf-links-minor-mode)
+       (pdf-view-mode . pdf-outline-minor-mode)
+       (pdf-view-mode . pdf-annot-minor-mode)
+       (pdf-view-mode . pdf-sync-minor-mode)
+       (pdf-view-mode . pdf-cache-prefetch-minor-mode)
+       (pdf-view-mode . pdf-view-auto-slice-minor-mode)
+       (pdf-view-mode . pdf-occur-global-minor-mode)
+       (pdf-view-mode . pdf-virtual-global-minor-mode)
+       (pdf-view-mode . pdf-misc-minor-mode)
+       (pdf-view-mode . pdf-misc-size-indication-minor-mode)
+       (pdf-view-mode . pdf-misc-menu-bar-minor-mode)
+       (pdf-view-mode . pdf-misc-context-menu-minor-mode))
 #+END_SRC
 
 *** Code Formatting
@@ -4081,7 +4137,7 @@ File handling, backups, and buffer management. → [[*File and Buffer Management
       recentf-save-file (concat qq/cache-directory "recentf")
       bookmark-default-file (concat qq/cache-directory "bookmarks")
       backup-directory-alist `(("." . ,(concat qq/cache-directory "backups/")))
-      auto-save-file-name-transforms `(("\\`/[^/]*:\\([^/]*/\\)*\\([^/]*\\)\\'" ,(concat qq/cache-directory "auto-save-list/" "\\2") t)))
+      auto-save-file-name-transforms `((".*" ,(concat qq/cache-directory "auto-save-list/") t)))
 
 ;; Use y/n instead of yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -5636,6 +5692,12 @@ Diagram support in org-babel using napkin markup language. → [[*Ob Napkin][Con
 
 ** Additional Tools
 *** Undo System Packages
+**** Undo Limits Configuration
+Configure Emacs built-in undo limits. → [[*Undo Limits][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<undo-limits-config>>
+#+END_SRC
+
 **** Undo-Fu Package
 Simple, stable undo system for Evil mode with linear undo/redo behavior. → [[*Undo-Fu][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
