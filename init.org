@@ -1291,9 +1291,9 @@ Automatically enables tree-sitter modes for supported languages and handles gram
 #+NAME: treesit-auto-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Enable treesit-auto for automatic tree-sitter mode detection
-(treesit-auto-add-to-auto-mode-alist 'all)
-(setq treesit-auto-install 'prompt)
-(global-treesit-auto-mode)
+;; (treesit-auto-add-to-auto-mode-alist 'all)
+;; (setq treesit-auto-install 'prompt)
+;; (global-treesit-auto-mode)
 #+END_SRC
 
 *** LSP Mode
@@ -3586,12 +3586,10 @@ Superior PDF viewing in Emacs, much better than the default doc-view mode. → [
 ;; Load pdf-tools without installing (binary already built)
 (pdf-tools-install :no-query)
 
-(require 'whole-line-or-region)
 (defun pdf-view-init ()
   "Enable dark theme and disable while-line-or-region to free keybindings."
   ;; (pdf-view-midnight-minor-mode)
-  (require 'pdf-virtual)
-  (whole-line-or-region-local-mode -1))
+  (require 'pdf-virtual))
 
 ;; more fine-grained zooming; +/- 10% instead of default 25%
 (setopt pdf-view-resize-factor 1.1)
