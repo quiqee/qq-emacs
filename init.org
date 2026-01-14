@@ -84,6 +84,11 @@ The configuration auto-retangles on save with notifications.
 - **[[*YAML Mode][yaml-mode]]**: YAML configuration file editing
 - **[[*Lua Mode][lua-mode]]**: Lua scripting language support
 - **[[*QML Mode][qml-mode]]**: Qt QML file editing support
+- **[[*Qt Pro Mode][qt-pro-mode]]**: Qt project file (.pro/.pri) editing support
+- **[[*Bitbake Modes][bitbake-modes]]**: Yocto/OpenEmbedded BitBake recipe editing
+- **[[*CPerl Mode][cperl-mode]]**: Enhanced Perl editing with better syntax and indentation
+- **[[*Anaconda Mode][anaconda-mode]]**: Python code navigation and completion
+- **[[*Shell Script Mode][sh-script]]**: Enhanced shell script editing with custom handlers
 - **[[*Dockerfile Mode][dockerfile-mode]]**: Docker configuration editing
 - **[[*Docker Compose Mode][docker-compose-mode]]**: Docker Compose file support
 - **[[*PlantUML Mode][plantuml-mode]]**: Diagram-as-code with PlantUML
@@ -1767,6 +1772,95 @@ Qt QML file editing support with syntax highlighting. → [[*QML Mode Package][G
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Associate qml-mode with QML files
 (add-to-list 'auto-mode-alist '("\\.qml\\'" . qml-mode))
+#+END_SRC
+
+***** Qt Pro Mode
+Qt project file (.pro and .pri) editing support with syntax highlighting. → [[*Qt Pro Mode Package][Generated Code]]
+
+****** Qt Pro Mode Configuration Block
+#+NAME: qt-pro-mode-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Associate qt-pro-mode with Qt project files
+(add-to-list 'auto-mode-alist '("\\.pr[io]\\'" . qt-pro-mode))
+#+END_SRC
+
+***** Bitbake Modes
+Yocto/OpenEmbedded BitBake recipe editing with support for .bb, .bbappend, .bbclass, and .inc files. → [[*Bitbake Modes Package][Generated Code]]
+
+****** Bitbake Modes Configuration Block
+#+NAME: bitbake-modes-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; BitBake modes are automatically loaded for .bb, .bbappend, .bbclass files
+;; No additional configuration needed
+#+END_SRC
+
+***** CPerl Mode
+Enhanced Perl editing mode with better syntax highlighting, indentation, and variable highlighting. → [[*CPerl Mode Package][Generated Code]]
+
+****** CPerl Mode Configuration Block
+#+NAME: cperl-mode-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Use cperl-mode instead of perl-mode
+;; http://xahlee.info/emacs/emacs/emacs_perl_vs_cperl_mode.html
+(defalias 'perl-mode 'cperl-mode)
+(fset 'perl-mode 'cperl-mode)
+
+;; Remove perl-mode from auto-mode-alist and interpreter-mode-alist
+(setq auto-mode-alist (rassq-delete-all 'perl-mode auto-mode-alist))
+(setq interpreter-mode-alist (rassq-delete-all 'perl-mode interpreter-mode-alist))
+
+;; Add cperl-mode associations
+(add-to-list 'auto-mode-alist '("\\.\\(p\\([lm]\\)\\)\\'" . cperl-mode))
+(add-to-list 'interpreter-mode-alist '("perl" . cperl-mode))
+(add-to-list 'interpreter-mode-alist '("perl5" . cperl-mode))
+(add-to-list 'interpreter-mode-alist '("miniperl" . cperl-mode))
+
+;; Configure cperl-mode settings
+(setq cperl-indent-level 4
+      cperl-close-paren-offset -4
+      cperl-continued-statement-offset 4
+      cperl-indent-parens-as-block t
+      cperl-tab-always-indent t
+      cperl-highlight-variables-indiscriminately t)
+#+END_SRC
+
+***** Anaconda Mode
+Python code navigation, documentation lookup, and completion support via anaconda-mode. → [[*Anaconda Mode Package][Generated Code]]
+
+****** Anaconda Mode Configuration Block
+#+NAME: anaconda-mode-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable anaconda-mode for python
+(add-hook 'python-mode-hook 'anaconda-mode)
+(add-hook 'python-ts-mode-hook 'anaconda-mode)
+
+;; Enable anaconda-eldoc for documentation in minibuffer
+(add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+(add-hook 'python-ts-mode-hook 'anaconda-eldoc-mode)
+
+;; Add company-anaconda to company backends
+(with-eval-after-load 'company
+  (add-to-list 'company-backends '(company-anaconda :with company-capf)))
+#+END_SRC
+
+***** Shell Script Mode
+Enhanced shell script editing with custom handlers for special file types. → [[*Shell Script Mode Package][Generated Code]]
+
+****** Shell Script Mode Configuration Block
+#+NAME: sh-script-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Associate sh-script-mode with bash and zsh files
+(add-to-list 'auto-mode-alist '("\\.\\(\\(ba\\)sh\\|zsh\\)\\'" . sh-mode))
+
+;; Custom function to handle .inc files (RPM spec includes)
+(defun qq/sh-script-inc-file-shell-rpm ()
+  "Set shell to rpm if `sh-mode' is enabled for an inc file."
+  (when buffer-file-name
+    (when (string-match "\\.inc\\'" buffer-file-name)
+      (sh-set-shell "rpm" nil t))))
+
+;; Add hook for .inc file handling
+(add-hook 'sh-mode-hook 'qq/sh-script-inc-file-shell-rpm)
 #+END_SRC
 
 ***** Docker Support
@@ -5068,6 +5162,46 @@ Qt QML file editing support with syntax highlighting. → [[*QML Mode][Configura
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="qml-mode")>>
 <<qml-mode-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Qt Pro Mode Package
+Qt project file (.pro and .pri) editing support with syntax highlighting. → [[*Qt Pro Mode][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="qt-pro-mode")>>
+<<qt-pro-mode-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Bitbake Modes Package
+Yocto/OpenEmbedded BitBake recipe editing with support for .bb, .bbappend, .bbclass files. → [[*Bitbake Modes][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="bitbake-modes")>>
+<<bitbake-modes-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** CPerl Mode Package
+Enhanced Perl editing mode with better syntax highlighting and indentation. → [[*CPerl Mode][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="cperl-mode")>>
+<<cperl-mode-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Anaconda Mode Package
+Python code navigation, documentation lookup, and completion support. → [[*Anaconda Mode][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="anaconda-mode", after="python")>>
+<<anaconda-mode-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Shell Script Mode Package
+Enhanced shell script editing with custom handlers for special file types. → [[*Shell Script Mode][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="sh-script")>>
+<<sh-script-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
