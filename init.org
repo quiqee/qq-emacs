@@ -85,7 +85,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*Lua Mode][lua-mode]]**: Lua scripting language support
 - **[[*QML Mode][qml-mode]]**: Qt QML file editing support
 - **[[*Qt Pro Mode][qt-pro-mode]]**: Qt project file (.pro/.pri) editing support
-- **[[*Bitbake Modes][bitbake-modes]]**: Yocto/OpenEmbedded BitBake recipe editing
+- **[[*Bitbake TS Mode][bitbake-ts-mode]]**: Tree-sitter powered Yocto/OpenEmbedded BitBake recipe editing
 - **[[*CPerl Mode][cperl-mode]]**: Enhanced Perl editing with better syntax and indentation
 - **[[*Anaconda Mode][anaconda-mode]]**: Python code navigation and completion
 - **[[*Shell Script Mode][sh-script]]**: Enhanced shell script editing with custom handlers
@@ -426,6 +426,828 @@ The configuration auto-retangles on save with notifications.
 #+NAME: gen-pkg-end
 #+BEGIN_SRC emacs-lisp :var close_paren=")" :results output :tangle no :exports none
 (princ (format "%s" close_paren))
+#+END_SRC
+
+* Basic Settings
+** Site-Specific Configuration
+*** System Detection and Paths
+Multi-machine configuration based on hostname detection. → [[*System Detection and Paths Code][Generated Code]]
+#+NAME: system-detection-paths
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Site-specific configuration based on system-name
+(defvar qq/current-system (system-name)
+  "Current system hostname for site-specific configuration.")
+
+;; Define site-specific variables
+(defvar qq/org-roam-base-directory nil
+  "Base directory for org-roam notes, set per-site.")
+#+END_SRC
+
+*** Linux Work Desktop (eagle, Legion-U)
+#+NAME: linux-work-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+(setq qq/org-roam-base-directory "~/Documents/Org-files/RoamNotes/")
+;; Font configuration for Linux work desktop
+(setq use-default-font-for-symbols nil)
+(set-fontset-font t 'unicode (font-spec :family "JuliaMono"))
+;; (custom-theme-set-faces
+;;  'user
+;;  '(variable-pitch ((t (:family "Alegreya" :height 1.2))))
+;;  '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 1.0 :width normal)))))
+(defvar qq/modeline-font-height 120)
+;; (set-face-attribute 'default nil :family "Iosevka" :height 108)
+(set-face-attribute 'default nil :font (font-spec :family "PragmataPro Liga" :size 10.5 :weight 'regular))
+(set-face-attribute 'fixed-pitch nil :font (font-spec :family "PragmataPro Liga" :size 10.5 :weight 'regular))
+(set-face-attribute 'variable-pitch nil :font (font-spec :family "Alegreya" :height 1.0 :weight 'medium))
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
+
+#+END_SRC
+
+*** Mac @home (darwin)
+#+NAME: mac-home-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+(setq qq/org-roam-base-directory "~/Documents/OrgFiles/RoamNotes/")
+;; Font configuration for Mac (increased size for better readability)
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "Iosevka Aile" :height 220))))
+ '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 200 :width normal)))))
+(defvar qq/modeline-font-height 240)
+(set-face-attribute 'default nil :family "PragmataPro Liga" :height 200)
+(set-frame-font "PragmataPro Liga 20" nil t)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
+#+END_SRC
+
+*** Arch Linux / Manjaro (archlinux, z390-manjaro)
+#+NAME: arch-manjaro-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+(setq qq/org-roam-base-directory "~/org/roam/")
+;; Font configuration for Arch/Manjaro
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "Cabin" :height 1.2))))
+ '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 1.1 :width normal)))))
+(defvar qq/modeline-font-height 140)
+(set-face-attribute 'default nil :family "PragmataPro Liga" :height 108)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
+#+END_SRC
+
+*** Work Laptop (ThinkPad E14/E440)
+#+NAME: thinkpad-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+(setq qq/org-roam-base-directory "~/Documents/Org-files/RoamNotes/")
+;; Font configuration for ThinkPad
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "Cabin" :height 1.2))))
+ '(fixed-pitch ((t (:family "PragmataPro" :slant normal :weight normal :height 1.0 :width normal)))))
+(defvar qq/modeline-font-height 120)
+(set-face-attribute 'default nil :family "PragmataPro" :height 120)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
+#+END_SRC
+
+*** Default Configuration
+#+NAME: default-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+(setq qq/org-roam-base-directory (concat qq/cache-directory "RoamNotes/"))
+;; Default font configuration
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "Iosevka Aile" :height 1.3))))
+ '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 98 :width normal)))))
+(defvar qq/modeline-font-height 120)
+(set-face-attribute 'default nil :family "PragmataPro Liga" :height 98)
+(set-frame-font "PragmataPro Liga 9" nil t)
+;; Apply modeline font height
+(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
+(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
+#+END_SRC
+
+*** End Configuration
+#+NAME: end-site-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+
+;; Ensure org-roam directory exists
+(unless (file-directory-p qq/org-roam-base-directory)
+  (make-directory qq/org-roam-base-directory t))
+
+(message "Site-specific config loaded for: %s" qq/current-system)
+(message "Org-roam directory: %s" qq/org-roam-base-directory)
+#+END_SRC
+
+** Tree-sitter Configuration
+*** Tree-sitter Setup and Language Sources
+Automatic tree-sitter mode activation and language grammar management. → [[*Tree-sitter Code][Generated Code]]
+#+NAME: tree-sitter-setup
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+  ;; Require tree-sitter support
+  (require 'treesit)
+
+  ;; Configure tree-sitter to use cache directory
+  (add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
+
+  ;; Create tree-sitter directory if it doesn't exist
+  (unless (file-directory-p (concat qq/cache-directory "tree-sitter"))
+    (make-directory (concat qq/cache-directory "tree-sitter") t))
+
+  ;; Override tree-sitter installation directory
+  (setq treesit-extra-load-path (list (concat qq/cache-directory "tree-sitter")))
+
+  ;; Advice to install grammars in cache directory
+  (advice-add 'treesit-install-language-grammar :around
+              (lambda (orig-fun lang &optional out-dir)
+                (let ((install-dir (or out-dir (concat qq/cache-directory "tree-sitter"))))
+                  (funcall orig-fun lang install-dir))))
+
+  ;; Set up major mode remapping for tree-sitter modes
+  (dolist (mapping
+           '((python-mode . python-ts-mode)
+             (css-mode . css-ts-mode)
+             (typescript-mode . typescript-ts-mode)
+             (js-mode . js-ts-mode)
+             (js2-mode . js-ts-mode)
+             (c-mode . c-ts-mode)
+             (c++-mode . c++-ts-mode)
+             (c-or-c++-mode . c-or-c++-ts-mode)
+             (bash-mode . bash-ts-mode)
+             (json-mode . json-ts-mode)
+             (js-json-mode . json-ts-mode)
+             (sh-mode . bash-ts-mode)
+             (sh-base-mode . bash-ts-mode)))
+    (add-to-list 'major-mode-remap-alist mapping))
+
+  ;; Configure tree-sitter language sources
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (bitbake . ("https://github.com/tree-sitter-grammars/tree-sitter-bitbake"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
+          (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (julia . ("https://github.com/tree-sitter/tree-sitter-julia"))
+          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+          (make . ("https://github.com/alemuller/tree-sitter-make"))
+          (markdown . ("https://github.com/ikatyang/tree-sitter-markdown"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+          (php . ("https://github.com/tree-sitter/tree-sitter-php" "master" "php/src"))
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+          (prisma . ("https://github.com/victorhqc/tree-sitter-prisma"))
+          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
+
+  ;; Set tree-sitter font-lock level for better highlighting
+  (setq treesit-font-lock-level 4)
+
+  ;; Configure C/C++ indentation
+  (custom-set-variables '(c-ts-mode-indent-offset 4))
+
+  (message "Tree-sitter configuration loaded with %d languages" (length treesit-language-source-alist))
+#+END_SRC
+
+** Treesit Fold
+Code folding functionality based on tree-sitter for structured code navigation and organization. This package provides intelligent folding that understands code structure. → [[*Treesit Fold Package][Generated Code]]
+
+*** Treesit Fold Configuration Block
+#+NAME: treesit-fold-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure treesit-fold for code folding
+(global-treesit-fold-mode 1)
+
+;; Enable treesit-fold indicators
+(treesit-fold-indicators-mode 1)
+#+END_SRC
+
+** Performance Optimizations
+Performance and garbage collection optimizations. → [[*Performance Optimizations Code][Generated Code]]
+#+NAME: performance-optimizations
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Garbage Collection Optimization
+(setq gc-cons-threshold (* 100 1024 1024)) ; 100MB after startup
+;; Remove aggressive GC timers that cause stuttering
+;; (run-with-idle-timer 2 t #'garbage-collect)  ; Too frequent, causes lag
+;; (add-hook 'focus-out-hook #'garbage-collect) ; Causes window switch lag
+
+;; Performance optimizations
+(setq inhibit-compacting-font-caches t)
+(setq read-process-output-max (* 1024 1024)) ; 1MB for better process communication
+
+;; Redisplay optimizations
+(setq redisplay-dont-pause t
+      bidi-paragraph-direction 'left-to-right
+      bidi-display-reordering nil
+      jit-lock-defer-time 0.05
+      fast-but-imprecise-scrolling t
+      cursor-in-non-selected-windows nil
+      highlight-nonselected-windows nil
+      idle-update-delay 1.0)
+#+END_SRC
+
+** UI Cleanup and Visual Settings
+User interface cleanup and visual improvements. → [[*UI Cleanup and Visual Settings Code][Generated Code]]
+#+NAME: ui-cleanup
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Disable unnecessary UI elements
+(dolist (mode
+         '(tool-bar-mode       ; No toolbars
+           scroll-bar-mode     ; No scroll bars
+           menu-bar-mode       ; No menu bar
+           blink-cursor-mode)) ; No blinking cursor
+  (funcall mode 0))
+
+;; Startup behavior
+(setq inhibit-splash-screen t
+      inhibit-startup-echo-area-message t
+      inhibit-startup-message t
+      show-trailing-whitespace t
+      initial-scratch-message nil)
+
+;; enable smooth scrolling
+(pixel-scroll-precision-mode 1)
+
+;; Visual improvements
+(setq ring-bell-function 'ignore) ; Quiet bell
+(global-hl-line-mode 1)          ; Highlight current line
+
+;; Basic transparency (optional)
+(set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+(add-to-list 'default-frame-alist '(alpha . (95 . 95)))
+
+;; Fix italics rendering
+(set-face-attribute 'italic nil :inherit nil :slant 'italic)
+
+(set-charset-priority 'unicode) ;; utf8 everywhere
+(setq locale-coding-system 'utf-8
+      coding-system-for-read 'utf-8
+      coding-system-for-write 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+
+;; less noise when compiling elisp
+(setq byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local))
+(setq native-comp-async-report-warnings-errors nil)
+(setq load-prefer-newer t)
+#+END_SRC
+
+** Essential Modes
+Enable essential built-in modes. → [[*Essential Modes Code][Generated Code]]
+#+NAME: essential-modes
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable useful modes
+(dolist (mode
+         '(abbrev-mode
+           column-number-mode
+           delete-selection-mode
+           recentf-mode
+           show-paren-mode
+           global-auto-revert-mode
+           transient-mark-mode
+           line-number-mode
+           display-time-mode
+           size-indication-mode))
+  (funcall mode 1))
+
+;; Savehist for minibuffer history
+(savehist-mode +1)
+#+END_SRC
+
+** Cache Directory Setup
+Configure cache directories for better organization. → [[*Cache Directory Setup Code][Generated Code]]
+#+NAME: cache-directory-setup
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Cache directory already defined in bootstrap section, now set as defcustom for completeness
+(defcustom qq/cache-directory
+  (concat user-emacs-directory ".cache/")
+  "The storage location for various persistent files."
+  :type '(string)
+  :group 'qq)
+
+;; Create cache directory if it doesn't exist
+(unless (file-directory-p qq/cache-directory)
+  (make-directory qq/cache-directory t))
+
+;; Configure package directories to use cache
+(setq transient-history-file (concat qq/cache-directory "transient/history.el")
+      transient-levels-file (concat qq/cache-directory "transient/levels.el")
+      transient-values-file (concat qq/cache-directory "transient/values.el"))
+
+;; Create transient directory
+(unless (file-directory-p (concat qq/cache-directory "transient/"))
+  (make-directory (concat qq/cache-directory "transient/") t))
+
+;; Configure native compilation cache
+(setq native-comp-eln-load-path (list (concat qq/cache-directory "eln-cache/")))
+
+;; Create eln-cache directory
+(unless (file-directory-p (concat qq/cache-directory "eln-cache/"))
+  (make-directory (concat qq/cache-directory "eln-cache/") t))
+
+;; Custom Cache
+(setq custom-file (concat qq/cache-directory "custom.el"))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
+#+END_SRC
+
+** File and Buffer Management
+File handling, backups, and buffer management. → [[*File and Buffer Management Code][Generated Code]]
+#+NAME: file-buffer-management
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Backup and autosave configuration
+(setq backup-by-copying t
+      delete-old-versions t
+      kept-new-versions 2
+      kept-old-versions 2
+      version-control t
+      create-lockfiles nil ; Turn off lockfiles
+      make-backup-files t ; Enable backup files
+      auto-save-default t) ; Enable auto-save
+
+;; Create backup and auto-save directories
+(unless (file-directory-p (concat qq/cache-directory "backups/"))
+  (make-directory (concat qq/cache-directory "backups/") t))
+(unless (file-directory-p (concat qq/cache-directory "auto-save-list/"))
+  (make-directory (concat qq/cache-directory "auto-save-list/") t))
+
+;; Configure file locations to use cache directory
+(setq save-place-file (concat qq/cache-directory "places")
+      savehist-file (concat qq/cache-directory "savehist")
+      recentf-save-file (concat qq/cache-directory "recentf")
+      bookmark-default-file (concat qq/cache-directory "bookmarks")
+      backup-directory-alist `(("." . ,(concat qq/cache-directory "backups/")))
+      auto-save-file-name-transforms `((".*" ,(concat qq/cache-directory "auto-save-list/") t)))
+
+;; Use y/n instead of yes/no
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Better buffer names for duplicates
+(setq uniquify-buffer-name-style 'reverse
+      uniquify-separator "|"
+      uniquify-ignore-buffers-re "^\\*"
+      uniquify-after-kill-buffer-p t)
+
+;; File handling
+(setq recentf-max-saved-items 1000
+      recentf-max-menu-items 500
+      savehist-autosave-interval 60
+      bookmark-save-flag 1
+      delete-auto-save-files t)
+
+;; Additional recentf configuration
+(add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
+
+;; Load recent files list
+(recentf-load-list)
+#+END_SRC
+
+** Tempbuf
+Automatically kills buffers that haven't been used for a while, helping maintain a clean buffer list by removing unused temporary buffers. → [[*Tempbuf Package][Generated Code]]
+
+*** Tempbuf Configuration Block
+#+NAME: tempbuf-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure tempbuf for automatic buffer cleanup
+(setq tempbuf-minimum-timeout 300)  ; Kill after 5 minutes of inactivity
+(setq tempbuf-maximum-timeout 1800) ; Always kill after 30 minutes
+
+;; Enable tempbuf for specific modes
+(add-hook 'help-mode-hook 'turn-on-tempbuf-mode)
+(add-hook 'Man-mode-hook 'turn-on-tempbuf-mode)
+(add-hook 'view-mode-hook 'turn-on-tempbuf-mode)
+#+END_SRC
+
+** Default Text Scale
+Easily adjust text scale across all buffers globally, maintaining consistent font sizing throughout your Emacs session. → [[*Default Text Scale Package][Generated Code]]
+
+*** Default Text Scale Configuration Block
+#+NAME: default-text-scale-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure default-text-scale for global text scaling
+;; Provides C-M-= and C-M-- for global text scaling
+#+END_SRC
+
+** WS Butler
+Trim whitespace on save without affecting cursor position, providing a clean approach to whitespace management that doesn't disrupt your editing flow. → [[*WS Butler Package][Generated Code]]
+
+*** WS Butler Configuration Block
+#+NAME: ws-butler-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure ws-butler for clean whitespace management
+(setq ws-butler-keep-whitespace-before-point nil)
+
+;; Enable ws-butler globally for programming modes
+(add-hook 'prog-mode-hook 'ws-butler-mode)
+(add-hook 'text-mode-hook 'ws-butler-mode)
+#+END_SRC
+
+** Text Editing Behavior
+Text editing behavior and preferences. → [[*Text Editing Behavior Code][Generated Code]]
+#+NAME: text-editing-behavior
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Default indentation and text behavior
+(setq-default fill-column 99
+              indent-tabs-mode nil
+              tab-width 4
+              line-spacing nil)
+
+;; Better scrolling
+(setq scroll-conservatively 9999
+      scroll-preserve-screen-position t)
+
+;; Window splitting preferences
+(setq split-height-threshold 0
+      split-width-threshold nil)
+
+;; Text editing improvements
+(setq sentence-end-double-space nil
+      save-interprogram-paste-before-kill t
+      history-delete-duplicates t
+      require-final-newline t)
+
+;; Faster command echo
+(setq echo-keystrokes 0.1)
+
+;; Case-insensitive completion
+(setq read-file-name-completion-ignore-case t
+      read-buffer-completion-ignore-case t)
+
+;; Better line movement for wrapped lines
+(setq line-move-visual t)
+
+;; Hide mouse while typing
+(setq make-pointer-invisible t)
+
+;; Image support
+(setq image-use-external-converter t)
+
+(with-eval-after-load 'transient
+  (define-key transient-map (kbd "<escape>") 'transient-quit-one))
+#+END_SRC
+
+** Font and Emoji Support
+Font configuration and emoji support. → [[*Font and Emoji Support Code][Generated Code]]
+#+NAME: font-emoji-support
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Emoji font support
+(defun qq/set-emoji-font (frame)
+  "Adjust the font settings of FRAME so Emacs can display emoji properly."
+  (if (eq system-type 'darwin)
+      (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") frame 'prepend)
+    (set-fontset-font t 'symbol (font-spec :family "Symbola") frame 'prepend)))
+
+(qq/set-emoji-font nil)
+(add-hook 'after-make-frame-functions 'qq/set-emoji-font)
+#+END_SRC
+
+** Trailing Whitespace Management
+Configurable trailing whitespace handling. → [[*Trailing Whitespace Management Code][Generated Code]]
+#+NAME: trailing-whitespace-management
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configurable trailing whitespace deletion
+(defvar qq/delete-trailing-whitespace t
+  "Non-nil will enable deleting trailing whitespace during file save operation.")
+
+(defun qq/trailing-whitespace-behavior ()
+  (when qq/delete-trailing-whitespace
+    (delete-trailing-whitespace)))
+
+(add-hook 'write-file-functions 'qq/trailing-whitespace-behavior)
+
+(defun qq/toggle-delete-trailing-whitespace ()
+  "Enable/disable deleting of trailing whitespace on saving a file"
+  (interactive)
+  (setq qq/delete-trailing-whitespace (not qq/delete-trailing-whitespace))
+  (message "Trailing whitespace will be %s on file save"
+           (if qq/delete-trailing-whitespace "DELETED" "IGNORED")))
+#+END_SRC
+
+** Recipes
+Utility functions ported from legacy configuration for specialized text manipulation and system operations.
+
+*** Show File Name
+Display the full path of the current buffer in the minibuffer. → [[*Recipes Code][Generated Code]]
+#+NAME: show-file-name-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Show current buffer full path in minibuffer
+(defun qq/show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name)))
+#+END_SRC
+
+*** Display ANSI Colors
+Apply ANSI color codes to entire buffer for viewing logs or terminal output. → [[*Recipes Code][Generated Code]]
+#+NAME: display-ansi-colors-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Apply ANSI color codes to entire buffer
+(defun display-ansi-colors ()
+  "Apply ANSI color codes to entire buffer."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+#+END_SRC
+
+*** ANSI Color Region
+Apply ANSI color codes to selected region for partial colorization. → [[*Recipes Code][Generated Code]]
+#+NAME: ansi-color-region-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Apply ANSI color codes to selected region
+(defun ansi-color-apply-on-region-int (beg end)
+  "Colorize using the ANSI color codes."
+  (interactive "r")
+  (ansi-color-apply-on-region beg end))
+#+END_SRC
+
+*** Unfill Paragraph
+Convert multi-line paragraph into single line (opposite of fill-paragraph). → [[*Recipes Code][Generated Code]]
+#+NAME: unfill-paragraph-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Unfill paragraph - opposite of fill-paragraph
+(defun qq/unfill-paragraph ()
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive)
+  (let ((fill-column (point-max)))
+    (fill-paragraph nil)))
+#+END_SRC
+
+*** Duplicate file of the existing buffer
+Duplicates the buffer and its associated file. → [[*Recipes Code][Generated Code]]
+#+NAME: duplicate-buffer-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+#+END_SRC
+
+*** Diff Two Regions
+Compare two selected regions using external diff command. → [[*Recipes Code][Generated Code]]
+#+NAME: diff-region-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Diff two regions utility functions
+(defun diff-region-format-region-boundary (b e)
+  "Make sure lines are selected and B is less than E"
+  (let (tmp rlt)
+    ;; swap b e, make sure b < e
+    (when (> b e)
+      (setq tmp b)
+      (setq b e)
+      (set e tmp))
+    ;; select lines
+    (save-excursion
+      (if (and (> e b)
+               (save-excursion (goto-char e) (= e (line-beginning-position)))
+               (boundp 'evil-state) (eq evil-state 'visual))
+          (setq e (1- e)))
+      (goto-char b)
+      (setq b (line-beginning-position))
+      (goto-char e)
+      (setq e (line-end-position)))
+    (setq rlt (list b e))
+    rlt))
+
+(defun diff-region-tag-selected-as-a ()
+  "Select a region to compare"
+  (interactive)
+  (when (region-active-p)
+    (let (tmp buf)
+      ;; select lines
+      (setq tmp (diff-region-format-region-boundary (region-beginning) (region-end)))
+      (setq buf (get-buffer-create "*Diff-regionA*"))
+      (save-current-buffer
+        (set-buffer buf)
+        (erase-buffer))
+      (append-to-buffer buf (car tmp) (cadr tmp))))
+  (message "Now select other region to compare and run `diff-region-compare-with-b`"))
+
+(defun diff-region-compare-with-b ()
+  "Compare current region with region selected by `diff-region-tag-selected-as-a'"
+  (interactive)
+  (if (region-active-p)
+      (let (rlt-buf
+            diff-output
+            (fa (make-temp-file (expand-file-name "scor"
+                                                  (or small-temporary-file-directory
+                                                      temporary-file-directory))))
+            (fb (make-temp-file (expand-file-name "scor"
+                                                  (or small-temporary-file-directory
+                                                      temporary-file-directory)))))
+        ;;  save current content as file B
+        (when fb
+          (setq tmp (diff-region-format-region-boundary (region-beginning) (region-end)))
+          (write-region (car tmp) (cadr tmp) fb))
+
+        (setq rlt-buf (get-buffer-create "*Diff-region-output*"))
+        (when (and fa (file-exists-p fa) fb (file-exists-p fb))
+          ;; save region A as file A
+          (save-current-buffer
+            (set-buffer (get-buffer-create "*Diff-regionA*"))
+            (write-region (point-min) (point-max) fa))
+          ;; diff NOW!
+          (setq diff-output (shell-command-to-string (format "diff -Nabur %s %s" fa fb)))
+          ;; show the diff output
+          (if (string= diff-output "")
+              ;; two regions are same
+              (message "Two regions are SAME!")
+            ;; show the diff
+            (save-current-buffer
+              (switch-to-buffer-other-window rlt-buf)
+              (set-buffer rlt-buf)
+              (erase-buffer)
+              (insert diff-output)
+              (diff-mode))))
+
+        ;; clean the temporary files
+        (if (and fa (file-exists-p fa))
+            (delete-file fa))
+        (if (and fb (file-exists-p fb))
+            (delete-file fb)))
+    (message "Please select region at first!")))
+#+END_SRC
+
+*** Remote RPM Copy
+Copy RPM files with specific prefix from various local directories to remote location via TRAMP. → [[*Recipes Code][Generated Code]]
+#+NAME: remote-rpm-copy-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Remote RPM copy utility for collecting files with specific prefix from local dirs to remote
+(defun qq/remote-copy-rpm-files (&optional base-dir prefixes remote-destination-dir)
+  "Interactively select and copy RPM files with specified prefixes from BASE-DIR to REMOTE-DESTINATION-DIR via TRAMP.
+
+BASE-DIR defaults to /data/vest-linux/my_softing_eaglet/tmp/deploy/rpm.
+PREFIXES defaults to predefined list of eagle/mw prefixes:
+- eagle-system-1.0*
+- eagle-common-git*
+- libmw-post1-1.0-*
+- mwapp-v*
+- libmw-fpga-1*
+- libmw-uart-1*
+- libmw-fiber-1*
+- libmw-copper-1*
+- mwutils-v*
+
+Files sent to remote:
+All RPM files matching the specified prefixes from the base directory.
+Uses TRAMP protocol for remote copying (e.g., /ssh:user@host:/path/to/dir/).
+Each file is copied individually with interactive confirmation."
+  (interactive)
+
+  (let* ((default-base-dir "/data/vest-linux/my_softing_eaglet/tmp/deploy/rpm")
+         (default-prefixes '("eagle-system-1.0" "eagle-common-git" "libmw-post1-1.0-"
+                           "mwapp-v" "libmw-fpga-1" "libmw-uart-1" "libmw-fiber-1"
+                           "libmw-copper-1" "mwutils-v"))
+         (search-base-dir (or base-dir
+                            (read-directory-name "Base directory to search: " default-base-dir)))
+         (rpm-prefixes (or prefixes
+                         (if (y-or-n-p "Use default RPM prefixes (eagle-system, libmw-*, mwapp-v, etc.)? ")
+                             default-prefixes
+                           (let ((custom-prefixes '()))
+                             (while (let ((prefix (read-string "RPM prefix (empty to finish): ")))
+                                      (when (not (string-empty-p prefix))
+                                        (push prefix custom-prefixes)
+                                        t)))
+                             (reverse custom-prefixes)))))
+         (dest-dir (or remote-destination-dir
+                      (read-string "Remote destination (e.g., /ssh:user@host:/path/to/dir/): ")))
+         (selected-files '())
+         (total-copied 0))
+
+    ;; Search for RPM files with each prefix
+    (when (file-directory-p search-base-dir)
+      (dolist (prefix rpm-prefixes)
+        (message "Searching for RPMs with prefix '%s'..." prefix)
+        (let* ((pattern (concat "^" (regexp-quote prefix) ".*\\.rpm$"))
+               (files (directory-files search-base-dir t pattern)))
+          (message "Using search pattern: %s" pattern)
+          (if files
+              (progn
+                (message "✓ Found %d RPM files with prefix '%s': %s"
+                        (length files) prefix
+                        (mapconcat (lambda (f) (file-name-nondirectory f)) files ", "))
+                (dolist (file files)
+                  (when (y-or-n-p (format "Copy %s? " (file-name-nondirectory file)))
+                    (push file selected-files))))
+            (message "✗ No RPM files found with prefix '%s'" prefix)))))
+
+    ;; Ensure remote destination directory exists
+    (unless (file-directory-p dest-dir)
+      (make-directory dest-dir t))
+
+    ;; Copy selected files to remote destination
+    (if selected-files
+        (progn
+          (message "Copying %d selected files to remote..." (length selected-files))
+          (dolist (file selected-files)
+            (let ((dest-file (expand-file-name (file-name-nondirectory file) dest-dir)))
+              (condition-case err
+                  (progn
+                    (copy-file file dest-file t)
+                    (setq total-copied (1+ total-copied))
+                    (message "Copied to remote: %s" (file-name-nondirectory file)))
+                (error
+                 (message "Failed to copy %s: %s" file (error-message-string err))))))
+          (message "Successfully copied %d/%d RPM files to %s"
+                  total-copied (length selected-files) dest-dir))
+      (message "No files selected for copying."))))
+
+(defun qq/remote-copy-rpm-batch (prefix local-dirs remote-destination-dir)
+  "Batch copy all RPM files with PREFIX from LOCAL-DIRS to REMOTE-DESTINATION-DIR.
+   Non-interactive version for scripting."
+  (let ((total-found 0)
+        (total-copied 0))
+
+    ;; Ensure remote destination directory exists
+    (unless (file-directory-p remote-destination-dir)
+      (make-directory remote-destination-dir t))
+
+    ;; Process each local directory
+    (dolist (local-dir local-dirs)
+      (when (file-directory-p local-dir)
+        (message "Processing %s..." local-dir)
+        (let ((files (directory-files local-dir t
+                                     (concat "^" (regexp-quote prefix) ".*\\.rpm$"))))
+          (setq total-found (+ total-found (length files)))
+          (dolist (file files)
+            (let ((dest-file (expand-file-name (file-name-nondirectory file) remote-destination-dir)))
+              (condition-case err
+                  (progn
+                    (copy-file file dest-file t)
+                    (setq total-copied (1+ total-copied))
+                    (message "Copied to remote: %s" (file-name-nondirectory file)))
+                (error
+                 (message "Failed to copy %s: %s" file (error-message-string err)))))))))
+
+    (message "Batch copy complete: %d/%d RPM files copied to %s"
+            total-copied total-found remote-destination-dir)
+    (list total-found total-copied)))
+#+END_SRC
+
+#+RESULTS: remote-rpm-copy-config
+: qq/remote-copy-rpm-batch
+
+** Theme Configuration
+*** Theme Loading Protection
+Disable existing themes before loading new ones. → [[*Theme Loading Protection Code][Generated Code]]
+#+NAME: theme-loading-protection
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Disable any existing themes before loading new ones
+(advice-add 'load-theme :before
+            (lambda (&rest _)
+              (mapc #'disable-theme custom-enabled-themes)))
+#+END_SRC
+
+*** Theme Path Setup
+Configure theme directories and copy quickbeans theme. → [[*Theme Path Setup Code][Generated Code]]
+#+NAME: theme-path-setup
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Add custom theme directory to load path
+(add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
+
+;; Create themes directory if it doesn't exist
+(unless (file-directory-p (concat qq/cache-directory "themes/"))
+  (make-directory (concat qq/cache-directory "themes/") t))
+
+;; Copy quickbeans theme to cache directory if it doesn't exist
+(let ((source-theme (expand-file-name "quickbeans-theme.el" (file-name-directory load-file-name)))
+      (dest-theme (concat qq/cache-directory "themes/quickbeans-theme.el")))
+  (when (and (file-exists-p source-theme)
+             (not (file-exists-p dest-theme)))
+    (copy-file source-theme dest-theme)))
+#+END_SRC
+
+*** Load Quickbeans Theme
+Activate the quickbeans theme. → [[*Load Quickbeans Theme Code][Generated Code]]
+#+NAME: load-quickbeans-theme
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Load the quickbeans theme
+(load-theme 'quickbeans t)
+#+END_SRC
+
+*** Theme Customizations
+Custom face settings and final success message. → [[*Theme Customizations Code][Generated Code]]
+#+NAME: theme-customizations
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; which-func face customization
+(custom-set-faces
+ '(which-func ((t (:foreground "#87d7af")))))
+
+;; Success message
+(message "Modern Emacs configuration loaded successfully!")
 #+END_SRC
 
 * Key Bindings
@@ -1385,6 +2207,7 @@ Language Server Protocol support providing IDE-like features including auto-comp
 (defun qq/lsp-deferred-if-supported ()
   "Run lsp-deferred if it's a supported mode and not a TRAMP buffer."
   (unless (or (derived-mode-p 'emacs-lisp-mode)
+              (derived-mode-p 'bitbake-ts-mode)
               (file-remote-p default-directory))
     (lsp-deferred)))
 
@@ -1784,14 +2607,17 @@ Qt project file (.pro and .pri) editing support with syntax highlighting. → [[
 (add-to-list 'auto-mode-alist '("\\.pr[io]\\'" . qt-pro-mode))
 #+END_SRC
 
-***** Bitbake Modes
-Yocto/OpenEmbedded BitBake recipe editing with support for .bb, .bbappend, .bbclass, and .inc files. → [[*Bitbake Modes Package][Generated Code]]
+***** Bitbake TS Mode
+Tree-sitter powered Yocto/OpenEmbedded BitBake recipe editing with syntax highlighting and navigation for .bb, .bbappend, .bbclass, and .inc files. Requires Emacs 29+ with tree-sitter support. → [[*Bitbake TS Mode Package][Generated Code]]
 
-****** Bitbake Modes Configuration Block
-#+NAME: bitbake-modes-config
+****** Bitbake TS Mode Configuration Block
+#+NAME: bitbake-ts-mode-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; BitBake modes are automatically loaded for .bb, .bbappend, .bbclass files
-;; No additional configuration needed
+;; Associate bitbake-ts-mode with BitBake files
+(add-to-list 'auto-mode-alist '("\\.bb\\'" . bitbake-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.bbappend\\'" . bitbake-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.bbclass\\'" . bitbake-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.inc\\'" . bitbake-ts-mode))
 #+END_SRC
 
 ***** CPerl Mode
@@ -1917,9 +2743,10 @@ Common configuration applied to all programming modes for consistent development
             ;; Enable line numbers
             (display-line-numbers-mode 1)
 
-            ;; Enable LSP if supported
+            ;; Enable LSP if supported (exclude emacs-lisp-mode and bitbake-ts-mode)
             (when (and (fboundp 'lsp-deferred)
-                       (not (derived-mode-p 'emacs-lisp-mode)))
+                       (not (derived-mode-p 'emacs-lisp-mode))
+                       (not (derived-mode-p 'bitbake-ts-mode)))
               (lsp-deferred))
 
             ;; Enable yasnippet
@@ -3900,827 +4727,6 @@ Colorize color names and hex codes in buffers for better visual recognition of c
 (css-fontify-colors nil)
 #+END_SRC
 
-* Basic Settings
-** Site-Specific Configuration
-*** System Detection and Paths
-Multi-machine configuration based on hostname detection. → [[*System Detection and Paths Code][Generated Code]]
-#+NAME: system-detection-paths
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Site-specific configuration based on system-name
-(defvar qq/current-system (system-name)
-  "Current system hostname for site-specific configuration.")
-
-;; Define site-specific variables
-(defvar qq/org-roam-base-directory nil
-  "Base directory for org-roam notes, set per-site.")
-#+END_SRC
-
-*** Linux Work Desktop (eagle, Legion-U)
-#+NAME: linux-work-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory "~/Documents/Org-files/RoamNotes/")
-;; Font configuration for Linux work desktop
-(setq use-default-font-for-symbols nil)
-(set-fontset-font t 'unicode (font-spec :family "JuliaMono"))
-;; (custom-theme-set-faces
-;;  'user
-;;  '(variable-pitch ((t (:family "Alegreya" :height 1.2))))
-;;  '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 1.0 :width normal)))))
-(defvar qq/modeline-font-height 120)
-;; (set-face-attribute 'default nil :family "Iosevka" :height 108)
-(set-face-attribute 'default nil :font (font-spec :family "PragmataPro Liga" :size 10.5 :weight 'regular))
-(set-face-attribute 'fixed-pitch nil :font (font-spec :family "PragmataPro Liga" :size 10.5 :weight 'regular))
-(set-face-attribute 'variable-pitch nil :font (font-spec :family "Alegreya" :height 1.0 :weight 'medium))
-;; Apply modeline font height
-(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
-(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
-
-#+END_SRC
-
-*** Mac @home (darwin)
-#+NAME: mac-home-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory "~/Documents/OrgFiles/RoamNotes/")
-;; Font configuration for Mac (increased size for better readability)
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "Iosevka Aile" :height 220))))
- '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 200 :width normal)))))
-(defvar qq/modeline-font-height 240)
-(set-face-attribute 'default nil :family "PragmataPro Liga" :height 200)
-(set-frame-font "PragmataPro Liga 20" nil t)
-;; Apply modeline font height
-(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
-(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
-#+END_SRC
-
-*** Arch Linux / Manjaro (archlinux, z390-manjaro)
-#+NAME: arch-manjaro-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory "~/org/roam/")
-;; Font configuration for Arch/Manjaro
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "Cabin" :height 1.2))))
- '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 1.1 :width normal)))))
-(defvar qq/modeline-font-height 140)
-(set-face-attribute 'default nil :family "PragmataPro Liga" :height 108)
-;; Apply modeline font height
-(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
-(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
-#+END_SRC
-
-*** Work Laptop (ThinkPad E14/E440)
-#+NAME: thinkpad-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory "~/Documents/Org-files/RoamNotes/")
-;; Font configuration for ThinkPad
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "Cabin" :height 1.2))))
- '(fixed-pitch ((t (:family "PragmataPro" :slant normal :weight normal :height 1.0 :width normal)))))
-(defvar qq/modeline-font-height 120)
-(set-face-attribute 'default nil :family "PragmataPro" :height 120)
-;; Apply modeline font height
-(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
-(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
-#+END_SRC
-
-*** Default Configuration
-#+NAME: default-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory (concat qq/cache-directory "RoamNotes/"))
-;; Default font configuration
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "Iosevka Aile" :height 1.3))))
- '(fixed-pitch ((t (:family "PragmataPro Liga" :slant normal :weight normal :height 98 :width normal)))))
-(defvar qq/modeline-font-height 120)
-(set-face-attribute 'default nil :family "PragmataPro Liga" :height 98)
-(set-frame-font "PragmataPro Liga 9" nil t)
-;; Apply modeline font height
-(set-face-attribute 'mode-line nil :height qq/modeline-font-height)
-(set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
-#+END_SRC
-
-*** End Configuration
-#+NAME: end-site-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-
-;; Ensure org-roam directory exists
-(unless (file-directory-p qq/org-roam-base-directory)
-  (make-directory qq/org-roam-base-directory t))
-
-(message "Site-specific config loaded for: %s" qq/current-system)
-(message "Org-roam directory: %s" qq/org-roam-base-directory)
-#+END_SRC
-
-** Tree-sitter Configuration
-*** Tree-sitter Setup and Language Sources
-Automatic tree-sitter mode activation and language grammar management. → [[*Tree-sitter Code][Generated Code]]
-#+NAME: tree-sitter-setup
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-  ;; Require tree-sitter support
-  (require 'treesit)
-
-  ;; Configure tree-sitter to use cache directory
-  (add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
-
-  ;; Create tree-sitter directory if it doesn't exist
-  (unless (file-directory-p (concat qq/cache-directory "tree-sitter"))
-    (make-directory (concat qq/cache-directory "tree-sitter") t))
-
-  ;; Override tree-sitter installation directory
-  (setq treesit-extra-load-path (list (concat qq/cache-directory "tree-sitter")))
-
-  ;; Advice to install grammars in cache directory
-  (advice-add 'treesit-install-language-grammar :around
-              (lambda (orig-fun lang &optional out-dir)
-                (let ((install-dir (or out-dir (concat qq/cache-directory "tree-sitter"))))
-                  (funcall orig-fun lang install-dir))))
-
-  ;; Set up major mode remapping for tree-sitter modes
-  (dolist (mapping
-           '((python-mode . python-ts-mode)
-             (css-mode . css-ts-mode)
-             (typescript-mode . typescript-ts-mode)
-             (js-mode . js-ts-mode)
-             (js2-mode . js-ts-mode)
-             (c-mode . c-ts-mode)
-             (c++-mode . c++-ts-mode)
-             (c-or-c++-mode . c-or-c++-ts-mode)
-             (bash-mode . bash-ts-mode)
-             (json-mode . json-ts-mode)
-             (js-json-mode . json-ts-mode)
-             (sh-mode . bash-ts-mode)
-             (sh-base-mode . bash-ts-mode)))
-    (add-to-list 'major-mode-remap-alist mapping))
-
-  ;; Configure tree-sitter language sources
-  (setq treesit-language-source-alist
-        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-          (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
-          (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
-          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (julia . ("https://github.com/tree-sitter/tree-sitter-julia"))
-          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-          (make . ("https://github.com/alemuller/tree-sitter-make"))
-          (markdown . ("https://github.com/ikatyang/tree-sitter-markdown"))
-          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-          (php . ("https://github.com/tree-sitter/tree-sitter-php" "master" "php/src"))
-          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
-          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
-          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
-          (prisma . ("https://github.com/victorhqc/tree-sitter-prisma"))
-          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
-
-  ;; Set tree-sitter font-lock level for better highlighting
-  (setq treesit-font-lock-level 4)
-
-  ;; Configure C/C++ indentation
-  (custom-set-variables '(c-ts-mode-indent-offset 4))
-
-  (message "Tree-sitter configuration loaded with %d languages" (length treesit-language-source-alist))
-#+END_SRC
-
-** Treesit Fold
-Code folding functionality based on tree-sitter for structured code navigation and organization. This package provides intelligent folding that understands code structure. → [[*Treesit Fold Package][Generated Code]]
-
-*** Treesit Fold Configuration Block
-#+NAME: treesit-fold-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure treesit-fold for code folding
-(global-treesit-fold-mode 1)
-
-;; Enable treesit-fold indicators
-(treesit-fold-indicators-mode 1)
-#+END_SRC
-
-** Performance Optimizations
-Performance and garbage collection optimizations. → [[*Performance Optimizations Code][Generated Code]]
-#+NAME: performance-optimizations
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Garbage Collection Optimization
-(setq gc-cons-threshold (* 100 1024 1024)) ; 100MB after startup
-;; Remove aggressive GC timers that cause stuttering
-;; (run-with-idle-timer 2 t #'garbage-collect)  ; Too frequent, causes lag
-;; (add-hook 'focus-out-hook #'garbage-collect) ; Causes window switch lag
-
-;; Performance optimizations
-(setq inhibit-compacting-font-caches t)
-(setq read-process-output-max (* 1024 1024)) ; 1MB for better process communication
-
-;; Redisplay optimizations
-(setq redisplay-dont-pause t
-      bidi-paragraph-direction 'left-to-right
-      bidi-display-reordering nil
-      jit-lock-defer-time 0.05
-      fast-but-imprecise-scrolling t
-      cursor-in-non-selected-windows nil
-      highlight-nonselected-windows nil
-      idle-update-delay 1.0)
-#+END_SRC
-
-** UI Cleanup and Visual Settings
-User interface cleanup and visual improvements. → [[*UI Cleanup and Visual Settings Code][Generated Code]]
-#+NAME: ui-cleanup
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Disable unnecessary UI elements
-(dolist (mode
-         '(tool-bar-mode       ; No toolbars
-           scroll-bar-mode     ; No scroll bars
-           menu-bar-mode       ; No menu bar
-           blink-cursor-mode)) ; No blinking cursor
-  (funcall mode 0))
-
-;; Startup behavior
-(setq inhibit-splash-screen t
-      inhibit-startup-echo-area-message t
-      inhibit-startup-message t
-      show-trailing-whitespace t
-      initial-scratch-message nil)
-
-;; enable smooth scrolling
-(pixel-scroll-precision-mode 1)
-
-;; Visual improvements
-(setq ring-bell-function 'ignore) ; Quiet bell
-(global-hl-line-mode 1)          ; Highlight current line
-
-;; Basic transparency (optional)
-(set-frame-parameter (selected-frame) 'alpha '(95 . 95))
-(add-to-list 'default-frame-alist '(alpha . (95 . 95)))
-
-;; Fix italics rendering
-(set-face-attribute 'italic nil :inherit nil :slant 'italic)
-
-(set-charset-priority 'unicode) ;; utf8 everywhere
-(setq locale-coding-system 'utf-8
-      coding-system-for-read 'utf-8
-      coding-system-for-write 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
-
-;; less noise when compiling elisp
-(setq byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local))
-(setq native-comp-async-report-warnings-errors nil)
-(setq load-prefer-newer t)
-#+END_SRC
-
-** Essential Modes
-Enable essential built-in modes. → [[*Essential Modes Code][Generated Code]]
-#+NAME: essential-modes
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Enable useful modes
-(dolist (mode
-         '(abbrev-mode
-           column-number-mode
-           delete-selection-mode
-           recentf-mode
-           show-paren-mode
-           global-auto-revert-mode
-           transient-mark-mode
-           line-number-mode
-           display-time-mode
-           size-indication-mode))
-  (funcall mode 1))
-
-;; Savehist for minibuffer history
-(savehist-mode +1)
-#+END_SRC
-
-** Cache Directory Setup
-Configure cache directories for better organization. → [[*Cache Directory Setup Code][Generated Code]]
-#+NAME: cache-directory-setup
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Cache directory already defined in bootstrap section, now set as defcustom for completeness
-(defcustom qq/cache-directory
-  (concat user-emacs-directory ".cache/")
-  "The storage location for various persistent files."
-  :type '(string)
-  :group 'qq)
-
-;; Create cache directory if it doesn't exist
-(unless (file-directory-p qq/cache-directory)
-  (make-directory qq/cache-directory t))
-
-;; Configure package directories to use cache
-(setq transient-history-file (concat qq/cache-directory "transient/history.el")
-      transient-levels-file (concat qq/cache-directory "transient/levels.el")
-      transient-values-file (concat qq/cache-directory "transient/values.el"))
-
-;; Create transient directory
-(unless (file-directory-p (concat qq/cache-directory "transient/"))
-  (make-directory (concat qq/cache-directory "transient/") t))
-
-;; Configure native compilation cache
-(setq native-comp-eln-load-path (list (concat qq/cache-directory "eln-cache/")))
-
-;; Create eln-cache directory
-(unless (file-directory-p (concat qq/cache-directory "eln-cache/"))
-  (make-directory (concat qq/cache-directory "eln-cache/") t))
-
-;; Custom Cache
-(setq custom-file (concat qq/cache-directory "custom.el"))
-(when (file-exists-p custom-file)
-  (load custom-file))
-
-#+END_SRC
-
-** File and Buffer Management
-File handling, backups, and buffer management. → [[*File and Buffer Management Code][Generated Code]]
-#+NAME: file-buffer-management
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Backup and autosave configuration
-(setq backup-by-copying t
-      delete-old-versions t
-      kept-new-versions 2
-      kept-old-versions 2
-      version-control t
-      create-lockfiles nil ; Turn off lockfiles
-      make-backup-files t ; Enable backup files
-      auto-save-default t) ; Enable auto-save
-
-;; Create backup and auto-save directories
-(unless (file-directory-p (concat qq/cache-directory "backups/"))
-  (make-directory (concat qq/cache-directory "backups/") t))
-(unless (file-directory-p (concat qq/cache-directory "auto-save-list/"))
-  (make-directory (concat qq/cache-directory "auto-save-list/") t))
-
-;; Configure file locations to use cache directory
-(setq save-place-file (concat qq/cache-directory "places")
-      savehist-file (concat qq/cache-directory "savehist")
-      recentf-save-file (concat qq/cache-directory "recentf")
-      bookmark-default-file (concat qq/cache-directory "bookmarks")
-      backup-directory-alist `(("." . ,(concat qq/cache-directory "backups/")))
-      auto-save-file-name-transforms `((".*" ,(concat qq/cache-directory "auto-save-list/") t)))
-
-;; Use y/n instead of yes/no
-(fset 'yes-or-no-p 'y-or-n-p)
-
-;; Better buffer names for duplicates
-(setq uniquify-buffer-name-style 'reverse
-      uniquify-separator "|"
-      uniquify-ignore-buffers-re "^\\*"
-      uniquify-after-kill-buffer-p t)
-
-;; File handling
-(setq recentf-max-saved-items 1000
-      recentf-max-menu-items 500
-      savehist-autosave-interval 60
-      bookmark-save-flag 1
-      delete-auto-save-files t)
-
-;; Additional recentf configuration
-(add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
-
-;; Load recent files list
-(recentf-load-list)
-#+END_SRC
-
-** Tempbuf
-Automatically kills buffers that haven't been used for a while, helping maintain a clean buffer list by removing unused temporary buffers. → [[*Tempbuf Package][Generated Code]]
-
-*** Tempbuf Configuration Block
-#+NAME: tempbuf-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure tempbuf for automatic buffer cleanup
-(setq tempbuf-minimum-timeout 300)  ; Kill after 5 minutes of inactivity
-(setq tempbuf-maximum-timeout 1800) ; Always kill after 30 minutes
-
-;; Enable tempbuf for specific modes
-(add-hook 'help-mode-hook 'turn-on-tempbuf-mode)
-(add-hook 'Man-mode-hook 'turn-on-tempbuf-mode)
-(add-hook 'view-mode-hook 'turn-on-tempbuf-mode)
-#+END_SRC
-
-** Default Text Scale
-Easily adjust text scale across all buffers globally, maintaining consistent font sizing throughout your Emacs session. → [[*Default Text Scale Package][Generated Code]]
-
-*** Default Text Scale Configuration Block
-#+NAME: default-text-scale-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure default-text-scale for global text scaling
-;; Provides C-M-= and C-M-- for global text scaling
-#+END_SRC
-
-** WS Butler
-Trim whitespace on save without affecting cursor position, providing a clean approach to whitespace management that doesn't disrupt your editing flow. → [[*WS Butler Package][Generated Code]]
-
-*** WS Butler Configuration Block
-#+NAME: ws-butler-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure ws-butler for clean whitespace management
-(setq ws-butler-keep-whitespace-before-point nil)
-
-;; Enable ws-butler globally for programming modes
-(add-hook 'prog-mode-hook 'ws-butler-mode)
-(add-hook 'text-mode-hook 'ws-butler-mode)
-#+END_SRC
-
-** Text Editing Behavior
-Text editing behavior and preferences. → [[*Text Editing Behavior Code][Generated Code]]
-#+NAME: text-editing-behavior
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Default indentation and text behavior
-(setq-default fill-column 99
-              indent-tabs-mode nil
-              tab-width 4
-              line-spacing nil)
-
-;; Better scrolling
-(setq scroll-conservatively 9999
-      scroll-preserve-screen-position t)
-
-;; Window splitting preferences
-(setq split-height-threshold 0
-      split-width-threshold nil)
-
-;; Text editing improvements
-(setq sentence-end-double-space nil
-      save-interprogram-paste-before-kill t
-      history-delete-duplicates t
-      require-final-newline t)
-
-;; Faster command echo
-(setq echo-keystrokes 0.1)
-
-;; Case-insensitive completion
-(setq read-file-name-completion-ignore-case t
-      read-buffer-completion-ignore-case t)
-
-;; Better line movement for wrapped lines
-(setq line-move-visual t)
-
-;; Hide mouse while typing
-(setq make-pointer-invisible t)
-
-;; Image support
-(setq image-use-external-converter t)
-
-(with-eval-after-load 'transient
-  (define-key transient-map (kbd "<escape>") 'transient-quit-one))
-#+END_SRC
-
-** Font and Emoji Support
-Font configuration and emoji support. → [[*Font and Emoji Support Code][Generated Code]]
-#+NAME: font-emoji-support
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Emoji font support
-(defun qq/set-emoji-font (frame)
-  "Adjust the font settings of FRAME so Emacs can display emoji properly."
-  (if (eq system-type 'darwin)
-      (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") frame 'prepend)
-    (set-fontset-font t 'symbol (font-spec :family "Symbola") frame 'prepend)))
-
-(qq/set-emoji-font nil)
-(add-hook 'after-make-frame-functions 'qq/set-emoji-font)
-#+END_SRC
-
-** Trailing Whitespace Management
-Configurable trailing whitespace handling. → [[*Trailing Whitespace Management Code][Generated Code]]
-#+NAME: trailing-whitespace-management
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configurable trailing whitespace deletion
-(defvar qq/delete-trailing-whitespace t
-  "Non-nil will enable deleting trailing whitespace during file save operation.")
-
-(defun qq/trailing-whitespace-behavior ()
-  (when qq/delete-trailing-whitespace
-    (delete-trailing-whitespace)))
-
-(add-hook 'write-file-functions 'qq/trailing-whitespace-behavior)
-
-(defun qq/toggle-delete-trailing-whitespace ()
-  "Enable/disable deleting of trailing whitespace on saving a file"
-  (interactive)
-  (setq qq/delete-trailing-whitespace (not qq/delete-trailing-whitespace))
-  (message "Trailing whitespace will be %s on file save"
-           (if qq/delete-trailing-whitespace "DELETED" "IGNORED")))
-#+END_SRC
-
-** Recipes
-Utility functions ported from legacy configuration for specialized text manipulation and system operations.
-
-*** Show File Name
-Display the full path of the current buffer in the minibuffer. → [[*Recipes Code][Generated Code]]
-#+NAME: show-file-name-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Show current buffer full path in minibuffer
-(defun qq/show-file-name ()
-  "Show the full path file name in the minibuffer."
-  (interactive)
-  (message (buffer-file-name)))
-#+END_SRC
-
-*** Display ANSI Colors
-Apply ANSI color codes to entire buffer for viewing logs or terminal output. → [[*Recipes Code][Generated Code]]
-#+NAME: display-ansi-colors-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Apply ANSI color codes to entire buffer
-(defun display-ansi-colors ()
-  "Apply ANSI color codes to entire buffer."
-  (interactive)
-  (let ((inhibit-read-only t))
-    (ansi-color-apply-on-region (point-min) (point-max))))
-#+END_SRC
-
-*** ANSI Color Region
-Apply ANSI color codes to selected region for partial colorization. → [[*Recipes Code][Generated Code]]
-#+NAME: ansi-color-region-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Apply ANSI color codes to selected region
-(defun ansi-color-apply-on-region-int (beg end)
-  "Colorize using the ANSI color codes."
-  (interactive "r")
-  (ansi-color-apply-on-region beg end))
-#+END_SRC
-
-*** Unfill Paragraph
-Convert multi-line paragraph into single line (opposite of fill-paragraph). → [[*Recipes Code][Generated Code]]
-#+NAME: unfill-paragraph-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Unfill paragraph - opposite of fill-paragraph
-(defun qq/unfill-paragraph ()
-  "Takes a multi-line paragraph and makes it into a single line of text."
-  (interactive)
-  (let ((fill-column (point-max)))
-    (fill-paragraph nil)))
-#+END_SRC
-
-*** Duplicate file of the existing buffer
-Duplicates the buffer and its associated file. → [[*Recipes Code][Generated Code]]
-#+NAME: duplicate-buffer-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-#+END_SRC
-
-*** Diff Two Regions
-Compare two selected regions using external diff command. → [[*Recipes Code][Generated Code]]
-#+NAME: diff-region-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Diff two regions utility functions
-(defun diff-region-format-region-boundary (b e)
-  "Make sure lines are selected and B is less than E"
-  (let (tmp rlt)
-    ;; swap b e, make sure b < e
-    (when (> b e)
-      (setq tmp b)
-      (setq b e)
-      (set e tmp))
-    ;; select lines
-    (save-excursion
-      (if (and (> e b)
-               (save-excursion (goto-char e) (= e (line-beginning-position)))
-               (boundp 'evil-state) (eq evil-state 'visual))
-          (setq e (1- e)))
-      (goto-char b)
-      (setq b (line-beginning-position))
-      (goto-char e)
-      (setq e (line-end-position)))
-    (setq rlt (list b e))
-    rlt))
-
-(defun diff-region-tag-selected-as-a ()
-  "Select a region to compare"
-  (interactive)
-  (when (region-active-p)
-    (let (tmp buf)
-      ;; select lines
-      (setq tmp (diff-region-format-region-boundary (region-beginning) (region-end)))
-      (setq buf (get-buffer-create "*Diff-regionA*"))
-      (save-current-buffer
-        (set-buffer buf)
-        (erase-buffer))
-      (append-to-buffer buf (car tmp) (cadr tmp))))
-  (message "Now select other region to compare and run `diff-region-compare-with-b`"))
-
-(defun diff-region-compare-with-b ()
-  "Compare current region with region selected by `diff-region-tag-selected-as-a'"
-  (interactive)
-  (if (region-active-p)
-      (let (rlt-buf
-            diff-output
-            (fa (make-temp-file (expand-file-name "scor"
-                                                  (or small-temporary-file-directory
-                                                      temporary-file-directory))))
-            (fb (make-temp-file (expand-file-name "scor"
-                                                  (or small-temporary-file-directory
-                                                      temporary-file-directory)))))
-        ;;  save current content as file B
-        (when fb
-          (setq tmp (diff-region-format-region-boundary (region-beginning) (region-end)))
-          (write-region (car tmp) (cadr tmp) fb))
-
-        (setq rlt-buf (get-buffer-create "*Diff-region-output*"))
-        (when (and fa (file-exists-p fa) fb (file-exists-p fb))
-          ;; save region A as file A
-          (save-current-buffer
-            (set-buffer (get-buffer-create "*Diff-regionA*"))
-            (write-region (point-min) (point-max) fa))
-          ;; diff NOW!
-          (setq diff-output (shell-command-to-string (format "diff -Nabur %s %s" fa fb)))
-          ;; show the diff output
-          (if (string= diff-output "")
-              ;; two regions are same
-              (message "Two regions are SAME!")
-            ;; show the diff
-            (save-current-buffer
-              (switch-to-buffer-other-window rlt-buf)
-              (set-buffer rlt-buf)
-              (erase-buffer)
-              (insert diff-output)
-              (diff-mode))))
-
-        ;; clean the temporary files
-        (if (and fa (file-exists-p fa))
-            (delete-file fa))
-        (if (and fb (file-exists-p fb))
-            (delete-file fb)))
-    (message "Please select region at first!")))
-#+END_SRC
-
-*** Remote RPM Copy
-Copy RPM files with specific prefix from various local directories to remote location via TRAMP. → [[*Recipes Code][Generated Code]]
-#+NAME: remote-rpm-copy-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Remote RPM copy utility for collecting files with specific prefix from local dirs to remote
-(defun qq/remote-copy-rpm-files (&optional base-dir prefixes remote-destination-dir)
-  "Interactively select and copy RPM files with specified prefixes from BASE-DIR to REMOTE-DESTINATION-DIR via TRAMP.
-
-BASE-DIR defaults to /data/vest-linux/my_softing_eaglet/tmp/deploy/rpm.
-PREFIXES defaults to predefined list of eagle/mw prefixes:
-- eagle-system-1.0*
-- eagle-common-git*
-- libmw-post1-1.0-*
-- mwapp-v*
-- libmw-fpga-1*
-- libmw-uart-1*
-- libmw-fiber-1*
-- libmw-copper-1*
-- mwutils-v*
-
-Files sent to remote:
-All RPM files matching the specified prefixes from the base directory.
-Uses TRAMP protocol for remote copying (e.g., /ssh:user@host:/path/to/dir/).
-Each file is copied individually with interactive confirmation."
-  (interactive)
-
-  (let* ((default-base-dir "/data/vest-linux/my_softing_eaglet/tmp/deploy/rpm")
-         (default-prefixes '("eagle-system-1.0" "eagle-common-git" "libmw-post1-1.0-"
-                           "mwapp-v" "libmw-fpga-1" "libmw-uart-1" "libmw-fiber-1"
-                           "libmw-copper-1" "mwutils-v"))
-         (search-base-dir (or base-dir
-                            (read-directory-name "Base directory to search: " default-base-dir)))
-         (rpm-prefixes (or prefixes
-                         (if (y-or-n-p "Use default RPM prefixes (eagle-system, libmw-*, mwapp-v, etc.)? ")
-                             default-prefixes
-                           (let ((custom-prefixes '()))
-                             (while (let ((prefix (read-string "RPM prefix (empty to finish): ")))
-                                      (when (not (string-empty-p prefix))
-                                        (push prefix custom-prefixes)
-                                        t)))
-                             (reverse custom-prefixes)))))
-         (dest-dir (or remote-destination-dir
-                      (read-string "Remote destination (e.g., /ssh:user@host:/path/to/dir/): ")))
-         (selected-files '())
-         (total-copied 0))
-
-    ;; Search for RPM files with each prefix
-    (when (file-directory-p search-base-dir)
-      (dolist (prefix rpm-prefixes)
-        (message "Searching for RPMs with prefix '%s'..." prefix)
-        (let* ((pattern (concat "^" (regexp-quote prefix) ".*\\.rpm$"))
-               (files (directory-files search-base-dir t pattern)))
-          (message "Using search pattern: %s" pattern)
-          (if files
-              (progn
-                (message "✓ Found %d RPM files with prefix '%s': %s"
-                        (length files) prefix
-                        (mapconcat (lambda (f) (file-name-nondirectory f)) files ", "))
-                (dolist (file files)
-                  (when (y-or-n-p (format "Copy %s? " (file-name-nondirectory file)))
-                    (push file selected-files))))
-            (message "✗ No RPM files found with prefix '%s'" prefix)))))
-
-    ;; Ensure remote destination directory exists
-    (unless (file-directory-p dest-dir)
-      (make-directory dest-dir t))
-
-    ;; Copy selected files to remote destination
-    (if selected-files
-        (progn
-          (message "Copying %d selected files to remote..." (length selected-files))
-          (dolist (file selected-files)
-            (let ((dest-file (expand-file-name (file-name-nondirectory file) dest-dir)))
-              (condition-case err
-                  (progn
-                    (copy-file file dest-file t)
-                    (setq total-copied (1+ total-copied))
-                    (message "Copied to remote: %s" (file-name-nondirectory file)))
-                (error
-                 (message "Failed to copy %s: %s" file (error-message-string err))))))
-          (message "Successfully copied %d/%d RPM files to %s"
-                  total-copied (length selected-files) dest-dir))
-      (message "No files selected for copying."))))
-
-(defun qq/remote-copy-rpm-batch (prefix local-dirs remote-destination-dir)
-  "Batch copy all RPM files with PREFIX from LOCAL-DIRS to REMOTE-DESTINATION-DIR.
-   Non-interactive version for scripting."
-  (let ((total-found 0)
-        (total-copied 0))
-
-    ;; Ensure remote destination directory exists
-    (unless (file-directory-p remote-destination-dir)
-      (make-directory remote-destination-dir t))
-
-    ;; Process each local directory
-    (dolist (local-dir local-dirs)
-      (when (file-directory-p local-dir)
-        (message "Processing %s..." local-dir)
-        (let ((files (directory-files local-dir t
-                                     (concat "^" (regexp-quote prefix) ".*\\.rpm$"))))
-          (setq total-found (+ total-found (length files)))
-          (dolist (file files)
-            (let ((dest-file (expand-file-name (file-name-nondirectory file) remote-destination-dir)))
-              (condition-case err
-                  (progn
-                    (copy-file file dest-file t)
-                    (setq total-copied (1+ total-copied))
-                    (message "Copied to remote: %s" (file-name-nondirectory file)))
-                (error
-                 (message "Failed to copy %s: %s" file (error-message-string err)))))))))
-
-    (message "Batch copy complete: %d/%d RPM files copied to %s"
-            total-copied total-found remote-destination-dir)
-    (list total-found total-copied)))
-#+END_SRC
-
-#+RESULTS: remote-rpm-copy-config
-: qq/remote-copy-rpm-batch
-
-** Theme Configuration
-*** Theme Loading Protection
-Disable existing themes before loading new ones. → [[*Theme Loading Protection Code][Generated Code]]
-#+NAME: theme-loading-protection
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Disable any existing themes before loading new ones
-(advice-add 'load-theme :before
-            (lambda (&rest _)
-              (mapc #'disable-theme custom-enabled-themes)))
-#+END_SRC
-
-*** Theme Path Setup
-Configure theme directories and copy quickbeans theme. → [[*Theme Path Setup Code][Generated Code]]
-#+NAME: theme-path-setup
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Add custom theme directory to load path
-(add-to-list 'custom-theme-load-path (concat qq/cache-directory "themes/"))
-
-;; Create themes directory if it doesn't exist
-(unless (file-directory-p (concat qq/cache-directory "themes/"))
-  (make-directory (concat qq/cache-directory "themes/") t))
-
-;; Copy quickbeans theme to cache directory if it doesn't exist
-(let ((source-theme (expand-file-name "quickbeans-theme.el" (file-name-directory load-file-name)))
-      (dest-theme (concat qq/cache-directory "themes/quickbeans-theme.el")))
-  (when (and (file-exists-p source-theme)
-             (not (file-exists-p dest-theme)))
-    (copy-file source-theme dest-theme)))
-#+END_SRC
-
-*** Load Quickbeans Theme
-Activate the quickbeans theme. → [[*Load Quickbeans Theme Code][Generated Code]]
-#+NAME: load-quickbeans-theme
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Load the quickbeans theme
-(load-theme 'quickbeans t)
-#+END_SRC
-
-*** Theme Customizations
-Custom face settings and final success message. → [[*Theme Customizations Code][Generated Code]]
-#+NAME: theme-customizations
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; which-func face customization
-(custom-set-faces
- '(which-func ((t (:foreground "#87d7af")))))
-
-;; Success message
-(message "Modern Emacs configuration loaded successfully!")
-#+END_SRC
-
 * Generated Code
 This section contains the actual use-package declarations that generate the final configuration.
 
@@ -5173,11 +5179,11 @@ Qt project file (.pro and .pri) editing support with syntax highlighting. → [[
 <<gen-pkg-end()>>
 #+END_SRC
 
-*** Bitbake Modes Package
-Yocto/OpenEmbedded BitBake recipe editing with support for .bb, .bbappend, .bbclass files. → [[*Bitbake Modes][Configuration]]
+*** Bitbake TS Mode Package
+Tree-sitter powered Yocto/OpenEmbedded BitBake recipe editing with syntax highlighting and navigation. → [[*Bitbake TS Mode][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="bitbake-modes")>>
-<<bitbake-modes-config>>
+<<gen-use-pkg(package="bitbake-ts-mode", straight="(:host github :repo \"seokbeomKim/bitbake-ts-mode\")")>>
+<<bitbake-ts-mode-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
