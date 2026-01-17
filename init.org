@@ -109,6 +109,15 @@ The configuration auto-retangles on save with notifications.
 - **[[*Casual Suite][casual-suite]]**: Discoverable transient interfaces for common Emacs tools
 
 **** File Management & Dired
+- **[[*Core Dired Settings][dired]]**: Core dired with improved defaults (dwim-target, recursive ops)
+- **[[*Dired Aux][dired-aux]]**: Auxiliary dired functions with unrar support
+- **[[*WDired][wdired]]**: Writable dired for batch renaming and permission editing
+- **[[*Dired X][dired-x]]**: Dired extensions with dired-jump and shell associations
+- **[[*Dired Du][dired-du]]**: Display recursive directory sizes
+- **[[*Async Package][async]]**: Async file operations for non-blocking copy/delete (part of async package)
+- **[[*Dired Open][dired-open]]**: Open files with external programs (xdg-open)
+- **[[*Dired Ranger][dired-ranger]]**: Ranger-style copy/paste/move between buffers
+- **[[*Dired Hacks Utils][dired-hacks-utils]]**: Formatted information line and utilities
 - **[[*Dired Plus][dired+]]**: Enhanced dired with additional features
 - **[[*Dired Sidebar][dired-sidebar]]**: IDE-like file tree sidebar with nerd-icons
 - **[[*Dired Hacks][dired-hacks]]**: Collection including subtree, filter, collapse
@@ -1558,7 +1567,7 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | q             | quit-window                        | Quit dired                   |
 | nn            | dired-narrow                       | Narrow by pattern            |
 | nx            | dired-narrow-regexp                | Narrow by regex              |
-| j             | diredp-next-line                   | Jump next line               |
+| j             | dired-next-line                    | Jump next line               |
 | k             | dired-previous-line                | Jump previous line           |
 | [mouse-2]     | dired-mouse-find-file-other-window | Open file other-window       |
 | [follow-link] | mouse-face                         | Follow link                  |
@@ -1585,6 +1594,7 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | !             | dired-do-shell-command             | Shell on file                |
 | &             | dired-do-async-shell-command       | Async shell command          |
 | =             | dired-diff                         | Compare files                |
+| e             | qq/dired-ediff-files               | Ediff marked files           |
 | M-C-?         | dired-unmark-all-files             | Unmark all files             |
 | M-C-n         | dired-next-subdir                  | Jump next subdirectory       |
 | M-C-p         | dired-prev-subdir                  | Jump previous subdirectory   |
@@ -1635,15 +1645,17 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | u             | dired-unmark                       | Unmark file                  |
 | W             | browse-url-of-dired-file           | Browse file URL              |
 | x             | dired-do-flagged-delete            | Delete flagged files         |
+| o             | dired-open-file                    | Open file (dired-open)       |
 | f             | dired-show-file-type               | Show file type               |
 | Y             | dired-copy-filename-as-kill        | Copy filename                |
 | +             | dired-create-directory             | Create directory             |
 | <return>      | dired-find-file                    | Open file                    |
 | S-<return>    | dired-find-file-other-window       | Open file other-window       |
+| C-<return>    | dired-open-xdg                     | Open with system default     |
 | M-<return>    | dired-display-file                 | Display file                 |
 | gO            | dired-find-file-other-window       | Open file other-window       |
 | go            | dired-view-file                    | View file                    |
-| o             | dired-sort-toggle-or-edit          | Toggle sort order            |
+| gs            | dired-sort-toggle-or-edit          | Toggle sort order            |
 | gj            | dired-next-dirline                 | Next directory line          |
 | gk            | dired-prev-dirline                 | Previous directory line      |
 | [[            | dired-tree-up                      | Tree up directory            |
@@ -1671,6 +1683,11 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | C-t a         | image-dired-display-thumbs-append  | Append image thumbnails      |
 | C-t .         | image-dired-display-thumb          | Display single thumbnail     |
 | C-t c         | image-dired-dired-comment-files    | Comment image files          |
+| '             | dired-ranger-bookmark              | Ranger bookmark              |
+| \`            | dired-ranger-bookmark-visit        | Visit ranger bookmark        |
+| c c           | dired-ranger-copy                  | Ranger copy                  |
+| c p           | dired-ranger-paste                 | Ranger paste                 |
+| c m           | dired-ranger-move                  | Ranger move                  |
 
 *** Diff HL Key Bindings
 Diff highlighting keybindings for version control visualization. → [[*Diff HL Package][Generated Code]]
@@ -1875,7 +1892,7 @@ Provides evil keybindings for org-mode with additional org-specific functionalit
 
 ;; Configure evil-org keybindings
 (with-eval-after-load 'evil-org
-  (evil-org-set-key-theme '(navigation insert textobjects additional calendar)))
+  (evil-org-set-key-theme '(insert textobjects additional calendar)))
 
 ;; Enable evil-org-mode for org-mode buffers
 :hook (org-mode . evil-org-mode)
@@ -3042,6 +3059,149 @@ Colors different file types in dired buffers. → [[*Dired Rainbow Package][Gene
 (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
 (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
 (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
+#+END_SRC
+
+**** Core Dired Settings
+Base dired configuration with improved defaults. → [[*Dired Core Package][Generated Code]]
+
+***** Dired Core Configuration Block
+#+NAME: dired-core-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Smart target for copy/move between split dired buffers
+(setq dired-dwim-target t)
+
+;; Always recursive delete/copy
+(setq dired-recursive-deletes 'always)
+(setq dired-recursive-copies 'always)
+
+;; Drag and drop support (Emacs 29+)
+(setq dired-mouse-drag-files t)
+
+;; Smart file name searching
+(setq dired-isearch-filenames 'dwim)
+
+;; Reuse buffer when opening directories
+(setq dired-kill-when-opening-new-dired-buffer t)
+
+;; Better listing: human readable, directories first
+(setq dired-listing-switches "-AGhlv --group-directories-first --time-style=long-iso")
+
+;; Enable 'a' to reuse current buffer
+(put 'dired-find-alternate-file 'disabled nil)
+
+;; Easily diff 2 marked files in dired
+(defun qq/dired-ediff-files ()
+  "Compare two marked files with ediff."
+  (interactive)
+  (let ((files (dired-get-marked-files))
+        (wnd (current-window-configuration)))
+    (if (<= (length files) 2)
+        (let ((file1 (car files))
+              (file2 (if (cdr files)
+                         (cadr files)
+                       (read-file-name
+                        "file: "
+                        (dired-dwim-target-directory)))))
+          (if (file-newer-than-file-p file1 file2)
+              (ediff-files file2 file1)
+            (ediff-files file1 file2))
+          (add-hook 'ediff-after-quit-hook-internal
+                    (lambda ()
+                      (setq ediff-after-quit-hook-internal nil)
+                      (set-window-configuration wnd))))
+      (error "No more than 2 files should be marked"))))
+#+END_SRC
+
+**** Dired Aux
+Adds unrar support and other auxiliary functions. → [[*Dired Aux Package][Generated Code]]
+
+***** Dired Aux Configuration Block
+#+NAME: dired-aux-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Add unrar support to dired-compress
+(add-to-list 'dired-compress-file-suffixes '("\\.rar\\'" "" "unrar x %i"))
+#+END_SRC
+
+**** WDired
+Writable dired mode for batch renaming and permission editing. → [[*WDired Package][Generated Code]]
+
+***** WDired Configuration Block
+#+NAME: wdired-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Make permission bits editable in wdired
+(setq wdired-allow-to-change-permissions t)
+#+END_SRC
+
+**** Dired X
+Dired extensions with dired-jump and shell program associations. → [[*Dired X Package][Generated Code]]
+
+***** Dired X Configuration Block
+#+NAME: dired-x-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Don't bind I and N keys
+(setq dired-bind-info nil)
+(setq dired-bind-man nil)
+
+;; Define media file extensions for shell association
+(defconst qq/dired-media-files-extensions
+  '("mp3" "mp4" "MP3" "MP4" "avi" "mpg" "flv" "ogg" "mkv" "webm")
+  "Media file extensions for dired.")
+
+;; Open media files with mpv
+(add-to-list 'dired-guess-shell-alist-user
+             (list (concat "\\."
+                           (regexp-opt qq/dired-media-files-extensions)
+                           "\\'")
+                   "mpv"))
+#+END_SRC
+
+**** Dired Du
+Display recursive directory sizes in dired. → [[*Dired Du Package][Generated Code]]
+
+***** Dired Du Configuration Block
+#+NAME: dired-du-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Human readable size format
+(setq dired-du-size-format t)
+#+END_SRC
+
+**** Dired Async
+Async file operations for non-blocking copy/delete. → [[*Async Package][Generated Code]]
+
+***** Dired Async Configuration Block
+#+NAME: dired-async-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable async mode for dired operations
+(dired-async-mode 1)
+#+END_SRC
+
+**** Dired Open
+Open files with external programs based on extension. → [[*Dired Open Package][Generated Code]]
+
+***** Dired Open Configuration Block
+#+NAME: dired-open-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure how files are opened
+(setq dired-open-functions '(dired-open-by-extension dired-open-guess-shell-alist dired-open-subdir))
+#+END_SRC
+
+**** Dired Ranger
+Ranger-style copy/paste/move between dired buffers. → [[*Dired Ranger Package][Generated Code]]
+
+***** Dired Ranger Configuration Block
+#+NAME: dired-ranger-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Ranger keybindings are set in evil-dired-keys table
+#+END_SRC
+
+**** Dired Hacks Utils
+Utility functions for dired with formatted information line. → [[*Dired Hacks Utils Package][Generated Code]]
+
+***** Dired Hacks Utils Configuration Block
+#+NAME: dired-hacks-utils-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable formatted information line
+(add-hook 'dired-mode-hook #'dired-utils-format-information-line-mode)
 #+END_SRC
 
 **** Dired Plus
@@ -4377,6 +4537,8 @@ Provides smooth scrolling functionality for org-mode, enhancing navigation exper
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Configure org-phscroll for smooth scrolling
 (setq org-phscroll-enable t)
+;; Unbind C-l to allow windmove-right binding
+(define-key phscroll-keymap (kbd "C-l") nil)
 #+END_SRC
 
 *** Org Popup Posframe
@@ -5497,6 +5659,90 @@ Project management and navigation with intelligent project detection. → [[*Pro
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="projectile")>>
 <<projectile-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+** File Management Packages
+*** Dired Core Package
+Core dired configuration with improved defaults. → [[*Core Dired Settings][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+(use-package dired
+:straight (:type built-in)
+:config
+  <<dired-core-config>>
+:general
+(:states 'normal
+         :keymaps 'dired-mode-map
+         <<gen-keys(mode="local-mode", tname=evil-dired-keys)>>)
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Aux Package
+Adds unrar support and other auxiliary functions. → [[*Dired Aux][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+(use-package dired-aux
+  :straight (:type built-in)
+  :after dired
+  :config
+  <<dired-aux-config>>)
+#+END_SRC
+
+*** WDired Package
+Writable dired mode for batch renaming and permission editing. → [[*WDired][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+(use-package wdired
+  :straight (:type built-in)
+  :after dired
+  :config
+  <<wdired-config>>)
+#+END_SRC
+
+*** Dired X Package
+Dired extensions with dired-jump and shell program associations. → [[*Dired X][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+(use-package dired-x
+  :straight (:type built-in)
+  :bind ("C-x C-j" . dired-jump)
+  :config
+  <<dired-x-config>>)
+#+END_SRC
+
+*** Async Package
+Async library for non-blocking operations including dired-async. → [[*Dired Async][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="async")>>
+<<dired-async-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Du Package
+Display recursive directory sizes in dired. → [[*Dired Du][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-du", after="dired")>>
+<<dired-du-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Open Package
+Open files with external programs based on extension. → [[*Dired Open][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-open", after="dired")>>
+<<dired-open-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Ranger Package
+Ranger-style copy/paste/move between dired buffers. → [[*Dired Ranger][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-ranger", after="dired")>>
+<<dired-ranger-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Hacks Utils Package
+Utility functions for dired with formatted information line. → [[*Dired Hacks Utils][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-hacks-utils", hook="(dired-mode . dired-utils-format-information-line-mode)")>>
 <<gen-pkg-end()>>
 #+END_SRC
 
