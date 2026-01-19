@@ -120,7 +120,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*Dired Hacks Utils][dired-hacks-utils]]**: Formatted information line and utilities
 - **[[*Dired Plus][dired+]]**: Enhanced dired with additional features
 - **[[*Dired Sidebar][dired-sidebar]]**: IDE-like file tree sidebar with nerd-icons
-- **[[*Dired Hacks][dired-hacks]]**: Collection including subtree, filter, collapse
+- **[[*Dired Subtree][dired-subtree]]**: Tree-like navigation with inline subtree expansion
 - **[[*Dired Git Info][dired-git-info]]**: Git status information in dired buffers
 - **[[*Dired Narrow][dired-narrow]]**: Live filtering of dired buffers
 - **[[*Dired Rainbow][dired-rainbow]]**: Color-coded file types
@@ -219,7 +219,7 @@ The configuration auto-retangles on save with notifications.
 
 * Bootstrap
 ** Early Init
-#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/early-init.el :noweb yes
 ;; -*- lexical-binding: t -*-
 
 ;; Increase garbage collection threshold for faster startup
@@ -234,6 +234,9 @@ The configuration auto-retangles on save with notifications.
 
 ;; Disable native compilation warnings
 (setq native-comp-async-report-warnings-errors nil)
+
+;; Suppress byte-compile warnings for missing lexical-binding in third-party packages
+(setq byte-compile-warnings '(cl-functions not obsolete))
 
 ;; Set native compilation optimization level (-O2)
 (setq native-comp-speed 2)
@@ -250,6 +253,10 @@ The configuration auto-retangles on save with notifications.
 (when (boundp 'native-comp-enable-subr-trampolines)
   (setq native-comp-enable-subr-trampolines
         (expand-file-name ".cache/trampolines/" user-emacs-directory)))
+
+;; macOS-specific settings
+(when (eq system-type 'darwin)
+  <<mac-early-init>>)
 #+END_SRC
 
 ** Main Init Header
@@ -489,6 +496,26 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 ;; Apply modeline font height
 (set-face-attribute 'mode-line nil :height qq/modeline-font-height)
 (set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
+(setq insert-directory-program "/opt/homebrew/bin/gls")
+
+;; (defun qq/dired-macos-switches ()
+;;   "Force specific switches for macOS Dired."
+;;   (setq-local dired-actual-switches "-agho --group-directories-first --dired")
+;;   (setq-local dired-listing-switches "-agho --group-directories-first --dired"))
+
+;; (add-hook 'dired-mode-hook #'qq/dired-macos-switches)
+#+END_SRC
+
+*** macOS Early Init
+#+NAME: mac-early-init
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Homebrew GCC paths for native compilation
+(let ((brew-gcc-path "/opt/homebrew/lib/gcc/current"))
+  (setenv "LIBRARY_PATH"
+          (concat brew-gcc-path ":" (getenv "LIBRARY_PATH")))
+  (setenv "PATH"
+          (concat "/opt/homebrew/bin:" (getenv "PATH")))
+  (setq exec-path (append '("/opt/homebrew/bin") exec-path)))
 #+END_SRC
 
 *** Arch Linux / Manjaro (archlinux, z390-manjaro)
@@ -2975,92 +3002,6 @@ Shell Here provides convenient functions to open shell in current directory. →
 *** File Management and Dired
 Enhanced file management tools and dired improvements for better file operations.
 
-**** Dired Sidebar
-Dired Sidebar provides a file tree sidebar similar to modern IDEs. → [[*Dired Sidebar Package][Generated Code]]
-
-***** Dired Sidebar Configuration Block
-#+NAME: dired-sidebar-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure dired-sidebar
-(setq dired-sidebar-theme 'nerd-icons)
-(setq dired-sidebar-use-term-integration t)
-(setq dired-sidebar-use-custom-font t)
-
-;; Evil integration
-(add-to-list 'evil-emacs-state-modes 'dired-sidebar-mode)
-#+END_SRC
-
-**** Dired Hacks
-Collection of useful dired extensions including dired-subtree, dired-filter, and dired-collapse. → [[*Dired Hacks Package][Generated Code]]
-
-***** Dired Hacks Configuration Block
-#+NAME: dired-hacks-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Enable dired-subtree for tree-like navigation
-(with-eval-after-load 'dired-subtree
-  (setq dired-subtree-use-backgrounds nil))
-
-;; Enable dired-filter for filtering files
-(with-eval-after-load 'dired-filter
-  (define-key dired-mode-map (kbd "/") dired-filter-map))
-
-;; Enable dired-collapse for collapsing unique subdirectories
-(add-hook 'dired-mode-hook #'dired-collapse-mode)
-#+END_SRC
-
-**** Dired Git Info
-Shows git status information in dired buffers. → [[*Dired Git Info Package][Generated Code]]
-
-***** Dired Git Info Configuration Block
-#+NAME: dired-git-info-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure dired-git-info
-(setq dgi-commit-message-format "%h %cs %s")
-(setq dgi-auto-hide-details-p nil)
-
-;; Enable for git repositories
-(add-hook 'dired-after-readin-hook 'dired-git-info-auto-enable)
-#+END_SRC
-
-**** Dired Narrow
-Provides live filtering of dired buffers. → [[*Dired Narrow Package][Generated Code]]
-
-***** Dired Narrow Configuration Block
-#+NAME: dired-narrow-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure dired-narrow
-;; Use / to start filtering in dired
-#+END_SRC
-
-**** Dired Rainbow
-Colors different file types in dired buffers. → [[*Dired Rainbow Package][Generated Code]]
-
-***** Dired Rainbow Configuration Block
-#+NAME: dired-rainbow-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure dired-rainbow for file type colors
-(dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
-(dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
-(dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
-(dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
-(dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
-(dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
-(dired-rainbow-define media "#de751f" ("mp3" "mp4" "mkv" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
-(dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
-(dired-rainbow-define log "#c17d11" ("log"))
-(dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
-(dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
-(dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
-(dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
-(dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
-(dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
-(dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
-(dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
-(dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
-(dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
-(dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
-#+END_SRC
-
 **** Core Dired Settings
 Base dired configuration with improved defaults. → [[*Dired Core Package][Generated Code]]
 
@@ -3110,6 +3051,92 @@ Base dired configuration with improved defaults. → [[*Dired Core Package][Gene
                       (setq ediff-after-quit-hook-internal nil)
                       (set-window-configuration wnd))))
       (error "No more than 2 files should be marked"))))
+#+END_SRC
+
+**** Dired Sidebar
+IDE-like file tree sidebar with nerd-icons. → [[*Dired Sidebar Package][Generated Code]]
+
+***** Dired Sidebar Configuration Block
+#+NAME: dired-sidebar-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure dired-sidebar
+(setq dired-sidebar-theme 'nerd-icons)
+(setq dired-sidebar-use-term-integration t)
+(setq dired-sidebar-use-custom-font t)
+
+;; Evil integration
+(add-to-list 'evil-emacs-state-modes 'dired-sidebar-mode)
+#+END_SRC
+
+**** Dired Subtree
+Tree-like navigation in dired with inline subtree expansion. → [[*Dired Subtree Package][Generated Code]]
+
+***** Dired Subtree Configuration Block
+#+NAME: dired-hacks-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable dired-subtree for tree-like navigation
+(with-eval-after-load 'dired-subtree
+  (setq dired-subtree-use-backgrounds nil))
+
+;; Enable dired-filter for filtering files
+(with-eval-after-load 'dired-filter
+  (define-key dired-mode-map (kbd "/") dired-filter-map))
+
+;; Enable dired-collapse for collapsing unique subdirectories
+;; (add-hook 'dired-mode-hook #'dired-collapse-mode)
+#+END_SRC
+
+**** Dired Git Info
+Shows git status information in dired buffers. → [[*Dired Git Info Package][Generated Code]]
+
+***** Dired Git Info Configuration Block
+#+NAME: dired-git-info-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure dired-git-info
+(setq dgi-commit-message-format "%h %cs %s")
+(setq dgi-auto-hide-details-p nil)
+
+;; Enable for git repositories
+(add-hook 'dired-after-readin-hook 'dired-git-info-auto-enable)
+#+END_SRC
+
+**** Dired Narrow
+Live filtering of dired buffers. → [[*Dired Narrow Package][Generated Code]]
+
+***** Dired Narrow Configuration Block
+#+NAME: dired-narrow-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure dired-narrow
+;; Use / to start filtering in dired
+#+END_SRC
+
+**** Dired Rainbow
+Color-coded file types in dired. → [[*Dired Rainbow Package][Generated Code]]
+
+***** Dired Rainbow Configuration Block
+#+NAME: dired-rainbow-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure dired-rainbow for file type colors
+(dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+(dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+(dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+(dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+(dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+(dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+(dired-rainbow-define media "#de751f" ("mp3" "mp4" "mkv" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+(dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+(dired-rainbow-define log "#c17d11" ("log"))
+(dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+(dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+(dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+(dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+(dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+(dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+(dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+(dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+(dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+(dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+(dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
 #+END_SRC
 
 **** Dired Aux
@@ -3216,7 +3243,7 @@ Enhanced dired with additional features and keybindings. → [[*Dired Plus Packa
 ;; Unbind SPC in dired-mode to avoid conflict with leader key
 (with-eval-after-load 'dired+
   (define-key dired-mode-map (kbd "SPC") nil)
-  (define-key diredp-mode-map (kbd "SPC") nil))
+  (define-key dired-mode-map (kbd "SPC") nil))
 #+END_SRC
 
 **** Ace Window
@@ -3459,23 +3486,21 @@ An excellent collection of commands based on completing-read. → [[*Consult Pac
  consult-theme :preview-key '(:debounce 0.2 any)
  consult-ripgrep consult-git-grep consult-grep
  consult-bookmark consult-recent-file consult-xref
- consult--source-bookmark consult--source-file-register
- consult--source-recent-file consult--source-project-recent-file
  ;; :preview-key "M-."
  :preview-key '(:debounce 0.4 any))
 
-;; Configure consult-buffer sources to include recentf
 (setq consult-buffer-sources
-      '(consult--source-buffer
-        consult--source-recent-file
-        consult--source-bookmark
-        consult--source-project-buffer-hidden
-        consult--source-project-recent-file-hidden))
+      '(consult-source-buffer
+        consult-source-recent-file
+        consult-source-bookmark
+        consult-source-project-buffer
+        consult-source-project-recent-file))
 
-;; Enable automatic preview at point in the *Completions* buffer. This is
-;; relevant when you use the default completion UI.
-:hook (completion-list-mode . consult-preview-at-point-mode)
-
+:custom
+;; 'any means preview immediately (default)
+;; "M-." means manual preview
+;; (list :debounce 0.5 'any) means delayed automatic preview
+(setq consult-preview-key 'any)
 ;; The :init configuration is always executed (Not lazy)
 :init
 
@@ -3790,8 +3815,23 @@ Popup window management for temporary buffers with one-key access, providing int
         help-mode
         helpful-mode))
 
-;; Define popper groups with custom display functions
-(setq popper-group-function #'popper-group-by-project)
+;; Cached project detection for popper grouping
+(defvar qq/popper-project-cache (make-hash-table :test 'eq :weakness 'key)
+  "Cache mapping buffers to their project roots.")
+
+(defun qq/popper-group-by-project-cached (&optional buffer)
+  "Group BUFFER by project with caching to avoid repeated project detection.
+BUFFER defaults to current buffer if not provided."
+  (let ((buf (or buffer (current-buffer))))
+    (or (gethash buf qq/popper-project-cache)
+        (let ((project-root (with-current-buffer buf
+                              (when-let ((proj (project-current nil)))
+                                (project-root proj)))))
+          (puthash buf (or project-root 'none) qq/popper-project-cache)
+          project-root))))
+
+;; Define popper groups with cached project detection
+(setq popper-group-function #'qq/popper-group-by-project-cached)
 
 ;; Custom display control for different categories
 (setq popper-display-control t)
@@ -4292,28 +4332,30 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 
 #+NAME: org-babel-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure org-babel for code execution (after packages are loaded)
+;; Configure org-babel for code execution
+;; Only load emacs-lisp at startup, other languages load on demand
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((emacs-lisp . t)
-   (shell . t)
-   (python . t)
-   (js . t)
-   (plantuml . t)
-   (sql . t)
-   (org . t)
-   (dot . t)
-   (rust . t)
-   (typescript . t)
-   (http . t)
-   (restclient . t)
-   (java . t)
-   (C . t)
-   (perl . t)
-   (ruby . t)
-   (clojure . t)
-   (lua . t)
-   (haskell . t)))
+ '((emacs-lisp . t)))
+
+;; Full list of languages to load on demand
+(defvar qq/babel-languages
+  '(shell python js plantuml sql org dot rust typescript
+    http restclient java C perl ruby clojure lua haskell)
+  "Babel languages to load on demand.")
+
+;; Lazy-load babel languages when first needed
+(defun qq/load-babel-languages-on-demand (&rest _)
+  "Load all babel languages. Called on first code block execution."
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   (append '((emacs-lisp . t))
+           (mapcar (lambda (lang) (cons lang t)) qq/babel-languages)))
+  ;; Remove this advice after first run
+  (advice-remove 'org-babel-execute-src-block #'qq/load-babel-languages-on-demand))
+
+;; Advise org-babel-execute-src-block to load languages on first use
+(advice-add 'org-babel-execute-src-block :before #'qq/load-babel-languages-on-demand)
 
 ;; Configure PlantUML for org-babel
 (setq org-plantuml-jar-path (concat qq/cache-directory "extern/org/plantuml.jar"))
@@ -4403,13 +4445,26 @@ A powerful note-taking system that implements the Zettelkasten method within org
 (require 'org-roam-dailies)
 
 ;; Initialize org-roam with error handling
+;; Defer db sync to first use for faster startup
 (condition-case err
-    (progn
-      (org-roam-db-autosync-mode)
-      (org-roam-setup))
+    (org-roam-setup)
   (error
    (message "Org-roam initialization failed: %s" err)
    (message "Try deleting %s and restart Emacs" org-roam-db-location)))
+
+;; Enable autosync mode on first org-roam command instead of at startup
+(defun qq/org-roam-enable-autosync ()
+  "Enable org-roam-db-autosync-mode on first use."
+  (unless org-roam-db-autosync-mode
+    (org-roam-db-autosync-mode 1))
+  ;; Remove hooks after first activation
+  (remove-hook 'org-roam-find-file-hook #'qq/org-roam-enable-autosync)
+  (advice-remove 'org-roam-node-find #'qq/org-roam-enable-autosync)
+  (advice-remove 'org-roam-node-insert #'qq/org-roam-enable-autosync))
+
+(add-hook 'org-roam-find-file-hook #'qq/org-roam-enable-autosync)
+(advice-add 'org-roam-node-find :before #'qq/org-roam-enable-autosync)
+(advice-add 'org-roam-node-insert :before #'qq/org-roam-enable-autosync)
 
 ;; Fast note insertion for smoother writing flow
 (defun org-roam-node-insert-immediate (arg &rest args)
@@ -4741,8 +4796,10 @@ Workspace management that groups buffers and windows by project/task context. �
 (setq persp-auto-save-fname (concat qq/persp-save-dir "perspective-auto-save"))
 (setq persp-save-dir qq/persp-save-dir)
 (setq persp-auto-save-opt 2) ; Save on quit
-(persp-mode)
 (setq persp-show-modestring t)
+
+;; Defer persp-mode activation to after startup for faster init
+(add-hook 'emacs-startup-hook #'persp-mode)
 
 ;; Create save folder if it doesn't exist
 (unless (file-exists-p qq/persp-save-dir)
@@ -5743,6 +5800,54 @@ Ranger-style copy/paste/move between dired buffers. → [[*Dired Ranger][Configu
 Utility functions for dired with formatted information line. → [[*Dired Hacks Utils][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="dired-hacks-utils", hook="(dired-mode . dired-utils-format-information-line-mode)")>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Plus Package
+Enhanced dired with additional features. → [[*Dired Plus][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired+", after="dired")>>
+<<dired-plus-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Sidebar Package
+IDE-like file tree sidebar with nerd-icons. → [[*Dired Sidebar][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-sidebar", after="dired")>>
+<<dired-sidebar-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Subtree Package
+Tree-like navigation in dired with inline subtree expansion. → [[*Dired Subtree][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-subtree", after="dired")>>
+<<dired-hacks-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Git Info Package
+Shows git status information in dired buffers. → [[*Dired Git Info][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-git-info", after="dired")>>
+<<dired-git-info-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Narrow Package
+Live filtering of dired buffers. → [[*Dired Narrow][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-narrow", after="dired")>>
+<<dired-narrow-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Dired Rainbow Package
+Color-coded file types in dired. → [[*Dired Rainbow][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="dired-rainbow", after="dired")>>
+<<dired-rainbow-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
