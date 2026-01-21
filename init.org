@@ -1653,8 +1653,8 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | *!            | dired-unmark-all-marks             | Unmark all marks             |
 | U             | dired-unmark-all-marks             | Unmark all marks             |
 | * <delete>    | dired-unmark-backward              | Unmark backward              |
-| * C-n         | dired-next-marked-file             | Next marked file             |
-| * C-p         | dired-prev-marked-file             | Previous marked file         |
+| *j            | dired-next-marked-file             | Next marked file             |
+| *k            | dired-prev-marked-file             | Previous marked file         |
 | *t            | dired-toggle-marks                 | Toggle marks                 |
 | a             | dired-find-alternate-file          | Find alternate file          |
 | d             | dired-flag-file-deletion           | Flag file deletion           |
@@ -1677,14 +1677,13 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | Y             | dired-copy-filename-as-kill        | Copy filename                |
 | +             | dired-create-directory             | Create directory             |
 | <return>      | dired-find-file                    | Open file                    |
-| S-<return>    | dired-find-file-other-window       | Open file other-window       |
+| S-<return>    | dired-view-file                    | View file                    |
+| C-S-<return>  | dired-find-file-other-window       | Open file other-window       |
 | C-<return>    | dired-open-xdg                     | Open with system default     |
 | M-<return>    | dired-display-file                 | Display file                 |
 | gO            | dired-find-file-other-window       | Open file other-window       |
-| go            | dired-view-file                    | View file                    |
+| go            | dired-omit-mode                    | Toggle omit mode             |
 | gs            | dired-sort-toggle-or-edit          | Toggle sort order            |
-| gj            | dired-next-dirline                 | Next directory line          |
-| gk            | dired-prev-dirline                 | Previous directory line      |
 | [[            | dired-tree-up                      | Tree up directory            |
 | ]]            | dired-next-dirline                 | Next directory line          |
 | <             | dired-prev-dirline                 | Previous directory line      |
@@ -1693,7 +1692,7 @@ Comprehensive dired keybindings for evil normal and visual modes. → [[*Dired P
 | gh            | dired-hide-subdir                  | Hide subdirectory            |
 | M-$           | dired-hide-all                     | Hide all subdirectories      |
 | (             | dired-hide-details-mode            | Hide details                 |
-| )             | dired-omit-mode                    | Toggle omit mode             |
+| )             | dired-git-info-mode                | Toggle git info mode         |
 | M-s a C-s     | dired-do-isearch                   | Incremental search files     |
 | M-s a M-C-s   | dired-do-isearch-regexp            | Regex search files           |
 | M-s f C-s     | dired-isearch-filenames            | Incremental search filenames |
@@ -2096,6 +2095,9 @@ Two-character search like vim-sneak. Use s{char}{char} to search forward, S{char
 **** Evil Snipe Configuration Block
 #+NAME: evil-snipe-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Disable evil-snipe in dired (so our s binding works)
+(setq evil-snipe-disabled-modes '(dired-mode))
+
 ;; Enable evil-snipe mode
 (evil-snipe-mode +1)
 (evil-snipe-override-mode +1)
@@ -3052,6 +3054,10 @@ Base dired configuration with improved defaults. → [[*Dired Core Package][Gene
                       (setq ediff-after-quit-hook-internal nil)
                       (set-window-configuration wnd))))
       (error "No more than 2 files should be marked"))))
+
+;; Remove redundant bindings for dired-hide-subdir (using gh instead)
+(define-key dired-mode-map (kbd "M-$") nil)
+(evil-define-key 'normal dired-mode-map "g$" nil)
 #+END_SRC
 
 **** Dired Sidebar
@@ -3169,7 +3175,11 @@ Dired extensions with dired-jump and shell program associations. → [[*Dired X 
 ;; Don't bind I and N keys
 (setq dired-bind-info nil)
 (setq dired-bind-man nil)
-
+(setq dired-omit-files
+      (concat dired-omit-files "\\|^\\..+$"))  ;; hide all dotfiles
+;; also hide compiled files:
+(setq dired-omit-extensions
+      '(".o" ".elc" ".pyc" ".class" ".git"))
 ;; Define media file extensions for shell association
 (defconst qq/dired-media-files-extensions
   '("mp3" "mp4" "MP3" "MP4" "avi" "mpg" "flv" "ogg" "mkv" "webm")
@@ -5823,7 +5833,7 @@ IDE-like file tree sidebar with nerd-icons. → [[*Dired Sidebar][Configuration]
 *** Dired Subtree Package
 Tree-like navigation in dired with inline subtree expansion. → [[*Dired Subtree][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="dired-subtree", after="dired")>>
+<<gen-use-pkg(package="dired-subtree", after="dired", demand="t")>>
 <<dired-hacks-config>>
 <<gen-pkg-end()>>
 #+END_SRC
