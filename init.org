@@ -1901,7 +1901,8 @@ Evil Collection provides evil-friendly bindings for many modes that don't have t
 ;; Enable evil collection for better evil integration
 (evil-collection-init)
 :init
-(setq evil-collection-magit-want-horizontal-movement t
+(setq evil-collection-mode-list (delq 'dired evil-collection-mode-list)
+      evil-collection-magit-want-horizontal-movement t
       evil-collection-unimpaired-want-repeat-mode-integration t)
 (add-hook 'org-agenda-mode-hook
           (lambda () (evil-collection-unimpaired-mode -1)))
