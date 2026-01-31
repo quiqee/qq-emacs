@@ -155,7 +155,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*Solaire Mode][solaire-mode]]**: Visual distinction between file-visiting and temporary buffers
 - **[[*Auto Dim Other Buffers][auto-dim-other-buffers]]**: Dim inactive buffers to focus on current work
 - **[[*Goggles][goggles]]**: Highlight changes and operations for better feedback
-- **[[*Highlight Indent Guides][highlight-indent-guides]]**: Visual indentation guides for better code readability and structure
+- **[[*Indent Bars][indent-bars]]**: Visual indentation guide-bars with tree-sitter support
 - **[[*Colorful Mode][colorful-mode]]**: Colorize color names and hex codes in buffers
 
 **** Themes & Appearance
@@ -163,6 +163,8 @@ The configuration auto-retangles on save with notifications.
 - **[[*Org Modern][org-modern]]**: Modern styling for org-mode documents
 - **[[*Org Modern Indent][org-modern-indent]]**: Visual indentation for org-mode
 - **[[*Fixed Pitch Mode][fixed-pitch-mode]]**: Forces fixed-width font for specific modes and contexts
+- **[[*Ligature][ligature]]**: Font ligature support for programming fonts
+- **[[*PragmataPro Ligatures][pragmatapro-ligatures]]**: PragmataPro-specific ligature definitions
 
 *** Org Mode & Note Taking
 **** Core Org Mode
@@ -195,7 +197,8 @@ The configuration auto-retangles on save with notifications.
 - **[[*Eat][eat]]**: Terminal emulator written in Emacs Lisp with eshell integration
 - **[[*Shell Here][shell-here]]**: Convenient functions to open shell in current directory
 - **[[*Docker][docker]]**: Docker interface for container management
-- **[[*Claude Code][claude-code]]**: Emacs interface for Claude Code CLI with terminal integration and error fixing
+- **[[*Agent Shell][agent-shell]]**: Native Emacs shell for LLM agents via Agent Client Protocol (ACP)
+- **[[*Agent Shell Sidebar][agent-shell-sidebar]]**: Sidebar interface for agent shell
 
 *** Additional Tools
 - **[[*Undo-Fu][undo-fu]]**: Simple, stable undo system for Evil mode with linear undo/redo behavior
@@ -449,6 +452,13 @@ The configuration auto-retangles on save with notifications.
 Multi-machine configuration based on hostname detection. → [[*System Detection and Paths Code][Generated Code]]
 #+NAME: system-detection-paths
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
+(let ((nvm-node-path (expand-file-name "~/.nvm/versions/node")))
+  (when (file-directory-p nvm-node-path)
+    (let* ((versions (directory-files nvm-node-path nil "^v" t))
+           (latest (car (last (sort versions 'string<))))
+           (bin-path (expand-file-name (concat latest "/bin") nvm-node-path)))
+      (setenv "PATH" (concat bin-path ":" (getenv "PATH")))
+      (add-to-list 'exec-path bin-path))))
 ;; Site-specific configuration based on system-name
 (defvar qq/current-system (system-name)
   "Current system hostname for site-specific configuration.")
@@ -1447,18 +1457,29 @@ Docker container management keybindings. → [[*General Package][Generated Code]
 | d n     | docker-networks        | Manage Docker networks         |
 | d v     | docker-volumes         | Manage Docker volumes          |
 
-*** Claude Code Leader Key Bindings
-Claude Code AI integration keybindings. → [[*General Package][Generated Code]]
-#+NAME: claude-code-keys
-| Key | Command                        | Description                     |
-|-----+--------------------------------+---------------------------------|
-| a a | claude-code-transient          | Open Claude transient menu      |
-| a c | claude-code                    | Start Claude Code               |
-| a s | claude-code-send               | Send command to Claude          |
-| a r | claude-code-send-region        | Send region to Claude           |
-| a . | claude-code-fix-error-at-point | Fix error at point with Claude  |
-| a t | claude-code-toggle             | Toggle Claude window visibility |
-| a / | claude-code-slash-commands     | Send slash command to Claude    |
+*** Agent Shell Leader Key Bindings
+Agent Shell AI integration keybindings. → [[*General Package][Generated Code]]
+#+NAME: agent-shell-keys
+| Key | Command                                 | Description                   |
+|-----+-----------------------------------------+-------------------------------|
+| a a | agent-shell                             | Start or reuse agent shell    |
+| a c | agent-shell-anthropic-start-claude-code | Start Claude Code agent       |
+| a n | agent-shell-new-shell                   | Start new agent shell         |
+| a p | agent-shell-prompt-compose              | Compose prompt with context   |
+| a t | agent-shell-toggle                      | Toggle agent shell visibility |
+| a z | agent-shell-interrupt                   | Interrupt current request     |
+| a b | agent-shell-send-region                 | Send region to agent shell    |
+| a v | agent-shell-send-screenshot             | Send screenshot to agent      |
+| a s | agent-shell-sidebar-toggle              | Toggle agent shell sidebar    |
+| a f | agent-shell-sidebar-toggle-focus        | Focus to agent shell sidebar  |
+
+*** Agent Shell Mode Keybindings
+Agent Shell evil normal mode keybindings. → [[*Agent Shell Package][Generated Code]]
+#+NAME: agent-shell-mode-keys
+| Key   | Command               | Description         |
+|-------+-----------------------+---------------------|
+| RET   | comint-send-input     | Send input to agent |
+| <tab> | agent-shell-next-item | Jump to next item   |
 
 *** Org Mode Leader Key Bindings
 Org-mode document and task management keybindings. → [[*General Package][Generated Code]]
@@ -4055,26 +4076,51 @@ Discoverable transient interfaces for common Emacs tools, providing an intuitive
 (general-def 'normal "g C-g" #'casual-editkit-main-tmenu)
 #+END_SRC
 
-** Claude Code
-Emacs interface for Claude Code CLI with terminal integration and error fixing capabilities. → [[*Claude Code Package][Generated Code]]
+** Agent Shell
+Native Emacs shell for LLM agents via ACP. → [[*Agent Shell Package][Generated Code]]
 
-*** Claude Code Configuration Block
-#+NAME: claude-code-custom
+*** Agent Shell Configuration Block
+#+NAME: agent-shell-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-#+END_SRC
+(setq agent-shell-anthropic-authentication
+      (agent-shell-anthropic-make-authentication :login t))
+(setq agent-shell-preferred-agent-config (agent-shell-anthropic-make-claude-code-config))
+;; Evil insert mode: RET inserts newline instead of sending
+(evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
 
-#+NAME: claude-code-config
+;; Configure *agent-shell-diff* buffers with j/k/y/q navigation
+(add-hook 'diff-mode-hook
+	      (lambda ()
+            (when (string-match-p "\\*agent-shell-diff\\*" (buffer-name))
+              (evil-local-set-key 'normal (kbd "j") #'diff-hunk-next)
+              (evil-local-set-key 'normal (kbd "k") #'diff-hunk-prev)
+              ;; Passthrough y/q from the agent-shell-diff local keymap
+              (let ((y-cmd (lookup-key (current-local-map) (kbd "y")))
+                    (q-cmd (lookup-key (current-local-map) (kbd "q"))))
+                (when y-cmd (evil-local-set-key 'normal (kbd "y") y-cmd))
+                (when q-cmd (evil-local-set-key 'normal (kbd "q") q-cmd)))
+              ;; Update header line to show j/k instead of n/p
+              (when (stringp header-line-format)
+                (setq header-line-format
+                      (replace-regexp-in-string
+                       "n\\( next hunk\\)" "j\\1"
+                       (replace-regexp-in-string
+                        "p\\( previous hunk\\)" "k\\1"
+                        header-line-format)))))))
+:ensure-system-package
+;; Add agent installation configs here
+((claude . "brew install claude-code")
+ (claude-code-acp . "npm install -g @zed-industries/claude-code-acp"))
+#+END_SRC
+*** Agent Shell Sidebar
+Sidebar for Agent Shell. → [[*Agent Shell Sidebar Package][Generated Code]]
+**** Agent Shell Configuration Block
+#+NAME: agent-shell-sidebar-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-  ;; (setq claude-code-terminal-backend 'vterm)
-
-  ;; Optional: Customize newline behavior
-  ;; (setq claude-code-newline-style 'shift-return-to-send)
-  (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
-  (monet-mode 1)
-
-  (claude-code-mode)
+(setq agent-shell-sidebar-width "30%")
+(setq agent-shell-sidebar-default-config
+      (agent-shell-anthropic-make-claude-code-config))
 #+END_SRC
-
 ** Corfu
 Completion Overlay Region Function - A small completion UI. → [[*Corfu Package][Generated Code]]
 *** Corfu Configuration Block
@@ -4944,16 +4990,52 @@ Forces fixed-width font for specific modes and contexts. → [[*Fixed Pitch Mode
 (fixed-pitch-dont-change-cursor t)
 #+END_SRC
 
-**** Highlight Indent Guides
-Visual indentation guides for better code readability and structure. → [[*Highlight Indent Guides Package][Generated Code]]
+**** Ligature
+Font ligature support for programming fonts. → [[*Ligature Package][Generated Code]]
 
-***** Highlight Indent Guides Configuration Block
-#+NAME: highlight-indent-guides-config
+***** Ligature Configuration Block
+#+NAME: ligature-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Configure highlight-indent-guides
-(add-hook 'prog-mode-hook #'highlight-indent-guides-mode)
-(custom-set-variables
- '(highlight-indent-guides-method 'character))
+;; Enable all PragmataPro ligatures in programming modes
+(ligature-set-ligatures 'prog-mode
+                        '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                          ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                          "!!." ">=>" ">->" ">==" ">>=" ">>-" ">-" "<~>" "<~~" "<=>"
+                          "<=<" "<==" "<Build" "<--" "<~" "<!" "<?" "<*" "<|" "<:"
+                          "<$" "<+" "<-" "<=" ">=" "!=" "<>" "++" "+++" "==" "!!"
+                          "--" "---" "&&" "||" "!!" ".." ".?" "::" ":=" "==" "!=="
+                          "!!" "??" "?." "?:" "/*" "*/" "/*" "*/" "//" "///"))
+
+;; Enable ligatures globally
+(global-ligature-mode t)
+#+END_SRC
+
+**** PragmataPro Ligatures
+PragmataPro-specific ligature definitions. → [[*PragmataPro Ligatures Package][Generated Code]]
+
+***** PragmataPro Ligatures Configuration Block
+#+NAME: pragmatapro-ligatures-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Setup PragmataPro ligatures
+(pragmatapro-ligatures-add-pragmatapro-ligatures)
+#+END_SRC
+
+**** Indent Bars
+Visual indentation guide-bars with tree-sitter support. → [[*Indent Bars Package][Generated Code]]
+
+***** Indent Bars Configuration Block
+#+NAME: indent-bars-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure indent-bars
+(add-hook 'prog-mode-hook #'indent-bars-mode)
+:custom
+(indent-bars-no-descend-lists 'skip) ; prevent extra bars in nested lists + skip intermediate bars
+(indent-bars-treesit-support t)
+(indent-bars-treesit-ignore-blank-lines-types '("module"))
+;; Add other languages as needed; check the wiki
+(indent-bars-treesit-scope '((python function_definition class_definition for_statement
+                                     if_statement with_statement while_statement)))
+(indent-bars-treesit-wrap '((c argument_list parameter_list init_declarator parenthesized_expression)))
 #+END_SRC
 
 **** Colorful Mode
@@ -5611,7 +5693,7 @@ Keybinding framework for consistent leader key management. → [[*General.el Con
   <<gen-keys(mode="leader", tname=restart-emacs-keys)>>
   <<gen-keys(mode="leader", tname=helpful-keys)>>
   <<gen-keys(mode="leader", tname=docker-keys)>>
-  <<gen-keys(mode="leader", tname=claude-code-keys)>>
+  <<gen-keys(mode="leader", tname=agent-shell-keys)>>
   <<gen-keys(mode="leader", tname=terminal-keys)>>
   <<gen-keys(mode="leader", tname=multi-vterm-keys)>>
   <<gen-keys(mode="leader", tname=file-management-keys)>>
@@ -5978,16 +6060,23 @@ Discoverable transient interfaces for common Emacs tools. → [[*Casual Suite][C
 <<gen-pkg-end()>>
 #+END_SRC
 
-** Claude Code Package
-Claude AI integration with seamless Emacs workflow and project isolation. → [[*Claude Code][Configuration]]
+** Agent Shell Package
+Native Emacs shell for LLM agents via ACP. → [[*Agent Shell][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="inheritenv", strght_gh="purcell/inheritenv")>>
+<<gen-use-pkg(package="agent-shell")>>
+<<agent-shell-config>>
+:general
+(:states 'normal
+         :keymaps 'agent-shell-mode-map
+         <<gen-keys(mode="local-mode", tname=agent-shell-mode-keys)>>)
 <<gen-pkg-end()>>
-<<gen-use-pkg(package="monet", strght_gh="stevemolitor/monet")>>
-<<gen-pkg-end()>>
-<<gen-use-pkg(package="claude-code", strght_gh="stevemolitor/claude-code.el")>>
-<<claude-code-config>>
-<<claude-code-custom>>
+#+END_SRC
+
+** Agent Shell Sidebar Package
+Sidebar interface for agent shell. → [[*Agent Shell Sidebar][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="agent-shell-sidebar", strght_gh="cmacrae/agent-shell-sidebar", after="agent-shell")>>
+<<agent-shell-sidebar-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
@@ -6354,11 +6443,27 @@ Forces fixed-width font for specific modes and contexts. → [[*Fixed Pitch Mode
 <<gen-pkg-end()>>
 #+END_SRC
 
-**** Highlight Indent Guides Package
-Visual indentation guides for better code readability and structure. → [[*Highlight Indent Guides][Configuration]]
+**** Ligature Package
+Font ligature support for programming fonts. → [[*Ligature][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="highlight-indent-guides")>>
-<<highlight-indent-guides-config>>
+<<gen-use-pkg(package="ligature", strght_gh="mickeynp/ligature.el")>>
+<<ligature-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+**** PragmataPro Ligatures Package
+PragmataPro-specific ligature definitions. → [[*PragmataPro Ligatures][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="pragmatapro-ligatures", after="ligature", strght_gh="lumiknit/emacs-pragmatapro-ligatures")>>
+<<pragmatapro-ligatures-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+**** Indent Bars Package
+Visual indentation guide-bars with tree-sitter support. → [[*Indent Bars][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="indent-bars")>>
+<<indent-bars-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
