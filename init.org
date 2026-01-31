@@ -502,6 +502,7 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 (defvar qq/modeline-font-height 240)
 (set-face-attribute 'default nil :family "PragmataPro Liga" :height 200)
 (set-frame-font "PragmataPro Liga 20" nil t)
+(set-fontset-font t 'unicode (font-spec :family "Menlo") nil 'prepend)
 ;; Apply modeline font height
 (set-face-attribute 'mode-line nil :height qq/modeline-font-height)
 (set-face-attribute 'mode-line-inactive nil :height qq/modeline-font-height)
@@ -4088,6 +4089,12 @@ Native Emacs shell for LLM agents via ACP. → [[*Agent Shell Package][Generated
 ;; Evil insert mode: RET inserts newline instead of sending
 (evil-define-key 'insert agent-shell-mode-map (kbd "RET") #'newline)
 
+;; Disable ligatures in agent-shell buffers to prevent PragmataPro
+;; from replacing markdown headings (##) with SF Symbol glyphs
+(add-hook 'agent-shell-mode-hook (lambda ()
+                                   (ligature-mode -1)
+                                   (pragmatapro-lig-mode -1)))
+
 ;; Configure *agent-shell-diff* buffers with j/k/y/q navigation
 (add-hook 'diff-mode-hook
 	      (lambda ()
@@ -5017,7 +5024,7 @@ PragmataPro-specific ligature definitions. → [[*PragmataPro Ligatures Package]
 #+NAME: pragmatapro-ligatures-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Setup PragmataPro ligatures
-(pragmatapro-ligatures-add-pragmatapro-ligatures)
+(pragmatapro-lig-global-mode 1)
 #+END_SRC
 
 **** Indent Bars
@@ -6454,7 +6461,7 @@ Font ligature support for programming fonts. → [[*Ligature][Configuration]]
 **** PragmataPro Ligatures Package
 PragmataPro-specific ligature definitions. → [[*PragmataPro Ligatures][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="pragmatapro-ligatures", after="ligature", strght_gh="lumiknit/emacs-pragmatapro-ligatures")>>
+<<gen-use-pkg(package="pragmatapro-lig", after="ligature", strght_gh="lumiknit/emacs-pragmatapro-ligatures")>>
 <<pragmatapro-ligatures-config>>
 <<gen-pkg-end()>>
 #+END_SRC
