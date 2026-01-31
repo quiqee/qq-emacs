@@ -89,7 +89,6 @@ The configuration auto-retangles on save with notifications.
 - **[[*CPerl Mode][cperl-mode]]**: Enhanced Perl editing with better syntax and indentation
 - **[[*Anaconda Mode][anaconda-mode]]**: Python code navigation and completion
 - **[[*Shell Script Mode][sh-script]]**: Enhanced shell script editing with custom handlers
-- **[[*Dockerfile Mode][dockerfile-mode]]**: Docker configuration editing
 - **[[*Docker Compose Mode][docker-compose-mode]]**: Docker Compose file support
 - **[[*PlantUML Mode][plantuml-mode]]**: Diagram-as-code with PlantUML
 - **[[*Format All][format-all]]**: Universal code formatter
@@ -584,78 +583,84 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 Automatic tree-sitter mode activation and language grammar management. → [[*Tree-sitter Code][Generated Code]]
 #+NAME: tree-sitter-setup
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-  ;; Require tree-sitter support
-  (require 'treesit)
+;; Require tree-sitter support
+(require 'treesit)
 
-  ;; Configure tree-sitter to use cache directory
-  (add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
+;; Configure tree-sitter to use cache directory
+(add-to-list 'treesit-extra-load-path (concat qq/cache-directory "tree-sitter"))
 
-  ;; Create tree-sitter directory if it doesn't exist
-  (unless (file-directory-p (concat qq/cache-directory "tree-sitter"))
-    (make-directory (concat qq/cache-directory "tree-sitter") t))
+;; Create tree-sitter directory if it doesn't exist
+(unless (file-directory-p (concat qq/cache-directory "tree-sitter"))
+  (make-directory (concat qq/cache-directory "tree-sitter") t))
 
-  ;; Override tree-sitter installation directory
-  (setq treesit-extra-load-path (list (concat qq/cache-directory "tree-sitter")))
+;; Override tree-sitter installation directory
+(setq treesit-extra-load-path (list (concat qq/cache-directory "tree-sitter")))
 
-  ;; Advice to install grammars in cache directory
-  (advice-add 'treesit-install-language-grammar :around
-              (lambda (orig-fun lang &optional out-dir)
-                (let ((install-dir (or out-dir (concat qq/cache-directory "tree-sitter"))))
-                  (funcall orig-fun lang install-dir))))
+;; Advice to install grammars in cache directory
+(advice-add 'treesit-install-language-grammar :around
+            (lambda (orig-fun lang &optional out-dir)
+              (let ((install-dir (or out-dir (concat qq/cache-directory "tree-sitter"))))
+                (funcall orig-fun lang install-dir))))
 
-  ;; Set up major mode remapping for tree-sitter modes
-  (dolist (mapping
-           '((python-mode . python-ts-mode)
-             (css-mode . css-ts-mode)
-             (typescript-mode . typescript-ts-mode)
-             (js-mode . js-ts-mode)
-             (js2-mode . js-ts-mode)
-             (c-mode . c-ts-mode)
-             (c++-mode . c++-ts-mode)
-             (c-or-c++-mode . c-or-c++-ts-mode)
-             (bash-mode . bash-ts-mode)
-             (json-mode . json-ts-mode)
-             (js-json-mode . json-ts-mode)
-             (sh-mode . bash-ts-mode)
-             (sh-base-mode . bash-ts-mode)))
-    (add-to-list 'major-mode-remap-alist mapping))
+;; Set up major mode remapping for tree-sitter modes
+(dolist (mapping
+         '((python-mode . python-ts-mode)
+           (css-mode . css-ts-mode)
+           (typescript-mode . typescript-ts-mode)
+           (js-mode . js-ts-mode)
+           (js2-mode . js-ts-mode)
+           (c-mode . c-ts-mode)
+           (c++-mode . c++-ts-mode)
+           (c-or-c++-mode . c-or-c++-ts-mode)
+           (bash-mode . bash-ts-mode)
+           (json-mode . json-ts-mode)
+           (js-json-mode . json-ts-mode)
+           (sh-mode . bash-ts-mode)
+           (sh-base-mode . bash-ts-mode)))
+  (add-to-list 'major-mode-remap-alist mapping))
 
-  ;; Configure tree-sitter language sources
-  (setq treesit-language-source-alist
-        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
-          (bitbake . ("https://github.com/tree-sitter-grammars/tree-sitter-bitbake"))
-          (c . ("https://github.com/tree-sitter/tree-sitter-c"))
-          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
-          (css . ("https://github.com/tree-sitter/tree-sitter-css"))
-          (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
-          (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
-          (go . ("https://github.com/tree-sitter/tree-sitter-go"))
-          (html . ("https://github.com/tree-sitter/tree-sitter-html"))
-          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-          (json . ("https://github.com/tree-sitter/tree-sitter-json"))
-          (julia . ("https://github.com/tree-sitter/tree-sitter-julia"))
-          (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
-          (make . ("https://github.com/alemuller/tree-sitter-make"))
-          (markdown . ("https://github.com/ikatyang/tree-sitter-markdown"))
-          (python . ("https://github.com/tree-sitter/tree-sitter-python"))
-          (php . ("https://github.com/tree-sitter/tree-sitter-php" "master" "php/src"))
-          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
-          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
-          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
-          (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
-          (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
-          (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
-          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
-          (prisma . ("https://github.com/victorhqc/tree-sitter-prisma"))
-          (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
+(add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-ts-mode))
 
-  ;; Set tree-sitter font-lock level for better highlighting
-  (setq treesit-font-lock-level 4)
+;; Configure tree-sitter language sources
+(setq treesit-language-source-alist
+      '((bash . ("https://github.com/tree-sitter/tree-sitter-bash"))
+        (bitbake . ("https://github.com/tree-sitter-grammars/tree-sitter-bitbake"))
+        (c . ("https://github.com/tree-sitter/tree-sitter-c"))
+        (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp"))
+        (cmake . ("https://github.com/uyha/tree-sitter-cmake"))
+        (css . ("https://github.com/tree-sitter/tree-sitter-css"))
+        (elisp . ("https://github.com/Wilfred/tree-sitter-elisp"))
+        (go . ("https://github.com/tree-sitter/tree-sitter-go"))
+        (html . ("https://github.com/tree-sitter/tree-sitter-html"))
+        (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+        (jsdoc . ("https://github.com/tree-sitter/tree-sitter-jsdoc" "v0.19.0"))
+        (json . ("https://github.com/tree-sitter/tree-sitter-json"))
+        (julia . ("https://github.com/tree-sitter/tree-sitter-julia"))
+        (lua . ("https://github.com/Azganoth/tree-sitter-lua"))
+        (make . ("https://github.com/alemuller/tree-sitter-make"))
+        (markdown . ("https://github.com/ikatyang/tree-sitter-markdown"))
+        (org . ("https://github.com/tree-sitter/tree-sitter-org"))
+        (python . ("https://github.com/tree-sitter/tree-sitter-python"))
+        (php . ("https://github.com/tree-sitter/tree-sitter-php" "master" "php/src"))
+        (regex . ("https://github.com/tree-sitter/tree-sitter-regex"))
+        (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+        (rust . ("https://github.com/tree-sitter/tree-sitter-rust"))
+        (sql . ("https://github.com/m-novikov/tree-sitter-sql"))
+        (toml . ("https://github.com/tree-sitter/tree-sitter-toml"))
+        (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+        (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+        (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))
+        (prisma . ("https://github.com/victorhqc/tree-sitter-prisma"))
+        (zig . ("https://github.com/GrayJack/tree-sitter-zig"))))
 
-  ;; Configure C/C++ indentation
-  (custom-set-variables '(c-ts-mode-indent-offset 4))
 
-  (message "Tree-sitter configuration loaded with %d languages" (length treesit-language-source-alist))
+;; Set tree-sitter font-lock level for better highlighting
+(setq treesit-font-lock-level 4)
+
+;; Configure C/C++ indentation
+(custom-set-variables '(c-ts-mode-indent-offset 4))
+
+(message "Tree-sitter configuration loaded with %d languages" (length treesit-language-source-alist))
 #+END_SRC
 
 ** Treesit Fold
@@ -1562,6 +1567,8 @@ Global normal mode keybindings for general editor operations. → [[*General Pac
 | "+" | 'evil-numbers/inc-at-pt | Increment number at cursor      |
 | "-" | 'evil-numbers/dec-at-pt | Decrement number at cursor      |
 | Y   | (kbd "y$")              | Yank from cursor to end of line |
+| g l | 'evil-lion-left         | Align text left by character    |
+| g L | 'evil-lion-right        | Align text right by character   |
 
 *** Avy Keybindings
 Avy jump navigation keybindings for fast character and line movement. → [[*General Package][Generated Code]]
@@ -1748,6 +1755,14 @@ Magit status mode specific keybindings for evil normal mode. → [[*Magit Packag
 |-----+-------------------+----------------------|
 | v   | evil-visual-char  | Enter visual mode    |
 
+** Visual Bindings
+Global visual mode keybindings for selection operations. → [[*General Package][Generated Code]]
+#+NAME: visual-keys
+| Key | Command          | Description                   |
+|-----+------------------+-------------------------------|
+| g l | 'evil-lion-left  | Align selection left by char  |
+| g L | 'evil-lion-right | Align selection right by char |
+
 ** Local Bindings
 *** Vertico Keybindings Table
 Vertico completion interface keybindings. → [[*Vertico Package][Generated Code]]
@@ -1769,7 +1784,7 @@ Vertico completion interface keybindings. → [[*Vertico Package][Generated Code
 | C-b           | vertico-scroll-down                | Scrolls up                     |
 | C-f           | vertico-scroll-up                  | Scrolls down                   |
 | C-w           | kill-ring-save                     | Copy text                      |
-| <escape>      | keyboard-escape-quit               | Cancel minibuffer              |
+| <escape>      | keyboard-escape-quit               | Cancel minbibuffer             |
 | C-d           | vertico-next-group                 | Next completion group          |
 | C-c           | vertico-previous-group             | Previous completion group      |
 | <backspace>   | vertico-directory-delete-char      | Delete char or go up directory |
@@ -1980,8 +1995,7 @@ Search for visual selection with * in visual mode, extending the standard vim be
 **** Evil Visualstar Configuration Block
 #+NAME: evil-visualstar-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Enable evil-visualstar for visual selection search
-;; Use * and # in visual mode to search for selection
+(global-evil-visualstar-mode)
 #+END_SRC
 
 *** Evil Matchit
@@ -1991,6 +2005,7 @@ Enhanced % command that works with more than just parentheses - HTML tags, if-en
 #+NAME: evil-matchit-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Enable global evil-matchit mode
+(evilmi-load-plugin-rules '(mhtml-ts-mode) '(template simple html))
 (global-evil-matchit-mode 1)
 #+END_SRC
 
@@ -2095,17 +2110,21 @@ Two-character search like vim-sneak. Use s{char}{char} to search forward, S{char
 **** Evil Snipe Configuration Block
 #+NAME: evil-snipe-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Disable evil-snipe in dired (so our s binding works)
-(setq evil-snipe-disabled-modes '(dired-mode))
-
-;; Enable evil-snipe mode
+;; Enable evil-snipe mode (without override mode to keep s/S free)
 (evil-snipe-mode +1)
-(evil-snipe-override-mode +1)
 
 ;; Configure evil-snipe settings
 (setq evil-snipe-scope 'visible)
 (setq evil-snipe-repeat-scope 'visible)
 (setq evil-snipe-char-fold t)
+
+;; Use gs/gS instead of s/S to avoid conflicts with magit/dired
+(evil-define-key '(normal motion) evil-snipe-local-mode-map
+  "gs" 'evil-snipe-s
+  "gS" 'evil-snipe-S)
+(evil-define-key 'operator evil-snipe-local-mode-map
+  "gs" 'evil-snipe-s
+  "gS" 'evil-snipe-S)
 #+END_SRC
 
 *** Evil Multiedit
@@ -2140,6 +2159,7 @@ Align text objects with gl and gL operators. → [[*Evil Lion Package][Generated
 ;; Enable evil-lion for alignment
 ;; gl{motion}{char} to align left
 ;; gL{motion}{char} to align right
+(evil-lion-mode)
 #+END_SRC
 
 *** Evil Quickscope
@@ -2736,15 +2756,8 @@ Enhanced shell script editing with custom handlers for special file types. → [
 (add-hook 'sh-mode-hook 'qq/sh-script-inc-file-shell-rpm)
 #+END_SRC
 
-***** Docker Support
-Docker and Docker Compose file editing support. → [[*Dockerfile Mode Package][Dockerfile Generated Code]] / [[*Docker Compose Mode Package][Docker Compose Generated Code]]
-
-****** Dockerfile Mode Configuration Block
-#+NAME: dockerfile-mode-config
-#+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Associate dockerfile-mode with Docker files
-(add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
-#+END_SRC
+***** Docker Compose Mode
+Docker and Docker Compose file editing support. → [[*Docker Compose Mode Package][Docker Compose Generated Code]]
 
 ****** Docker Compose Mode Configuration Block
 #+NAME: docker-compose-mode-config
@@ -5441,16 +5454,8 @@ Enhanced shell script editing with custom handlers for special file types. → [
 <<gen-pkg-end()>>
 #+END_SRC
 
-*** Dockerfile Mode Package
-Docker configuration file editing and syntax highlighting. → [[*Docker Support][Configuration]]
-#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="dockerfile-mode")>>
-<<dockerfile-mode-config>>
-<<gen-pkg-end()>>
-#+END_SRC
-
 *** Docker Compose Mode Package
-Docker Compose file support with syntax highlighting. → [[*Docker Support][Configuration]]
+Docker Compose file support with syntax highlighting. → [[*Docker Compose Mode][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="docker-compose-mode")>>
 <<docker-compose-mode-config>>
@@ -5586,6 +5591,10 @@ Keybinding framework for consistent leader key management. → [[*General.el Con
   <<gen-keys(mode="general", tname=symbol-overlay-keys)>>
   <<gen-keys(mode="plain-gen", tname=normal-keys)>>
   <<gen-keys(mode="plain-gen", tname=avy-keys)>>)
+
+;; Visual mode bindings
+(general-def 'visual
+  <<gen-keys(mode="plain-gen", tname=visual-keys)>>)
 
 ;; Test leader key bindings
 (qq/leader-keys
