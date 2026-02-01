@@ -431,7 +431,7 @@ The configuration auto-retangles on save with notifications.
 #+END_SRC
 
 #+NAME: gen-use-pkg
-#+BEGIN_SRC emacs-lisp :var package="example" :var after="" :var straight="" :var strght_gh="" :var demand="" :var defer="" :var hook="" :var init="" :var firsttag="config" :results output :tangle no :exports none
+#+BEGIN_SRC emacs-lisp :var package="example" :var after="" :var straight="" :var strght_gh="" :var demand="" :var defer="" :var hook="" :var mode="" :var init="" :var firsttag="config" :results output :tangle no :exports none
 (let ((header (format "(use-package %s" package))
       (straight-line (cond
                       ((not (string= straight "")) (format "\n  :straight %s" straight))
@@ -441,9 +441,10 @@ The configuration auto-retangles on save with notifications.
       (demand-line (if (string= demand "") "" (format "\n  :demand %s" demand)))
       (defer-line (if (string= defer "") "" (format "\n  :defer %s" defer)))
       (hook-line (if (string= hook "") "" (format "\n  :hook %s" hook)))
+      (mode-line (if (string= mode "") "" (format "\n  :mode %s" mode)))
       (init-line (if (string= init "") "" (format "\n  :init\n  %s" init)))
       (config-line (format "\n  :%s" firsttag)))
-  (princ (concat header straight-line after-line demand-line defer-line hook-line init-line config-line)))
+  (princ (concat header straight-line after-line demand-line defer-line hook-line mode-line init-line config-line)))
 #+END_SRC
 
 #+NAME: gen-pkg-end
@@ -1855,6 +1856,13 @@ Org-mode keybindings. → [[*Org Mode Keybindings][Generated Code]]
 | >     | org-demote-subtree           | Demote heading and its children  |
 | <     | org-promote-subtree          | Promote heading and its children |
 
+*** Typst TS Mode Keybindings Table
+Typst mode keybindings for compilation and preview. → [[*Typst TS Mode Package][Generated Code]]
+#+NAME: typst-ts-mode-keys
+| Key   | Command                   | Description             |
+|-------+---------------------------+-------------------------|
+| C-c p | qq/typst-save-and-preview | Save and preview as PDF |
+
 * Packages
 ** Evil Mode
 Complete vim emulation with modern undo system and extensive configuration. → [[*Evil Package][Generated Code]]
@@ -2866,8 +2874,29 @@ Tree-sitter powered Typst editing with syntax highlighting, compilation, and pre
 ;; Set typst executable path
 (setq typst-ts-mode-executable-location (executable-find "typst"))
 
-;; Compile on save (optional, disabled by default)
-;; (setq typst-ts-mode-compile-on-save t)
+;; Hide compilation buffer unless there is an error
+(defun qq/typst-compilation-finish (buf msg)
+  "Delete compilation window if compilation succeeded.
+BUF is the compilation buffer, MSG is the status message."
+  (when (and (string-match-p "finished" msg)
+             (get-buffer-window buf))
+    (delete-window (get-buffer-window buf))))
+
+(add-hook 'typst-ts-compile-after-compilation-hook #'qq/typst-compilation-finish)
+
+(defun qq/typst-save-and-preview ()
+  "Save, compile, and open the resulting PDF in the current window."
+  (interactive)
+  (save-buffer)
+  (let ((pdf-file (concat (file-name-sans-extension (buffer-file-name)) ".pdf"))
+        (buf (current-buffer)))
+    (add-hook 'typst-ts-compile-after-compilation-hook
+              (lambda (_compilation-buf msg)
+                (when (string-match-p "finished" msg)
+                  (with-current-buffer buf
+                    (find-file pdf-file))))
+              nil t))
+  (typst-ts-compile))
 #+END_SRC
 
 **** Format All
@@ -4879,7 +4908,7 @@ Superior PDF viewing in Emacs, much better than the default doc-view mode. → [
 (setq pdf-view-continuous t)
 (setq pdf-annot-activate-created-annotations t)
 ;; (setq pdf-view-midnight-colors '("#ffffff" . "#000000"))
-;; Load pdf-tools without installing (binary already built)
+;; Initialize pdf-tools server (epdfinfo)
 (pdf-tools-install :no-query)
 
 (defun pdf-view-init ()
@@ -5957,14 +5986,6 @@ Groovy/Gradle build script support for KMP projects. → [[*Groovy Mode][Configu
 <<gen-pkg-end()>>
 #+END_SRC
 
-*** Typst TS Mode Package
-Tree-sitter powered Typst editing and compilation. → [[*Typst TS Mode][Configuration]]
-#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="typst-ts-mode", strght_gh="Ziqi-Yang/typst-ts-mode")>>
-<<typst-ts-mode-config>>
-<<gen-pkg-end()>>
-#+END_SRC
-
 *** Format All Package
 Universal code formatter for multiple programming languages. → [[*Format All][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
@@ -6113,6 +6134,18 @@ Keybinding framework for consistent leader key management. → [[*General.el Con
   <<gen-keys(mode="leader", tname=vundo-keys)>>
   <<gen-keys(mode="leader", tname=recipes-keys)>>
   <<gen-keys(mode="leader", tname=popper-keys)>>)
+<<gen-pkg-end()>>
+#+END_SRC
+
+** Typst TS Mode Package
+Tree-sitter powered Typst editing and compilation. → [[*Typst TS Mode][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="typst-ts-mode", strght_gh="Ziqi-Yang/typst-ts-mode")>>
+<<typst-ts-mode-config>>
+:general
+(:states 'normal
+         :keymaps 'typst-ts-mode-map
+         <<gen-keys(mode="local-mode", tname=typst-ts-mode-keys)>>)
 <<gen-pkg-end()>>
 #+END_SRC
 
@@ -6777,7 +6810,7 @@ Modern visual undo system with tree-like interface for better history navigation
 **** PDF Tools Package
 Superior PDF viewing and annotation capabilities in Emacs. → [[*PDF Tools][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="pdf-tools")>>
+<<gen-use-pkg(package="pdf-tools", mode="(\"\\\\.pdf\\\\'\" . pdf-view-mode)")>>
 <<pdf-tools-config>>
 <<gen-pkg-end()>>
 #+END_SRC
