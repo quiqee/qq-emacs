@@ -2450,7 +2450,7 @@ Template system for expanding abbreviations into code snippets, supporting multi
 (yas-global-mode 1)
 
 ;; Configure yasnippet directories
-(setq yas-snippet-dirs (list (concat qq/cache-directory "snippets/")))
+(add-to-list 'yas-snippet-dirs (concat qq/cache-directory "snippets/"))
 
 ;; Create snippets directory if it doesn't exist
 (unless (file-directory-p (concat qq/cache-directory "snippets/"))
@@ -4517,7 +4517,7 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 ;; Full list of languages to load on demand
 (defvar qq/babel-languages
   '(shell python js plantuml sql org dot rust typescript
-    http restclient java C perl ruby clojure lua haskell)
+    http restclient java C perl ruby clojure lua haskell latex)
   "Babel languages to load on demand.")
 
 ;; Lazy-load babel languages when first needed
