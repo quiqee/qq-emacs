@@ -3392,6 +3392,47 @@ Enhanced dired with additional features and keybindings. → [[*Dired Plus Packa
   (define-key dired-mode-map (kbd "SPC") nil))
 #+END_SRC
 
+**** TRAMP
+Remote file access with BusyBox compatibility for embedded hosts. → [[*TRAMP Package][Generated Code]]
+
+***** TRAMP Configuration Block
+#+NAME: tramp-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; TRAMP debug logging - set to 6+ for detailed debug, 1 for normal use
+;; (setq tramp-verbose 10)
+
+;; BusyBox-compatible TRAMP settings for eagle-*.local hosts
+;; These hosts run GNU bash but BusyBox userland utilities.
+;; The "ls" property is the command name that tramp-get-ls-command returns.
+;; Tramp appends switches separately, so this must be just the binary name.
+;; Setting "stat" to nil prevents tramp from using stat (missing on BusyBox).
+(dolist (prop '(("ls" "ls")
+               ("stat" nil)
+               ("remote-shell" "/bin/bash")))
+  (add-to-list 'tramp-connection-properties
+               (cons "/.*:eagle-.*\\.local:" prop)))
+
+;; Ensure /bin is in remote path for BusyBox systems
+(add-to-list 'tramp-remote-path "/bin")
+
+;; Connection-local variables for TRAMP buffers.
+;; On macOS insert-directory-program is /opt/homebrew/bin/gls which doesn't
+;; exist on remote hosts. Override to "ls" for all TRAMP connections.
+;; Also use simple dired-listing-switches since BusyBox ls doesn't support
+;; GNU flags like --group-directories-first, --time-style, or -v.
+;; The dired-before-readin-hook approach doesn't work because insert-directory
+;; is called with the global switches before the hook fires.
+(connection-local-set-profile-variables
+ 'tramp-dired-compat
+ '((insert-directory-program . "ls")
+   (dired-listing-switches . "-lah")))
+(connection-local-set-profiles
+ '(:application tramp)
+ 'tramp-dired-compat)
+#+END_SRC
+
+#+RESULTS: tramp-config
+
 **** Ace Window
 Fast window switching with visual overlays. → [[*Ace Window Package][Generated Code]]
 
@@ -4533,6 +4574,9 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 ;; Advise org-babel-execute-src-block to load languages on first use
 (advice-add 'org-babel-execute-src-block :before #'qq/load-babel-languages-on-demand)
 
+;; Also load babel languages before export (export doesn't trigger the advice)
+(advice-add 'org-export-dispatch :before #'qq/load-babel-languages-on-demand)
+
 ;; Configure PlantUML for org-babel
 (setq org-plantuml-jar-path (concat qq/cache-directory "extern/org/plantuml.jar"))
 (setq org-plantuml-exec-mode 'jar)  ; Options: 'jar 'server 'executable
@@ -4793,8 +4837,14 @@ Org export backend for Typst, enabling PDF generation from org files via Typst. 
 #+NAME: ox-typst-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; ox-typst is loaded on demand via org export dispatcher
-;; No additional configuration needed beyond requiring the package
 (require 'ox-typst)
+
+;; Fix ox-typst bug: handle nil :input-file gracefully
+(defun qq/ox-typst-fix-nil-input-file (orig-fun typst-file &optional no-input)
+  "Advice to handle nil TYPST-FILE in `org-typst--generate-command'."
+  (funcall orig-fun (or typst-file (buffer-file-name) "untitled.typ") no-input))
+
+(advice-add 'org-typst--generate-command :around #'qq/ox-typst-fix-nil-input-file)
 #+END_SRC
 
 *** Ob Napkin
@@ -6268,6 +6318,15 @@ Project management and navigation with intelligent project detection. → [[*Pro
 #+END_SRC
 
 ** File Management Packages
+*** TRAMP Package
+Remote file access with BusyBox compatibility for embedded hosts. → [[*TRAMP][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+(use-package tramp
+  :straight (:type built-in)
+  :config
+  <<tramp-config>>)
+#+END_SRC
+
 *** Dired Core Package
 Core dired configuration with improved defaults. → [[*Core Dired Settings][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
