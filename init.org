@@ -94,6 +94,8 @@ The configuration auto-retangles on save with notifications.
 - **[[*Kotlin Mode][kotlin-mode]]**: Kotlin language support for KMP development
 - **[[*Swift Mode][swift-mode]]**: Swift language support for iOS development
 - **[[*Groovy Mode][groovy-mode]]**: Groovy/Gradle build script support
+- **[[*Gradle Mode][gradle-mode]]**: Gradle build system integration with task execution
+- **[[*KMP Development][kmp-dev]]**: Transient menu for Kotlin Multiplatform development (Android/iOS builds, tests)
 - **[[*Typst TS Mode][typst-ts-mode]]**: Tree-sitter powered Typst editing and compilation
 - **[[*Format All][format-all]]**: Universal code formatter
 
@@ -536,6 +538,11 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
   (setenv "PATH"
           (concat "/opt/homebrew/bin:" (getenv "PATH")))
   (setq exec-path (append '("/opt/homebrew/bin") exec-path)))
+
+;; Java 21 for KMP development
+(setenv "JAVA_HOME" "/opt/homebrew/opt/openjdk@21")
+(setenv "PATH" (concat "/opt/homebrew/opt/openjdk@21/bin:" (getenv "PATH")))
+(add-to-list 'exec-path "/opt/homebrew/opt/openjdk@21/bin")
 #+END_SRC
 
 *** Arch Linux / Manjaro (archlinux, z390-manjaro)
@@ -1471,6 +1478,13 @@ Docker container management keybindings. → [[*General Package][Generated Code]
 | d n     | docker-networks        | Manage Docker networks         |
 | d v     | docker-volumes         | Manage Docker volumes          |
 
+*** KMP Development Leader Key Bindings
+Kotlin Multiplatform development keybindings. → [[*General Package][Generated Code]]
+#+NAME: kmp-keys
+| Key | Command      | Description                  |
+|-----+--------------+------------------------------|
+| k   | qq/kmp-menu  | Open KMP development menu    |
+
 *** Agent Shell Leader Key Bindings
 Agent Shell AI integration keybindings. → [[*General Package][Generated Code]]
 #+NAME: agent-shell-keys
@@ -2312,6 +2326,12 @@ Language Server Protocol support providing IDE-like features including auto-comp
     :server-id 'typescript-language-server
     :priority 1)))
 
+;; Configure Kotlin Language Server for KMP development
+(with-eval-after-load 'lsp-mode
+  (setq lsp-kotlin-external-sources-auto-convert-to-kotlin t
+        lsp-kotlin-external-sources-use-kls-scheme t
+        lsp-kotlin-compiler-jvm-target "21"))
+
 ;; Helper function for conditional LSP loading
 (defun qq/lsp-deferred-if-supported ()
   "Run lsp-deferred if it's a supported mode and not a TRAMP buffer."
@@ -2846,6 +2866,11 @@ Swift language support for iOS development and KMP bridging code. → [[*Swift M
 
 ;; Swift indentation
 (setq swift-mode:basic-offset 4)
+
+;; Configure sourcekit-lsp path for Swift LSP
+(with-eval-after-load 'lsp-mode
+  (setq lsp-sourcekit-executable
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp"))
 #+END_SRC
 
 ***** Groovy Mode
@@ -2860,6 +2885,84 @@ Groovy language support for Gradle build scripts used in KMP projects. → [[*Gr
 
 ;; Groovy indentation
 (setq groovy-indent-offset 4)
+#+END_SRC
+
+***** Gradle Mode
+Gradle build system integration for running Gradle tasks directly from Emacs. Essential for KMP (Kotlin Multiplatform) development workflow. → [[*Gradle Mode Package][Generated Code]]
+
+****** Gradle Mode Configuration Block
+#+NAME: gradle-mode-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable gradle-mode for Kotlin and Groovy files
+(add-hook 'kotlin-mode-hook 'gradle-mode)
+(add-hook 'groovy-mode-hook 'gradle-mode)
+
+;; Use Gradle wrapper from project root
+(setq gradle-use-gradlew t)
+
+;; Find gradlew from project root using projectile
+(defun qq/gradle-find-gradlew ()
+  "Find gradlew executable in project root."
+  (when-let ((root (projectile-project-root)))
+    (let ((gradlew (expand-file-name "gradlew" root)))
+      (when (file-executable-p gradlew)
+        gradlew))))
+
+(setq gradle-executable-path #'qq/gradle-find-gradlew)
+#+END_SRC
+
+***** KMP Development
+Kotlin Multiplatform (KMP) development utilities with transient menu for common build tasks. Provides quick access to Gradle commands for Android, iOS, and shared module development. → [[*KMP Development Code][Generated Code]]
+
+****** KMP Development Configuration Block
+#+NAME: kmp-dev-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; KMP Gradle helper function
+(defun qq/kmp-gradle (task)
+  "Run Gradle TASK in project root using gradlew."
+  (interactive "sGradle task: ")
+  (let ((default-directory (or (projectile-project-root) default-directory)))
+    (compile (concat "./gradlew " task))))
+
+;; Individual task functions for transient
+(defun qq/kmp-build () (interactive) (qq/kmp-gradle "build"))
+(defun qq/kmp-clean () (interactive) (qq/kmp-gradle "clean"))
+(defun qq/kmp-clean-build () (interactive) (qq/kmp-gradle "clean build"))
+(defun qq/kmp-android-debug () (interactive) (qq/kmp-gradle "androidApp:installDebug"))
+(defun qq/kmp-android-release () (interactive) (qq/kmp-gradle "androidApp:assembleRelease"))
+(defun qq/kmp-android-assemble () (interactive) (qq/kmp-gradle "androidApp:assembleDebug"))
+(defun qq/kmp-ios-build () (interactive) (qq/kmp-gradle "iosApp:compileKotlinIosSimulatorArm64"))
+(defun qq/kmp-ios-arm () (interactive) (qq/kmp-gradle "iosApp:compileKotlinIosArm64"))
+(defun qq/kmp-test-all () (interactive) (qq/kmp-gradle "test"))
+(defun qq/kmp-test-shared () (interactive) (qq/kmp-gradle "shared:test"))
+(defun qq/kmp-test-android () (interactive) (qq/kmp-gradle "androidApp:test"))
+(defun qq/kmp-dependencies () (interactive) (qq/kmp-gradle "dependencies"))
+(defun qq/kmp-tasks () (interactive) (qq/kmp-gradle "tasks"))
+(defun qq/kmp-sync () (interactive) (qq/kmp-gradle "kotlinUpgradeYarnLock"))
+
+;; Transient menu for KMP development
+(with-eval-after-load 'transient
+  (transient-define-prefix qq/kmp-menu ()
+    "Kotlin Multiplatform Development Menu"
+    ["Build"
+     ("b" "Build All" qq/kmp-build)
+     ("c" "Clean" qq/kmp-clean)
+     ("C" "Clean + Build" qq/kmp-clean-build)]
+    ["Android"
+     ("a" "Install Debug" qq/kmp-android-debug)
+     ("A" "Assemble Debug" qq/kmp-android-assemble)
+     ("r" "Assemble Release" qq/kmp-android-release)]
+    ["iOS"
+     ("i" "Build Simulator" qq/kmp-ios-build)
+     ("I" "Build ARM64" qq/kmp-ios-arm)]
+    ["Test"
+     ("t" "Test All" qq/kmp-test-all)
+     ("s" "Test Shared" qq/kmp-test-shared)
+     ("T" "Test Android" qq/kmp-test-android)]
+    ["Info"
+     ("d" "Dependencies" qq/kmp-dependencies)
+     ("?" "List Tasks" qq/kmp-tasks)
+     ("g" "Run Task..." qq/kmp-gradle)]))
 #+END_SRC
 
 ***** Typst TS Mode
@@ -6036,6 +6139,21 @@ Groovy/Gradle build script support for KMP projects. → [[*Groovy Mode][Configu
 <<gen-pkg-end()>>
 #+END_SRC
 
+*** Gradle Mode Package
+Gradle build system integration for KMP projects. → [[*Gradle Mode][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="gradle-mode")>>
+<<gradle-mode-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** KMP Development Code
+KMP transient menu for Kotlin Multiplatform development. → [[*KMP Development][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+;; KMP Development utilities (no package, just config)
+<<kmp-dev-config>>
+#+END_SRC
+
 *** Format All Package
 Universal code formatter for multiple programming languages. → [[*Format All][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
@@ -6177,6 +6295,7 @@ Keybinding framework for consistent leader key management. → [[*General.el Con
   <<gen-keys(mode="leader", tname=restart-emacs-keys)>>
   <<gen-keys(mode="leader", tname=helpful-keys)>>
   <<gen-keys(mode="leader", tname=docker-keys)>>
+  <<gen-keys(mode="leader", tname=kmp-keys)>>
   <<gen-keys(mode="leader", tname=agent-shell-keys)>>
   <<gen-keys(mode="leader", tname=terminal-keys)>>
   <<gen-keys(mode="leader", tname=multi-vterm-keys)>>

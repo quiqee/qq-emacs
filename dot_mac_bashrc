@@ -198,3 +198,4 @@ unset __conda_setup
 
 source ~/.bash-preexec.sh
 eval "$(atuin init bash)"
+export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"
