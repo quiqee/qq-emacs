@@ -2947,7 +2947,7 @@ Kotlin Multiplatform (KMP) development utilities with transient menu for common 
     (unless (= 0 (shell-command (format "%s devices | grep -q emulator" adb)))
       (start-process "android-emulator" nil emulator "-avd"
                      (string-trim (shell-command-to-string (format "%s -list-avds | head -1" emulator))))
-      (sleep-for 10))
+      (sleep-for 5))
     (compile (format "./gradlew androidApp:installDebug && %s shell am start -n com.rahl/.MainActivity" adb))))
 (defun qq/kmp-ios-build ()
   (interactive)
@@ -2971,7 +2971,7 @@ Kotlin Multiplatform (KMP) development utilities with transient menu for common 
     (async-shell-command (format "%s logcat -v time | grep -iE '(rahl|kermit)'" adb) "*android-logcat*")))
 (defun qq/kmp-ios-log ()
   (interactive)
-  (async-shell-command "xcrun simctl spawn booted log stream --level debug --predicate 'subsystem contains \"com.rahl\" OR message contains \"Kermit\"'" "*ios-log*"))
+  (async-shell-command "xcrun simctl spawn booted log stream --level debug --predicate 'process == \"iosApp\"' 2>&1 | grep --line-buffered 'ðŸ”µ'" "*ios-log*"))
 (defun qq/kmp-test-all () (interactive) (qq/kmp-gradle "test"))
 (defun qq/kmp-test-shared () (interactive) (qq/kmp-gradle "shared:test"))
 (defun qq/kmp-test-android () (interactive) (qq/kmp-gradle "androidApp:test"))
@@ -2989,8 +2989,8 @@ Kotlin Multiplatform (KMP) development utilities with transient menu for common 
      ("C" "Clean + Build" qq/kmp-clean-build)]
     ["Android"
      ("a" "Install Debug" qq/kmp-android-debug)
-     ("A" "Assemble Debug" qq/kmp-android-assemble)
-     ("e" "Assemble Release" qq/kmp-android-release)
+     ("A" "Build Debug" qq/kmp-android-assemble)
+     ("e" "Build Release" qq/kmp-android-release)
      ("R" "Run Emulator" qq/kmp-android-run-emulator)
      ("l" "Logcat" qq/kmp-android-logcat)]
     ["iOS"
@@ -3261,6 +3261,45 @@ VTerm provides a fully-featured terminal emulator inside Emacs using libvterm. â
   (define-key vterm-mode-map (kbd "C-s") 'isearch-forward)
   (define-key vterm-mode-map (kbd "S-<home>") 'beginning-of-buffer)
   (define-key vterm-mode-map (kbd "S-<end>") 'end-of-buffer))
+
+;; Use vterm for compilation - proper terminal emulation for progress bars
+;; This overrides compilation-start to use vterm terminal emulation
+;; Inspired by: https://codeberg.org/akib/emacs-eat/issues/33
+(defun qq/vterm-compilation-start (command &optional mode name-function
+                                            highlight-regexp continue)
+  "Run COMMAND in vterm with compilation-minor-mode.
+This provides full terminal emulation for progress bars and colors."
+  (require 'vterm)
+  (let ((name-of-mode "compilation")
+        (dir default-directory)
+        outbuf)
+    (if (or (not mode) (eq mode t))
+        (setq mode #'compilation-minor-mode)
+      (setq name-of-mode (replace-regexp-in-string "-mode\\'" ""
+                                                   (symbol-name mode))))
+    (setq outbuf (get-buffer-create
+                  (compilation-buffer-name name-of-mode mode name-function)))
+    ;; Kill existing process if any
+    (let ((proc (get-buffer-process outbuf)))
+      (when proc
+        (delete-process proc)))
+    ;; Kill and recreate buffer to avoid vterm major mode change error
+    (kill-buffer outbuf)
+    (setq outbuf (get-buffer-create
+                  (compilation-buffer-name name-of-mode mode name-function)))
+    (with-current-buffer outbuf
+      (setq default-directory dir)
+      (let ((vterm-shell (format "%s -lc %s" shell-file-name
+                                  (shell-quote-argument command)))
+            (vterm-kill-buffer-on-exit nil))
+        (vterm-mode))
+      (funcall mode)
+      (setq next-error-last-buffer outbuf)
+      (run-hook-with-args 'compilation-start-hook (get-buffer-process outbuf))
+      (display-buffer outbuf '(nil (allow-no-window . t)))
+      outbuf)))
+
+(advice-add #'compilation-start :override #'qq/vterm-compilation-start)
 #+END_SRC
 
 **** Multi-VTerm
