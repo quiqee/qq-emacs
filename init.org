@@ -93,6 +93,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*PlantUML Mode][plantuml-mode]]**: Diagram-as-code with PlantUML
 - **[[*Kotlin Mode][kotlin-mode]]**: Kotlin language support for KMP development
 - **[[*Swift Mode][swift-mode]]**: Swift language support for iOS development
+- **[[*LSP SourceKit][lsp-sourcekit]]**: SourceKit-LSP client for Swift language server
 - **[[*Groovy Mode][groovy-mode]]**: Groovy/Gradle build script support
 - **[[*Gradle Mode][gradle-mode]]**: Gradle build system integration with task execution
 - **[[*KMP Development][kmp-dev]]**: Transient menu for Kotlin Multiplatform development (Android/iOS builds, tests)
@@ -102,7 +103,7 @@ The configuration auto-retangles on save with notifications.
 **** Code Quality
 - **[[*Flycheck][flycheck]]**: Real-time syntax checking for multiple languages
 - **[[*Smartparens][smartparens]]**: Intelligent parentheses handling and structural editing
-- **[[*Fancy Compilation][fancy-compilation]]**: Enhanced compilation output with progress display and improved diagnostics
+- **[[*Xterm Color][xterm-color]]**: Terminal escape sequence handling and ANSI colors for compilation progress bars
 - **[[*Restart Emacs][restart-emacs]]**: Restart Emacs from within Emacs for config testing
 - **[[*Exec Path From Shell][exec-path-from-shell]]**: Shell environment setup for macOS GUI Emacs
 
@@ -1627,9 +1628,9 @@ Avy jump navigation keybindings for fast character and line movement. → [[*Gen
 | g z | 'avy-goto-char-timer | Jump to character with timer |
 | g c | #'casual-avy-tmenu   | Open casual avy              |
 
-*** Fancy Compilation Keybindings Table
-Fancy compilation navigation and control keybindings. → [[*Fancy Compilation Package][Generated Code]]
-#+NAME: fancy-compilation-keys
+*** Compilation Mode Keybindings Table
+Compilation mode navigation and control keybindings. → [[*Xterm Color Package][Generated Code]]
+#+NAME: compilation-mode-keys
 | Key   | Command                    | Description                           |
 |-------+----------------------------+---------------------------------------|
 | r     | recompile                  | Recompile the current compilation     |
@@ -2866,11 +2867,17 @@ Swift language support for iOS development and KMP bridging code. → [[*Swift M
 
 ;; Swift indentation
 (setq swift-mode:basic-offset 4)
+#+END_SRC
 
-;; Configure sourcekit-lsp path for Swift LSP
-(with-eval-after-load 'lsp-mode
-  (setq lsp-sourcekit-executable
-        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp"))
+***** LSP SourceKit
+SourceKit-LSP client for Swift language server support. → [[*LSP SourceKit Package][Generated Code]]
+
+****** LSP SourceKit Configuration Block
+#+NAME: lsp-sourcekit-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Configure sourcekit-lsp executable path
+(setq lsp-sourcekit-executable
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp")
 #+END_SRC
 
 ***** Groovy Mode
@@ -2931,8 +2938,40 @@ Kotlin Multiplatform (KMP) development utilities with transient menu for common 
 (defun qq/kmp-android-debug () (interactive) (qq/kmp-gradle "androidApp:installDebug"))
 (defun qq/kmp-android-release () (interactive) (qq/kmp-gradle "androidApp:assembleRelease"))
 (defun qq/kmp-android-assemble () (interactive) (qq/kmp-gradle "androidApp:assembleDebug"))
-(defun qq/kmp-ios-build () (interactive) (qq/kmp-gradle "iosApp:compileKotlinIosSimulatorArm64"))
-(defun qq/kmp-ios-arm () (interactive) (qq/kmp-gradle "iosApp:compileKotlinIosArm64"))
+(defun qq/kmp-android-run-emulator ()
+  (interactive)
+  (let ((default-directory (or (projectile-project-root) default-directory))
+        (emulator "/opt/homebrew/share/android-commandlinetools/emulator/emulator")
+        (adb "/opt/homebrew/share/android-commandlinetools/platform-tools/adb"))
+    ;; Start emulator in separate process if not already running
+    (unless (= 0 (shell-command (format "%s devices | grep -q emulator" adb)))
+      (start-process "android-emulator" nil emulator "-avd"
+                     (string-trim (shell-command-to-string (format "%s -list-avds | head -1" emulator))))
+      (sleep-for 10))
+    (compile (format "./gradlew androidApp:installDebug && %s shell am start -n com.rahl/.MainActivity" adb))))
+(defun qq/kmp-ios-build ()
+  (interactive)
+  (let ((default-directory (or (projectile-project-root) default-directory)))
+    (compile "cd iosApp && xcodegen generate && cd .. && ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64")))
+(defun qq/kmp-ios-arm ()
+  (interactive)
+  (let ((default-directory (or (projectile-project-root) default-directory)))
+    (compile "cd iosApp && xcodegen generate && cd .. && ./gradlew :composeApp:linkDebugFrameworkIosArm64")))
+(defun qq/kmp-ios-run-simulator (&optional simulator-name)
+  (interactive)
+  (let* ((name (or simulator-name "iPhone 17 Pro Max"))
+         (default-directory (or (projectile-project-root) default-directory)))
+    (compile (format "xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator -destination 'platform=iOS Simulator,name=%s' build && xcrun simctl boot '%s' 2>/dev/null; open -a Simulator && xcrun simctl install booted \"$(find ~/Library/Developer/Xcode/DerivedData/iosApp-*/Build/Products/Debug-iphonesimulator -name 'iosApp.app' -type d | head -1)\" && xcrun simctl launch booted com.rahl.app" name name))))
+(defun qq/kmp-ios-run-ipad ()
+  (interactive)
+  (qq/kmp-ios-run-simulator "iPad Air 13-inch (M3)"))
+(defun qq/kmp-android-logcat ()
+  (interactive)
+  (let ((adb "/opt/homebrew/share/android-commandlinetools/platform-tools/adb"))
+    (async-shell-command (format "%s logcat -v time | grep -iE '(rahl|kermit)'" adb) "*android-logcat*")))
+(defun qq/kmp-ios-log ()
+  (interactive)
+  (async-shell-command "xcrun simctl spawn booted log stream --level debug --predicate 'subsystem contains \"com.rahl\" OR message contains \"Kermit\"'" "*ios-log*"))
 (defun qq/kmp-test-all () (interactive) (qq/kmp-gradle "test"))
 (defun qq/kmp-test-shared () (interactive) (qq/kmp-gradle "shared:test"))
 (defun qq/kmp-test-android () (interactive) (qq/kmp-gradle "androidApp:test"))
@@ -2951,10 +2990,15 @@ Kotlin Multiplatform (KMP) development utilities with transient menu for common 
     ["Android"
      ("a" "Install Debug" qq/kmp-android-debug)
      ("A" "Assemble Debug" qq/kmp-android-assemble)
-     ("r" "Assemble Release" qq/kmp-android-release)]
+     ("e" "Assemble Release" qq/kmp-android-release)
+     ("R" "Run Emulator" qq/kmp-android-run-emulator)
+     ("l" "Logcat" qq/kmp-android-logcat)]
     ["iOS"
      ("i" "Build Simulator" qq/kmp-ios-build)
-     ("I" "Build ARM64" qq/kmp-ios-arm)]
+     ("I" "Build ARM64" qq/kmp-ios-arm)
+     ("r" "Run iPhone" qq/kmp-ios-run-simulator)
+     ("p" "Run iPad" qq/kmp-ios-run-ipad)
+     ("L" "Log Stream" qq/kmp-ios-log)]
     ["Test"
      ("t" "Test All" qq/kmp-test-all)
      ("s" "Test Shared" qq/kmp-test-shared)
@@ -3149,21 +3193,45 @@ Flycheck provides on-the-fly syntax checking for many programming languages. →
 (setq flycheck-display-errors-function #'flycheck-display-error-messages-unless-error-list)
 #+END_SRC
 
-**** Fancy Compilation
-Enhanced compilation output with progress display and improved diagnostics for cleaner compilation output. → [[*Fancy Compilation Package][Generated Code]]
+**** Xterm Color
+Xterm-color provides proper terminal escape sequence handling for compilation buffers, enabling progress bars to update in place. → [[*Xterm Color Package][Generated Code]]
 
-***** Fancy Compilation Configuration Block
-#+NAME: fancy-compilation-config
+***** Xterm Color Configuration Block
+#+NAME: xterm-color-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-;; Enable fancy-compilation mode globally
-(with-eval-after-load 'compile
-  (fancy-compilation-mode 1))
+;; Handle ANSI colors and carriage returns in compilation mode
+(setq compilation-environment '("TERM=xterm-256color"))
 
-;; Configure fancy-compilation for better output
-(setq fancy-compilation-quiet-prelude t)
-(setq fancy-compilation-override-colors t)
+;; Remove old xterm-color advice if present
+(advice-remove 'compilation-filter #'qq/advice-compilation-filter)
 
-;; Additional compilation-mode settings
+;; Custom carriage return handler for compilation buffers
+;; comint-carriage-motion doesn't work reliably, so we handle \r manually
+(defun qq/handle-carriage-returns (start end)
+  "Handle carriage returns by deleting from line start to \\r.
+This makes progress bars update in place like in a terminal."
+  (save-excursion
+    (goto-char start)
+    (while (search-forward "\r" end t)
+      ;; Found a \r - delete from beginning of line to here (the \r itself)
+      (let ((bol (save-excursion (goto-char (match-beginning 0))
+                                  (line-beginning-position))))
+        (delete-region bol (point))))))
+
+;; Define a named function for the compilation filter hook
+(defun qq/compilation-filter-hook ()
+  "Handle carriage returns and ANSI colors in compilation output."
+  (let ((inhibit-read-only t))
+    ;; First handle carriage returns for progress bars
+    (qq/handle-carriage-returns compilation-filter-start (point))
+    ;; Then apply ANSI color codes
+    (ansi-color-apply-on-region compilation-filter-start (point))))
+
+;; Remove any existing hook before adding
+(remove-hook 'compilation-filter-hook #'qq/compilation-filter-hook)
+(add-hook 'compilation-filter-hook #'qq/compilation-filter-hook)
+
+;; Compilation-mode settings
 (setq compilation-scroll-output 'first-error)
 (setq compilation-window-height 12)
 (setq compilation-ask-about-save nil)
@@ -3228,6 +3296,8 @@ Eat (Emulate A Terminal) is a terminal emulator for Emacs written in Emacs Lisp.
 ;; Integration with eshell
 (add-hook 'eshell-load-hook #'eat-eshell-mode)
 (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
+
+
 #+END_SRC
 
 **** Shell Here
@@ -5691,6 +5761,7 @@ Custom utility functions for various text manipulation and editing tasks. → [[
 <<show-file-name-config>>
 <<display-ansi-colors-config>>
 <<ansi-color-region-config>>
+<<compilation-cr-config>>
 <<unfill-paragraph-config>>
 <<diff-region-config>>
 <<remote-rpm-copy-config>>
@@ -6131,6 +6202,14 @@ Swift language support for iOS development and KMP bridging. → [[*Swift Mode][
 <<gen-pkg-end()>>
 #+END_SRC
 
+*** LSP SourceKit Package
+SourceKit-LSP client for Swift language server. → [[*LSP SourceKit][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="lsp-sourcekit", after="lsp-mode")>>
+<<lsp-sourcekit-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
 *** Groovy Mode Package
 Groovy/Gradle build script support for KMP projects. → [[*Groovy Mode][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
@@ -6213,15 +6292,23 @@ On-the-fly syntax checking for multiple programming languages. → [[*Flycheck][
 <<gen-pkg-end()>>
 #+END_SRC
 
-*** Fancy Compilation Package
-On-the-fly syntax checking for multiple programming languages. → [[*Fancy Compilation][Configuration]]
+*** Xterm Color Package
+Terminal color handling with proper escape sequence support for compilation. → [[*Xterm Color][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
-<<gen-use-pkg(package="fancy-compilation")>>
-<<fancy-compilation-config>>
+<<gen-use-pkg(package="xterm-color")>>
+<<xterm-color-config>>
 ;; Add compilation-mode keybindings using general.el
 (with-eval-after-load 'general
   (general-def 'normal compilation-mode-map
-    <<gen-keys(mode="local-mode", tname=fancy-compilation-keys)>>))
+    <<gen-keys(mode="local-mode", tname=compilation-mode-keys)>>))
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Fancy Compilation Package (DISABLED)
+Enhanced compilation output with progress display. Disabled because it interferes with carriage return handling for progress bars.
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent :tangle no
+<<gen-use-pkg(package="fancy-compilation")>>
+<<fancy-compilation-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
