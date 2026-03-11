@@ -1843,7 +1843,7 @@ Vertico completion interface keybindings. → [[*Vertico Package][Generated Code
 | <backtab>     | vertico-quick-insert               | Quick insert completion        |
 | TAB           | vertico-insert                     | Insert selection to text area  |
 | ?             | minibuffer-completion-help         | Show completion help           |
-| <C-return>    | minibuffer-force-complete-and-exit | Force complete and exit        |
+| <C-return>    | vertico-exit-input                 | Submit exact input text        |
 
 *** Embark Keybindings Table
 Embark contextual action keybindings. → [[*Embark Package][Generated Code]]
@@ -3031,19 +3031,14 @@ BUF is the compilation buffer, MSG is the status message."
 
 (add-hook 'typst-ts-compile-after-compilation-hook #'qq/typst-compilation-finish)
 
+;; Set preview function to open PDF in Emacs buffer
+(setq typst-ts-mode-preview-function #'find-file)
+
 (defun qq/typst-save-and-preview ()
   "Save, compile, and open the resulting PDF in the current window."
   (interactive)
   (save-buffer)
-  (let ((pdf-file (concat (file-name-sans-extension (buffer-file-name)) ".pdf"))
-        (buf (current-buffer)))
-    (add-hook 'typst-ts-compile-after-compilation-hook
-              (lambda (_compilation-buf msg)
-                (when (string-match-p "finished" msg)
-                  (with-current-buffer buf
-                    (find-file pdf-file))))
-              nil t))
-  (typst-ts-compile))
+  (typst-ts-compile-and-preview))
 #+END_SRC
 
 **** Format All
@@ -3265,39 +3260,52 @@ VTerm provides a fully-featured terminal emulator inside Emacs using libvterm. �
 ;; Use vterm for compilation - proper terminal emulation for progress bars
 ;; This overrides compilation-start to use vterm terminal emulation
 ;; Inspired by: https://codeberg.org/akib/emacs-eat/issues/33
+(defvar qq/vterm-compilation-excluded-modes '(typst-ts-compilation-mode)
+  "List of modes that should use standard compilation instead of vterm.
+These modes require major mode changes that vterm doesn't support.")
+
 (defun qq/vterm-compilation-start (command &optional mode name-function
                                             highlight-regexp continue)
   "Run COMMAND in vterm with compilation-minor-mode.
-This provides full terminal emulation for progress bars and colors."
-  (require 'vterm)
-  (let ((name-of-mode "compilation")
-        (dir default-directory)
-        outbuf)
-    (if (or (not mode) (eq mode t))
-        (setq mode #'compilation-minor-mode)
-      (setq name-of-mode (replace-regexp-in-string "-mode\\'" ""
-                                                   (symbol-name mode))))
-    (setq outbuf (get-buffer-create
-                  (compilation-buffer-name name-of-mode mode name-function)))
-    ;; Kill existing process if any
-    (let ((proc (get-buffer-process outbuf)))
-      (when proc
-        (delete-process proc)))
-    ;; Kill and recreate buffer to avoid vterm major mode change error
-    (kill-buffer outbuf)
-    (setq outbuf (get-buffer-create
-                  (compilation-buffer-name name-of-mode mode name-function)))
-    (with-current-buffer outbuf
-      (setq default-directory dir)
-      (let ((vterm-shell (format "%s -lc %s" shell-file-name
-                                  (shell-quote-argument command)))
-            (vterm-kill-buffer-on-exit nil))
-        (vterm-mode))
-      (funcall mode)
-      (setq next-error-last-buffer outbuf)
-      (run-hook-with-args 'compilation-start-hook (get-buffer-process outbuf))
-      (display-buffer outbuf '(nil (allow-no-window . t)))
-      outbuf)))
+This provides full terminal emulation for progress bars and colors.
+Falls back to standard compilation for modes in `qq/vterm-compilation-excluded-modes'."
+  ;; Fall back to standard compilation for excluded modes
+  (if (memq mode qq/vterm-compilation-excluded-modes)
+      (progn
+        (advice-remove #'compilation-start #'qq/vterm-compilation-start)
+        (unwind-protect
+            (compilation-start command mode name-function highlight-regexp continue)
+          (advice-add #'compilation-start :override #'qq/vterm-compilation-start)))
+    ;; Use vterm for normal compilation
+    (require 'vterm)
+    (let ((name-of-mode "compilation")
+          (dir default-directory)
+          outbuf)
+      (if (or (not mode) (eq mode t))
+          (setq mode #'compilation-minor-mode)
+        (setq name-of-mode (replace-regexp-in-string "-mode\\'" ""
+                                                     (symbol-name mode))))
+      (setq outbuf (get-buffer-create
+                    (compilation-buffer-name name-of-mode mode name-function)))
+      ;; Kill existing process if any
+      (let ((proc (get-buffer-process outbuf)))
+        (when proc
+          (delete-process proc)))
+      ;; Kill and recreate buffer to avoid vterm major mode change error
+      (kill-buffer outbuf)
+      (setq outbuf (get-buffer-create
+                    (compilation-buffer-name name-of-mode mode name-function)))
+      (with-current-buffer outbuf
+        (setq default-directory dir)
+        (let ((vterm-shell (format "%s -lc %s" shell-file-name
+                                    (shell-quote-argument command)))
+              (vterm-kill-buffer-on-exit nil))
+          (vterm-mode))
+        (funcall mode)
+        (setq next-error-last-buffer outbuf)
+        (run-hook-with-args 'compilation-start-hook (get-buffer-process outbuf))
+        (display-buffer outbuf '(nil (allow-no-window . t)))
+        outbuf))))
 
 (advice-add #'compilation-start :override #'qq/vterm-compilation-start)
 #+END_SRC
@@ -4731,7 +4739,7 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 (setq org-use-speed-commands t)
 
 ;; Images
-(setq org-image-actual-width '(300))         ; Default image width
+(setq org-image-actual-width '(800))         ; Default image width
 
 ;; Export settings
 (setq org-export-with-smart-quotes t)        ; Use smart quotes
