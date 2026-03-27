@@ -186,6 +186,7 @@ The configuration auto-retangles on save with notifications.
 - **[[*Org QL][org-ql]]**: SQL-like queries for org files
 - **[[*Org Contrib][org-contrib]]**: Additional org-mode features
 - **[[*Org Popup Posframe][org-popup-posframe]]**: Display org-mode popups in posframe
+- **[[*Valign][valign]]**: Pixel-perfect visual alignment for org tables with mixed fonts
 - **[[*Org Eldoc][org-eldoc]]**: Function signature display in org-mode
 - **[[*Org Tempo][org-tempo]]**: Built-in template expansion system
 - **[[*Org Habit][org-habit]]**: Built-in habit tracking functionality
@@ -4697,6 +4698,7 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "STARTED(s)" "|" "DONE(d)" "CANCELLED(c)")))
 
+(setq org-preview-latex-default-process 'dvisvgm)
 (setq org-todo-keyword-faces
       '(("TODO" . (:foreground "#ff6c6b" :weight bold))
         ("NEXT" . (:foreground "#ECBE7B" :weight bold))
@@ -4773,8 +4775,10 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
     (load-file (expand-file-name "~/.emacs.d/init.el"))
     (message "Configuration reloaded successfully!")))
 
-;; (add-hook 'org-mode-hook  #'variable-pitch-mode)
-(add-hook 'org-mode-hook  (lambda () (electric-indent-local-mode -1))) ;; disable electric indentation
+(add-hook 'org-mode-hook  (lambda ()
+                            (electric-indent-local-mode -1) ;; disable electric indentation
+                            (org-toggle-latex-fragment '(16))))
+
 (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 #+END_SRC
 
@@ -5059,6 +5063,16 @@ Display org-mode popups in posframe floating windows. This package enhances the 
 ;; Configure popup appearance
 ;; (setq org-popup-posframe-width 80)
 ;; (setq org-popup-posframe-height 20)
+#+END_SRC
+
+*** Valign
+Pixel-perfect visual alignment for org-mode tables containing mixed fonts such as LaTeX math, CJK characters, or images. Replaces character-count-based alignment with pixel-width measurement to keep columns visually aligned regardless of font mixing. → [[*Valign Package][Generated Code]]
+
+**** Valign Configuration Block
+#+NAME: valign-config
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; Enable valign-mode for visual table alignment in org buffers
+(add-hook 'org-mode-hook #'valign-mode)
 #+END_SRC
 
 *** Ox Typst
@@ -7043,6 +7057,14 @@ Display org-mode popups in posframe floating windows. → [[*Org Popup Posframe]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<gen-use-pkg(package="org-popup-posframe", strght_gh="A7R7/org-popup-posframe")>>
 <<org-popup-posframe-config>>
+<<gen-pkg-end()>>
+#+END_SRC
+
+*** Valign Package
+Pixel-perfect visual alignment for org tables with mixed fonts. → [[*Valign][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<gen-use-pkg(package="valign")>>
+<<valign-config>>
 <<gen-pkg-end()>>
 #+END_SRC
 
