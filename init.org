@@ -400,7 +400,7 @@ The configuration auto-retangles on save with notifications.
 ** Noweb Templates
 *** Keybinding Generation
 #+NAME: gen-keys
-#+BEGIN_SRC emacs-lisp :var tname=1 :var mode="leader" :results output :tangle no :exports none :colnames yes
+#+BEGIN_SRC emacs-lisp :var tname=1 :var mode="leader" :results output silent :tangle no :exports none :colnames yes
 (dolist (row tname)
   (unless (string-match "^<[[:digit:]]+>$" (format "%s" (car row)))
     (let ((key (nth 0 row))
@@ -435,7 +435,7 @@ The configuration auto-retangles on save with notifications.
 #+END_SRC
 
 #+NAME: gen-use-pkg
-#+BEGIN_SRC emacs-lisp :var package="example" :var after="" :var straight="" :var strght_gh="" :var demand="" :var defer="" :var hook="" :var mode="" :var init="" :var firsttag="config" :results output :tangle no :exports none
+#+BEGIN_SRC emacs-lisp :var package="example" :var after="" :var straight="" :var strght_gh="" :var demand="" :var defer="" :var hook="" :var mode="" :var init="" :var firsttag="config" :results value silent :tangle no :exports none
 (let ((header (format "(use-package %s" package))
       (straight-line (cond
                       ((not (string= straight "")) (format "\n  :straight %s" straight))
@@ -448,12 +448,26 @@ The configuration auto-retangles on save with notifications.
       (mode-line (if (string= mode "") "" (format "\n  :mode %s" mode)))
       (init-line (if (string= init "") "" (format "\n  :init\n  %s" init)))
       (config-line (format "\n  :%s" firsttag)))
-  (princ (concat header straight-line after-line demand-line defer-line hook-line mode-line init-line config-line)))
+  (concat header straight-line after-line demand-line defer-line hook-line mode-line init-line config-line))
 #+END_SRC
 
 #+NAME: gen-pkg-end
-#+BEGIN_SRC emacs-lisp :var close_paren=")" :results output :tangle no :exports none
-(princ (format "%s" close_paren))
+#+BEGIN_SRC emacs-lisp :var close_paren=")" :results value silent :tangle no :exports none
+close_paren
+#+END_SRC
+
+** Bin Scripts
+Batch scripts used for tangling and package management outside of interactive Emacs.
+
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/bin/compile.el :exports none
+;;; compile.el --- Tangle init.org to init.el  -*- lexical-binding: t; -*-
+;; Run with: emacs --script ~/.emacs.d/bin/compile.el
+(setq org-confirm-babel-evaluate nil)
+(require 'ob-tangle)
+(let ((init-org (expand-file-name "init.org" user-emacs-directory)))
+  (message "Tangling %s..." init-org)
+  (org-babel-tangle-file init-org)
+  (message "Tangle complete."))
 #+END_SRC
 
 * Basic Settings
@@ -4760,24 +4774,38 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
 
 ;; Custom function to save, tangle, and reload emacs configuration
 (defun qq/save-tangle-reload-config ()
-  "Save init.org, tangle to ~/.emacs.d/, and reload Emacs."
+  "Save init.org, tangle via a batch subprocess, and reload init.el when done."
   (interactive)
   (when (string-match "init\\.org$" (buffer-file-name))
     (save-buffer)
-    (message "Saving init.org...")
+    (message "Tangling config (async)...")
+    (let* ((compile-el (expand-file-name "bin/compile.el" user-emacs-directory))
+           (cmd (if (file-exists-p compile-el)
+                    (list "emacs" "--script" compile-el)
+                  (list "emacs" "--batch"
+                        "--eval" "(setq org-confirm-babel-evaluate nil)"
+                        "--eval" "(require 'ob-tangle)"
+                        "--eval" (format "(org-babel-tangle-file \"%s\")"
+                                         (expand-file-name "init.org" user-emacs-directory))))))
+      (make-process
+       :name "qq-tangle"
+       :buffer "*qq-tangle*"
+       :command cmd
+       :sentinel (lambda (proc event)
+                   (if (string-prefix-p "finished" event)
+                       (progn
+                         (load-file (expand-file-name "~/.emacs.d/init.el"))
+                         (message "Config tangled and reloaded!"))
+                     (message "Tangle failed — check *qq-tangle* buffer")))))))
 
-    ;; Tangle the file (automatically saves to ~/.emacs.d/ via tangle headers)
-    (org-babel-tangle-file (buffer-file-name))
-    (message "Tangled configuration files to ~/.emacs.d/...")
-
-    ;; Reload Emacs configuration
-    (message "Reloading Emacs configuration...")
-    (load-file (expand-file-name "~/.emacs.d/init.el"))
-    (message "Configuration reloaded successfully!")))
+(defvar qq/babel-tangling-p nil "Non-nil while org-babel tangle is in progress.")
+(add-hook 'org-babel-pre-tangle-hook  (lambda () (setq qq/babel-tangling-p t)))
+(add-hook 'org-babel-post-tangle-hook (lambda () (setq qq/babel-tangling-p nil)))
 
 (add-hook 'org-mode-hook  (lambda ()
                             (electric-indent-local-mode -1) ;; disable electric indentation
-                            (org-toggle-latex-fragment '(16))))
+                            (unless qq/babel-tangling-p
+                              (org-toggle-latex-fragment '(16)))))
 
 (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 #+END_SRC
