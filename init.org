@@ -4678,7 +4678,6 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
       org-startup-indented t                    ; Enable visual indentation
       org-startup-truncated nil                 ; Wrap lines
       org-startup-with-inline-images t          ; Show images by default
-      org-pretty-entities t                     ; Show special symbols nicely
       org-use-sub-superscripts '{}              ; Only interpret _ and ^ with braces
       org-fontify-emphasized-text t             ; Highlight markup
       org-fontify-whole-heading-line t          ; Highlight entire heading line
@@ -4713,6 +4712,7 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
       '((sequence "TODO(t)" "NEXT(n)" "STARTED(s)" "|" "DONE(d)" "CANCELLED(c)")))
 
 (setq org-preview-latex-default-process 'dvisvgm)
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
 (setq org-todo-keyword-faces
       '(("TODO" . (:foreground "#ff6c6b" :weight bold))
         ("NEXT" . (:foreground "#ECBE7B" :weight bold))
@@ -4858,8 +4858,9 @@ Modern styling for org-mode that replaces traditional org-mode visual elements w
 #+NAME: org-modern-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Configure org-modern for better org-mode styling
-(setq org-modern-hide-stars nil
-      org-modern-table nil
+(setq org-modern-hide-stars 'leading
+      org-modern-star ["◉" "○" "◈" "◇" "▶"]
+      org-modern-table t
       org-modern-list '((?* . "•") (?+ . "‣"))
       ;; Edit settings
       org-auto-align-tags nil
@@ -5100,7 +5101,11 @@ Pixel-perfect visual alignment for org-mode tables containing mixed fonts such a
 #+NAME: valign-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Enable valign-mode for visual table alignment in org buffers
-(add-hook 'org-mode-hook #'valign-mode)
+;; Only enable on smaller files to avoid performance issues
+;; (defun qq/maybe-enable-valign ()
+;;   (when (< (buffer-size) 100000)
+;;     (valign-mode 1)))
+;; (add-hook 'org-mode-hook #'qq/maybe-enable-valign)
 #+END_SRC
 
 *** Ox Typst
