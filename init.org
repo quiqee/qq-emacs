@@ -4473,7 +4473,7 @@ Native Emacs shell for LLM agents via ACP. → [[*Agent Shell Package][Generated
 :ensure-system-package
 ;; Add agent installation configs here
 ((claude . "brew install claude-code")
- (claude-code-acp . "npm install -g @zed-industries/claude-code-acp"))
+ (claude-code-acp . "npm install -g @zed-industries/claude-agent-acp"))
 #+END_SRC
 *** Agent Shell Sidebar
 Sidebar for Agent Shell. → [[*Agent Shell Sidebar Package][Generated Code]]
