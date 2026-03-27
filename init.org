@@ -1838,33 +1838,33 @@ Global visual mode keybindings for selection operations. → [[*General Package]
 *** Vertico Keybindings Table
 Vertico completion interface keybindings. → [[*Vertico Package][Generated Code]]
 #+NAME: vertico-keys
-| Key           | Command                            | Description                    |
-|---------------+------------------------------------+--------------------------------|
-| C-r           | marginalia-cycle                   | Rotate visual information      |
-| C-v           | vertico-multiform-vertical         | Vertical layout                |
-| C-t           | vertico-multiform-grid             | Grid layout                    |
-| C-u           | vertico-multiform-unobtrusive      | Unobtrusive layout             |
-| C-z           | vertico-multiform-flat             | flat layout                    |
-| C-q           | vertico-multiform-reverse          | Reverse style                  |
-| C-o           | vertico-quick-exit                 | Quick exit completion          |
-| M-e           | qq/vertico-quick-embark            | Custom quick embark            |
-| C-j           | next-line-or-history-element       | Selects the next candidate     |
-| C-k           | previous-line-or-history-element   | Selects the previous candidate |
-| C-a           | minibuffer-beginning-of-buffer     | Selects the first candidate    |
-| C-e           | end-of-buffer                      | Selects the last candidate     |
-| C-b           | vertico-scroll-down                | Scrolls up                     |
-| C-f           | vertico-scroll-up                  | Scrolls down                   |
-| C-w           | kill-ring-save                     | Copy text                      |
-| <escape>      | keyboard-escape-quit               | Cancel minbibuffer             |
-| C-d           | vertico-next-group                 | Next completion group          |
-| C-c           | vertico-previous-group             | Previous completion group      |
-| <backspace>   | vertico-directory-delete-char      | Delete char or go up directory |
-| <C-backspace> | vertico-directory-delete-word      | Delete word in directory       |
-| RET           | vertico-directory-enter            | Enter directory or file        |
-| <backtab>     | vertico-quick-insert               | Quick insert completion        |
-| TAB           | vertico-insert                     | Insert selection to text area  |
-| ?             | minibuffer-completion-help         | Show completion help           |
-| <C-return>    | vertico-exit-input                 | Submit exact input text        |
+| Key           | Command                          | Description                    |
+|---------------+----------------------------------+--------------------------------|
+| C-r           | marginalia-cycle                 | Rotate visual information      |
+| C-v           | vertico-multiform-vertical       | Vertical layout                |
+| C-t           | vertico-multiform-grid           | Grid layout                    |
+| C-u           | vertico-multiform-unobtrusive    | Unobtrusive layout             |
+| C-z           | vertico-multiform-flat           | flat layout                    |
+| C-q           | vertico-multiform-reverse        | Reverse style                  |
+| C-o           | vertico-quick-exit               | Quick exit completion          |
+| M-e           | qq/vertico-quick-embark          | Custom quick embark            |
+| C-j           | next-line-or-history-element     | Selects the next candidate     |
+| C-k           | previous-line-or-history-element | Selects the previous candidate |
+| C-a           | minibuffer-beginning-of-buffer   | Selects the first candidate    |
+| C-e           | end-of-buffer                    | Selects the last candidate     |
+| C-b           | vertico-scroll-down              | Scrolls up                     |
+| C-f           | vertico-scroll-up                | Scrolls down                   |
+| C-w           | kill-ring-save                   | Copy text                      |
+| <escape>      | keyboard-escape-quit             | Cancel minbibuffer             |
+| C-d           | vertico-next-group               | Next completion group          |
+| C-c           | vertico-previous-group           | Previous completion group      |
+| <backspace>   | vertico-directory-delete-char    | Delete char or go up directory |
+| <C-backspace> | vertico-directory-delete-word    | Delete word in directory       |
+| RET           | vertico-directory-enter          | Enter directory or file        |
+| <backtab>     | vertico-quick-insert             | Quick insert completion        |
+| TAB           | vertico-insert                   | Insert selection to text area  |
+| ?             | minibuffer-completion-help       | Show completion help           |
+| <C-return>    | vertico-exit-input               | Submit exact input text        |
 
 *** Embark Keybindings Table
 Embark contextual action keybindings. → [[*Embark Package][Generated Code]]
@@ -2991,8 +2991,8 @@ Kotlin Multiplatform (KMP) development utilities with transient menu for common 
   (let ((adb "/opt/homebrew/share/android-commandlinetools/platform-tools/adb"))
     (async-shell-command (format "%s logcat -v time | grep -iE '(rahl|kermit)'" adb) "*android-logcat*")))
 (defun qq/kmp-ios-log ()
-  (interactive)
-  (async-shell-command "xcrun simctl spawn booted log stream --level debug --predicate 'process == \"iosApp\"' 2>&1 | grep --line-buffered '🔵'" "*ios-log*"))
+(interactive)
+(async-shell-command "xcrun simctl spawn booted log stream --level debug --predicate 'process == \"iosApp\"' 2>&1 | grep --line-buffered '🔵' | sed 's/^\\([^ ]* [^ ]*\\) .* 🔵 (rahl) /\\1 /'" "*ios-log*"))
 (defun qq/kmp-test-all () (interactive) (qq/kmp-gradle "test"))
 (defun qq/kmp-test-shared () (interactive) (qq/kmp-gradle "shared:test"))
 (defun qq/kmp-test-android () (interactive) (qq/kmp-gradle "androidApp:test"))
@@ -4501,7 +4501,7 @@ Sidebar for Agent Shell. → [[*Agent Shell Sidebar Package][Generated Code]]
 **** Agent Shell Configuration Block
 #+NAME: agent-shell-sidebar-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq agent-shell-sidebar-width "30%")
+(setq agent-shell-sidebar-width "25%")
 (setq agent-shell-sidebar-default-config
       (agent-shell-anthropic-make-claude-code-config))
 #+END_SRC
@@ -4572,7 +4572,7 @@ A fancy and fast mode-line inspired by minimalism design. → [[*Doom Modeline P
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
 ;; Define custom modeline
 (doom-modeline-def-modeline 'qq-simple-line
-  '(bar modals workspace-name window-number buffer-position matches buffer-info remote-host minor-modes)
+  '(bar modals window-number buffer-position matches buffer-info remote-host minor-modes)
   '(word-count selection-info misc-info major-mode process vcs lsp))
 
 ;; Setup function for custom modeline
