@@ -475,12 +475,15 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 ;; Define site-specific variables
 (defvar qq/org-roam-base-directory nil
   "Base directory for org-roam notes, set per-site.")
+(defvar qq/org-base-directory nil
+  "Base directory for org files, set per-site.")
 #+END_SRC
 
 *** Linux Work Desktop (eagle, Legion-U)
 #+NAME: linux-work-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory "~/Documents/Org-files/RoamNotes/")
+(setq qq/org-base-directory "~/ownCloud/Personal/Org")
+(setq qq/org-roam-base-directory (concat qq/org-base-directory "/RoamNotes"))
 ;; Font configuration for Linux work desktop
 (setq use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode (font-spec :family "JuliaMono"))
@@ -502,7 +505,8 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 *** Mac @home (darwin)
 #+NAME: mac-home-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory "~/Documents/OrgFiles/RoamNotes/")
+(setq qq/org-base-directory "~/ownCloud/Personal/Org")
+(setq qq/org-roam-base-directory (concat qq/org-base-directory "/RoamNotes"))
 ;; Font configuration for Mac (increased size for better readability)
 (custom-theme-set-faces
  'user
@@ -581,7 +585,8 @@ Multi-machine configuration based on hostname detection. → [[*System Detection
 *** Default Configuration
 #+NAME: default-config
 #+BEGIN_SRC emacs-lisp :tangle no :exports none
-(setq qq/org-roam-base-directory (concat qq/cache-directory "RoamNotes/"))
+(setq qq/org-base-directory "~/Documents/Org-files")
+(setq qq/org-roam-base-directory (concat qq/org-base-directory "/RoamNotes"))
 ;; Default font configuration
 (custom-theme-set-faces
  'user
@@ -1513,9 +1518,10 @@ Agent Shell evil normal mode keybindings. → [[*Agent Shell Package][Generated 
 *** Org Mode Leader Key Bindings
 Org-mode document and task management keybindings. → [[*General Package][Generated Code]]
 #+NAME: org-leader-keys
-| Key | Command            | Description           |
-|-----+--------------------+-----------------------|
-| x f | org-roam-node-find | Find note in org roam |
+| Key | Command            | Description                          |
+|-----+--------------------+--------------------------------------|
+| x f | org-roam-node-find | Find note in org roam                |
+| x c | org-roam-capture   | org-capture for new or existing node |
 
 *** Projectile Leader Key Bindings
 Projectile project management keybindings. → [[*General Package][Generated Code]]
@@ -4729,6 +4735,11 @@ Org-mode configuration with modern enhancements. → [[*Org Mode Package][Genera
         (write-region (point-min) (point-max) org-clock-persist-file)))))
 
 (advice-add 'org-clock-save :after #'qq/org-clock-save-add-lexical-binding)
+
+;; Org directory and agenda files (set per-site via qq/org-base-directory)
+(when qq/org-base-directory
+  (setq org-directory qq/org-base-directory)
+  (setq org-agenda-files (list (concat qq/org-base-directory "/Agenda"))))
 
 ;; Refile targets
 (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
