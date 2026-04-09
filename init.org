@@ -753,6 +753,78 @@ Performance and garbage collection optimizations. → [[*Performance Optimizatio
       idle-update-delay 1.0)
 #+END_SRC
 
+** Community Config Best Practices
+Settings collected from popular Emacs configurations (Doom, Purcell, Prot, Centaur). Source:
+[[https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/][Stealing from the Best Emacs Configs]] by Bozhidar Batsov. → [[*Community Config Best Practices Code][Generated Code]]
+#+NAME: community-config-best-practices
+#+BEGIN_SRC emacs-lisp :tangle no :exports none
+;; --- Performance ---
+;; Fully disable bidirectional text scanning (left-to-right users only).
+;; Gives noticeable redisplay speedups in large files.
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right)
+(setq bidi-inhibit-bpa t)
+
+;; Defer syntax highlighting while typing — eliminates micro-stutters.
+(setq redisplay-skip-fontification-on-input t)
+
+;; Modern LSP servers (e.g. rust-analyzer) send large responses.
+;; 4 MB avoids repeated small reads; default is 64 KB.
+(setq read-process-output-max (* 4 1024 1024))
+
+;; --- Kill Ring & Clipboard ---
+;; Don't clutter the kill ring with duplicates.
+(setq kill-do-not-save-duplicates t)
+
+;; Persist kill ring across sessions via savehist.
+(with-eval-after-load 'savehist
+  (add-to-list 'savehist-additional-variables 'kill-ring))
+
+;; Strip text properties before saving kill ring to avoid bloating the file.
+(add-hook 'savehist-save-hook
+          (lambda ()
+            (setq kill-ring
+                  (mapcar #'substring-no-properties
+                          (cl-remove-if-not #'stringp kill-ring)))))
+
+;; --- Editing Enhancements ---
+;; Auto-chmod files with a shebang line after saving.
+(add-hook 'after-save-hook
+          #'executable-make-buffer-file-executable-if-script-p)
+
+;; Use string syntax in re-builder — no double-escaping needed.
+(setq reb-re-syntax 'string)
+
+;; Prevent find-file-at-point from pinging hostnames (causes multi-second hangs).
+(setq ffap-machine-p-known 'reject)
+
+;; --- Window Management ---
+;; Resize all windows proportionally when splitting — keeps layouts balanced.
+(setq window-combination-resize t)
+
+;; Make C-x 1 toggle: zoom to single window or restore previous layout.
+(winner-mode +1)
+(defun qq/toggle-delete-other-windows ()
+  "Delete other windows in frame if any, or restore previous window config."
+  (interactive)
+  (if (and winner-mode
+           (equal (selected-window) (next-window)))
+      (winner-undo)
+    (delete-other-windows)))
+
+;; --- Miscellaneous ---
+;; Allow continuous mark popping with C-SPC after initial C-u C-SPC.
+(setq set-mark-command-repeat-pop t)
+
+;; Recenter buffer after save-place restores cursor position.
+(advice-add 'save-place-find-file-hook :after
+            (lambda (&rest _)
+              (when buffer-file-name (ignore-errors (recenter)))))
+
+;; Auto-focus help windows opened via C-h f / C-h v.
+(setq help-window-select t)
+#+END_SRC
+
 ** UI Cleanup and Visual Settings
 User interface cleanup and visual improvements. → [[*UI Cleanup and Visual Settings Code][Generated Code]]
 #+NAME: ui-cleanup
@@ -1602,22 +1674,23 @@ Popup window management keybindings for temporary buffer access. → [[*General 
 ** Global Key Bindings
 Window navigation and management keybindings for efficient workspace control. → [[*General Package][Generated Code]]
 #+NAME: window-keys
-| Key   | Command                          | Description               |
-|-------+----------------------------------+---------------------------|
-| C-h   | windmove-left                    | Move to left window       |
-| C-j   | windmove-down                    | Move to down window       |
-| C-k   | windmove-up                      | Move to up window         |
-| C-l   | windmove-right                   | Move to right window      |
-| s-u   | (:keymap universal-argument-map) | Universal-Argument        |
-| C-w v | split-window-right               | Split window vertically   |
-| C-w s | split-window-below               | Split window horizontally |
-| C-w d | delete-window                    | Delete current window     |
-| C-w o | delete-other-windows             | Delete other windows      |
-| C-w H | windmove-swap-states-left        | Swap with left window     |
-| C-w J | windmove-swap-states-down        | Swap with down window     |
-| C-w K | windmove-swap-states-up          | Swap with up window       |
-| C-w L | windmove-swap-states-right       | Swap with right window    |
-| C-S-g | qq/show-file-name                | Display full path         |
+| Key     | Command                          | Description                                    |
+|---------+----------------------------------+------------------------------------------------|
+| C-h     | windmove-left                    | Move to left window                            |
+| C-j     | windmove-down                    | Move to down window                            |
+| C-k     | windmove-up                      | Move to up window                              |
+| C-l     | windmove-right                   | Move to right window                           |
+| s-u     | (:keymap universal-argument-map) | Universal-Argument                             |
+| C-w v   | split-window-right               | Split window vertically                        |
+| C-w s   | split-window-below               | Split window horizontally                      |
+| C-w d   | delete-window                    | Delete current window                          |
+| C-w o   | delete-other-windows             | Delete other windows                           |
+| C-w H   | windmove-swap-states-left        | Swap with left window                          |
+| C-w J   | windmove-swap-states-down        | Swap with down window                          |
+| C-w K   | windmove-swap-states-up          | Swap with up window                            |
+| C-w L   | windmove-swap-states-right       | Swap with right window                         |
+| C-w C-e | qq/toggle-delete-other-windows   | toggle: zoom window or restore previous layout |
+| C-S-g   | qq/show-file-name                | Display full path                              |
 
 *** Perspective Global Keybinding
 #+NAME: persp-keys
@@ -5877,6 +5950,12 @@ Custom utility functions for various text manipulation and editing tasks. → [[
 Performance and garbage collection optimizations. → [[*Performance Optimizations][Configuration]]
 #+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
 <<performance-optimizations>>
+#+END_SRC
+
+*** Community Config Best Practices Code
+Settings from popular Emacs configurations. → [[*Community Config Best Practices][Configuration]]
+#+BEGIN_SRC emacs-lisp :noweb yes :exports none :results silent
+<<community-config-best-practices>>
 #+END_SRC
 
 *** UI Cleanup and Visual Settings Code
